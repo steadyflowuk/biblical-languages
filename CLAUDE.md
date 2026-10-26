@@ -41,7 +41,12 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 
 ## Session log
 - [x] 1 (26 Oct 2026): app shell, offline, install help, navigation, theme, text size, backup, starter verses, videos page.
+- [x] 1b (26 Oct 2026): deep check — 44px tap targets, iOS backup via share sheet, fresh-file updates, verses checked against SBLGNT/WLC.
 - [ ] 2 Data pipeline: STEPBible TAGNT/TAHOT + TBESG/TBESH + BSB → per-book JSON in `data/`, counts checked.
 - [ ] 3 Greek Reader · [ ] 4 Hebrew/Aramaic Reader · [ ] 5 Dictionary · [ ] 6 ESV + LXX + parallel
 - [ ] 7 Lesson engine · [ ] 8 Greek lessons · [ ] 9 Vocab trainer + audio
 - [ ] 10 Hebrew lessons · [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
+
+## Checks
+- `python3 tools/test_app.py` (server on :8765 first) — 61 end-to-end checks; run before every push.
+- No WebKit here: iPhone/iPad behaviour must be checked on the user's devices.

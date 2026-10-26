@@ -41,7 +41,8 @@ route();
 // Offline support
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js").catch(() => {
+    // Check for a new version every time the app opens
+    navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then((reg) => reg.update()).catch(() => {
       /* offline support unavailable here (e.g. private browsing); the app still works online */
     });
   });

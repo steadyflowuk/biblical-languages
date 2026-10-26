@@ -64,16 +64,16 @@ export const today = {
       <h2>Start here</h2>
       <ul class="rows">
         <li><a class="row" href="#/media">
-          <span class="row-glyph" lang="grc">α</span>
-          <span class="row-main"><span class="row-title">Watch Alpha with Angela, lesson 1</span><span class="row-sub">Hear Greek before you study it</span></span>
+          <span class="row-glyph" lang="grc" aria-hidden="true">α</span>
+          <span class="row-main"><span class="row-title">Watch Alpha with Angela</span><span class="row-sub">Hear Greek before you study it</span></span>
         </a></li>
         <li><a class="row" href="#/learn">
-          <span class="row-glyph">1</span>
+          <span class="row-glyph" aria-hidden="true">1</span>
           <span class="row-main"><span class="row-title">See your Greek learning path</span><span class="row-sub">Begins with the alphabet and its sounds</span></span>
         </a></li>
         <li><a class="row" href="#/review">
-          <span class="row-glyph">0</span>
-          <span class="row-main"><span class="row-title">Reviews due</span><span class="row-sub">Words from your lessons will appear here</span></span>
+          <span class="row-glyph" aria-hidden="true">0</span>
+          <span class="row-main"><span class="row-title">No reviews due</span><span class="row-sub">Words from your lessons will appear here</span></span>
         </a></li>
       </ul>
     </div>`;
@@ -225,7 +225,7 @@ export const media = {
         <h2>${g.heading}</h2>
         <ul class="rows">
           ${g.items.map((it) => `<li><a class="row" href="${it.href}" target="_blank" rel="noopener">
-            <span class="row-glyph" lang="${g.lang}">${it.glyph}</span>
+            <span class="row-glyph" lang="${g.lang}" aria-hidden="true">${it.glyph}</span>
             <span class="row-main"><span class="row-title">${esc(it.title)}</span><span class="row-sub">${esc(it.sub)}</span></span>
             <span class="row-end" aria-hidden="true">↗</span>
           </a></li>`).join("")}
@@ -277,11 +277,24 @@ export const settings = {
       store.applyDisplaySettings();
     });
 
-    main.querySelector('[data-action="export"]').addEventListener("click", () => {
-      const blob = new Blob([JSON.stringify(store.exportBackup(), null, 2)], { type: "application/json" });
+    main.querySelector('[data-action="export"]').addEventListener("click", async () => {
+      const name = `aleph-to-omega-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      const json = JSON.stringify(store.exportBackup(), null, 2);
+      // iPhone/iPad home-screen apps can't download files, so use the share sheet ("Save to Files") there.
+      const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+      const file = typeof File === "function" ? new File([json], name, { type: "application/json" }) : null;
+      if (standalone && file && navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: "Aleph to Omega backup" });
+          toast("Backup saved");
+        } catch (err) {
+          if (err.name !== "AbortError") toast("The backup couldn't be shared. Try again from Safari.");
+        }
+        return;
+      }
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `aleph-to-omega-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.href = URL.createObjectURL(new Blob([json], { type: "application/json" }));
+      a.download = name;
       document.body.append(a);
       a.click();
       a.remove();

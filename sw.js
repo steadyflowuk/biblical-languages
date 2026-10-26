@@ -1,5 +1,5 @@
 // Offline support. Bump VERSION whenever app files change so phones pick up the update.
-const VERSION = "2026-10-26.1";
+const VERSION = "2026-10-26.2";
 const SHELL = `shell-${VERSION}`;
 const DATA = "data-v1"; // Bible data, kept across app updates (added in Session 2)
 
@@ -26,7 +26,12 @@ const SHELL_FILES = [
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(SHELL).then((c) => c.addAll(SHELL_FILES)).then(() => self.skipWaiting()));
+  // cache: "reload" skips the browser's HTTP cache so a new version never stores stale files
+  event.waitUntil(
+    caches.open(SHELL)
+      .then((c) => c.addAll(SHELL_FILES.map((f) => new Request(f, { cache: "reload" }))))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener("activate", (event) => {

@@ -49,7 +49,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - [ ] 10 Hebrew lessons · [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
 
 ## Data (Session 2)
-- Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (28 checks).
+- Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (27 checks).
 - Greek = TAGNT words whose editions include NA28, plus 64 places where NA28's reading sits in TAGNT's variant column
   (e.g. Jude 5 Ἰησοῦς) and 9 NA28 spellings. 137,954 words, 7,942 verses, NA28 verse numbering. 92% of verses
   letter-identical to SBLGNT; the rest are NA28 bracketed words and known NA28/SBL differences.

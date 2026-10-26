@@ -1,5 +1,5 @@
 // Offline support. Bump VERSION whenever app files change so phones pick up the update.
-const VERSION = "2026-10-26.2";
+const VERSION = "2026-10-26.3";
 const SHELL = `shell-${VERSION}`;
 const DATA = "data-v1"; // Bible data, kept across app updates (added in Session 2)
 

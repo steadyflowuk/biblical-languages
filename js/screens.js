@@ -63,9 +63,10 @@ export const today = {
 
       <h2>Start here</h2>
       <ul class="rows">
-        <li><a class="row" href="#/media">
+        <li><a class="row" href="https://www.youtube.com/watch?v=gLe1GhR5l0E&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq&index=1" target="_blank" rel="noopener">
           <span class="row-glyph" lang="grc" aria-hidden="true">α</span>
-          <span class="row-main"><span class="row-title">Watch Alpha with Angela</span><span class="row-sub">Hear Greek before you study it</span></span>
+          <span class="row-main"><span class="row-title">Watch Alpha with Angela, lesson 1</span><span class="row-sub">Hear Greek before you study it</span></span>
+          <span class="row-end" aria-hidden="true">↗</span>
         </a></li>
         <li><a class="row" href="#/learn">
           <span class="row-glyph" aria-hidden="true">1</span>
@@ -203,7 +204,8 @@ const VIDEOS = [
     lang: "grc",
     heading: "Greek",
     items: [
-      { glyph: "α", title: "Alpha with Angela", sub: "Picture-based lessons taught entirely in Koine Greek", href: "https://freegreek.hismagnificence.com" },
+      { glyph: "α", title: "Alpha with Angela: lesson 1", sub: "Picture-based lessons taught entirely in Koine Greek, with the same pronunciation as this app", href: "https://www.youtube.com/watch?v=gLe1GhR5l0E&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq&index=1" },
+      { glyph: "β", title: "Alpha with Angela: course website", sub: "How the course works, downloads and the pronunciation guide", href: "https://freegreek.online/" },
     ],
   },
   {
@@ -211,7 +213,7 @@ const VIDEOS = [
     heading: "Hebrew",
     items: [
       { glyph: "א", title: "Aleph with Beth: introduction", sub: "A four-minute English welcome explaining the method", href: "https://www.youtube.com/watch?v=_rg-Dcfj-fc" },
-      { glyph: "ב", title: "Aleph with Beth: lessons", sub: "The full course, taught in Biblical Hebrew", href: "https://www.youtube.com/playlist?list=PLq1vmb-z7PpQt2PDNUr7XOzBjWAOWf0Rt" },
+      { glyph: "ב", title: "Aleph with Beth: lessons 1 to 50", sub: "The course in order, taught in Biblical Hebrew", href: "https://www.youtube.com/watch?v=y640-FIpxQs&list=PLq1vmb-z7PpQt2PDNUr7XOzBjWAOWf0Rt" },
     ],
   },
 ];

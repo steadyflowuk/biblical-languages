@@ -16,7 +16,8 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 ## Decisions
 - Greek first; Hebrew joins once Greek basics settle (both tracks exist from the start).
 - Pronunciation defaults: Erasmian (Greek, setting offers Restored Koine), Israeli-based academic (Hebrew).
-  Check which system Alpha with Angela uses before building audio (Session 9).
+  Alpha with Angela uses Erasmian (confirmed on freegreek.online, 26 Oct 2026) — matches our default.
+  Its videos are CC BY-SA and downloadable; link out rather than bundle (share-alike).
 - Lesson loop: hear and see → notice → practise → read real verses → review (FSRS via ts-fsrs, vendored).
 - Lesson order follows Schwandt (Greek, 37 lessons) and Wegner (Hebrew, 65 lessons) — both in the user's Logos library.
 

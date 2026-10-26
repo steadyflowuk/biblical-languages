@@ -1,7 +1,7 @@
 // Offline support. Bump VERSION whenever app files change so phones pick up the update.
-const VERSION = "2026-10-26.3";
+const VERSION = "2026-10-26.4";
 const SHELL = `shell-${VERSION}`;
-const DATA = "data-v1"; // Bible data, kept across app updates (added in Session 2)
+const DATA = "data-v1"; // Bible books and lexicons: kept across app updates, refreshed in the background
 
 const SHELL_FILES = [
   "./",
@@ -13,6 +13,9 @@ const SHELL_FILES = [
   "js/screens.js",
   "js/install.js",
   "js/verses.js",
+  "js/data.js",
+  "data/books.json",
+  "data/votd.json",
   "assets/fonts/atkinson-regular.woff",
   "assets/fonts/atkinson-bold.woff",
   "assets/fonts/gentium-plus-regular.woff",
@@ -54,15 +57,16 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Bible data: keep once downloaded
+  // Bible data: use the saved copy at once, and refresh it in the background so corrections arrive
   if (url.pathname.includes("/data/")) {
     event.respondWith(
       caches.open(DATA).then(async (cache) => {
-        const hit = await cache.match(req);
-        if (hit) return hit;
-        const res = await fetch(req);
-        if (res.ok) cache.put(req, res.clone());
-        return res;
+        const hit = await cache.match(req) || await caches.match(req);
+        const refresh = fetch(req).then((res) => {
+          if (res.ok) cache.put(req, res.clone());
+          return res;
+        }).catch(() => hit);
+        return hit || refresh;
       })
     );
     return;

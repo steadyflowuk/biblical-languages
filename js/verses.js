@@ -1,4 +1,5 @@
-// Starter verses for the Today screen until the full Bible data arrives (Session 2).
+// Built-in verses for the Today screen, shown at once and used if the verse data can't load
+// (first open while offline). Today's verses come from data/votd.json.
 // Greek: SBLGNT (CC BY 4.0). Hebrew: Westminster Leningrad Codex (public domain).
 // English: Berean Standard Bible (public domain).
 
@@ -46,9 +47,3 @@ export const VERSES = [
     focus: 2,
   },
 ];
-
-// Alternate the language day by day.
-export function verseForToday(date = new Date()) {
-  const day = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 864e5);
-  return VERSES[day % VERSES.length];
-}

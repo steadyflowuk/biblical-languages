@@ -56,19 +56,32 @@ async def main():
         await page.go_back(); await page.wait_for_timeout(300)
         check("back button returns to previous screen", (await page.text_content("main h1")) == "Today")
 
-        # 3. Verse: every word tappable with a gloss, keyboard works, language switch
-        for vid, lang in [("john-1-1", "grc"), ("gen-1-1", "he")]:
-            await page.click(f'[data-verse="{vid}"]')
+        # 3. Verse: today's verse comes from the data; every word tappable with a gloss; keyboard; switch
+        await page.goto(f"{BASE}#/today")
+        votd = json.loads(await page.evaluate("fetch('data/votd.json').then(r => r.text())"))
+        ids = {v["id"] for v in votd}
+        await page.wait_for_function("document.querySelector('.verse-slot')?.dataset.verse?.includes('-')")
+        shown = await page.get_attribute(".verse-slot", "data-verse")
+        check("Today shows a verse from the Bible data", shown in ids, shown)
+        for lang in ["grc", "he"]:
+            await page.click(f'[data-lang="{lang}"]')
+            vid = await page.get_attribute(".verse-slot", "data-verse")
             n = await page.locator(".verse-original .w").count()
             bad = []
             for i in range(n):
                 await page.locator(".verse-original .w").nth(i).click()
                 g = (await page.text_content(".verse-gloss .meaning")) or ""
+                lem = (await page.text_content(".verse-gloss .lemma")) or ""
                 pressed = await page.locator('.verse-original .w[aria-pressed="true"]').count()
-                if not g.strip() or pressed != 1: bad.append(i)
+                if not g.strip() or not lem.strip() or pressed != 1: bad.append(i)
             dir_ = await page.get_attribute(".verse-original", "dir")
-            check(f"{vid}: all {n} words show a meaning", n > 0 and not bad, f"failed words {bad}")
+            check(f"{vid}: all {n} words show a meaning and dictionary form", n > 0 and not bad, f"failed words {bad}")
             check(f"{vid}: text direction", dir_ == ("rtl" if lang == "he" else "ltr"), dir_)
+        # every curated verse renders a complete gloss
+        empty = [f"{v['id']} word {i}" for v in votd for i, w in enumerate(v["words"]) if not w.get("gloss") or not w.get("lemma") or not w.get("parse")]
+        check("all 24 curated verses have a meaning, form and grammar for every word", len(votd) == 24 and not empty, "; ".join(empty[:5]))
+        check("all curated verses have their English", all(v["english"] for v in votd))
+        await page.click('[data-lang="grc"]')
         await page.locator(".verse-original .w").nth(1).focus()
         await page.keyboard.press("Enter")
         k = await page.get_attribute('.verse-original .w[data-i="1"]', "aria-pressed")
@@ -155,7 +168,9 @@ async def main():
         fonts = await page.evaluate("document.fonts.ready.then(() => [...document.fonts].filter(f => f.status === 'loaded').map(f => f.family))")
         check("works offline (all screens, after reload)", ok_all, ",".join(detail))
         check("fonts available offline", {"Atkinson", "Gentium"} <= set(fonts), str(fonts))
-        await page.click('[data-verse="gen-1-1"]'); await page.wait_for_timeout(400)
+        await page.click('[data-lang="he"]'); await page.wait_for_timeout(400)
+        vid = await page.get_attribute(".verse-slot", "data-verse")
+        check("today's verse (from data) shows offline", vid and "-" in vid and vid != "gen-1-1", vid)
         hf = await page.evaluate("document.fonts.ready.then(() => [...document.fonts].some(f => f.family === 'Hebrew Serif' && f.status === 'loaded'))")
         check("Hebrew font available offline", hf)
         await ctx.close()

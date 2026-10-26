@@ -1,5 +1,6 @@
 import * as store from "./store.js";
-import { VERSES, verseForToday } from "./verses.js";
+import { VERSES as STARTER } from "./verses.js";
+import * as data from "./data.js";
 import { installTip, bindInstallTip } from "./install.js";
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -25,18 +26,24 @@ function toast(message) {
 
 // ---------------------------------------------------------------- Today
 
+const SOURCE = {
+  grc: "Greek: NA28 text from STEPBible (Tyndale House)",
+  he: "Hebrew: Leningrad Codex from STEPBible (Tyndale House)",
+};
+
 function verseHTML(v) {
   const dir = v.lang === "he" ? "rtl" : "ltr";
+  // Hebrew words joined by a maqaf (־) are written without a space between them
   const words = v.words
-    .map((w, i) => `<span class="w" role="button" tabindex="0" data-i="${i}" aria-pressed="${i === v.focus}">${esc(w.t)}</span>${w.p ? esc(w.p) : ""}`)
-    .join(" ");
+    .map((w, i) => `${w.pre ? esc(w.pre) : ""}<span class="w" role="button" tabindex="0" data-i="${i}" aria-pressed="${i === v.focus}">${esc(w.t)}</span>${w.p ? esc(w.p) : ""}`)
+    .reduce((out, html, i) => out + (i && !String(v.words[i - 1].p || "").endsWith("\u05be") ? " " : "") + html, "");
   return `<section class="verse" aria-labelledby="verse-ref">
     <p class="verse-ref" id="verse-ref">Verse for today · ${esc(v.ref)}</p>
     <p class="verse-original" lang="${v.lang}" dir="${dir}">${words}</p>
     <p class="verse-english">${esc(v.english)}</p>
     <div class="verse-gloss" aria-live="polite"></div>
   </section>
-  <p class="verse-source">Tap any word to see what it means. Text: ${v.lang === "he" ? "Westminster Leningrad Codex" : "SBL Greek New Testament"}; English: Berean Standard Bible.</p>`;
+  <p class="verse-source">Tap any word to see what it means. ${SOURCE[v.lang]}; English: Berean Standard Bible.</p>`;
 }
 
 function showGloss(root, v, i) {
@@ -51,15 +58,18 @@ function showGloss(root, v, i) {
 export const today = {
   title: "Today",
   render(main) {
-    let verse = verseForToday();
+    // Show the built-in verses at once; swap in today's verses when the data arrives.
+    let todays = { grc: STARTER.find((v) => v.lang === "grc"), he: STARTER.find((v) => v.lang === "he") };
+    let lang = "grc";
     const dateText = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
     main.innerHTML = `<div class="screen">
       ${head("Today", dateText)}
       ${installTip()}
       <div class="switch" role="group" aria-label="Verse language">
-        ${VERSES.map((v) => `<button type="button" data-verse="${v.id}" aria-pressed="${v.id === verse.id}">${v.lang === "he" ? "Hebrew" : "Greek"}</button>`).join("")}
+        <button type="button" data-lang="grc" aria-pressed="true">Greek</button>
+        <button type="button" data-lang="he" aria-pressed="false">Hebrew</button>
       </div>
-      <div class="verse-slot">${verseHTML(verse)}</div>
+      <div class="verse-slot"></div>
 
       <h2>Start here</h2>
       <ul class="rows">
@@ -81,7 +91,10 @@ export const today = {
     bindInstallTip(main);
 
     const slot = main.querySelector(".verse-slot");
-    const bindVerse = () => {
+    const draw = () => {
+      const verse = todays[lang];
+      slot.innerHTML = verseHTML(verse);
+      slot.dataset.verse = verse.id;
       showGloss(slot, verse, verse.focus);
       slot.querySelectorAll(".verse-original .w").forEach((el) => {
         const pick = () => showGloss(slot, verse, Number(el.dataset.i));
@@ -89,15 +102,21 @@ export const today = {
         el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
       });
     };
-    bindVerse();
-    main.querySelectorAll("[data-verse]").forEach((b) =>
+    draw();
+    main.querySelectorAll("[data-lang]").forEach((b) =>
       b.addEventListener("click", () => {
-        verse = VERSES.find((v) => v.id === b.dataset.verse);
-        main.querySelectorAll("[data-verse]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
-        slot.innerHTML = verseHTML(verse);
-        bindVerse();
+        lang = b.dataset.lang;
+        main.querySelectorAll("[data-lang]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+        draw();
       })
     );
+    data.verseOfTheDay()
+      .then((verses) => {
+        if (!main.contains(slot)) return; // the person has moved to another screen
+        todays = data.pickForDay(verses);
+        draw();
+      })
+      .catch(() => { /* offline before the data was ever loaded: keep the built-in verses */ });
   },
 };
 
@@ -269,7 +288,8 @@ export const settings = {
       </div>
 
       <h2>About</h2>
-      <p class="muted" style="margin-top:0">Aleph to Omega is a personal study app. Fonts: Gentium Plus and Noto Serif Hebrew (SIL Open Font Licence), Atkinson Hyperlegible (SIL Open Font Licence). Greek: SBL Greek New Testament (CC BY 4.0). Hebrew: Westminster Leningrad Codex (public domain). English: Berean Standard Bible (public domain).</p>
+      <p class="muted" style="margin-top:0">Aleph to Omega is a personal study app.</p>
+      <p class="muted">Greek New Testament (NA28 text), Hebrew and Aramaic Old Testament (Leningrad Codex), word-by-word translations, grammar and lexicons: STEPBible Data, created by STEPBible.org based on work at Tyndale House Cambridge, licensed CC BY 4.0. English: Berean Standard Bible, public domain. Fonts: Gentium Plus, Noto Serif Hebrew and Atkinson Hyperlegible, SIL Open Font Licence.</p>
     </div>`;
 
     main.querySelector(".settings").addEventListener("change", (e) => {

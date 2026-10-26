@@ -32,7 +32,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - `index.html`, `manifest.webmanifest`, `sw.js` (shell cache + `data-v1` cache for `/data/`)
 - `css/app.css` — tokens at top, light/dark, text size via `html[data-size]`
 - `js/app.js` hash router · `js/screens.js` all screens · `js/store.js` settings + backup (localStorage keys `ao:*`)
-- `js/install.js` add-to-home-screen help · `js/verses.js` starter verses (replace with real data in Session 2)
+- `js/install.js` add-to-home-screen help · `js/verses.js` built-in fallback verses · `js/data.js` data loader
 - `assets/fonts`, `assets/icons`
 
 ## Testing
@@ -43,10 +43,25 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 ## Session log
 - [x] 1 (26 Oct 2026): app shell, offline, install help, navigation, theme, text size, backup, starter verses, videos page.
 - [x] 1b (26 Oct 2026): deep check — 44px tap targets, iOS backup via share sheet, fresh-file updates, verses checked against SBLGNT/WLC.
-- [ ] 2 Data pipeline: STEPBible TAGNT/TAHOT + TBESG/TBESH + BSB → per-book JSON in `data/`, counts checked.
+- [x] 2 (26 Oct 2026): data pipeline — `data/` built from STEPBible + BSB; Today uses `data/votd.json`.
 - [ ] 3 Greek Reader · [ ] 4 Hebrew/Aramaic Reader · [ ] 5 Dictionary · [ ] 6 ESV + LXX + parallel
 - [ ] 7 Lesson engine · [ ] 8 Greek lessons · [ ] 9 Vocab trainer + audio
 - [ ] 10 Hebrew lessons · [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
+
+## Data (Session 2)
+- Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (17 checks).
+- Greek = TAGNT words whose editions include NA28, plus 63 places where NA28's reading sits in TAGNT's variant column
+  (e.g. Jude 5 Ἰησοῦς) and 9 NA28 spellings. 137,870 words, 7,938 verses. 92% of verses letter-identical to SBLGNT;
+  the rest are NA28 bracketed words and known NA28/SBL differences.
+- Hebrew = TAHOT (Leningrad), English verse numbering with Hebrew ref kept where different (2,090 verses).
+  Qere shown, ketiv in word note (flag "q"); type X words (from other manuscripts) flagged "x". 305,648 words.
+  99.4% of verses match WLC consonants; the rest are verse-division differences. Aramaic = morph codes starting "A".
+- BSB from communityofbrothers.github.io/assets/bsb.gz (ebible/bereanbible blocked here). Known issue: some BSB
+  footnotes contain stray "a" words from that conversion (e.g. "Literally a day one"); only "a a" fixed. Replace
+  from an official BSB file if the user allows ebible.org or bereanbible.com in Settings > Capabilities.
+- BSB lacks 3 John 1:15 and Rev 12:18 as separate verses (merged into neighbours) — Reader must cope.
+- Lexicon glosses can be "general: specific" (e.g. "to hear: hear"); show the part after ": " in compact UI.
+- STEPBible licence asks that the data itself isn't changed; we reformat only. Credit required (Settings > About, README).
 
 ## Checks
 - `python3 tools/test_app.py` (server on :8765 first) — 61 end-to-end checks; run before every push.

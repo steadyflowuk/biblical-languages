@@ -10,7 +10,6 @@ A personal app for learning Biblical Hebrew and Koine Greek for Bible study. It 
 ## Credits
 
 - Fonts: Gentium Plus, Noto Serif Hebrew and Atkinson Hyperlegible, under the SIL Open Font Licence (`assets/fonts/LICENSES.txt`).
-- Greek New Testament: SBL Greek New Testament, CC BY 4.0, Society of Biblical Literature and Logos Bible Software.
-- Hebrew Bible: Westminster Leningrad Codex, public domain.
+- Greek New Testament (NA28 text), Hebrew and Aramaic Old Testament (Leningrad Codex), word-by-word translations, grammar explanations and lexicons: [STEPBible Data](https://github.com/STEPBible/STEPBible-Data), created by STEPBible.org based on work at Tyndale House Cambridge, CC BY 4.0. Reformatted for this app by `tools/build_data.py`; the content is unchanged.
 - English: Berean Standard Bible, public domain.
-- Further data (added as the app grows): STEPBible Data, CC BY 4.0, Tyndale House Cambridge and STEPBible.org; Open Scriptures Hebrew Bible, CC BY 4.0.
+- Checked against the SBL Greek New Testament (CC BY 4.0) and the Open Scriptures Hebrew Bible (CC BY 4.0).

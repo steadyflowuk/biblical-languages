@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+.DS_Store
+# Source data is fetched by tools/fetch_sources.sh into a folder outside the repo
+sources/

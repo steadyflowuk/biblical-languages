@@ -35,7 +35,7 @@ function verseHTML(v) {
   const dir = v.lang === "he" ? "rtl" : "ltr";
   // Hebrew words joined by a maqaf (־) are written without a space between them
   const words = v.words
-    .map((w, i) => `${w.pre ? esc(w.pre) : ""}<span class="w" role="button" tabindex="0" data-i="${i}" aria-pressed="${i === v.focus}">${esc(w.t)}</span>${w.p ? esc(w.p) : ""}`)
+    .map((w, i) => `${w.pre ? esc(w.pre) : ""}<span class="w" role="button" tabindex="0" data-i="${i}" aria-pressed="${i === v.focus}">${esc(w.t)}</span>${w.p ? esc(String(w.p).replace(/[\u00b6\u00ac]/g, "")) : ""}`)
     .reduce((out, html, i) => out + (i && !String(v.words[i - 1].p || "").endsWith("\u05be") ? " " : "") + html, "");
   return `<section class="verse" aria-labelledby="verse-ref">
     <p class="verse-ref" id="verse-ref">Verse for today · ${esc(v.ref)}</p>
@@ -289,7 +289,7 @@ export const settings = {
 
       <h2>About</h2>
       <p class="muted" style="margin-top:0">Aleph to Omega is a personal study app.</p>
-      <p class="muted">Greek New Testament (NA28 text), Hebrew and Aramaic Old Testament (Leningrad Codex), word-by-word translations, grammar and lexicons: STEPBible Data, created by STEPBible.org based on work at Tyndale House Cambridge, licensed CC BY 4.0. English: Berean Standard Bible, public domain. Fonts: Gentium Plus, Noto Serif Hebrew and Atkinson Hyperlegible, SIL Open Font Licence.</p>
+      <p class="muted">Greek New Testament (NA28 text), Hebrew and Aramaic Old Testament (Leningrad Codex), word-by-word translations, grammar and lexicons: STEPBible Data, created by STEPBible.org based on work at Tyndale House Cambridge, licensed CC BY 4.0, reformatted for this app. English: Berean Standard Bible, public domain. Fonts: Gentium Plus, Noto Serif Hebrew and Atkinson Hyperlegible, SIL Open Font Licence.</p>
     </div>`;
 
     main.querySelector(".settings").addEventListener("change", (e) => {

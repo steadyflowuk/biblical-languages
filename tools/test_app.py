@@ -175,6 +175,19 @@ async def main():
         check("Hebrew font available offline", hf)
         await ctx.close()
 
+        # 7b. Bible data offline: a book opened once stays available; one never opened fails cleanly
+        ctx, page = await new_page(b)
+        await page.goto(f"{BASE}#/today"); await page.wait_for_selector("main h1")
+        await page.evaluate("navigator.serviceWorker.ready"); await page.reload(); await page.wait_for_timeout(600)
+        first = await page.evaluate("fetch('data/gnt/JHN.json').then(r => r.json()).then(d => d.ch.length)")
+        await page.wait_for_timeout(300)
+        await ctx.set_offline(True)
+        again = await page.evaluate("fetch('data/gnt/JHN.json').then(r => r.json()).then(d => d.ch.length).catch(e => 'failed')")
+        never = await page.evaluate("fetch('data/hot/OBA.json').then(r => r.ok ? 'ok' : 'not ok').catch(e => 'failed cleanly')")
+        check("a book opened once is readable offline", first == 21 and again == 21, f"{first} / {again}")
+        check("a book never opened fails cleanly offline", never == "failed cleanly", never)
+        await ctx.close()
+
         # 8. Tap targets on phone (minimum 44px tall, tab bar items)
         ctx, page = await new_page(b)
         small = []

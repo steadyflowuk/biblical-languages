@@ -18,11 +18,14 @@ Writes into data/ (relative to the repo root):
 
 Word formats (arrays, trailing empty fields dropped):
     Greek:  [text, translit, english, strong, morph, after, before]
+        "after" ending in ¶ marks a paragraph break after the word (not shown as a character)
         compound (crasis) words join two keys and codes with "+", e.g. "G2532+G1565", "CONJ+D-NSM"
     Hebrew: [text, translit, english, strongs, morph, after, flag, note]
         text/english/strongs/morph keep the source's "/" between joined parts (prefix/word/suffix)
         strongs marks the main word in {braces}; morph segments after the first omit the H/A prefix
-        flag: "q" read as qere (note = ketiv as written), "x" not in the Leningrad Codex
+        flag: "q" read as qere (note = ketiv as written), "k" written but not read (ketiv without qere),
+              "x" not in the Leningrad Codex (from other manuscripts)
+        Hebrew keeps the source's order of vowel and accent marks (it is not Unicode-normalised).
 Data: STEPBible Data CC BY 4.0 (Tyndale House Cambridge, STEPBible.org); BSB public domain.
 """
 import glob, json, os, re, sys, unicodedata
@@ -39,7 +42,9 @@ STEP_CODES = ("Gen Exo Lev Num Deu Jos Jdg Rut 1Sa 2Sa 1Ki 2Ki 1Ch 2Ch Ezr Neh E
               "Col 1Th 2Th 1Ti 2Ti Tit Phm Heb Jas 1Pe 2Pe 1Jn 2Jn 3Jn Jud Rev").split()
 USFM = {s: s.upper() for s in STEP_CODES}
 
-WORD_RE = re.compile(r"^([1-3]?[A-Za-z]{2,3})\.(\d+)\.(\d+)(?:\((\d+)\.(\d+)\))?(?:\[[^\]]*\])?#(\d+)=(\S+)\t")
+# Main reference = NA28 / Leningrad numbering as used by STEPBible. Optional extras:
+#   (32.1) Hebrew numbering (TAHOT)   [13.14] English numbering for part of a verse   {14.24} where other editions put it
+WORD_RE = re.compile(r"^([1-3]?[A-Za-z]{2,3})\.(\d+)\.(\d+)(?:\((\d+)\.(\d+)\))?(?:\[[^\]]*\])?(?:\{[^}]*\})?#(\d+)=(\S+)\t")
 
 
 def nfc(s):
@@ -71,7 +76,8 @@ def read_lexicon(pattern):
         key = c[1].split(" ")[0].strip()
         entries[key] = {
             "estrong": c[0], "rel": c[1].split("=", 1)[1].strip() if "=" in c[1] else "",
-            "ustrong": c[2].strip(), "lemma": nfc(c[3].strip()), "translit": c[4].strip(),
+            "ustrong": c[2].strip(), "lemma": nfc(c[3].strip()) if key[0] == "G" else c[3].strip(),
+            "translit": c[4].strip(),
             "morph": c[5].strip(), "gloss": c[6].strip(), "def": c[7].strip() if len(c) > 7 else "",
         }
     return entries
@@ -145,7 +151,7 @@ def read_morph(pattern, codes_used, lang_prefix_ok=True):
 # ---------------------------------------------------------------- Greek NT
 
 PUNCT = "··,.;:!?;—–’ʼ[]()⸀-ⸯ"
-PUNCT_RE_POST = re.compile(r"([··,.;:!?;—–\]\)⸀-ⸯ]+)$")
+PUNCT_RE_POST = re.compile(r"([··,.;:!?;—–\]\)⸀-ⸯ¶¬]+)$")  # ¶ = paragraph break after the word; ¬ appears once (Mat 11:17)
 PUNCT_RE_PRE = re.compile(r"^([\[\(—–⸀-ⸯ]+)")
 
 
@@ -174,6 +180,7 @@ def build_greek(glex):
     stats = Counter()
     counts = Counter()
     substituted = []
+    fallback = {}
     for path in sorted(glob.glob(os.path.join(STEP, "Translators Amalgamated OT+NT", "TAGNT*.txt")),
                        key=lambda p: 0 if "Mat-Jhn" in p else 1):
         for line in open(path, encoding="utf-8-sig"):
@@ -204,6 +211,10 @@ def build_greek(glex):
                 text = msv.group(2).strip()
                 stats["spelling_na28"] += 1
             text, post, pre = split_punct(nfc(text.strip()))
+            for part in c[4].split(" + "):
+                if "=" in part and strong and not lookup(glex, strong.split("+")[0]):
+                    lem, gl = part.split("=", 1)
+                    fallback.setdefault(strong.split("+")[0], [nfc(lem.strip()), "", gl.strip()])
             w = trim([text, translit, english.strip(), strong, morph, post, pre])
             uid = USFM[book]
             books.setdefault(uid, OrderedDict()).setdefault(ch, OrderedDict()).setdefault(vs, []).append(w)
@@ -211,7 +222,8 @@ def build_greek(glex):
             for k in strong.split("+"):
                 counts[lookup(glex, k) or k] += 1
     stats["substituted_na28"] = len(substituted)
-    return books, stats, counts
+    stats["fallback_lexicon_entries"] = len(fallback)
+    return books, stats, counts, fallback
 
 
 # ---------------------------------------------------------------- Hebrew OT
@@ -243,16 +255,31 @@ def build_hebrew(hlex):
                     text += part
                 else:
                     tail.append(part)
-            text = nfc(text)
+            # Hebrew is NOT normalised: NFC reorders vowel/dagesh marks in ~47% of words (OSHB advises against it)
             after = re.sub(r"\s+", " ", "".join(tail)).strip()
             strongs = c[4].strip()
             morph = c[5].strip()
             flag = note = ""
+            if kind.startswith("Q") and not text.strip():
+                # written in the Leningrad Codex but not read aloud: K= ki (כִּי) "for" (H3588A=HR)
+                km = re.search(r'K=\s*(\S+)\s+\(([^)]*)\)\s+"([^"]*)"\s+\(([^=]+)=([^)]+)\)', c[6])
+                if km:
+                    tr, form, gloss, strong, mcode = km.groups()
+                    w = trim([form.split("\\")[0], tr, f"({gloss}: written, not read)", "{" + strong + "}", mcode,
+                              after, "k"])
+                    uid = USFM[book]
+                    books.setdefault(uid, OrderedDict()).setdefault(ch, OrderedDict()).setdefault(vs, []).append(w)
+                    stats["written_not_read"] += 1
+                    stats["words"] += 1
+                    counts[lookup(hlex, strong) or strong] += 1
+                    continue
+                stats["empty_word_skipped"] += 1
+                continue
             if kind.startswith("Q"):
                 flag = "q"
                 # ketiv (as written): "K= translit (כְּתִיב) ..." in meaning variants, or "K= כְּתִיב" in spelling variants
                 km = re.search(r"K=\s*[^()¦;]*?\(([^)]*)\)", c[6]) or re.search(r"K=\s*([^\s¦;]+)", c[7])
-                note = nfc(km.group(1).split("\\")[0].replace("/", "")).strip() if km else ""
+                note = km.group(1).split("\\")[0].replace("/", "").strip() if km else ""
                 if not note:
                     stats["qere_without_ketiv"] += 1
                 stats["qere"] += 1
@@ -275,13 +302,15 @@ def build_hebrew(hlex):
 
 # ---------------------------------------------------------------- output helpers
 
-def lex_subset(keys, lex):
+def lex_subset(keys, lex, fallback=None):
     sub = {}
     for k in sorted(keys):
         hit = lookup(lex, k)
         if hit:
             e = lex[hit]
             sub[k] = [e["lemma"], e["translit"], e["gloss"]]
+        elif fallback and k in fallback:
+            sub[k] = fallback[k]
     return sub
 
 
@@ -385,7 +414,7 @@ def build_votd(gnt, hot, bsb, glex, hlex, gmorph, hmorph, books_meta):
                     main = keys[0]
                     lex = glex.get(lookup(glex, main) or "", {})
                     parse = " + ".join(short_parse(c, gmorph) for c in codes)
-                    item = {"t": w[0], "p": w[5], "pre": w[6]}
+                    item = {"t": w[0], "p": re.sub("[\u00b6\u00ac]", "", w[5]), "pre": w[6]}
                 else:
                     segs = w[4].split("/")
                     lang_letter = segs[0][:1]
@@ -424,7 +453,7 @@ def main():
         sys.exit("Give the sources folder made by tools/fetch_sources.sh")
     glex = read_lexicon("TBESG*.txt")
     hlex = read_lexicon("TBESH*.txt")
-    gnt, gstats, gcounts = build_greek(glex)
+    gnt, gstats, gcounts, gfallback = build_greek(glex)
     hot, hstats, hcounts, heb_refs = build_hebrew(hlex)
     index, bsb, bsb_verses = build_bsb()
 
@@ -457,7 +486,7 @@ def main():
         books.append({"id": uid, "step": step, "name": entry["n"], "t": entry["t"], "lang": lang,
                       "ch": entry["c"], "v": chapters})
         if lang == "grc":
-            dump(f"gnt/{uid}.json", {"id": uid, "lex": lex_subset(greek_keys(src[uid]), glex),
+            dump(f"gnt/{uid}.json", {"id": uid, "lex": lex_subset(greek_keys(src[uid]), glex, gfallback),
                                      "ch": chapters_out(src[uid])})
         else:
             dump(f"hot/{uid}.json", {"id": uid, "lex": lex_subset(hebrew_keys(src[uid]), hlex),

@@ -138,6 +138,32 @@ gen = load("hot/GEN.json")
 g3155 = [v for c, vs in gen["ch"] if c == 31 for v in vs if v[0] == 55]
 check("Genesis 31:55 knows it is 32:1 in Hebrew", g3155 and len(g3155[0]) > 2 and g3155[0][2] == "32.1")
 
+# ------------------------------------------------ famous passages and encoding
+def vmap(bk):
+    d = load(f"{'gnt' if any(b['id'] == bk and b['lang'] == 'grc' for b in books) else 'hot'}/{bk}.json")
+    return {(c, v[0]): v for c, vs in d["ch"] for v in vs}
+mrk, jhn, act, rom, ijn, luk = (vmap(b) for b in ("MRK", "JHN", "ACT", "ROM", "1JN", "LUK"))
+check("NA28 omissions absent: John 5:4, Acts 8:37, Romans 16:24",
+      (5, 4) not in jhn and (8, 37) not in act and (16, 24) not in rom)
+check("NA28 bracketed passages present: Mark 16:9-20, Luke 22:43-44, John 7:53-8:11, Romans 16:25-27",
+      all((16, v) in mrk for v in range(9, 21)) and (22, 43) in luk and (22, 44) in luk and (7, 53) in jhn
+      and all((8, v) in jhn for v in range(1, 12)) and all((16, v) in rom for v in (25, 26, 27)))
+check("John 7:53 opens with NA28's double brackets", jhn[(7, 53)][1][0][6:7] == ["[["], str(jhn[(7, 53)][1][0]))
+check("1 John 5:7 has no 'heavenly witnesses' addition", len(ijn[(5, 7)][1]) == 5)
+dan = vmap("DAN")
+check("Daniel 2:4 switches to Aramaic mid-verse", "".join(w[4][0] for w in dan[(2, 4)][1]).startswith("HHHHA"))
+check("Malachi 4:1 knows it is 3:19 in Hebrew", vmap("MAL")[(4, 1)][2:3] == ["3.19"])
+check("Psalm titles are verse 0 (Hebrew verse 1)", vmap("PSA")[(3, 0)][2:3] == ["3.1"])
+pmarks = sum(1 for b in books for c, vs in load(f"{'gnt' if b['lang'] == 'grc' else 'hot'}/{b['id']}.json")["ch"]
+             for v in vs for w in v[1] if "\u00b6" in w[0])
+check("no paragraph marks (¶) inside words", pmarks == 0, str(pmarks))
+empty = sum(1 for b in books if b["lang"] == "he" for c, vs in load(f"hot/{b['id']}.json")["ch"]
+            for v in vs for w in v[1] if not w[0].strip("/ "))
+check("no empty Hebrew words (written-not-read words show their written form)", empty == 0, str(empty))
+unnorm = sum(1 for b in books if b["lang"] == "he" for c, vs in load(f"hot/{b['id']}.json")["ch"]
+             for v in vs for w in v[1] if unicodedata.normalize("NFC", w[0]) != w[0])
+check("Hebrew keeps the manuscript's mark order (not Unicode-normalised)", unnorm > 100_000, f"{unnorm:,} words differ from NFC")
+
 # ------------------------------------------------ BSB alignment
 missing_bsb = []
 for b in books:
@@ -149,7 +175,7 @@ for b in books:
             bverses.update((ci, x) for x in items if isinstance(x, int))
     orig = {(c, v[0]) for c, vs in src["ch"] for v in vs if v[0] > 0}
     missing_bsb += [f"{b['id']} {c}:{v}" for c, v in sorted(orig - bverses)]
-check("Every original-language verse has its BSB verse (except known differences)", len(missing_bsb) < 60,
+check("Every original-language verse has its BSB verse (except known numbering differences)", len(missing_bsb) <= 5,
       f"{len(missing_bsb)} without a BSB verse: {', '.join(missing_bsb[:12])}")
 bsb_total = sum(b["v"][i] for b in books for i in range(b["ch"]))
 check("BSB verse total", bsb_total == 31086, str(bsb_total))

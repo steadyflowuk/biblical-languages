@@ -49,20 +49,30 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - [ ] 10 Hebrew lessons · [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
 
 ## Data (Session 2)
-- Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (17 checks).
-- Greek = TAGNT words whose editions include NA28, plus 63 places where NA28's reading sits in TAGNT's variant column
-  (e.g. Jude 5 Ἰησοῦς) and 9 NA28 spellings. 137,870 words, 7,938 verses. 92% of verses letter-identical to SBLGNT;
-  the rest are NA28 bracketed words and known NA28/SBL differences.
+- Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (28 checks).
+- Greek = TAGNT words whose editions include NA28, plus 64 places where NA28's reading sits in TAGNT's variant column
+  (e.g. Jude 5 Ἰησοῦς) and 9 NA28 spellings. 137,954 words, 7,942 verses, NA28 verse numbering. 92% of verses
+  letter-identical to SBLGNT; the rest are NA28 bracketed words and known NA28/SBL differences.
+- TAGNT refs: main = NA28 numbering; [x.y] = English numbering for part of a verse; {x.y} = where other editions
+  put it (e.g. Rom 16:25{14.24}). Missing the {..} form once dropped John 7:53 and Rom 16:25-27 — check_data guards it.
+- Greek "after" can contain ¶ (paragraph break, 2,240×) and once ¬ (Mat 11:17): never display them; ¶ is useful
+  for Reader paragraphs. NA28 double brackets [[ ]] are kept in before/after (John 7:53-8:11 etc.).
 - Hebrew = TAHOT (Leningrad), English verse numbering with Hebrew ref kept where different (2,090 verses).
-  Qere shown, ketiv in word note (flag "q"); type X words (from other manuscripts) flagged "x". 305,648 words.
+  Qere shown, ketiv in word note (flag "q"); 14 written-but-not-read words flagged "k"; type X words (from other
+  manuscripts, e.g. Gen 4:8) flagged "x". 305,648 words. Psalm titles are English verse 0.
+  Hebrew is NOT Unicode-normalised (NFC reorders dagesh/vowel marks in 47% of words) — never NFC Hebrew in JS either;
+  compare Hebrew by consonants or with both sides normalised.
   99.4% of verses match WLC consonants; the rest are verse-division differences. Aramaic = morph codes starting "A".
 - BSB from communityofbrothers.github.io/assets/bsb.gz (ebible/bereanbible blocked here). Known issue: some BSB
   footnotes contain stray "a" words from that conversion (e.g. "Literally a day one"); only "a a" fixed. Replace
   from an official BSB file if the user allows ebible.org or bereanbible.com in Settings > Capabilities.
-- BSB lacks 3 John 1:15 and Rev 12:18 as separate verses (merged into neighbours) — Reader must cope.
+- Numbering differences the Reader must map: 3 John 1:15 and Rev 12:18 (no BSB verse), 2 Cor 13:14 (BSB) = NA28 13:13.
+  BSB omits 15 verses that NA28 also omits (Mat 17:21 etc.).
 - Lexicon glosses can be "general: specific" (e.g. "to hear: hear"); show the part after ": " in compact UI.
-- STEPBible licence asks that the data itself isn't changed; we reformat only. Credit required (Settings > About, README).
+- STEPBible asks that data isn't changed (corrections go to them): we reformat; only grammar explanations are restyled.
+  Credit required (Settings > About, README).
+- Shell gotcha: `pkill -f "http.server 8765"` inside a command that also contains that text kills the command itself.
 
 ## Checks
-- `python3 tools/test_app.py` (server on :8765 first) — 61 end-to-end checks; run before every push.
+- `python3 tools/test_app.py` (server on :8765 first) — 67 end-to-end checks; run before every push.
 - No WebKit here: iPhone/iPad behaviour must be checked on the user's devices.

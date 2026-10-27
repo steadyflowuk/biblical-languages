@@ -3,6 +3,7 @@ import { VERSES as STARTER } from "./verses.js";
 import * as data from "./data.js";
 import { installTip, bindInstallTip } from "./install.js";
 import * as esv from "./esv.js";
+import * as lessons from "./lessons.js";
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
@@ -81,17 +82,32 @@ export const today = {
           <span class="row-main"><span class="row-title">Watch Alpha with Angela, lesson 1</span><span class="row-sub">Hear Greek before you study it</span></span>
           <span class="row-end" aria-hidden="true">↗</span>
         </a></li>
-        <li><a class="row" href="#/learn">
+        <li class="today-lesson"><a class="row" href="#/learn">
           <span class="row-glyph" aria-hidden="true">1</span>
-          <span class="row-main"><span class="row-title">See your Greek learning path</span><span class="row-sub">Begins with the alphabet and its sounds</span></span>
+          <span class="row-main"><span class="row-title">See your learning path</span><span class="row-sub">Lessons from the first letters to real verses</span></span>
         </a></li>
-        <li><a class="row" href="#/review">
-          <span class="row-glyph" aria-hidden="true">0</span>
-          <span class="row-main"><span class="row-title">No reviews due</span><span class="row-sub">Words from your lessons will appear here</span></span>
+        <li class="today-review"><a class="row" href="#/review">
+          <span class="row-glyph" aria-hidden="true">${lessons.reviewWords().length}</span>
+          <span class="row-main"><span class="row-title">${lessons.reviewWords().length ? `${lessons.reviewWords().length} ${lessons.reviewWords().length === 1 ? "word" : "words"} in your review list` : "No words to review yet"}</span><span class="row-sub">${lessons.reviewWords().length ? "Timed daily reviews are on their way" : "Words from your lessons will appear here"}</span></span>
         </a></li>
       </ul>
     </div>`;
     bindInstallTip(main);
+    // the next lesson in the language being learnt
+    lessons.lessonIndex().then((index) => {
+      const li = main.querySelector(".today-lesson");
+      if (!li) return;
+      const lang = store.get("learnLang") === "he" ? "he" : "grc";
+      const next = lessons.nextLesson(index, lang);
+      const p = next ? lessons.progressOf(next.id) || {} : {};
+      li.innerHTML = next ? `<a class="row" href="#/lesson/${lang}/${next.id}">
+          <span class="row-glyph" aria-hidden="true">${lang === "he" ? "א" : "α"}</span>
+          <span class="row-main"><span class="row-title">${p.pos ? "Carry on" : "Next lesson"}: ${esc(next.title)}</span><span class="row-sub">${lessons.mixed(next.sub)}</span></span>
+        </a>` : `<a class="row" href="#/learn">
+          <span class="row-glyph" aria-hidden="true">✓</span>
+          <span class="row-main"><span class="row-title">You've done every ${lang === "he" ? "Hebrew" : "Greek"} lesson so far</span><span class="row-sub">More lessons are on their way</span></span>
+        </a>`;
+    }).catch(() => { /* offline before the lessons were ever loaded: keep the link to Learn */ });
 
     const slot = main.querySelector(".verse-slot");
     const draw = () => {
@@ -125,49 +141,52 @@ export const today = {
 
 // ---------------------------------------------------------------- Learn
 
-const PATHS = {
-  grc: [
-    ["The alphabet and its sounds", "24 letters, reading aloud, writing them"],
-    ["Breathings, accents and punctuation", "The small marks above and around words"],
-    ["Present verbs", "λύω, I loose: the endings that show who acts"],
-    ["Second declension nouns", "λόγος, word: your first noun pattern"],
-    ["The article and the cases", "ὁ, ἡ, τό, and what each case does in a sentence"],
-    ["First declension nouns", "ἀρχή, beginning: the feminine pattern"],
-  ],
-  he: [
-    ["The consonants", "22 letters, their sounds and final forms"],
-    ["The vowels", "The dots and dashes added by the Masoretes"],
-    ["Syllables and the shewa", "How words break up when read aloud"],
-    ["Dagesh and other marks", "The dot that changes a letter's sound"],
-    ["Nouns and the article", "הַ, the: making a noun definite"],
-    ["Prepositions and “and”", "בְּ, לְ, כְּ and וְ joined to the next word"],
-  ],
-};
+function pathHTML(index, lang) {
+  const next = lessons.nextLesson(index, lang);
+  const items = (index[lang] || []).map((e) => {
+    const p = lessons.progressOf(e.id) || {};
+    const n = String(e.id).split("-").pop();
+    if (!e.file) {
+      return `<li class="soon" data-n="${esc(n)}"><div class="path-item"><strong>${esc(e.title)}</strong><span>${lessons.mixed(e.sub)}</span>
+        <em class="path-status">Coming soon</em></div></li>`;
+    }
+    const status = p.done ? `Done · ${p.best}% right first time · do it again`
+      : p.pos ? "Carry on where you left off" : `Start${e.minutes ? ` · about ${e.minutes} minutes` : ""}`;
+    const cls = p.done ? "done" : next && next.id === e.id ? "next" : "";
+    return `<li class="${cls}" data-n="${p.done ? "✓" : esc(n)}"><a class="path-item" href="#/lesson/${lang}/${e.id}">
+      <strong>${esc(e.title)}</strong><span>${lessons.mixed(e.sub)}</span><em class="path-status">${esc(status)}</em></a></li>`;
+  });
+  return `<ol class="path" aria-label="${lang === "he" ? "Hebrew" : "Greek"} lessons">${items.join("")}</ol>`;
+}
 
 export const learn = {
   title: "Learn",
   render(main) {
-    let lang = "grc";
-    const draw = () => {
-      main.querySelector(".path-slot").innerHTML = `
-        <ol class="path" aria-label="${lang === "he" ? "Hebrew" : "Greek"} lessons">
-          ${PATHS[lang].map(([t, s], i) => `<li class="${i === 0 ? "next" : ""}"><strong>${esc(t)}</strong><span>${esc(s)}</span></li>`).join("")}
-        </ol>`;
-    };
+    let lang = store.get("learnLang") === "he" ? "he" : "grc";
     main.innerHTML = `<div class="screen">
       ${head("Learn", "Step by step, from the alphabet to reading Scripture")}
       <div class="switch" role="group" aria-label="Language">
-        <button type="button" data-lang="grc" aria-pressed="true">Greek</button>
-        <button type="button" data-lang="he" aria-pressed="false">Hebrew</button>
+        <button type="button" data-lang="grc" aria-pressed="${lang === "grc"}">Greek</button>
+        <button type="button" data-lang="he" aria-pressed="${lang === "he"}">Hebrew</button>
       </div>
-      <div class="note"><p>Lessons open here in Week 3 of the build. Until then, the videos are the best place to begin.</p></div>
-      <div class="path-slot"></div>
-      <p><a class="btn secondary" href="#/media">Go to the videos</a></p>
+      <p class="muted learn-how">Each lesson has five steps: hear and see, notice, practise, read real verses, then add the new words to your review list.</p>
+      <div class="path-slot"><p class="muted">Loading the lessons…</p></div>
+      <p><a class="btn secondary" href="#/media">Videos to watch alongside</a></p>
     </div>`;
-    draw();
+    const slot = main.querySelector(".path-slot");
+    let index = null;
+    const draw = () => { if (index) slot.innerHTML = pathHTML(index, lang); };
+    const load = () => lessons.lessonIndex().then((ix) => { index = ix; if (main.contains(slot)) draw(); }).catch(() => {
+      if (!main.contains(slot)) return;
+      slot.innerHTML = `<div class="note"><p>The lessons couldn't load. Check you're connected to the internet.</p>
+        <p><button type="button" class="btn secondary" data-retry>Try again</button></p></div>`;
+      slot.querySelector("[data-retry]").addEventListener("click", load);
+    });
+    load();
     main.querySelectorAll("[data-lang]").forEach((b) =>
       b.addEventListener("click", () => {
         lang = b.dataset.lang;
+        store.set("learnLang", lang);
         main.querySelectorAll("[data-lang]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
         draw();
       })
@@ -180,11 +199,17 @@ export const learn = {
 export const review = {
   title: "Review",
   render(main) {
+    const words = lessons.reviewWords();
+    const group = (lang) => words.filter((w) => w.lang === lang);
+    const list = (ws) => `<ul class="rows">${ws.map((w) => `<li><a class="row" href="#/words/${encodeURIComponent(w.k)}">
+        <span class="row-main"><span class="row-title review-t" lang="${w.lang === "he" ? "he" : "grc"}"${w.lang === "he" ? ' dir="rtl"' : ""}>${esc(w.t)}</span>
+        <span class="row-sub">${esc(w.say)} · ${lessons.mixed(w.en)}</span></span></a></li>`).join("")}</ul>`;
     main.innerHTML = `<div class="screen">
       ${head("Review", "A few minutes a day keeps words from fading")}
-      <div class="note">
-        <p>Nothing to review yet. Words and forms from your lessons will appear here, timed so you see each one just before you'd forget it.</p>
-      </div>
+      ${words.length ? `<div class="note"><p>Timed daily reviews are on their way: each word will come back just before you'd forget it. Until then, here are the ${words.length} words you've collected. Tap one for its full entry.</p></div>
+        ${["grc", "he"].filter((l) => group(l).length).map((l) => `<h2>${l === "he" ? "Hebrew" : "Greek"} <span class="muted review-count">${group(l).length}</span></h2>${list(group(l))}`).join("")}`
+        : `<div class="note"><p>Nothing to review yet. When you finish a lesson, its words appear here, and later they'll come back to you just before you'd forget them.</p></div>
+        <p><a class="btn" href="#/learn">Start a lesson</a></p>`}
     </div>`;
   },
 };

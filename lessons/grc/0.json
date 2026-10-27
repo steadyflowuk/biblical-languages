@@ -1,0 +1,137 @@
+{
+  "id": "grc-0",
+  "lang": "grc",
+  "title": "A first taste: John 1:1",
+  "steps": [
+    {
+      "step": "hear",
+      "intro": "Meet the sounds and shapes of Greek before any rules. Read each line aloud, then check the English.",
+      "cards": [
+        {
+          "type": "video",
+          "title": "Alpha with Angela, lesson 1",
+          "href": "https://www.youtube.com/watch?v=gLe1GhR5l0E&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq&index=1",
+          "note": "Optional: a short lesson taught entirely in Greek, with pictures. It uses the same pronunciation as this app. Come back here when it ends."
+        },
+        {
+          "type": "scene",
+          "picture": "📜",
+          "text": "Ἐν ἀρχῇ ἦν ὁ λόγος,",
+          "say": "en ar-KHAY ayn ho LO-gos",
+          "en": "In the beginning was the Word,"
+        },
+        {
+          "type": "scene",
+          "picture": "✨",
+          "text": "καὶ ὁ λόγος ἦν πρὸς τὸν θεόν,",
+          "say": "kai ho LO-gos ayn pros ton the-ON",
+          "en": "and the Word was with God,"
+        },
+        {
+          "type": "scene",
+          "picture": "👑",
+          "text": "καὶ θεὸς ἦν ὁ λόγος.",
+          "say": "kai the-OS ayn ho LO-gos",
+          "en": "and the Word was God."
+        }
+      ]
+    },
+    {
+      "step": "notice",
+      "cards": [
+        {
+          "type": "explain",
+          "title": "Greek reads like English",
+          "body": [
+            "Greek runs left to right, and many letters look familiar: ο is o, κ is k, ς is s at the end of a word.",
+            "Some look like English letters but sound different: ν is n, not v, and ρ is r, not p. Others are new, such as λ (l) and θ (th as in thin). You will learn all 24 in the alphabet lesson."
+          ],
+          "examples": [
+            { "t": "λόγος", "say": "LO-gos", "en": "word" },
+            { "t": "θεός", "say": "the-OS", "en": "God" },
+            { "t": "καί", "say": "kai", "en": "and" }
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "Endings show a word's job",
+          "body": [
+            "Look at God in this verse: θεόν after πρός (with), but θεός in “the Word was God”. Greek changes a word's ending to show what it is doing in the sentence.",
+            "“The” changes too: ὁ λόγος (the Word) but τὸν θεόν (with God). You will meet these patterns properly in the lessons on nouns and cases; for now, just notice them."
+          ],
+          "examples": [
+            { "t": "θεός", "say": "the-OS", "en": "God (what the Word was)" },
+            { "t": "πρὸς τὸν θεόν", "say": "pros ton the-ON", "en": "with God" }
+          ]
+        }
+      ]
+    },
+    {
+      "step": "practise",
+      "cards": [
+        {
+          "type": "choose",
+          "prompt": "What does λόγος mean?",
+          "options": ["word", "God", "beginning", "and"],
+          "answer": 0,
+          "explain": "λόγος is “word”. In John 1:1 it is a title for Jesus, the Word."
+        },
+        {
+          "type": "choose",
+          "prompt": "Which word means God?",
+          "options": ["θεός", "λόγος", "ἀρχή", "καί"],
+          "answer": 0,
+          "explain": "θεός (the-OS) is God, the root of English words like theology."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each Greek word to its meaning.",
+          "pairs": [["ἐν", "in"], ["ἀρχή", "beginning"], ["ἦν", "was"], ["καί", "and"], ["πρός", "with"]]
+        },
+        {
+          "type": "build",
+          "prompt": "Put the words in order: “In the beginning was the Word”.",
+          "tiles": ["Ἐν", "ἀρχῇ", "ἦν", "ὁ", "λόγος"],
+          "explain": "Ἐν ἀρχῇ ἦν ὁ λόγος. Here the Greek order matches the English word for word."
+        },
+        {
+          "type": "parse",
+          "prompt": "ἦν means “was”. Describe it.",
+          "word": "ἦν",
+          "fields": [
+            { "label": "Who?", "options": ["I", "you", "he, she or it"], "answer": "he, she or it" },
+            { "label": "How many?", "options": ["one", "more than one"], "answer": "one" },
+            { "label": "When?", "options": ["past", "present", "future"], "answer": "past" }
+          ],
+          "explain": "ἦν is “he, she or it was”: one person or thing, in the past. Grammar books call this the third person singular imperfect of εἰμί, “I am”."
+        }
+      ]
+    },
+    {
+      "step": "read",
+      "intro": "Now read the real verses. Words you have met are underlined in gold; tap any word to see what it means.",
+      "cards": [
+        { "type": "verse", "ref": "JHN 1:1" },
+        { "type": "verse", "ref": "JHN 1:2", "note": "οὗτος means “he” or “this one”. You already know every other word." }
+      ]
+    },
+    {
+      "step": "review",
+      "cards": [
+        {
+          "type": "words",
+          "items": [
+            { "k": "G1722", "t": "ἐν", "say": "en", "en": "in" },
+            { "k": "G0746", "t": "ἀρχή", "say": "ar-KHAY", "en": "beginning" },
+            { "k": "G1510", "t": "εἰμί", "say": "ay-MEE", "en": "I am (ἦν: was)" },
+            { "k": "G3588", "t": "ὁ", "say": "ho", "en": "the" },
+            { "k": "G3056", "t": "λόγος", "say": "LO-gos", "en": "word" },
+            { "k": "G2532", "t": "καί", "say": "kai", "en": "and" },
+            { "k": "G4314", "t": "πρός", "say": "pros", "en": "with, to" },
+            { "k": "G2316", "t": "θεός", "say": "the-OS", "en": "God" }
+          ]
+        }
+      ]
+    }
+  ]
+}

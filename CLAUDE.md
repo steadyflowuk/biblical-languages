@@ -44,6 +44,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - `js/hebrew.js` Hebrew helpers: word parts, pronunciation, punctuation, short/full grammar labels
 - `js/dictionary.js` Words tab: search + entries (routes `#/words`, `#/words/KEY`) · `js/nav.js` back/return memory
 - `js/esv.js` ESV key + API + small offline store · Septuagint screen (`#/lxx/ID/CH[/V]`) lives in `js/reader.js`
+- `js/lessons.js` lesson engine (route `#/lesson/LANG/ID`) · `lessons/` index + one JSON file per lesson (format: lessons/README.md)
 - `assets/fonts`, `assets/icons`
 
 ## Testing
@@ -64,7 +65,8 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - [x] 5c (27 Oct 2026): transliteration search of written words ("bereshit", "vayomer", phrases like "bara elohim").
 - [x] 6 (27 Oct 2026): ESV (own key), Septuagint lined up with the Hebrew + its own screen, side-by-side layout.
 - [x] 6b (27 Oct 2026): deep check — ESV half-book limit, brackets, 3 John 15; Septuagint runs/boundaries re-aligned; better look-ups.
-- [ ] 7 Lesson engine · [ ] 8 Greek lessons · [ ] 9 Vocab trainer + audio
+- [x] 7 (27 Oct 2026): lesson engine — five steps, 4 drill types, retries, resume, progress, review list; two taster lessons.
+- [ ] 8 Greek lessons · [ ] 9 Vocab trainer + audio
 - [ ] 10 Hebrew lessons · [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
 
 ## Data (Session 2)
@@ -214,12 +216,35 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   dictionary search. Septuagint screen: picker tab "Septuagint", prev/next across books, "Compare with the Hebrew",
   store lastLxx; the Read tab stays current.
 
+## Lessons (Session 7)
+- Lessons are data: `lessons/index.json` ({grc: [...], he: [...]}, entries without `file` = "Coming soon") and
+  `lessons/<lang>/<n>.json` with the five steps in order: hear (scene, video) · notice (explain) · practise (choose,
+  match, build, parse) · read (verse) · review (words). Authoring guide: lessons/README.md.
+- `tools/check_lessons.py`: format, answers among options, verse refs, dictionary keys + spelling of review words,
+  every Greek/Hebrew word spelt as in the Bible (Greek with accents, grave = acute; Hebrew consonants + vowels with
+  marks sorted per letter, no cantillation — never NFC), lesson files in SHELL_FILES. `"fragments": true` on a choose
+  card skips spelling its options (parts of words on purpose).
+- Engine: options/pairs/tiles shuffled (never left in written order); a drill missed first time is appended once at
+  the end of Practise ("Have another go"); score = first tries only. Progress `ao:lessons` {id: {v:1, pos, retries,
+  first, done, best, completed}}; finished lessons restart from the start. Finish adds review words to
+  `ao:reviewQueue` (dedup by key) — Session 9 adds FSRS scheduling to these items. Store `learnLang` picks the path
+  shown on Learn and the "Next lesson" row on Today.
+- Read step: verse from gnt/hot + BSB (reader.js exports bsbChapter, englishHTML); words whose Strong's number is in
+  the review list or this lesson's words are underlined gold ("You know N of M words"); tap → lemma, gloss, grammar,
+  dictionary link.
+- Taster lessons (not the courses): grc-0 John 1:1, he-0 Genesis 1:1. Pronunciation in `say`, stressed syllable in
+  capitals (Erasmian for Greek). Session 8 writes grc-1… following Schwandt; Session 10 he-1… following Wegner.
+- Leaving and re-entering the same hash doesn't re-render (router): tests reach lessons via Learn.
+
 ## Checks
 - `python3 tools/test_app.py` (server on :8765 first) — 101 end-to-end checks; run before every push.
 - `python3 tools/test_reader_edges.py` — 28 Reader edge cases (odd links, fast switching incl. OT↔NT, offline Hebrew, focus, back button, 320px).
 - `python3 tools/sweep_reader.py [nt|ot|all]` — opens every chapter at 360px (NT ~10 min, OT ~35 min); expect
   0 issues and only 3JN 15 / REV 12:18 notes.
 - `tools/check_data.py` now has 42 checks (5 for the dictionary, 5 for the Septuagint) (incl. OT BSB alignment both ways, psalm titles, Today's verses).
+- `python3 tools/check_lessons.py` — validates every lesson (run after any lesson change).
+- `python3 tools/test_lessons.py` — 47 lesson engine checks (drills, retries, resume, scores, review list, Hebrew RTL,
+  keyboard, offline, 320px).
 - `python3 tools/test_dictionary.py` — 51 Dictionary checks (search, entries, links both ways, offline, 320px).
 - `python3 tools/test_translations.py` — 70 ESV/Septuagint/side-by-side checks (ESV API mocked with real verse counts;
   ~12 min).

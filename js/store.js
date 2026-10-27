@@ -18,6 +18,10 @@ const DEFAULTS = {
   showBSB: true,           // Berean Standard Bible under each verse
   showESV: false,          // ESV under each verse (needs the reader's own key, see js/esv.js)
   showLXX: false,          // Septuagint under each Old Testament verse
+  // Lessons (js/lessons.js)
+  learnLang: "grc",        // grc | he: the path shown on Learn and Today
+  lessons: {},             // id → { pos, retries, first, done, best, completed }
+  reviewQueue: [],         // words from finished lessons: { k, lang, t, say, en, lesson, added } (timed reviews: Session 9)
   // Dictionary
   dictLang: "both",        // both | G | H
   recentWords: [],         // lexicon keys, most recent first

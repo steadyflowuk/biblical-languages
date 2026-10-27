@@ -94,7 +94,7 @@ export const strongs = (key) => String(key || "").replace(/^([GH])0*(\d+)[A-Za-z
 
 // ---------------------------------------------------------------- BSB chapter → verses, headings, notes
 
-function bsbChapter(bsbBook, ch) {
+export function bsbChapter(bsbBook, ch) {
   const chapter = bsbBook?.chapters?.[ch - 1];
   const verses = new Map(); // verse → text with \u0001n\u0001 note markers
   const headings = new Map(); // verse → [heading]

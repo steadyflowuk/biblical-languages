@@ -2,11 +2,13 @@ import * as store from "./store.js";
 import * as screens from "./screens.js";
 import { read, lxx, closeSheet } from "./reader.js";
 import { words } from "./dictionary.js";
+import { lesson } from "./lessons.js";
 import * as nav from "./nav.js";
 
 const ROUTES = {
   today: screens.today,
   learn: screens.learn,
+  lesson,
   read,
   lxx,
   words,
@@ -32,7 +34,7 @@ function route() {
     return;
   }
   document.querySelectorAll(".tabs a[data-tab]").forEach((a) => {
-    if (a.dataset.tab === (name === "lxx" ? "read" : name)) a.setAttribute("aria-current", "page");
+    if (a.dataset.tab === (name === "lxx" ? "read" : name === "lesson" ? "learn" : name)) a.setAttribute("aria-current", "page");
     else a.removeAttribute("aria-current");
   });
   nav.visited();

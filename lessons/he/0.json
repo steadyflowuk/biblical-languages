@@ -1,0 +1,129 @@
+{
+  "id": "he-0",
+  "lang": "he",
+  "title": "A first taste: Genesis 1:1",
+  "steps": [
+    {
+      "step": "hear",
+      "intro": "Meet the sounds and shapes of Hebrew before any rules. Read each line aloud, then check the English. Capital letters show the stressed syllable.",
+      "cards": [
+        {
+          "type": "video",
+          "title": "Aleph with Beth, lesson 1",
+          "href": "https://www.youtube.com/watch?v=y640-FIpxQs&list=PLq1vmb-z7PpQt2PDNUr7XOzBjWAOWf0Rt",
+          "note": "Optional: a short lesson taught entirely in Biblical Hebrew, with pictures. Come back here when it ends."
+        },
+        {
+          "type": "scene",
+          "picture": "🌅",
+          "text": "בְּרֵאשִׁית בָּרָא אֱלֹהִים",
+          "say": "be-re-SHIT ba-RA e-lo-HIM",
+          "en": "In the beginning God created"
+        },
+        {
+          "type": "scene",
+          "picture": "🌍",
+          "text": "אֵת הַשָּׁמַיִם וְאֵת הָאָרֶץ׃",
+          "say": "et ha-sha-MA-yim ve-ET ha-A-rets",
+          "en": "the heavens and the earth."
+        }
+      ]
+    },
+    {
+      "step": "notice",
+      "cards": [
+        {
+          "type": "explain",
+          "title": "Hebrew reads right to left",
+          "body": [
+            "Start at the right-hand edge and read towards the left. The letters are consonants; the small dots and dashes above and below them are the vowels.",
+            "You will learn the 22 letters and the vowels one at a time in the first lessons. For now, follow the pronunciation guide."
+          ],
+          "examples": [
+            { "t": "אֱלֹהִים", "say": "e-lo-HIM", "en": "God" },
+            { "t": "בָּרָא", "say": "ba-RA", "en": "he created" }
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "Small words join on to the front",
+          "body": [
+            "“In”, “the” and “and” are single letters fixed to the front of the next word: בְּ (in), הַ or הָ (the), וְ (and).",
+            "The verb often comes first: בָּרָא אֱלֹהִים is “created God”, meaning “God created”. The little word אֵת marks what was created and is not translated."
+          ],
+          "examples": [
+            { "t": "בְּרֵאשִׁית", "say": "be-re-SHIT", "en": "in + beginning" },
+            { "t": "הַשָּׁמַיִם", "say": "ha-sha-MA-yim", "en": "the + heavens" },
+            { "t": "וְאֵת", "say": "ve-ET", "en": "and + (marks what was created)" }
+          ]
+        }
+      ]
+    },
+    {
+      "step": "practise",
+      "cards": [
+        {
+          "type": "choose",
+          "prompt": "What does אֱלֹהִים mean?",
+          "options": ["God", "earth", "heavens", "beginning"],
+          "answer": 0,
+          "explain": "אֱלֹהִים (e-lo-HIM) is God. It looks plural, but with the singular verb בָּרָא it means the one God."
+        },
+        {
+          "type": "choose",
+          "prompt": "Which letter means “the” in הַשָּׁמַיִם (the heavens)?",
+          "options": ["הַ", "שָּׁ", "מַ", "יִם"],
+          "fragments": true,
+          "answer": 0,
+          "explain": "הַ at the front (the right-hand end) means “the”."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each Hebrew word to its meaning.",
+          "pairs": [["רֵאשִׁית", "beginning"], ["בָּרָא", "he created"], ["אֱלֹהִים", "God"], ["שָׁמַיִם", "heavens"], ["אֶרֶץ", "earth"]]
+        },
+        {
+          "type": "build",
+          "prompt": "Put the words in order: “In the beginning God created”. Remember, Hebrew starts on the right.",
+          "tiles": ["בְּרֵאשִׁית", "בָּרָא", "אֱלֹהִים"],
+          "explain": "בְּרֵאשִׁית בָּרָא אֱלֹהִים: “in the beginning”, then the verb “created”, then “God”."
+        },
+        {
+          "type": "parse",
+          "prompt": "בָּרָא means “he created”. Describe it.",
+          "word": "בָּרָא",
+          "fields": [
+            { "label": "Who?", "options": ["I", "you", "he", "she"], "answer": "he" },
+            { "label": "How many?", "options": ["one", "more than one"], "answer": "one" },
+            { "label": "Action", "options": ["finished", "not yet finished"], "answer": "finished" }
+          ],
+          "explain": "בָּרָא is “he created”: one person, a finished action. Grammar books call this the Qal perfect, third person masculine singular, written 3ms."
+        }
+      ]
+    },
+    {
+      "step": "read",
+      "intro": "Now read the real verses. Words you have met are underlined in gold; tap any word to see what it means.",
+      "cards": [
+        { "type": "verse", "ref": "GEN 1:1" },
+        { "type": "verse", "ref": "GEN 2:4", "note": "This verse looks back on Genesis 1. Find הַשָּׁמַיִם and הָאָרֶץ near the start, and בְּהִבָּרְאָם: “when they were created”, from the same root as בָּרָא." }
+      ]
+    },
+    {
+      "step": "review",
+      "cards": [
+        {
+          "type": "words",
+          "items": [
+            { "k": "H7225G", "t": "רֵאשִׁית", "say": "re-SHIT", "en": "beginning" },
+            { "k": "H1254A", "t": "בָּרָא", "say": "ba-RA", "en": "he created (to create)" },
+            { "k": "H0430G", "t": "אֱלֹהִים", "say": "e-lo-HIM", "en": "God" },
+            { "k": "H0853", "t": "אֵת", "say": "et", "en": "marks the object (not translated)" },
+            { "k": "H8064", "t": "שָׁמַיִם", "say": "sha-MA-yim", "en": "heavens, sky" },
+            { "k": "H0776G", "t": "אֶרֶץ", "say": "E-rets", "en": "earth, land" }
+          ]
+        }
+      ]
+    }
+  ]
+}

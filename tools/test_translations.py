@@ -2,7 +2,8 @@
 python3 tools/test_translations.py
 
 The ESV API is mocked here (no real key is ever used in tests); the real API is checked by hand on the live site."""
-import asyncio, json, re, unicodedata
+import asyncio, json, re, unicodedata, faulthandler, sys
+faulthandler.dump_traceback_later(1200, exit=True)  # if a step hangs, say where
 from playwright.async_api import async_playwright
 
 BASE = "http://localhost:8765/"

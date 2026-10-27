@@ -163,6 +163,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - NT reference links use a fixed BOOK_BY_STEP + NT_CHAPTERS table (6 source typos like "Mat.92.6" stay plain; 39
   refs to verses NA28 omits still link — the Reader explains the gap). 34,381 links, all checked by audit.
 - Failed loads (offline) aren't cached: prepared/keyMaps/formLists and the Reader's counts retry next time.
+- data.js retries a failed load once after 1.2 s; Reader and Septuagint load errors offer "Try again" (6b).
 - data.js memory groups: Bible books keep 6, dictionary chunks keep 8. Results announce only "N matches" (role=status).
 - Transliteration of written words (5c): lex/<greek|hebrew>-sounds.json = {looseNorm(TAHOT/TAGNT translit of the word):
   [keys]} (66/230 KB gz), only where it differs from the lemma's. Loaded in the background on the first Latin-letter
@@ -182,7 +183,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   text before [1] is verse 0 only in Psalms; Song of Songs speaker labels and Psalm 119 letter headings (short
   standalone lines) are dropped. "[[" and the bracketed note just before it ("[Some of the earliest manuscripts…]")
   move to the start of the next verse (Mark 16:9, John 7:53); other bracketed lines stay (Psalm 145:13).
-  Versification checked against the real API (Gen–Mark 12, 6b): ESV = BSB numbering except Mat 12:47 (ESV omits)
+  Versification checked against the real API (all 1,189 chapters, 6b): ESV = BSB numbering except Mat 12:47 (ESV omits)
   and 3 John 1:15 (ESV has it, BSB folds it into 14). esvExtras() gives any ESV verse no row carries to the row
   with its number, else the one before (redraws once when that changes).
   Every page showing ESV text carries the credit + www.esv.org link; full notice in Settings. Never commit a key;
@@ -218,7 +219,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   0 issues and only 3JN 15 / REV 12:18 notes.
 - `tools/check_data.py` now has 42 checks (5 for the dictionary, 5 for the Septuagint) (incl. OT BSB alignment both ways, psalm titles, Today's verses).
 - `python3 tools/test_dictionary.py` — 51 Dictionary checks (search, entries, links both ways, offline, 320px).
-- `python3 tools/test_translations.py` — 69 ESV/Septuagint/side-by-side checks (ESV API mocked with real verse counts;
+- `python3 tools/test_translations.py` — 70 ESV/Septuagint/side-by-side checks (ESV API mocked with real verse counts;
   ~12 min).
 - `python3 tools/sweep_lxx.py [ot|lxx|all]` — every OT chapter side by side with the Septuagint + every Septuagint
   chapter at 360px (~40 min); expect 0 issues.

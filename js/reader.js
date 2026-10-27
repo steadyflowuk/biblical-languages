@@ -182,6 +182,16 @@ function wordCounts(he) {
   return counts[file];
 }
 
+/** The counts list is keyed like the builder's lookup(): exact key, else the bare number, else the first
+ *  lettered sense (G/H + 4 digits + G, H, I…) — e.g. H0430J is counted under H0430G. */
+function countFor(m, key) {
+  if (m.has(key)) return m.get(key);
+  const num = String(key).replace(/^([GH])0*(\d+).*$/, (x, l, n) => l + n.padStart(4, "0"));
+  if (m.has(num)) return m.get(num);
+  for (const c of "GHIJKLMNOPQRSTUVWXYZABCDEF") if (m.has(num + c)) return m.get(num + c);
+  return 0;
+}
+
 /** Real Strong's numbers only: STEPBible's H9001+ are its own labels for prefixes, suffixes and punctuation. */
 const realStrongs = (key) => (/^H(\d{4})/.test(key) && Number(key.slice(1, 5)) >= 9000 ? "" : strongs(key));
 const plainGloss = (g) => compact(g).replace(/[[\]]/g, "");
@@ -195,12 +205,15 @@ const FLAG_NOTES = {
 function heWordSheetHTML(w, ctx) {
   const [, translit, english, , , , flag = "", note = ""] = w;
   const parts = heParts(w);
-  const mainKey = heMainKey(w);
-  const main = parts.find((p) => p.main) || parts[0] || { code: w[4] };
-  const lex = ctx.lex[mainKey] || [heText(w), translit, ""];
-  const strong = realStrongs(mainKey);
-  const g = ctx.morph[main.code] || [main.code];
-  const explain = g[1] ? `<span class="ws-explain">${esc(g[1].charAt(0).toUpperCase() + g[1].slice(1))}${g[2] ? `, as in “${esc(g[2])}”` : ""}.</span>` : "";
+  // Usually one main word; a few compounds (e.g. מַה־זֶּה "what is this") have two
+  let mains = parts.filter((p) => p.main);
+  if (!mains.length) mains = [{ key: heMainKey(w), code: (parts[0] || {}).code || w[4] }];
+  const lexOf = (p) => ctx.lex[p.key] || [p.text || heText(w), translit, ""];
+  const grammarOf = (p) => {
+    const g = ctx.morph[p.code] || [p.code];
+    const explain = g[1] ? `<span class="ws-explain">${esc(g[1].charAt(0).toUpperCase() + g[1].slice(1))}${g[2] ? `, as in “${esc(g[2])}”` : ""}.</span>` : "";
+    return `<strong>${esc(heFriendlyGrammar(g[0]))}</strong>${explain}`;
+  };
   const row = (dt, dd, cls = "") => `<div${cls ? ` class="${cls}"` : ""}><dt>${dt}</dt><dd>${dd}</dd></div>`;
   return `
     <p class="ws-ref">${esc(ctx.ref)}</p>
@@ -215,10 +228,14 @@ function heWordSheetHTML(w, ctx) {
         const label = heShortGrammar((ctx.morph[p.code] || [p.code])[0]);
         return `<li${p.main ? ' class="main"' : ""}><span lang="he" dir="rtl" class="ws-lemma">${esc(p.text)}</span> ${esc(l ? plainGloss(l[2]) : "")} <span class="muted">(${esc(label)})</span></li>`;
       }).join("")}</ul>`) : ""}
-      ${row("Dictionary form", `<span lang="he" dir="rtl" class="ws-lemma">${esc(lex[0])}</span> <span class="muted">${esc(heTranslit(lex[1]))}${strong ? ` · Strong's ${esc(strong)}` : ""}</span>`)}
-      ${row("Meaning", esc(plainGloss(lex[2]) || "—"))}
+      ${row("Dictionary form", mains.map((p) => {
+        const l = lexOf(p);
+        const strong = realStrongs(p.key);
+        return `<span lang="he" dir="rtl" class="ws-lemma">${esc(l[0])}</span> <span class="muted">${esc(heTranslit(l[1]))}${strong ? ` · Strong's ${esc(strong)}` : ""}</span>`;
+      }).join("<br>"))}
+      ${row("Meaning", esc(mains.map((p) => plainGloss(lexOf(p)[2])).filter(Boolean).join(" + ") || "—"))}
       ${row("In this verse", englishHTML(heEnglish(english)) || "—")}
-      ${row("Grammar", `<strong>${esc(heFriendlyGrammar(g[0]))}</strong>${explain}`)}
+      ${row("Grammar", mains.map(grammarOf).join("<br>"))}
       <div class="ws-count" hidden><dt>How common</dt><dd></dd></div>
     </dl>
     ${ctx.bsb ? `<p class="ws-bsb"><span class="muted">${esc(ctx.bsbRef)} (BSB)</span><br>${ctx.bsb}</p>` : ""}
@@ -284,7 +301,7 @@ function showWord(state, vi, wi, returnFocus) {
   }));
   wordCounts(state.he).then((m) => {
     const key = state.he ? heMainKey(w) : String(w[3] || "").split("+")[0];
-    const n = m.get(key);
+    const n = countFor(m, key);
     const row = body.querySelector(".ws-count");
     const where = state.he ? "Old Testament" : "New Testament";
     if (row && n && realStrongs(key)) {

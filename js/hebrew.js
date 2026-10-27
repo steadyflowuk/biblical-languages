@@ -7,10 +7,12 @@
 export const heText = (w) => String(w[0] || "").replace(/\//g, "");
 
 /** "be./re.Shit" → "be·re·Shit" (dots mark syllables; the capitalised syllable carries the stress). */
-export const heTranslit = (t) => String(t || "").replace(/\//g, "").replace(/\./g, "·").replace(/·{2,}/g, "·");
+export const heTranslit = (t) => String(t || "").replace(/[\u0591-\u05c7]/g, "") // a few source entries carry a stray Hebrew vowel
+  .replace(/\//g, "").replace(/\./g, "·").replace(/·{2,}/g, "·");
 
 /** "in/ beginning" → "in beginning". */
-export const heEnglish = (e) => String(e || "").replace(/\s*\/\s*/g, " ").trim();
+export const heEnglish = (e) => String(e || "").replace(/\s*\/\s*/g, " ").trim()
+  .replace(/^\((.*?):\s*written, not read\)$/, "$1"); // the 14 words written but not read: the note explains
 
 /** Punctuation printed after a word: keep maqaf ־, sof pasuq ׃, paseq ׀ and inverted nun ׆; drop paragraph letters פ ס. */
 export const heAfter = (after) => String(after || "").replace(/(^|\s)[פס](?=\s|$)/g, "").trim()
@@ -38,16 +40,20 @@ export function heParts(w) {
     if (!t.trim() || t.trim() === "־") return; // the space or maqaf inside compound names
     const rawKey = keys[i] || "";
     const code = i === 0 ? segs[0] : segs[i] ? lang + segs[i] : "";
-    parts.push({ text: t, key: rawKey.replace(/[{}+\s]/g, ""), code, main: /\{/.test(rawKey) });
+    const key = rawKey.replace(/[{}+\s]/g, "");
+    // main = the part(s) in {braces}; H9001+ are prefix/suffix labels, never the main word
+    parts.push({ text: t, key, code, main: /[{}]/.test(rawKey) && !/^H90\d\d/.test(key) });
   });
   if (parts.length && !parts.some((p) => p.main)) parts[0].main = true;
   return parts;
 }
 
-/** The main word's Strong's key: the part in {braces}. */
+/** The main word's Strong's key: the part in {braces}, e.g. "H9002/{H0776G}\H9016" → "H0776G". */
 export function heMainKey(w) {
-  const m = String(w[3] || "").match(/\{([^}]+)\}/);
-  return m ? m[1] : String(w[3] || "").split(/[/\\]/)[0].replace(/[{}+]/g, "");
+  const raw = String(w[3] || "");
+  const m = raw.match(/\{([^}]+)\}/);
+  const keys = (m ? m[1] : raw).split(/[/\\+\s]/).map((k) => k.replace(/[{}]/g, "")).filter(Boolean);
+  return keys.find((k) => !/^H90\d\d/.test(k)) || keys[0] || "";
 }
 
 // ---------------------------------------------------------------- grammar labels
@@ -94,7 +100,10 @@ export function heShortGrammar(desc) {
     return /location/.test(d) ? "name (place)" : /title/.test(d) ? "name (title)" : /gentilic/.test(d) ? "name (people)" : "name (person)";
   }
   if (d.startsWith("noun")) return label(/gentilic/.test(d) ? "noun (people)" : /numerical|cardinal|ordinal/.test(d) ? "number" : "noun");
+  if (d.startsWith("numerical position")) return label("number (order)");
+  if (d.startsWith("numerical")) return label("number");
   if (d.startsWith("adjective")) return label(/numerical|cardinal|ordinal/.test(d) ? "number" : "adj.");
+  if (d.startsWith("paragogic")) return "added ending";
   if (d.startsWith("suffix")) return label(/paragogic/.test(d) ? "added ending" : "suffix");
   if (d.startsWith("pronoun")) return label("pronoun");
   if (d.startsWith("preposition")) return /definite/.test(d) ? "prep. + the" : "prep.";
@@ -109,7 +118,7 @@ export function heShortGrammar(desc) {
   if (d.startsWith("demonstrative")) return label("this/that");
   if (d.startsWith("adverb")) return "adv.";
   if (d.startsWith("directional")) return "toward (ending)";
-  if (d.startsWith("conditional")) return "if";
+  if (d.startsWith("conditional")) return "conj. (if/for)"; // כִּי and אִם share this tag
   return s.split(/[\s(]/)[0].toLowerCase();
 }
 

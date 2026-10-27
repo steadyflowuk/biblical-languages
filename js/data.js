@@ -2,9 +2,22 @@
 // Files are cached for offline use by the service worker the first time they load.
 
 const cache = new Map();
+// Bible book files are large (Old Testament books up to 3.5 MB in memory), so only the most recently used
+// few are kept here; the rest stay saved by the service worker and reload quickly from there.
+const BOOK_FILE = /^data\/(gnt|hot|bsb)\//;
+const KEEP_BOOKS = 6;
 
 export function getJSON(path) {
+  if (cache.has(path) && BOOK_FILE.test(path)) {
+    const p = cache.get(path); // mark as recently used
+    cache.delete(path);
+    cache.set(path, p);
+  }
   if (!cache.has(path)) {
+    if (BOOK_FILE.test(path)) {
+      const books = [...cache.keys()].filter((k) => BOOK_FILE.test(k));
+      books.slice(0, Math.max(0, books.length - KEEP_BOOKS + 1)).forEach((k) => cache.delete(k));
+    }
     const p = fetch(path).then((r) => {
       if (!r.ok) throw new Error(`Couldn't load ${path} (${r.status})`);
       return r.json();

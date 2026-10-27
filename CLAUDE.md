@@ -52,6 +52,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - [x] 3 (27 Oct 2026): Greek Reader — `js/reader.js`, routes `#/read/BOOK/CH[/VERSE]`.
 - [x] 3b (27 Oct 2026): deep check — BSB placement (own number wins), grammar tag labels, focus trap, contrast, iOS 13.4 baseline.
 - [x] 4 (27 Oct 2026): Hebrew/Aramaic Reader — right to left, word parts, Aramaic and ketiv/qere notes, whole-Bible picker.
+- [x] 4b (27 Oct 2026): deep check — count keys, compounds, clearer labels, not-read glosses, book memory limit.
 - [ ] 5 Dictionary · [ ] 6 ESV + LXX + parallel
 - [ ] 7 Lesson engine · [ ] 8 Greek lessons · [ ] 9 Vocab trainer + audio
 - [ ] 10 Hebrew lessons · [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
@@ -116,11 +117,19 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   pf., impf., ptc., inf. cstr.), person/gender/number as 3ms etc.; "and (narrative)" dropped before a wayyiqtol.
 - Picker has an Old/New Testament switch (opens on the current book's Testament); prev/next runs across the Bible.
 - englishHTML drops unmatched < > [ ] (3 source glosses: Isa 7:23, Ezk 36:23, Lev 11:40) — data left as published.
+- Main parts: {braces}, never H9001+; 37 compounds have two (מַה־זֶּה) — the sheet lists both. heMainKey handles
+  "{H4480A\H9014}" and "{H9003/H2022G}". Counts use countFor() = the builder's lookup() (H0430J → H0430G).
+  Known source quirks for Session 5: H0430J ("my gods", Gen 31:30) resolves to the "God" sense; טֶרֶם tagged numeric.
+- Labels: HTc covers כִּי and אִם → "conj. (if/for)"; numerical adjectives → "number"/"number (order)";
+  paragogic hé/nun → "added ending". heEnglish turns "(from: written, not read)" into "from" (note explains).
+- data.js keeps only the 6 most recent book files (gnt/hot/bsb) in memory (was unbounded: 54 MB after 16 OT books).
+- Device baseline in practice: CSS uses flex gap (iOS 14.1), inset (14.5), :has (15.4, cosmetic). Every device
+  that runs iOS 13 can update to iOS 15, so "keep iOS up to date" is the advice; JS stays at the 13.4 level.
 - build_votd skips BSB heading/cross-ref lines and drops פ ס from Hebrew (Today once showed "Here Is Your God!").
 
 ## Checks
-- `python3 tools/test_app.py` (server on :8765 first) — 97 end-to-end checks; run before every push.
-- `python3 tools/test_reader_edges.py` — 25 Reader edge cases (odd links, fast switching, focus, back button, 320px).
+- `python3 tools/test_app.py` (server on :8765 first) — 101 end-to-end checks; run before every push.
+- `python3 tools/test_reader_edges.py` — 28 Reader edge cases (odd links, fast switching incl. OT↔NT, offline Hebrew, focus, back button, 320px).
 - `python3 tools/sweep_reader.py [nt|ot|all]` — opens every chapter at 360px (NT ~10 min, OT ~35 min); expect
   0 issues and only 3JN 15 / REV 12:18 notes.
 - `tools/check_data.py` now has 31 checks (incl. OT BSB alignment both ways, psalm titles, Today's verses).

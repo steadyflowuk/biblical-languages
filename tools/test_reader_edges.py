@@ -36,6 +36,25 @@ async def main():
         check("fast switching lands on Matthew 7 with Matthew 7's text", name.strip() == "Matthew 7" and "Μὴ" in first, f"{name} / {first}")
         check("only one chapter on screen", await pg.locator(".chapter").count() == 1)
 
+        # 2b. Fast switching between the Testaments ends in the right language
+        await pg.goto(f"{BASE}#/read/GEN/1"); await ready(pg)
+        await pg.evaluate("""async () => { for (const r of ['MAT/1','PSA/23','JHN/1','DAN/2','ISA/53']) { location.hash = '#/read/' + r; await new Promise(z => setTimeout(z, 15)); } }""")
+        await pg.wait_for_timeout(2500)
+        cls = await pg.evaluate("document.querySelector('.chapter').className")
+        check("fast switching across Testaments lands on Isaiah 53 in Hebrew", (await pg.text_content(".rt-name")).strip() == "Isaiah 53"
+              and "lang-he" in cls and await pg.locator(".chapter").count() == 1, cls)
+        await pg.evaluate("""async () => { for (const r of ['GEN/1','MAT/2']) { location.hash = '#/read/' + r; await new Promise(z => setTimeout(z, 15)); } }""")
+        await pg.wait_for_timeout(2000)
+        cls = await pg.evaluate("document.querySelector('.chapter').className")
+        check("…and back to Matthew 2 in Greek", "lang-he" not in cls and await pg.locator('.chapter .wg[lang="grc"]').count() > 0, cls)
+
+        # 2c. A Hebrew book opened once reads offline
+        await pg.goto(f"{BASE}#/read/RUT/2"); await ready(pg); await pg.wait_for_timeout(800)
+        await ctx.set_offline(True); await pg.reload(); await ready(pg)
+        n = await pg.locator(".chapter .v").count()
+        await ctx.set_offline(False)
+        check("Ruth 2 (opened once) reads offline", n == 23, str(n))
+
         # 3. Sheet: keyboard open, focus inside, background not reachable, Escape returns focus to the word
         await pg.goto(f"{BASE}#/read/JHN/1"); await ready(pg)
         w = pg.locator('.v[data-vi="0"] .w').nth(1)

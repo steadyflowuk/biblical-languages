@@ -8,6 +8,13 @@ const DEFAULTS = {
   theme: "auto",           // auto | light | dark
   greekVoice: "erasmian",  // erasmian | koine
   installTipDismissed: false,
+  // Reader
+  lastRead: "JHN/1",       // book/chapter to reopen
+  readLayout: "words",     // words (interlinear) | text (running text)
+  showEnglish: true,       // English under each word
+  showTranslit: false,     // pronunciation under each word
+  showGrammar: false,      // short grammar under each word
+  showBSB: true,           // Berean Standard Bible under each verse
 };
 
 export function get(key) {

@@ -188,13 +188,78 @@ async def main():
         check("a book never opened fails cleanly offline", never == "failed cleanly", never)
         await ctx.close()
 
+        # 7c. Reader
+        ctx, page = await new_page(b)
+        await page.goto(f"{BASE}#/read/JHN/1"); await page.wait_for_selector(".chapter .v")
+        nv = await page.locator(".chapter .v").count()
+        check("Reader: John 1 shows all 51 verses", nv == 51, str(nv))
+        title = await page.title()
+        check("Reader: page title names the chapter", title.startswith("John 1"), title)
+        await page.locator('.v[data-vi="0"] .w').nth(4).click()
+        await page.wait_for_selector(".sheet .ws-word")
+        word = await page.text_content(".sheet .ws-word")
+        await page.wait_for_function("!document.querySelector('.ws-count')?.hidden")
+        count = await page.text_content(".ws-count dd")
+        facts = await page.locator(".ws-facts dd").all_inner_texts()
+        check("Reader: tapping λόγος opens its details", word.strip() == "λόγος" and "G3056" in facts[0] and "word" in facts[1], f"{word} {facts[:2]}")
+        check("Reader: shows how common the word is", "330" in count, count)
+        await page.click('.sheet [data-step="1"]')
+        nxt = await page.text_content(".sheet .ws-word")
+        check("Reader: next word button moves along the verse", nxt.strip() == "καὶ", nxt)
+        await page.keyboard.press("Escape")
+        check("Reader: Escape closes the details", await page.locator(".sheet").count() == 0)
+        # every word in a long chapter opens a sheet with a meaning
+        await page.goto(f"{BASE}#/read/PHM/1"); await page.wait_for_selector(".chapter .v")
+        total = await page.locator(".chapter .w").count()
+        bad = await page.evaluate("""async () => {
+          const ws = [...document.querySelectorAll('.chapter .w')]; const out = [];
+          for (const w of ws) { w.click(); const dd = document.querySelectorAll('.sheet .ws-facts dd');
+            if (!dd.length || !dd[0].textContent.trim() || !dd[1].textContent.trim() || dd[1].textContent.trim() === '—') out.push(w.textContent.slice(0, 20));
+            document.querySelector('.sheet [data-close]')?.click(); }
+          return out; }""")
+        check(f"Reader: all {total} words in Philemon open with a dictionary form and meaning", total > 300 and not bad, "; ".join(bad[:5]))
+        # chapter navigation, remembering the place, book picker
+        await page.goto(f"{BASE}#/read/JHN/21"); await page.wait_for_selector(".chapter .v")
+        nexts = await page.locator(".chapter-nav a").all_inner_texts()
+        check("Reader: last chapter of John leads on to Acts 1", "Acts 1" in nexts, str(nexts))
+        await page.goto(f"{BASE}#/today"); await page.click('.tabs a[data-tab="read"]'); await page.wait_for_selector(".chapter .v")
+        check("Reader: the Read tab reopens the last chapter", "John 21" in (await page.text_content(".rt-name")))
+        await page.click("[data-pick]"); await page.click('[data-book="ROM"]'); await page.click('.pick-ch:text-is("8")')
+        await page.wait_for_selector(".chapter .v"); await page.wait_for_timeout(200)
+        check("Reader: picker opens Romans 8", "Romans 8" in (await page.text_content(".rt-name")) and await page.locator(".sheet").count() == 0)
+        # textual and numbering notes
+        await page.goto(f"{BASE}#/read/MAT/17/20"); await page.wait_for_selector(".v-gap")
+        gap = await page.text_content(".v-gap")
+        check("Reader: explains the missing Matthew 17:21", "Verse 21" in gap, gap[:60])
+        await page.goto(f"{BASE}#/read/2CO/13"); await page.wait_for_selector(".chapter .v")
+        b13 = await page.text_content("#v13 .bsb")
+        check("Reader: 2 Corinthians 13:13 (NA28) shows BSB verse 14", "grace of the Lord Jesus" in b13, b13[:50])
+        # display options persist, no paragraph marks shown, largest text fits
+        await page.goto(f"{BASE}#/read/JHN/1"); await page.wait_for_selector(".chapter .v")
+        await page.click("[data-display]"); await page.check('[data-pref="showTranslit"]'); await page.check('[data-pref="showGrammar"]')
+        await page.click(".sheet-close"); await page.reload(); await page.wait_for_selector(".chapter .v")
+        has_t = await page.locator(".wt").count(); has_m = await page.locator(".wm").count()
+        check("Reader: pronunciation and grammar options stay on after reopening", has_t > 100 and has_m > 100)
+        await page.click("[data-display]"); await page.check('input[name="readLayout"][value="text"]'); await page.click(".sheet-close")
+        paras = await page.locator(".layout-text .para").count()
+        check("Reader: running text shows paragraphs", paras >= 3, str(paras))
+        body_text = await page.text_content(".chapter")
+        check("Reader: no ¶ or ¬ marks shown", "\u00b6" not in body_text and "\u00ac" not in body_text)
+        await page.evaluate("localStorage.setItem('ao:textSize', JSON.stringify('largest')); localStorage.setItem('ao:readLayout', JSON.stringify('words'))")
+        await page.goto(f"{BASE}#/read/MAT/1"); await page.reload(); await page.wait_for_selector(".chapter .v")
+        check("Reader: largest text still fits the screen", await overflow(page) <= 0, str(await overflow(page)))
+        await page.goto(f"{BASE}#/read/GEN/1"); await page.wait_for_selector("main h1")
+        check("Reader: Old Testament books say Hebrew reading is coming", "next update" in (await page.text_content("main")))
+        check("Reader: no console errors", not page.errors, "; ".join(page.errors[:3]))
+        await ctx.close()
+
         # 8. Tap targets on phone (minimum 44px tall, tab bar items)
         ctx, page = await new_page(b)
         small = []
-        for r in ["today", "settings", "media"]:
+        for r in ["today", "settings", "media", "read/JHN/3"]:
             await page.goto(f"{BASE}#/{r}"); await page.wait_for_selector("main h1")
             small += await page.evaluate("""() => [...document.querySelectorAll('a, button, label, [role=button]')]
-              .filter(e => e.offsetParent && !e.closest('.verse-original') && !e.classList.contains('skip'))
+              .filter(e => e.offsetParent && !e.closest('.verse-original') && !e.closest('.chapter') && !e.classList.contains('skip'))
               .map(e => ({t: (e.innerText || e.getAttribute('aria-label') || '').trim().slice(0, 30), h: e.getBoundingClientRect().height, w: e.getBoundingClientRect().width}))
               .filter(x => x.h < 44 || x.w < 44).map(x => `${x.t} ${Math.round(x.w)}x${Math.round(x.h)}`)""")
         check("tap targets at least 44px", not small, "; ".join(sorted(set(small))[:8]))

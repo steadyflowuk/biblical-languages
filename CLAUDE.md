@@ -12,6 +12,9 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - Plain HTML/CSS/ES modules, no build step. Large data is converted by scripts in `tools/`, never pasted by hand.
 - Bump `VERSION` in `sw.js` on every release and add any new shell file to `SHELL_FILES`.
 - Copy: plain, sentence case, from the learner's point of view. British English.
+- After every session, give the user a rundown of **what they'll see change** in the app and **what they won't see
+  yet** (and which session brings it), on top of the usual summary. Remind them to close and reopen the home-screen
+  app twice to pick up the update.
 
 ## Decisions
 - Greek first; Hebrew joins once Greek basics settle (both tracks exist from the start).
@@ -33,6 +36,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - `css/app.css` — tokens at top, light/dark, text size via `html[data-size]`
 - `js/app.js` hash router · `js/screens.js` all screens · `js/store.js` settings + backup (localStorage keys `ao:*`)
 - `js/install.js` add-to-home-screen help · `js/verses.js` built-in fallback verses · `js/data.js` data loader
+- `js/reader.js` Reader: chapter view, word sheet, picker, display options (sheet component lives here too)
 - `assets/fonts`, `assets/icons`
 
 ## Testing
@@ -44,12 +48,13 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - [x] 1 (26 Oct 2026): app shell, offline, install help, navigation, theme, text size, backup, starter verses, videos page.
 - [x] 1b (26 Oct 2026): deep check — 44px tap targets, iOS backup via share sheet, fresh-file updates, verses checked against SBLGNT/WLC.
 - [x] 2 (26 Oct 2026): data pipeline — `data/` built from STEPBible + BSB; Today uses `data/votd.json`.
-- [ ] 3 Greek Reader · [ ] 4 Hebrew/Aramaic Reader · [ ] 5 Dictionary · [ ] 6 ESV + LXX + parallel
+- [x] 3 (27 Oct 2026): Greek Reader — `js/reader.js`, routes `#/read/BOOK/CH[/VERSE]`.
+- [ ] 4 Hebrew/Aramaic Reader · [ ] 5 Dictionary · [ ] 6 ESV + LXX + parallel
 - [ ] 7 Lesson engine · [ ] 8 Greek lessons · [ ] 9 Vocab trainer + audio
 - [ ] 10 Hebrew lessons · [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
 
 ## Data (Session 2)
-- Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (27 checks).
+- Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (28 checks).
 - Greek = TAGNT words whose editions include NA28, plus 64 places where NA28's reading sits in TAGNT's variant column
   (e.g. Jude 5 Ἰησοῦς) and 9 NA28 spellings. 137,954 words, 7,942 verses, NA28 verse numbering. 92% of verses
   letter-identical to SBLGNT; the rest are NA28 bracketed words and known NA28/SBL differences.
@@ -73,6 +78,18 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   Credit required (Settings > About, README).
 - Shell gotcha: `pkill -f "http.server 8765"` inside a command that also contains that text kills the command itself.
 
+## Reader (Session 3)
+- Layouts: word by word (Greek + English/pronunciation/grammar under each word, BSB under each verse) or running
+  text (paragraphs from ¶; BSB shown in the word sheet). Prefs in store: readLayout, showEnglish, showTranslit,
+  showGrammar, showBSB, lastRead.
+- Greek verse item may carry a 3rd element: list of English (BSB) verse refs its words belong to (from TAGNT [x.y],
+  KJV-based) — 38 verses. BSB_REF_OVERRIDES in build_data.py fixes where the BSB differs from KJV (Rev 12:18 → 12:17).
+  The Reader gives each English verse to the first NA28 verse holding its words; check_data verifies full coverage.
+- Grammar display: friendlyGrammar() dedupes and explains source tags (individual → name of a person);
+  shortGrammar() abbreviates for under-word display.
+- Hebrew books currently show "arrives in the next update" — Session 4 replaces that with RTL interlinear.
+- WORD_RE uses named groups (en, word, kind): adding an unnamed group once shifted numbers and broke Hebrew.
+
 ## Checks
-- `python3 tools/test_app.py` (server on :8765 first) — 67 end-to-end checks; run before every push.
+- `python3 tools/test_app.py` (server on :8765 first) — 85 end-to-end checks; run before every push.
 - No WebKit here: iPhone/iPad behaviour must be checked on the user's devices.

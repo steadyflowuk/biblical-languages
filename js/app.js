@@ -1,10 +1,11 @@
 import * as store from "./store.js";
 import * as screens from "./screens.js";
+import { read } from "./reader.js";
 
 const ROUTES = {
   today: screens.today,
   learn: screens.learn,
-  read: screens.read,
+  read,
   words: screens.words,
   review: screens.review,
   media: screens.media,
@@ -17,8 +18,11 @@ matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", store.ap
 const main = document.getElementById("main");
 let first = true;
 
+let current = "";
+
 function route() {
-  const name = (location.hash.match(/^#\/([a-z]+)/) || [])[1];
+  // #/name or #/name/param/param… e.g. #/read/JHN/3/16
+  const [name, ...params] = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
   const screen = ROUTES[name];
   if (!screen) {
     location.replace("#/today");
@@ -28,10 +32,14 @@ function route() {
     if (a.dataset.tab === name) a.setAttribute("aria-current", "page");
     else a.removeAttribute("aria-current");
   });
-  screen.render(main);
-  document.title = `${screen.title} · Aleph to Omega`;
-  window.scrollTo(0, 0);
-  if (!first) main.focus({ preventScroll: true });
+  const sameScreen = name === current;
+  current = name;
+  document.body.classList.remove("sheet-open");
+  document.querySelector(".sheet")?.remove();
+  screen.render(main, params.map(decodeURIComponent));
+  if (!screen.handlesTitle) document.title = `${screen.title} · Aleph to Omega`;
+  if (!screen.handlesScroll) window.scrollTo(0, 0);
+  if (!first && !sameScreen) main.focus({ preventScroll: true });
   first = false;
 }
 

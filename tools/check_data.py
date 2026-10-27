@@ -180,6 +180,25 @@ check("Every original-language verse has its BSB verse (except known numbering d
 bsb_total = sum(b["v"][i] for b in books for i in range(b["ch"]))
 check("BSB verse total", bsb_total == 31086, str(bsb_total))
 
+# ------------------------------------------------ Reader alignment: every BSB verse sits under some NA28 verse
+uncovered = []
+for b in books:
+    if b["lang"] != "grc":
+        continue
+    src = load(f"gnt/{b['id']}.json")
+    bsb = load(f"bsb/{b['id']}.json")
+    covered = set()
+    for c, vs in src["ch"]:
+        for v in vs:
+            refs = v[2] if len(v) > 2 and isinstance(v[2], list) else [f"{c}.{v[0]}"]
+            covered.update(refs)
+    for ci, chap in enumerate(bsb["chapters"], start=1):
+        for kind, items in chap[0]:
+            for x in items:
+                if isinstance(x, int) and f"{ci}.{x}" not in covered:
+                    uncovered.append(f"{b['id']} {ci}:{x}")
+check("Reader: every NT verse of the BSB appears under an NA28 verse", not uncovered, ", ".join(uncovered[:8]))
+
 # ------------------------------------------------ lexicon and grammar coverage
 for lang, folder, idx, morph in (("Greek", "gnt", "greek", "greek"), ("Hebrew", "hot", "hebrew", "hebrew")):
     mt = load(f"morph/{morph}.json")

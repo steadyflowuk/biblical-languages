@@ -42,6 +42,7 @@ function verseHTML(v) {
     <p class="verse-original" lang="${v.lang}" dir="${dir}">${words}</p>
     <p class="verse-english">${esc(v.english)}</p>
     <div class="verse-gloss" aria-live="polite"></div>
+    ${v.lang === "grc" && /^[0-9A-Z]{3}-\d+-\d+$/.test(v.id) ? `<a class="verse-link" href="#/read/${v.id.replace(/-/g, "/")}">Read ${esc(v.ref.replace(/:\d+$/, ""))} word by word</a>` : ""}
   </section>
   <p class="verse-source">Tap any word to see what it means. ${SOURCE[v.lang]}; English: Berean Standard Bible.</p>`;
 }
@@ -169,22 +170,6 @@ export const learn = {
         draw();
       })
     );
-  },
-};
-
-// ---------------------------------------------------------------- Read
-
-export const read = {
-  title: "Read",
-  render(main) {
-    main.innerHTML = `<div class="screen">
-      ${head("Read", "Hebrew, Aramaic and Greek, word by word")}
-      <div class="note">
-        <p>The Reader arrives in the next update. You'll open any chapter in the original language, see the English meaning under every word, and read the Berean Standard Bible or the ESV alongside.</p>
-        <p>For a taste, tap the words in today's verse.</p>
-      </div>
-      <p><a class="btn" href="#/today">Open today's verse</a></p>
-    </div>`;
   },
 };
 

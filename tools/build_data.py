@@ -44,7 +44,7 @@ USFM = {s: s.upper() for s in STEP_CODES}
 
 # Main reference = NA28 / Leningrad numbering as used by STEPBible. Optional extras:
 #   (32.1) Hebrew numbering (TAHOT)   [13.14] English numbering for part of a verse   {14.24} where other editions put it
-WORD_RE = re.compile(r"^([1-3]?[A-Za-z]{2,3})\.(\d+)\.(\d+)(?:\((\d+)\.(\d+)\))?(?:\[[^\]]*\])?(?:\{[^}]*\})?#(\d+)=(\S+)\t")
+WORD_RE = re.compile(r"^([1-3]?[A-Za-z]{2,3})\.(\d+)\.(\d+)(?:\((\d+)\.(\d+)\))?(?:\[(?P<en>[^\]]*)\])?(?:\{[^}]*\})?#(?P<word>\d+)=(?P<kind>\S+)\t")
 
 
 def nfc(s):
@@ -175,12 +175,18 @@ def parse_greek_variant(mv):
     return None
 
 
+# NA28 verse -> BSB verse(s), where the BSB departs from the KJV numbering TAGNT records.
+# Rev 12:18 "the dragon stood on the shore": KJV 13:1, but the BSB ends 12:17 with it.
+BSB_REF_OVERRIDES = {("REV", 12, 18): ["12.17"]}
+
+
 def build_greek(glex):
     books = OrderedDict()
     stats = Counter()
     counts = Counter()
     substituted = []
     fallback = {}
+    en_refs = {}  # (book, ch, vs) -> English verse refs its words belong to, in order
     for path in sorted(glob.glob(os.path.join(STEP, "Translators Amalgamated OT+NT", "TAGNT*.txt")),
                        key=lambda p: 0 if "Mat-Jhn" in p else 1):
         for line in open(path, encoding="utf-8-sig"):
@@ -218,12 +224,20 @@ def build_greek(glex):
             w = trim([text, translit, english.strip(), strong, morph, post, pre])
             uid = USFM[book]
             books.setdefault(uid, OrderedDict()).setdefault(ch, OrderedDict()).setdefault(vs, []).append(w)
+            en = m.group("en") or f"{ch}.{vs}"
+            refs = en_refs.setdefault((uid, ch, vs), [])
+            if en not in refs:
+                refs.append(en)
             stats["words"] += 1
             for k in strong.split("+"):
                 counts[lookup(glex, k) or k] += 1
     stats["substituted_na28"] = len(substituted)
     stats["fallback_lexicon_entries"] = len(fallback)
-    return books, stats, counts, fallback
+    # TAGNT's [x.y] refs follow KJV numbering; where the BSB differs from the KJV, use the BSB's verse
+    en_refs.update(BSB_REF_OVERRIDES)
+    en_refs = {k: v for k, v in en_refs.items() if v != [f"{k[1]}.{k[2]}"]}
+    stats["verses_with_english_numbering"] = len(en_refs)
+    return books, stats, counts, fallback, en_refs
 
 
 # ---------------------------------------------------------------- Hebrew OT
@@ -243,7 +257,7 @@ def build_hebrew(hlex):
                 continue
             c = line.rstrip("\n").split("\t")
             book, ch, vs = m.group(1), int(m.group(2)), int(m.group(3))
-            kind = m.group(7)
+            kind = m.group("kind")
             stats["records"] += 1
             # "\\" separates punctuation (maqaf ־, sof pasuq ׃, paragraph marks פ ס);
             # a part holding letters is the rest of a hyphenated word, e.g. כְּדָרְ\\־לָעֹ֔מֶר
@@ -328,8 +342,10 @@ def hebrew_keys(book):
     return keys
 
 
-def chapters_out(book, heb_refs=None, uid=None):
-    """[[chapter, [[verse, words, hebrewRef?], ...]], ...]"""
+def chapters_out(book, heb_refs=None, uid=None, en_refs=None):
+    """[[chapter, [[verse, words, ref?], ...]], ...]
+    Hebrew: ref = "c.v" in Hebrew numbering when it differs from the English numbering used for the verse.
+    Greek:  ref = ["c.v", ...] English (BSB) verses this NA28 verse's words belong to, when not just its own number."""
     out = []
     for ch, verses in book.items():
         vs_out = []
@@ -337,6 +353,8 @@ def chapters_out(book, heb_refs=None, uid=None):
             item = [vs, words]
             if heb_refs and (uid, ch, vs) in heb_refs:
                 item.append(heb_refs[(uid, ch, vs)])
+            if en_refs and (uid, ch, vs) in en_refs:
+                item.append(en_refs[(uid, ch, vs)])
             vs_out.append(item)
         out.append([ch, vs_out])
     return out
@@ -453,7 +471,7 @@ def main():
         sys.exit("Give the sources folder made by tools/fetch_sources.sh")
     glex = read_lexicon("TBESG*.txt")
     hlex = read_lexicon("TBESH*.txt")
-    gnt, gstats, gcounts, gfallback = build_greek(glex)
+    gnt, gstats, gcounts, gfallback, gen_refs = build_greek(glex)
     hot, hstats, hcounts, heb_refs = build_hebrew(hlex)
     index, bsb, bsb_verses = build_bsb()
 
@@ -487,7 +505,7 @@ def main():
                       "ch": entry["c"], "v": chapters})
         if lang == "grc":
             dump(f"gnt/{uid}.json", {"id": uid, "lex": lex_subset(greek_keys(src[uid]), glex, gfallback),
-                                     "ch": chapters_out(src[uid])})
+                                     "ch": chapters_out(src[uid], en_refs=gen_refs, uid=uid)})
         else:
             dump(f"hot/{uid}.json", {"id": uid, "lex": lex_subset(hebrew_keys(src[uid]), hlex),
                                      "ch": chapters_out(src[uid], heb_refs, uid)})

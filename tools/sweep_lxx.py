@@ -17,7 +17,7 @@ CHECK = r"""
   const text = ch.innerText;
   const bad = (text.match(/\bundefined\b|\bNaN\b|\bnull\b|\[object|&lt;|&gt;|&amp;|⸂|⸃|⸆/g) || []);
   const ov = document.documentElement.scrollWidth - document.documentElement.clientWidth;
-  const cols = [...ch.querySelectorAll('.col-lxx')];
+  const cols = [...ch.querySelectorAll('.v.pv .col-lxx')];
   return { verses: ch.querySelectorAll('.v.pv, .lv').length, lxx: cols.length,
            none: cols.filter(c => /No matching verse/.test(c.textContent)).length,
            loading: (text.match(/Loading/g) || []).length, bad: [...new Set(bad)], ov,
@@ -53,7 +53,9 @@ async def main():
                         if r["lxx"] or not r["weak"]: issues["weak chapter shows verse lines"].append(ref)
                     else:
                         if r["lxx"] != r["verses"]: issues["Septuagint column count differs"].append(f"{ref}: {r['lxx']} vs {r['verses']}")
-                        nulls = sum(1 for e in x["v"] if not e[1])
+                        first = {e[0]: e for e in x["v"]}
+                        # a psalm title inside Septuagint verse 1 gets its own note, not "no matching verse"
+                        nulls = sum(1 for e in x["v"] if not e[1] and not (e[0] == 0 and first.get(1, [0, None])[1]))
                         if r["none"] != nulls: issues["'no matching verse' count differs from data"].append(f"{ref}: {r['none']} vs {nulls}")
                         n_none += r["none"]
                     if r["bad"]: issues["bad text on screen"].append(f"{ref}: {r['bad']}")

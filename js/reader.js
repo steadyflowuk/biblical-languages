@@ -17,8 +17,10 @@ const GROUPS = [
 /** English for one word: drop verse-number notes and trailing punctuation; mark supplied and untranslated words. */
 export function englishHTML(raw) {
   let s = String(raw || "")
-    .replace(/^\s*(\{[^}]*\}|\[\d+(?:\.\d+)?\]|\(\d+\))\s*/, "")
+    .replace(/^\s*(\{[^}]*\}|\[\d+(?:\.\d+)?\]|\(\d+[a-z]?\))\s*/, "") // verse notes like {8.1} [14] (26) (8b)
     .replace(/[,.;:·!?·;]+$/, "")
+    .replace(/(\S)\[/g, "$1 [")
+    .replace(/\s+/g, " ")
     .trim();
   s = esc(s)
     .replace(/&lt;(.*?)&gt;/g, '<span class="e-u" title="not needed in English">$1</span>')
@@ -40,11 +42,12 @@ const ABBR = [
   [/\bpreposition\b/gi, "prep."], [/\bconjunction\b/gi, "conj."], [/\badverb\b/gi, "adv."], [/\bparticle\b/gi, "part."],
 ];
 
-const TAGS = [
-  [/\s+individual\b/i, " (name of a person)"], [/\s+person\b(?!al)/i, " (name of a person)"],
-  [/\s+location\b/i, " (name of a place)"], [/\s+gentilic\b/i, " (name of a people group)"],
-  [/\s+title\b/i, " (title)"],
-];
+// The source tags proper nouns: individual = a person's name, location = a place name, title,
+// and "… gentilic" = a word for a people group (e.g. Galilean). Replaced in one pass so labels never nest;
+// "1st person" in pronouns is grammar and is left alone.
+const TAG_RE = /\s+(?:(?:individual|person|location)\s+)?gentilic\b|\s+individual\b|\s+location\b|\s+title\b/gi;
+const tagLabel = (m) => (/gentilic/i.test(m) ? " (people group)" : /individual/i.test(m) ? " (name of a person)"
+  : /location/i.test(m) ? " (name of a place)" : " (title)");
 
 /** Tidy a grammar description for learners: drop repeated words, explain the source's name tags. */
 export function friendlyGrammar(desc) {
@@ -55,8 +58,7 @@ export function friendlyGrammar(desc) {
     seen.add(k);
     return true;
   }).join(" ");
-  for (const [re, rep] of TAGS) s = s.replace(re, rep);
-  return s;
+  return s.replace(TAG_RE, tagLabel);
 }
 
 /** "Verb aorist active indicative 3rd singular" → "verb aor. act. ind. 3rd sg." */
@@ -67,6 +69,9 @@ export function shortGrammar(desc) {
 }
 
 const compact = (gloss) => String(gloss || "").split(": ").pop();
+
+/** STEPBible's extended numbers (G0025, G2424G) as the familiar Strong's numbers (G25, G2424). */
+export const strongs = (key) => String(key || "").replace(/^([GH])0*(\d+)[A-Za-z]?$/, "$1$2");
 
 // ---------------------------------------------------------------- BSB chapter → verses, headings, notes
 
@@ -108,7 +113,8 @@ function englishRefs(state, verse) {
 
 function bsbVerse(state, ref) {
   const [c, n] = ref.split(".").map(Number);
-  const chap = c === state.ch ? state.bsb : (state.other[c] ??= bsbChapter(state.bsbBook, c));
+  if (c !== state.ch && !state.other[c]) state.other[c] = bsbChapter(state.bsbBook, c);
+  const chap = c === state.ch ? state.bsb : state.other[c];
   const text = chap.verses.get(n);
   return text ? { text, notes: chap.notes, c, n } : null;
 }
@@ -126,24 +132,35 @@ function openSheet(html, { label, onClose, returnFocus } = {}) {
     </section>`;
   document.body.append(wrap);
   document.body.classList.add("sheet-open");
+  // Make the page behind inactive so Tab and screen readers stay inside the open sheet
+  for (const el of document.body.children) {
+    if (el !== wrap && !el.hasAttribute("inert")) el.setAttribute("inert", ""), el.dataset.sheetInert = "1";
+  }
   const panel = wrap.querySelector(".sheet-panel");
   const close = () => { closeSheet(); onClose?.(); returnFocus?.focus?.({ preventScroll: true }); };
   wrap.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", close));
   wrap.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+  sheetEscape = (e) => { if (e.key === "Escape" && document.querySelector(".sheet")) close(); };
+  document.addEventListener("keydown", sheetEscape);
   panel.focus({ preventScroll: true });
   return wrap.querySelector(".sheet-body");
 }
 
-function closeSheet() {
+let sheetEscape = null;
+
+export function closeSheet() {
   document.querySelector(".sheet")?.remove();
   document.body.classList.remove("sheet-open");
+  document.querySelectorAll("[data-sheet-inert]").forEach((el) => { el.removeAttribute("inert"); delete el.dataset.sheetInert; });
+  if (sheetEscape) document.removeEventListener("keydown", sheetEscape);
+  sheetEscape = null;
 }
 
 // ---------------------------------------------------------------- word details
 
 let counts = null; // lexicon key → number of times in the NT
 function wordCounts() {
-  counts ??= data.getJSON("data/lex/greek-index.json").then((idx) => new Map(idx.map((e) => [e[0], e[4] || 0])));
+  if (!counts) counts = data.getJSON("data/lex/greek-index.json").then((idx) => new Map(idx.map((e) => [e[0], e[4] || 0])));
   return counts;
 }
 
@@ -159,7 +176,7 @@ function wordSheetHTML(w, ctx) {
     <h2 class="ws-word" lang="grc" id="sheet-title">${form}</h2>
     <p class="ws-translit">${esc(translit)}</p>
     <dl class="ws-facts">
-      <div><dt>Dictionary form</dt><dd>${lex.map((l, i) => `<span lang="grc" class="ws-lemma">${esc(l[0])}</span> <span class="muted">${esc(l[1])} · Strong's ${esc(keys[i])}</span>`).join("<br>")}</dd></div>
+      <div><dt>Dictionary form</dt><dd>${lex.map((l, i) => `<span lang="grc" class="ws-lemma">${esc(l[0])}</span> <span class="muted">${esc(l[1])} · Strong's ${esc(strongs(keys[i]))}</span>`).join("<br>")}</dd></div>
       <div><dt>Meaning</dt><dd>${lex.map((l) => esc(compact(l[2]) || "—")).join(" + ")}</dd></div>
       <div><dt>In this verse</dt><dd>${englishHTML(english) || "—"}</dd></div>
       <div><dt>Grammar</dt><dd>${grammar.map((g) => `<strong>${esc(friendlyGrammar(g[0]))}</strong>${g[1] ? `<span class="ws-explain">${esc(g[1])}${g[2] ? `, as in “${esc(g[2])}”` : ""}.</span>` : ""}`).join("<br>")}</dd></div>
@@ -228,6 +245,8 @@ function headingsHTML(state, v) {
   return (state.bsb.headings.get(v) || []).map((h) => `<h2 class="sec">${esc(h)}</h2>`).join("");
 }
 
+const BRACKET_NOTE = `<p class="v-gap v-note">Words in double brackets [[ ]] are not in the oldest manuscripts. The NA28 editors print them because they were added very early and have long been read in the church.</p>`;
+
 function missingNote(from, to) {
   const list = from === to ? `Verse ${from} is` : `Verses ${from} to ${to} are`;
   return `<p class="v-gap">${list} not in the oldest manuscripts, so the NA28 text and the BSB leave ${from === to ? "it" : "them"} out. The BSB footnote nearby gives the wording found in later manuscripts.</p>`;
@@ -236,6 +255,13 @@ function missingNote(from, to) {
 function chapterHTML(state) {
   const out = [];
   const assigned = new Set();
+  // An English verse goes under the NA28 verse with the same number when that verse holds any of its words,
+  // otherwise under the first NA28 verse that holds them (e.g. 2 Cor 13:14 under NA28 13:13).
+  const owner = new Map();
+  state.verses.forEach((verse, vi) => {
+    const own = `${state.ch}.${verse[0]}`;
+    if (englishRefs(state, verse).includes(own)) owner.set(own, vi);
+  });
   const textMode = state.prefs.readLayout === "text";
   let prev = 0;
   let para = [];
@@ -248,7 +274,11 @@ function chapterHTML(state) {
     const heads = headingsHTML(state, v);
     if (textMode) {
       if (heads) { flushPara(); out.push(heads); }
-      let run = `<sup class="vn">${v}</sup>`;
+      if (!state.bracketNoted && words.some((w) => String(w[6] || "").includes("[["))) {
+        state.bracketNoted = true;
+        flushPara(); out.push(BRACKET_NOTE);
+      }
+      let run = `<sup class="vn"><span class="sr">Verse </span>${v}</sup>`;
       let first = true;
       const push = () => { para.push(`<span class="v" data-vi="${vi}"${first ? ` id="v${v}"` : ""}>${run}</span>`); first = false; run = ""; };
       words.forEach((w, wi) => {
@@ -259,8 +289,12 @@ function chapterHTML(state) {
       return;
     }
     out.push(heads);
+    if (!state.bracketNoted && words.some((w) => String(w[6] || "").includes("[["))) {
+      state.bracketNoted = true;
+      out.push(BRACKET_NOTE);
+    }
     const refs = englishRefs(state, verse);
-    const fresh = refs.filter((r) => !assigned.has(r));
+    const fresh = refs.filter((r) => (owner.has(r) ? owner.get(r) === vi : !assigned.has(r)));
     fresh.forEach((r) => assigned.add(r));
     const own = fresh.length === 1 && fresh[0] === `${state.ch}.${v}`;
     const parts = fresh.map((r) => bsbVerse(state, r)).filter(Boolean)
@@ -268,7 +302,7 @@ function chapterHTML(state) {
     const bsb = !state.prefs.showBSB ? ""
       : parts.length ? `<p class="bsb">${parts.join(" ")}</p>`
       : `<p class="bsb muted">In the BSB these words are part of ${refs.map((r) => (r.startsWith(`${state.ch}.`) ? `verse ${r.split(".")[1]}` : refLabel(r))).join(" and ")}.</p>`;
-    out.push(`<div class="v" data-vi="${vi}" id="v${v}"><span class="vn">${v}</span><div class="words" lang="grc">${words.map((w, wi) => wordHTML(w, vi, wi, state)).join("")}</div>${bsb}</div>`);
+    out.push(`<div class="v" data-vi="${vi}" id="v${v}"><span class="vn"><span class="sr">Verse </span>${v}</span><div class="words" lang="grc">${words.map((w, wi) => wordHTML(w, vi, wi, state)).join("")}</div>${bsb}</div>`);
   });
   flushPara();
 
@@ -402,6 +436,7 @@ export const read = {
       verses: chapter ? chapter[1] : [], bsb: bsbChapter(bsbBook, ch),
     };
     const draw = () => {
+      state.bracketNoted = false;
       holder.className = `chapter layout-${state.prefs.readLayout}`;
       holder.innerHTML = chapterHTML(state);
       holder.removeAttribute("aria-busy");

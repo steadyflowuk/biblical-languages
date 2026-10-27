@@ -26,7 +26,8 @@
   --ink: #1A2233;
   --muted: #5A6375;
   --line: #D8CDB8;
-  --accent-ink: var(--gold-deep);
+  --accent-ink: #765A1C;   /* gold-deep darkened for small text: 5.2:1 on beige */
+  --sage-ink: #476050;     /* sage for small text: 5.5:1 on beige */
   --focus: #2F6FD6;
   --btn-bg: var(--navy);
   --btn-ink: #FFFFFF;
@@ -59,6 +60,7 @@
     --muted: #A8B0C0;
     --line: #2C3958;
     --accent-ink: var(--gold);
+    --sage-ink: var(--sage);
     --panel: #0C1322;
     --panel-ink: #F3EEE3;
     --panel-muted: #9FB09B;
@@ -77,6 +79,7 @@
   --muted: #A8B0C0;
   --line: #2C3958;
   --accent-ink: var(--gold);
+  --sage-ink: var(--sage);
   --panel: #0C1322;
   --panel-ink: #F3EEE3;
   --panel-muted: #9FB09B;
@@ -347,21 +350,19 @@ legend { font-weight: 700; margin-bottom: 8px; padding: 0; }
   -webkit-tap-highlight-color: transparent;
 }
 .layout-words .w:hover { background: var(--surface); }
-.layout-words .w.on { background: color-mix(in srgb, var(--gold) 22%, transparent); }
+.layout-words .w.on { background: rgba(196, 160, 82, .22); background: color-mix(in srgb, var(--gold) 22%, transparent); }
 .wg { font-family: var(--font-greek); font-size: 1.4rem; line-height: 1.25; color: var(--ink); }
 .wt, .we, .wm { font-family: var(--font-ui); }
 .wt { font-size: .78rem; color: var(--muted); font-style: italic; }
 .we { font-size: .84rem; line-height: 1.25; color: var(--ink); max-width: 9rem; }
-.wm { font-size: .72rem; line-height: 1.2; color: var(--sage-deep); max-width: 8rem; }
-:root[data-theme="dark"] .wm { color: var(--sage); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .wm { color: var(--sage); } }
-.e-u { opacity: .5; }
+.wm { font-size: .72rem; line-height: 1.2; color: var(--sage-ink); max-width: 8rem; }
+.e-u { color: var(--muted); }
 .e-s { font-style: italic; color: var(--muted); }
 .bsb {
   grid-column: 2; margin: 10px 0 0; font-family: var(--font-scripture); font-size: 1.05rem; line-height: 1.55;
   color: var(--ink); opacity: .86;
 }
-.v.focus { background: color-mix(in srgb, var(--gold) 14%, transparent); border-radius: 10px; }
+.v.focus { background: rgba(196, 160, 82, .14); background: color-mix(in srgb, var(--gold) 14%, transparent); border-radius: 10px; }
 .v-gap {
   grid-column: 2; margin: 12px 0; padding: 10px 14px; border-radius: 10px;
   background: var(--surface); border: 1px dashed var(--line); color: var(--muted); font-size: .9rem;
@@ -376,11 +377,11 @@ legend { font-weight: 700; margin-bottom: 8px; padding: 0; }
 .layout-text .para { font-family: var(--font-greek); font-size: 1.5rem; line-height: 1.95; margin: 0 0 18px; }
 .layout-text .vn { color: var(--accent-ink); font-family: var(--font-ui); font-size: .62em; font-weight: 700; margin: 0 3px 0 6px; }
 .layout-text .w { cursor: pointer; border-radius: 6px; padding: 2px 1px; }
-.layout-text .w.on { background: color-mix(in srgb, var(--gold) 26%, transparent); }
-.layout-text .v.focus { background: color-mix(in srgb, var(--gold) 14%, transparent); }
+.layout-text .w.on { background: rgba(196, 160, 82, .26); background: color-mix(in srgb, var(--gold) 26%, transparent); }
+.layout-text .v.focus { background: rgba(196, 160, 82, .14); background: color-mix(in srgb, var(--gold) 14%, transparent); }
 
 .chapter-nav { display: flex; justify-content: space-between; gap: 12px; margin: 32px 0 8px; }
-.chapter-nav .btn { flex: 0 1 auto; }
+.chapter-nav .btn { flex: 0 1 auto; min-width: 0; white-space: normal; text-align: center; line-height: 1.25; padding-top: 8px; padding-bottom: 8px; }
 
 /* ======================================================================= Sheets */
 
@@ -447,3 +448,13 @@ body.sheet-open { overflow: hidden; }
 fieldset:disabled { opacity: .45; }
 .bsb-ref { color: var(--accent-ink); font-family: var(--font-ui); font-size: .7em; font-weight: 700; margin-right: 3px; }
 .reader-h1 { margin: 0; font-size: inherit; }
+
+/* Long book names on narrow phones ("1 Thessalonians 1") */
+.reader-h1 { min-width: 0; flex: 1 1 auto; }
+.reader-title { max-width: 100%; }
+.rt-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.reader-tools { flex: none; }
+@media (max-width: 420px) { .reader-title { font-size: 1.3rem; } }
+.layout-words > .v-note { margin-left: 2.1rem; }
+.layout-text > .v-note { margin: 0 0 18px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

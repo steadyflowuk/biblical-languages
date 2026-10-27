@@ -1,6 +1,6 @@
 import * as store from "./store.js";
 import * as screens from "./screens.js";
-import { read } from "./reader.js";
+import { read, closeSheet } from "./reader.js";
 
 const ROUTES = {
   today: screens.today,
@@ -34,8 +34,7 @@ function route() {
   });
   const sameScreen = name === current;
   current = name;
-  document.body.classList.remove("sheet-open");
-  document.querySelector(".sheet")?.remove();
+  closeSheet();
   screen.render(main, params.map(decodeURIComponent));
   if (!screen.handlesTitle) document.title = `${screen.title} · Aleph to Omega`;
   if (!screen.handlesScroll) window.scrollTo(0, 0);

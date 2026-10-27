@@ -49,6 +49,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - [x] 1b (26 Oct 2026): deep check — 44px tap targets, iOS backup via share sheet, fresh-file updates, verses checked against SBLGNT/WLC.
 - [x] 2 (26 Oct 2026): data pipeline — `data/` built from STEPBible + BSB; Today uses `data/votd.json`.
 - [x] 3 (27 Oct 2026): Greek Reader — `js/reader.js`, routes `#/read/BOOK/CH[/VERSE]`.
+- [x] 3b (27 Oct 2026): deep check — BSB placement (own number wins), grammar tag labels, focus trap, contrast, iOS 13.4 baseline.
 - [ ] 4 Hebrew/Aramaic Reader · [ ] 5 Dictionary · [ ] 6 ESV + LXX + parallel
 - [ ] 7 Lesson engine · [ ] 8 Greek lessons · [ ] 9 Vocab trainer + audio
 - [ ] 10 Hebrew lessons · [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
@@ -85,11 +86,20 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - Greek verse item may carry a 3rd element: list of English (BSB) verse refs its words belong to (from TAGNT [x.y],
   KJV-based) — 38 verses. BSB_REF_OVERRIDES in build_data.py fixes where the BSB differs from KJV (Rev 12:18 → 12:17).
   The Reader gives each English verse to the first NA28 verse holding its words; check_data verifies full coverage.
-- Grammar display: friendlyGrammar() dedupes and explains source tags (individual → name of a person);
-  shortGrammar() abbreviates for under-word display.
+- BSB placement: an English verse goes under the NA28 verse with the same number if that verse holds any of its
+  words, else under the first NA28 verse holding them. Only 3 John 15 and Rev 12:18 then show "part of verse …".
+- Grammar display: friendlyGrammar() dedupes and maps source tags in ONE regex pass (individual → name of a person,
+  location → place, title, "… gentilic" → people group); "1st person" in pronouns is grammar, left alone.
+  shortGrammar() abbreviates for under-word display. Strong's shown in familiar form via strongs() (G0025 → G25).
+- Double brackets [[ ]]: a one-per-chapter note explains them (Mark 16:8 Shorter Ending, 16:9-20, John 7:53-8:11).
+- Sheets make every other body child `inert` while open (focus stays inside; Escape closes; focus returns).
+- Light-theme small text uses --accent-ink #765A1C and --sage-ink #476050 (≥5:1 on beige). color-mix() has rgba
+  fallbacks. JS avoids ??= etc.: baseline is iOS 13.4 (optional chaining). Older iPads won't run the app.
 - Hebrew books currently show "arrives in the next update" — Session 4 replaces that with RTL interlinear.
 - WORD_RE uses named groups (en, word, kind): adding an unnamed group once shifted numbers and broke Hebrew.
 
 ## Checks
 - `python3 tools/test_app.py` (server on :8765 first) — 85 end-to-end checks; run before every push.
+- `python3 tools/test_reader_edges.py` — 22 Reader edge cases (odd links, fast switching, focus, back button, 320px).
+- `python3 tools/sweep_reader.py` — opens all 260 NT chapters (~10 min); expect 0 issues and only 3JN 15 / REV 12:18 notes.
 - No WebKit here: iPhone/iPad behaviour must be checked on the user's devices.

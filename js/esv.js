@@ -75,9 +75,10 @@ export function parseChapter(passage, isPsalm) {
   const text = kept.join("\n");
   const parts = text.split(/\[(\d+)\]/);
   // Text that introduces the next verse belongs with it, not at the end of this one: the ESV's double brackets
-  // ("[[" before Mark 16:9 and John 7:53) and its bracketed notes ("[Some of the earliest manuscripts …]").
+  // ("[[" before Mark 16:9 and John 7:53) and the bracketed note just before them ("[Some of the earliest
+  // manuscripts …]"). Other bracketed lines stay with their verse (Psalm 145:13's last line).
   for (let i = 0; i < parts.length - 2; i += 2) {
-    const m = parts[i].match(/(\n\s*\[[^\]\d[][^\]]*\])?\s*(\[\[)?\s*$/);
+    const m = parts[i].match(/(\n\s*\[[^\]\d[][^\]]*\])?\s*\[\[\s*$/); // a note moves only with the "[[" after it
     if (m && m[0].trim()) {
       parts[i] = parts[i].slice(0, m.index);
       parts[i + 2] = `${m[0].trim()} ${parts[i + 2]}`;

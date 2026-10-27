@@ -9,6 +9,7 @@ BASE = "http://localhost:8765/"
 CHROME = "/opt/pw-browsers/chromium-1243/chrome-linux64/chrome"
 res = []
 esv_calls = []
+BOOK_VERSES = [b["v"] for b in json.load(open("/home/claude/biblical-languages/data/books.json"))]
 esv_mode = {"status": 200, "offline": False}
 
 
@@ -34,7 +35,8 @@ def esv_body(url):
         return {"passages": [" ".join(f"[{v}] Third John {v}." for v in range(1, 14)) + " [14] I hope to see you soon.\n\n[15] Peace be to you. The friends greet you."]}
     if b == 22 and c == 1:  # Song of Songs speaker labels
         return {"passages": ["She\n\n[2] Let him kiss me with the kisses of his mouth!\n\n" + " ".join(f"[{v}] Song verse {v}." for v in range(3, 18))]}
-    return {"passages": [" ".join(f"[{v}] ESV {b}:{c}:{v}." for v in range(1, 60))]}
+    n = BOOK_VERSES[b - 1][c - 1] if b <= len(BOOK_VERSES) and c <= len(BOOK_VERSES[b - 1]) else 30
+    return {"passages": [" ".join(f"[{v}] ESV {b}:{c}:{v}." for v in range(1, n + 1))]}
 
 
 async def esv_route(route):

@@ -5,7 +5,7 @@ const cache = new Map();
 // Bible book files are large (Old Testament books up to 3.5 MB in memory), so only the most recently used
 // few are kept here; the rest stay saved by the service worker and reload quickly from there.
 // Dictionary entry files (data/lex/G|H/nn.json) are kept the same way, in a group of their own.
-const GROUPS = [{ re: /^data\/(gnt|hot|bsb)\//, keep: 6 }, { re: /^data\/lex\/[GH]\//, keep: 8 }];
+const GROUPS = [{ re: /^data\/(gnt|hot|bsb|lxx\/text|lxx\/ot)\//, keep: 8 }, { re: /^data\/lex\/[GH]\//, keep: 8 }];
 const groupOf = (path) => GROUPS.find((g) => g.re.test(path));
 
 export function getJSON(path) {
@@ -34,6 +34,11 @@ export const books = () => getJSON("data/books.json");
 export const verseOfTheDay = () => getJSON("data/votd.json");
 export const morph = (lang) => getJSON(`data/morph/${lang === "he" ? "hebrew" : "greek"}.json`);
 export const bsb = (bookId) => getJSON(`data/bsb/${bookId}.json`);
+
+// The Septuagint (Swete): its own books and numbering, and its verses lined up with the Hebrew/English OT
+export const lxxBooks = () => getJSON("data/lxx/books.json");
+export const lxxText = (id) => getJSON(`data/lxx/text/${id}.json`);
+export const lxxForOT = (bookId) => getJSON(`data/lxx/ot/${bookId}.json`);
 
 /** Original-language text of a book: Greek NT (NA28) or Hebrew/Aramaic OT (Leningrad). */
 export async function original(bookId) {

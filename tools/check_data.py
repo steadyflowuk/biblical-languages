@@ -255,6 +255,22 @@ check("Dictionary: λόγος has 330 occurrences, John 1:1 among them, and its 
 sounds_h, sounds_g = load("lex/hebrew-sounds.json"), load("lex/greek-sounds.json")
 check("Dictionary: pronunciations of written words find their entry (bereshit → H7225, egapesen → G25)",
       "H7225G" in sounds_h.get("beresit", []) and "G0025" in sounds_g.get("egapesen", []))
+# ------------------------------------------------ Septuagint (Session 6)
+lxx_books = load("lxx/books.json")
+lxx_verses = sum(len(vs) for b in lxx_books for _, vs in load(f"lxx/text/{b['id']}.json")["ch"])
+check("Septuagint: 60 books, 30,533 verses of Swete's text", len(lxx_books) == 60 and lxx_verses == 30533, f"{len(lxx_books)} {lxx_verses}")
+def lxx_at(bid, c, v):
+    ch = dict(load(f"lxx/ot/{bid}.json")["ch"]).get(c, {})
+    return next((x for x in ch.get("v", []) if x[0] == v), [v, None, None])
+check("Septuagint lines up: Psalm 23:1 = Ps 22:1, Jeremiah 31:31 = 38:31, Malachi 4:5 = Elijah, Daniel 4:1 = 3:98",
+      lxx_at("PSA", 23, 1)[1] == "Psa.22:1" and lxx_at("JER", 31, 31)[1] == "Jer.38:31"
+      and unicodedata.normalize("NFC", "Ἠλίαν") in unicodedata.normalize("NFC", lxx_at("MAL", 4, 5)[2] or "")
+      and lxx_at("DAN", 4, 1)[1] == "Dat.3:98")
+ot_v = [x for b in books if b["lang"] == "he" for _, d in load(f"lxx/ot/{b['id']}.json")["ch"] for x in d["v"]]
+check("Septuagint: at least 96% of Old Testament verses have a matching Greek verse",
+      sum(1 for x in ot_v if x[1]) / len(ot_v) >= 0.96, f"{sum(1 for x in ot_v if x[1]):,}/{len(ot_v):,}")
+check("Septuagint licence and notes travel with the data", os.path.exists(os.path.join(DATA, "lxx", "LICENSE"))
+      and "GENERAL PUBLIC LICENSE" in open(os.path.join(DATA, "lxx", "LICENSE"), encoding="utf-8").read()[:200])
 votd = load("votd.json")
 bad_votd = [v["id"] for v in votd if re.search(r"\(\w+ \d+:\d+", v["english"])
             or any(re.search(r"(^|\s)[\u05e4\u05e1](\s|$)", w.get("p", "")) for w in v["words"])]

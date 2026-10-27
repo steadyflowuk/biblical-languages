@@ -2,6 +2,7 @@ import * as store from "./store.js";
 import { VERSES as STARTER } from "./verses.js";
 import * as data from "./data.js";
 import { installTip, bindInstallTip } from "./install.js";
+import * as esv from "./esv.js";
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
@@ -240,6 +241,49 @@ function radios(name, legend, options, current, help = "") {
   </fieldset>`;
 }
 
+// ---- ESV key (kept on this device only; never in backups)
+
+function esvSettingsHTML() {
+  if (esv.hasKey()) {
+    return `<p class="esv-ok">ESV key saved on this device. Turn on the ESV in the Reader's display options.</p>
+      <p class="muted">The key isn't included in backups, so add it again on each device.</p>
+      <div class="btn-row"><button type="button" class="btn secondary" data-esv-remove>Remove key</button></div>`;
+  }
+  return `<p class="muted" style="margin-top:0">The ESV can appear alongside the Berean Standard Bible. It needs a free key from Crossway, which stays on this device and isn't included in backups.</p>
+    <ol class="steps muted">
+      <li>Sign up at api.esv.org (the button below opens it) and create an application for personal use.</li>
+      <li>Copy its key, a long code of letters and numbers.</li>
+      <li>Paste it below and choose “Save key”.</li>
+    </ol>
+    <p><a class="btn secondary" href="https://api.esv.org/" target="_blank" rel="noopener">Open api.esv.org</a></p>
+    <label class="field"><span>ESV key</span>
+      <input type="text" data-esv-key autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Paste your key here"></label>
+    <div class="btn-row"><button type="button" class="btn" data-esv-save>Save key</button></div>
+    <p class="field-help" data-esv-msg role="status"></p>`;
+}
+
+function wireEsvSettings(box) {
+  box.querySelector("[data-esv-remove]")?.addEventListener("click", () => {
+    esv.clearKey();
+    box.innerHTML = esvSettingsHTML();
+    wireEsvSettings(box);
+    toast("ESV key removed from this device");
+  });
+  box.querySelector("[data-esv-save]")?.addEventListener("click", async () => {
+    const input = box.querySelector("[data-esv-key]");
+    const msg = box.querySelector("[data-esv-msg]");
+    const key = String(input.value || "").replace(/^\s*(authorization:\s*)?token\s+/i, "").trim();
+    if (!key) { msg.textContent = "Paste your key first."; input.focus(); return; }
+    msg.textContent = "Checking the key…";
+    const result = await esv.testKey(key);
+    if (!result.ok) { msg.textContent = result.message; return; }
+    esv.setKey(key);
+    box.innerHTML = esvSettingsHTML();
+    wireEsvSettings(box);
+    toast("ESV key saved");
+  });
+}
+
 export const settings = {
   title: "Settings",
   render(main) {
@@ -252,6 +296,9 @@ export const settings = {
           "Erasmian keeps the vowels distinct, which helps with spelling. Restored Koine is closer to how the apostles spoke. Audio arrives in Week 3.")}
       </form>
 
+      <h2>English Standard Version (ESV)</h2>
+      <div class="esv-settings">${esvSettingsHTML()}</div>
+
       <h2>Backup</h2>
       <p class="muted" style="margin-top:0">Your progress is saved on this device only. Save a backup file now and then, and restore it on a new phone.</p>
       <div class="btn-row">
@@ -261,8 +308,11 @@ export const settings = {
 
       <h2>About</h2>
       <p class="muted" style="margin-top:0">Aleph to Omega is a personal study app.</p>
-      <p class="muted">Greek New Testament (NA28 text), Hebrew and Aramaic Old Testament (Leningrad Codex), word-by-word translations, grammar and lexicons: STEPBible Data, created by STEPBible.org based on work at Tyndale House Cambridge, licensed CC BY 4.0, reformatted for this app. Dictionary definitions draw on Abbott-Smith's Manual Greek Lexicon of the New Testament, the Liddell–Scott lexicon and Brown–Driver–Briggs, as included in STEPBible's lexicons. English: Berean Standard Bible, public domain. Fonts: Gentium Plus, Noto Serif Hebrew and Atkinson Hyperlegible, SIL Open Font Licence.</p>
+      <p class="muted">Greek New Testament (NA28 text), Hebrew and Aramaic Old Testament (Leningrad Codex), word-by-word translations, grammar and lexicons: STEPBible Data, created by STEPBible.org based on work at Tyndale House Cambridge, licensed CC BY 4.0, reformatted for this app. Dictionary definitions draw on Abbott-Smith's Manual Greek Lexicon of the New Testament, the Liddell–Scott lexicon and Brown–Driver–Briggs, as included in STEPBible's lexicons. English: Berean Standard Bible, public domain. Septuagint: H. B. Swete's edition (1909–1930), public domain, from the LXX-Swete-1930 database by Eliran Wong (GPL-3.0); lined up with the Hebrew verses using STEPBible's versification data (CC BY 4.0). Fonts: Gentium Plus, Noto Serif Hebrew and Atkinson Hyperlegible, SIL Open Font Licence.</p>
     </div>`;
+
+    main.querySelector(".screen").insertAdjacentHTML("beforeend", `<div class="esv-notice"><p class="muted">${esc(esv.NOTICE)}</p><p><a class="btn secondary" href="https://www.esv.org" target="_blank" rel="noopener">Visit www.esv.org</a></p></div>`);
+    wireEsvSettings(main.querySelector(".esv-settings"));
 
     main.querySelector(".settings").addEventListener("change", (e) => {
       const input = e.target;

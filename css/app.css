@@ -310,6 +310,7 @@ legend { font-weight: 700; margin-bottom: 8px; padding: 0; }
 /* ======================================================================= Reader */
 
 .screen.reader { max-width: 48rem; }
+.screen.reader.wide { max-width: 76rem; }
 .verse-link { display: inline-block; margin-top: 14px; color: var(--gold); font-weight: 700; text-underline-offset: .25em; min-height: 44px; line-height: 44px; }
 
 .reader-head {
@@ -480,7 +481,9 @@ fieldset:disabled { opacity: .45; }
 .ws-parts li + li { margin-top: 4px; }
 .ws-parts li.main { font-weight: 700; }
 .ws-parts .muted { font-weight: 400; font-size: .9rem; }
-.pick-switch { margin: 0 0 6px; }
+.pick-switch { margin: 0 0 6px; max-width: 100%; }
+.pick-switch button { padding-left: 12px; padding-right: 12px; }
+@media (max-width: 440px) { .pick-switch button { font-size: .86rem; padding-left: 9px; padding-right: 9px; } }
 .pick-lang { margin: 0; font-size: .9rem; }
 
 /* ======================================================================= Dictionary (Words) */
@@ -572,3 +575,82 @@ ol.rows { list-style: none; padding: 0; }
 .dict-form { color: var(--sage-ink); font-weight: 700; }
 /* Long source glosses such as "issue/flow/sprouting/leaping(water/fire/OBJECTS)" must still wrap */
 .entry-def, .entry-gloss, .dict-row .row-title, .dict-row .row-sub, .occ-gloss, .forms .gram { overflow-wrap: anywhere; }
+
+/* ======================================================================= ESV settings */
+.field { display: block; margin: 14px 0 10px; }
+.field > span { display: block; font-weight: 700; margin-bottom: 6px; }
+.field input {
+  display: block; width: 100%; min-height: 50px; padding: 12px 14px; font: inherit; font-size: 1rem;
+  border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink);
+  -webkit-appearance: none; appearance: none;
+}
+.field input:focus { outline: 2px solid var(--control); outline-offset: 1px; }
+.steps { margin: 8px 0 0; padding-left: 1.3rem; }
+.steps li + li { margin-top: 4px; }
+.steps a { color: var(--accent-ink); }
+.esv-ok { font-weight: 700; color: var(--sage-ink); margin: 0 0 6px; }
+.esv-notice .muted { font-size: .85rem; }
+
+/* ======================================================================= Other translations (Session 6) */
+
+.tr-tag {
+  display: inline-block; margin-right: 6px; padding: 1px 6px; border-radius: 6px; vertical-align: 1px;
+  font-family: var(--font-ui); font-size: .68rem; font-weight: 700; letter-spacing: .03em;
+  color: var(--sage-ink); background: rgba(143, 160, 138, .18); background: color-mix(in srgb, var(--sage) 18%, transparent);
+}
+.esv, .lxx { grid-column: 2; margin: 8px 0 0; line-height: 1.55; color: var(--ink); }
+.esv { font-family: var(--font-scripture); font-size: 1.05rem; opacity: .86; }
+.lxx { font-family: var(--font-greek); font-size: 1.15rem; text-align: left; }
+.lxx .muted, .esv .muted, .col .muted { font-family: var(--font-ui); font-size: .85rem; }
+.lxx-ref { color: var(--accent-ink); font-family: var(--font-ui); font-size: .72em; font-weight: 700; }
+.lw { cursor: pointer; border-radius: 5px; padding: 1px 0; -webkit-tap-highlight-color: transparent; }
+.lw:hover { background: var(--surface-soft); }
+.lw.on { background: rgba(196, 160, 82, .26); background: color-mix(in srgb, var(--gold) 26%, transparent); }
+.lw:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.esv-credit { margin: 22px 0 0; color: var(--muted); font-size: .82rem; }
+.esv-msg .v-note { margin-top: 0; }
+.lxx-look .rows { margin-top: 10px; }
+
+/* Side by side */
+.layout-parallel .pv-head, .layout-parallel .v.pv {
+  display: grid; grid-template-columns: 2.1rem minmax(0, 1fr); column-gap: 6px;
+}
+.layout-parallel .pv-head { display: none; }
+.layout-parallel .v.pv { padding: 12px 0 14px; border-bottom: 1px solid var(--line); scroll-margin-top: 80px; }
+.layout-parallel .vn { color: var(--accent-ink); font-weight: 700; font-size: .9rem; padding-top: .35rem; }
+.layout-parallel .cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.layout-parallel .col { min-width: 0; overflow-wrap: break-word; }
+.col-orig { font-family: var(--font-greek); font-size: 1.35rem; line-height: 1.7; }
+.col-orig:lang(he) { font-family: var(--font-hebrew); font-size: 1.6rem; line-height: 2; text-align: right; }
+.col-bsb, .col-esv { font-family: var(--font-scripture); font-size: 1.02rem; line-height: 1.55; }
+.col-lxx { font-family: var(--font-greek); font-size: 1.12rem; line-height: 1.6; }
+.col-label {
+  display: block; margin-bottom: 1px; font-family: var(--font-ui); font-size: .68rem; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase; color: var(--sage-ink);
+}
+.layout-parallel .w { cursor: pointer; border-radius: 6px; padding: 2px 1px; -webkit-tap-highlight-color: transparent; }
+.layout-parallel .w.on { background: rgba(196, 160, 82, .26); background: color-mix(in srgb, var(--gold) 26%, transparent); }
+.layout-parallel .v.focus { background: rgba(196, 160, 82, .14); background: color-mix(in srgb, var(--gold) 14%, transparent); border-radius: 10px; }
+.layout-parallel > .v-gap, .layout-parallel > .v-note { margin-left: 2.1rem; }
+.layout-parallel .sec { margin-left: 2.1rem; }
+@media (min-width: 760px) {
+  .layout-parallel .pv-head {
+    display: grid; padding: 8px 0;
+    border-bottom: 2px solid var(--line); font-size: .78rem; font-weight: 700; letter-spacing: .04em;
+    text-transform: uppercase; color: var(--sage-ink);
+  }
+  .layout-parallel .cols.n2 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+  .layout-parallel .cols.n3 { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .layout-parallel .cols.n4 { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  .layout-parallel .v.pv .col-label { display: none; }
+  .layout-parallel .pv-head .col { font-family: var(--font-ui); font-size: inherit; line-height: inherit; text-align: left; }
+  .layout-parallel.lang-he .pv-head .col-orig { text-align: right; }
+}
+
+/* The Septuagint screen */
+.lxx-compare { margin: -6px 0 18px; }
+.lxx-text .lv {
+  margin: 0 0 12px; font-family: var(--font-greek); font-size: 1.4rem; line-height: 1.8; scroll-margin-top: 80px;
+}
+.lxx-text .vn { color: var(--accent-ink); font-family: var(--font-ui); font-size: .58em; font-weight: 700; margin-right: 4px; }
+.lxx-text .lv.focus { background: rgba(196, 160, 82, .14); background: color-mix(in srgb, var(--gold) 14%, transparent); border-radius: 10px; }

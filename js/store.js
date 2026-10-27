@@ -10,11 +10,14 @@ const DEFAULTS = {
   installTipDismissed: false,
   // Reader
   lastRead: "JHN/1",       // book/chapter to reopen
+  lastLxx: "PSA/22",       // Septuagint book/chapter to reopen
   readLayout: "words",     // words (interlinear) | text (running text)
   showEnglish: true,       // English under each word
   showTranslit: false,     // pronunciation under each word
   showGrammar: false,      // short grammar under each word
   showBSB: true,           // Berean Standard Bible under each verse
+  showESV: false,          // ESV under each verse (needs the reader's own key, see js/esv.js)
+  showLXX: false,          // Septuagint under each Old Testament verse
   // Dictionary
   dictLang: "both",        // both | G | H
   recentWords: [],         // lexicon keys, most recent first

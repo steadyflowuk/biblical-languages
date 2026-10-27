@@ -3,6 +3,7 @@
 import * as store from "./store.js";
 import * as data from "./data.js";
 import * as nav from "./nav.js";
+import * as esv from "./esv.js";
 import {
   heText, heTranslit, heEnglish, heAfter, heJoined, heParagraphAfter, isAramaic, heParts, heMainKey,
   heShortGrammar, heFriendlyGrammar,
@@ -342,7 +343,7 @@ function heWordHTML(w, vi, wi, state) {
   if (flag === "q") he += `<span class="q-mark" aria-hidden="true">°</span>`;
   he += esc(heAfter(after));
   const cls = `w${flag ? ` w-${flag}` : ""}`;
-  if (state.prefs.readLayout === "text") {
+  if (state.prefs.readLayout !== "words") {
     return `<span class="${cls}" role="button" tabindex="0" data-wi="${wi}" lang="he">${he}</span>`;
   }
   const grammar = state.prefs.showGrammar ? heWordGrammar(w, state.morph) : "";
@@ -360,7 +361,7 @@ function wordHTML(w, vi, wi, state) {
   const grammar = state.prefs.showGrammar
     ? morph.split("+").map((c) => shortGrammar((state.morph[c] || [c])[0])).join(" + ") : "";
   const greek = `${esc(before)}${esc(text)}${esc(after.replace(MARKS, ""))}`;
-  if (state.prefs.readLayout === "text") {
+  if (state.prefs.readLayout !== "words") {
     return `<span class="w" role="button" tabindex="0" data-wi="${wi}" lang="grc">${greek}</span>`;
   }
   return `<span class="w" role="button" tabindex="0" data-wi="${wi}">` +
@@ -414,8 +415,15 @@ function hebrewNotes(state) {
   return notes;
 }
 
+const ESV_CREDIT = `<p class="esv-credit">ESV® text © 2001 Crossway, from <a href="https://www.esv.org" target="_blank" rel="noopener">www.esv.org</a>. The full notice is in Settings › About.</p>`;
+
 function chapterHTML(state) {
-  if (state.he) return heChapterHTML(state);
+  const top = topNotesHTML(state);
+  const body = state.prefs.readLayout === "parallel" ? parallelHTML(state) : state.he ? heChapterHTML(state) : greekChapterHTML(state);
+  return top + body + (showsESV(state) && state.prefs.readLayout !== "text" ? ESV_CREDIT : "");
+}
+
+function greekChapterHTML(state) {
   const out = [];
   const assigned = new Set();
   // An English verse goes under the NA28 verse with the same number when that verse holds any of its words,
@@ -462,10 +470,11 @@ function chapterHTML(state) {
     const own = fresh.length === 1 && fresh[0] === `${state.ch}.${v}`;
     const parts = fresh.map((r) => bsbVerse(state, r)).filter(Boolean)
       .map((b) => (own ? "" : `<sup class="bsb-ref">${b.c === state.ch ? b.n : `${b.c}:${b.n}`}</sup>`) + bsbHTML(b.text, b.notes, b.c));
+    const tag = trTag(state, "BSB");
     const bsb = !state.prefs.showBSB ? ""
-      : parts.length ? `<p class="bsb">${parts.join(" ")}</p>`
-      : `<p class="bsb muted">In the BSB these words are part of ${refs.map((r) => (r.startsWith(`${state.ch}.`) ? `verse ${r.split(".")[1]}` : refLabel(r))).join(" and ")}.</p>`;
-    out.push(`<div class="v" data-vi="${vi}" id="v${v}"><span class="vn"><span class="sr">Verse </span>${v}</span><div class="words" lang="grc">${words.map((w, wi) => wordHTML(w, vi, wi, state)).join("")}</div>${bsb}</div>`);
+      : parts.length ? `<p class="bsb">${tag}${parts.join(" ")}</p>`
+      : `<p class="bsb muted">${tag}In the BSB these words are part of ${refs.map((r) => (r.startsWith(`${state.ch}.`) ? `verse ${r.split(".")[1]}` : refLabel(r))).join(" and ")}.</p>`;
+    out.push(`<div class="v" data-vi="${vi}" id="v${v}"><span class="vn"><span class="sr">Verse </span>${v}</span><div class="words" lang="grc">${words.map((w, wi) => wordHTML(w, vi, wi, state)).join("")}</div>${bsb}${esvHTML(state, fresh, "p")}</div>`);
   });
   flushPara();
 
@@ -509,28 +518,270 @@ function heChapterHTML(state) {
     }
     out.push(before);
     const text = state.bsb.verses.get(v);
-    const bsb = state.prefs.showBSB && text ? `<p class="bsb" dir="ltr" lang="en">${bsbHTML(text, state.bsb.notes, state.ch)}</p>` : "";
+    const bsb = state.prefs.showBSB && text ? `<p class="bsb" dir="ltr" lang="en">${trTag(state, "BSB")}${bsbHTML(text, state.bsb.notes, state.ch)}</p>` : "";
     const heNum = typeof heRef === "string"
       ? `<span class="vh" dir="ltr" title="Verse number in Hebrew Bibles"><span class="sr">, Hebrew Bible </span><span aria-hidden="true">Heb </span>${refLabel(heRef)}</span>` : "";
     const aram = mixed && words.some(isAramaic) ? `<span class="vh" dir="ltr">Aram.</span>` : "";
     const vn = v === 0 ? `<span class="vn vn-title">title${heNum}</span>` : `<span class="vn"><span class="sr">Verse </span>${v}${heNum}${aram}</span>`;
-    out.push(`<div class="v" data-vi="${vi}" id="v${v}" dir="rtl">${vn}<div class="words" lang="he">${words.map((w, wi) => wordHTML(w, vi, wi, state)).join("")}</div>${bsb}</div>`);
+    out.push(`<div class="v" data-vi="${vi}" id="v${v}" dir="rtl">${vn}<div class="words" lang="he">${words.map((w, wi) => wordHTML(w, vi, wi, state)).join("")}</div>${bsb}${esvHTML(state, [`${state.ch}.${v}`], "p")}${lxxHTML(state, v, "p")}</div>`);
   });
   flushPara();
   return out.join("");
 }
 
+// ---------------------------------------------------------------- other translations: ESV and the Septuagint
+
+/** How many translations are showing (labels are added when there is more than one; ESV and LXX are always labelled). */
+const showsESV = (state) => state.prefs.showESV && esv.hasKey();
+const showsLXX = (state) => state.he && state.prefs.showLXX;
+function trTag(state, name) {
+  const n = (state.prefs.showBSB ? 1 : 0) + (showsESV(state) ? 1 : 0) + (showsLXX(state) ? 1 : 0);
+  return name === "BSB" && n < 2 ? "" : `<span class="tr-tag">${name}</span>`;
+}
+
+/** ESV text for some English verse refs ("3.16"), or null while it is still loading. */
+function esvTextFor(state, refs) {
+  if (!state.esvChapters) return null;
+  const own = refs.length === 1 && refs[0] === `${state.ch}.${refs[0].split(".")[1]}`;
+  const bits = [];
+  for (const r of refs) {
+    const [c, v] = r.split(".").map(Number);
+    const chap = state.esvChapters.get(c);
+    if (chap === undefined) return null;
+    if (chap instanceof Error) return `<span class="muted">Not available just now.</span>`;
+    if (chap[v]) bits.push((own ? "" : `<sup class="bsb-ref">${c === state.ch ? v : `${c}:${v}`}</sup>`) + esc(chap[v]));
+  }
+  return bits.length ? bits.join(" ") : `<span class="muted">The ESV has no verse here.</span>`;
+}
+
+function esvHTML(state, refs, tag) {
+  if (!showsESV(state) || !refs.length) return "";
+  const text = esvTextFor(state, refs);
+  return `<${tag} class="esv" dir="ltr" lang="en" data-esv="${refs.join(" ")}">${trTag(state, "ESV")}${text === null ? `<span class="muted">Loading the ESV…</span>` : text}</${tag}>`;
+}
+
+/** Fill in ESV lines once the chapter(s) arrive (the rest of the page is already showing). */
+function fillEsv(holder, state) {
+  holder.querySelectorAll("[data-esv]").forEach((el) => {
+    const html = esvTextFor(state, el.dataset.esv.split(" ").filter(Boolean));
+    if (html === null) return;
+    const label = el.querySelector(".tr-tag, .col-label");
+    el.innerHTML = (label ? label.outerHTML : "") + html;
+  });
+}
+
+const lxxWordsHTML = (text) => String(text || "").split(" ").filter(Boolean)
+  .map((w) => `<span class="lw" role="button" tabindex="0">${esc(w)}</span>`).join(" ");
+
+/** "22:1" when the Septuagint numbers a verse differently from the English Bible, else "". */
+function lxxRefLabel(state, refs, v) {
+  const parts = String(refs).split(",").map((r) => r.match(/^(.+?)\.(\d+):(\d+)$/)).filter(Boolean);
+  if (!parts.length) return "";
+  const [, code, c, first] = parts[0];
+  const last = parts[parts.length - 1][3];
+  const book = (state.lxxBooks || []).find((b) => b.swete === code);
+  const same = book && book.id === state.book.id && Number(c) === state.ch && Number(first) === v && parts.length === 1;
+  if (same) return "";
+  return `${book && book.id !== state.book.id ? `${book.name} ` : ""}${c}:${first}${last !== first ? `–${last}` : ""}`;
+}
+
+function lxxBody(state, v) {
+  if (!state.lxxCh) return `<span class="muted">Loading the Septuagint…</span>`;
+  const e = state.lxxMap.get(v);
+  if (!e || !e[1]) {
+    const next = v === 0 && state.lxxMap.get(1);
+    return `<span class="muted">${next && next[1] ? "In the Septuagint the title is part of the first verse." : "No matching verse in the Septuagint here."}</span>`;
+  }
+  const label = lxxRefLabel(state, e[1], v);
+  return `${label ? `<span class="lxx-ref">${esc(label)}</span> ` : ""}${lxxWordsHTML(e[2])}`;
+}
+
+function lxxHTML(state, v, tag) {
+  if (!showsLXX(state) || (state.lxxCh && state.lxxCh.weak)) return "";
+  return `<${tag} class="lxx" dir="ltr" lang="grc">${trTag(state, "LXX")}${lxxBody(state, v)}</${tag}>`;
+}
+
+/** Problems loading the ESV or the Septuagint (kept in state so a redraw doesn't lose them). */
+function extraMsgs(state) {
+  return [showsLXX(state) && state.lxxMsg, showsESV(state) && state.esvMsg].filter(Boolean).map((m) => `<p class="v-gap v-note">${m}</p>`).join("");
+}
+function showExtraMsgs(holder, state) {
+  const box = holder.querySelector(".esv-msg");
+  if (!box) return;
+  box.innerHTML = extraMsgs(state);
+  box.hidden = !box.innerHTML;
+}
+
+/** Notes at the top of a chapter about the translations. */
+function topNotesHTML(state) {
+  const out = [];
+  if (state.prefs.showESV && !esv.hasKey() && state.prefs.readLayout !== "text") {
+    out.push(`<p class="v-gap v-note">To see the ESV, add your free ESV key in <a href="#/settings">Settings</a>.</p>`);
+  }
+  if (showsLXX(state) && state.lxxCh && state.prefs.readLayout !== "text") {
+    const [id, c] = state.lxxCh.lxx.split(" ");
+    const book = (state.lxxBooks || []).find((b) => b.id === id);
+    const name = book ? `${book.id === "PSA" ? "Psalm" : book.name} ${c}` : state.lxxCh.lxx;
+    if (state.lxxCh.weak) {
+      out.push(`<p class="v-gap v-note">In this chapter the Septuagint's wording and order differ a lot from the Hebrew, so its verses can't be lined up one by one. <a href="#/lxx/${id}/${c}">Read ${esc(name)} in the Septuagint</a>.</p>`);
+    } else if (id !== state.book.id || Number(c) !== state.ch) {
+      out.push(`<p class="v-gap v-note">In the Septuagint this is <a href="#/lxx/${id}/${c}">${esc(name)}</a>. Its verses are shown alongside the Hebrew, with their own numbers.</p>`);
+    }
+  }
+  out.push(`<div class="esv-msg"${extraMsgs(state) ? "" : " hidden"}>${extraMsgs(state)}</div>`);
+  return out.join("");
+}
+
+/** The English (BSB) verses each original-language verse carries (the same rule as the word-by-word layout). */
+function ownedRefs(state) {
+  if (state.he) return state.verses.map((v) => [`${state.ch}.${v[0]}`]);
+  const owner = new Map();
+  state.verses.forEach((verse, vi) => {
+    const own = `${state.ch}.${verse[0]}`;
+    if (englishRefs(state, verse).includes(own)) owner.set(own, vi);
+  });
+  const assigned = new Set();
+  return state.verses.map((verse, vi) => {
+    const fresh = englishRefs(state, verse).filter((r) => (owner.has(r) ? owner.get(r) === vi : !assigned.has(r)));
+    fresh.forEach((r) => assigned.add(r));
+    return fresh;
+  });
+}
+
+function bsbForRefs(state, refs, v) {
+  if (state.he) {
+    const text = state.bsb.verses.get(v);
+    return text ? bsbHTML(text, state.bsb.notes, state.ch) : `<span class="muted">—</span>`;
+  }
+  const own = refs.length === 1 && refs[0] === `${state.ch}.${v}`;
+  const parts = refs.map((r) => bsbVerse(state, r)).filter(Boolean)
+    .map((b) => (own ? "" : `<sup class="bsb-ref">${b.c === state.ch ? b.n : `${b.c}:${b.n}`}</sup>`) + bsbHTML(b.text, b.notes, b.c));
+  return parts.length ? parts.join(" ") : `<span class="muted">Part of a neighbouring verse in the BSB.</span>`;
+}
+
+/** Side by side: each verse with the original and the chosen translations in columns (stacked on phones). */
+function parallelHTML(state) {
+  const he = state.he;
+  const cols = [["orig", he ? "Hebrew" : "Greek"]];
+  if (state.prefs.showBSB) cols.push(["bsb", "BSB"]);
+  if (showsESV(state)) cols.push(["esv", "ESV"]);
+  if (showsLXX(state) && !(state.lxxCh && state.lxxCh.weak)) cols.push(["lxx", "Septuagint"]);
+  const owned = ownedRefs(state);
+  const notes = he ? hebrewNotes(state) : new Map();
+  const out = [`<div class="pv-head" aria-hidden="true"><span></span><div class="cols n${cols.length}">${cols.map(([k, l]) => `<div class="col col-${k}">${l}</div>`).join("")}</div></div>`];
+  let prev = 0;
+  state.verses.forEach((verse, vi) => {
+    const [v, words] = verse;
+    if (!he && v > prev + 1 && prev > 0) out.push(missingNote(prev + 1, v - 1));
+    prev = v;
+    out.push(headingsHTML(state, v) + (notes.get(vi) || []).join(""));
+    if (!he && !state.bracketNoted && words.some((w) => String(w[6] || "").includes("[["))) { state.bracketNoted = true; out.push(BRACKET_NOTE); }
+    const refs = owned[vi];
+    const orig = words.map((w, wi) => wordHTML(w, vi, wi, state) + (he && heJoined(w[5]) ? "" : " ")).join("");
+    const cells = cols.map(([k, label]) => {
+      const lab = `<span class="col-label">${label}</span>`;
+      if (k === "orig") return `<div class="col col-orig" lang="${he ? "he" : "grc"}" dir="${he ? "rtl" : "ltr"}">${orig}</div>`;
+      if (k === "bsb") return `<div class="col col-bsb" lang="en">${lab}${bsbForRefs(state, refs, v)}</div>`;
+      if (k === "esv") {
+        const t = esvTextFor(state, refs);
+        return `<div class="col col-esv" lang="en" data-esv="${refs.join(" ")}">${lab}${t === null ? `<span class="muted">Loading…</span>` : t}</div>`;
+      }
+      return `<div class="col col-lxx" lang="grc">${lab}${lxxBody(state, v)}</div>`;
+    }).join("");
+    out.push(`<div class="v pv" data-vi="${vi}" id="v${v}"><span class="vn"><span class="sr">Verse </span>${v === 0 ? "title" : v}</span><div class="cols n${cols.length}">${cells}</div></div>`);
+  });
+  return out.join("");
+}
+
+/** A tapped Septuagint word: likely dictionary entries (the Septuagint isn't tagged word by word yet). */
+async function showLxxWord(el, where) {
+  const word = el.textContent.replace(/[.,;:·()\[\]᾽’]/g, "").trim();
+  const body = openSheet(`<p class="ws-ref">${esc(where || "Septuagint")}</p>
+    <h2 class="ws-word" lang="grc" id="sheet-title">${esc(word)}</h2>
+    <p class="muted">The Septuagint isn't tagged word by word yet, so these are likely matches found by spelling.</p>
+    <div class="lxx-look"><p class="muted">Looking it up…</p></div>`, { label: `Look up ${word}`, returnFocus: el });
+  document.querySelectorAll(".lw.on").forEach((x) => x.classList.remove("on"));
+  el.classList.add("on");
+  try {
+    const dict = await import("./dictionary.js");
+    const found = await dict.lookupForm(word);
+    const box = body.querySelector(".lxx-look");
+    if (!box) return;
+    box.innerHTML = (found.length
+      ? `${found.some((e) => e.guess) ? `<p class="muted">No exact match; words that begin the same way:</p>` : ""}<ul class="rows">${found.map((e) => dict.entryRowHTML(e)).join("")}</ul>`
+      : `<p>No dictionary word matches this spelling exactly.</p>`) +
+      `<p><button type="button" class="btn secondary" data-lxx-search>Search the dictionary for ${esc(word)}</button></p>`;
+    box.querySelector("[data-lxx-search]").addEventListener("click", () => { dict.setQuery(word); location.hash = "#/words"; });
+  } catch {
+    const box = body.querySelector(".lxx-look");
+    if (box) box.innerHTML = `<p>The dictionary couldn't load. Connect to the internet once and it will be saved for offline use.</p>`;
+  }
+}
+
 // ---------------------------------------------------------------- pickers and display options
 
-function pickerHTML(books, current, testament) {
+const LXX_GROUPS = ["Law", "History", "Poetry and wisdom", "Prophets", "Other"];
+
+function pickerHTML(books, current, testament, lxxBooks) {
   const byId = Object.fromEntries(books.map((b) => [b.id, b]));
   const tab = (t, label) => `<button type="button" data-testament="${t}" aria-pressed="${t === testament}">${label}</button>`;
-  return `<h2 class="sheet-title">Choose a book</h2>
-    <div class="switch pick-switch" role="group" aria-label="Testament">${tab("OT", "Old Testament")}${tab("NT", "New Testament")}</div>
+  const tabs = `<div class="switch pick-switch" role="group" aria-label="Which Bible">${tab("OT", "Old Testament")}${tab("NT", "New Testament")}${tab("LXX", "Septuagint")}</div>`;
+  if (testament === "LXX") {
+    return `<h2 class="sheet-title">Choose a book</h2>${tabs}
+      <p class="muted pick-lang">The Greek Old Testament (Swete's edition), including the books found only in Greek</p>
+      ${!lxxBooks ? `<p class="muted">Loading…</p>` : LXX_GROUPS.map((g) => {
+        const list = lxxBooks.filter((b) => b.group === g);
+        return list.length ? `<h3 class="pick-group">${g}</h3><div class="pick-books">${list.map((b) => `<button type="button" class="pick-book" data-lxx-book="${b.id}" ${current === `LXX:${b.id}` ? 'aria-current="true"' : ""}>${esc(b.name)}</button>`).join("")}</div>` : "";
+      }).join("")}`;
+  }
+  return `<h2 class="sheet-title">Choose a book</h2>${tabs}
     <p class="muted pick-lang">${testament === "OT" ? "In Hebrew, with a few chapters in Aramaic" : "In Greek"}</p>
     ${GROUPS[testament].map(([name, ids]) => `
       <h3 class="pick-group">${name}</h3>
       <div class="pick-books">${ids.filter((id) => byId[id]).map((id) => `<button type="button" class="pick-book" data-book="${id}" ${id === current ? 'aria-current="true"' : ""}>${esc(byId[id].name)}</button>`).join("")}</div>`).join("")}`;
+}
+
+function lxxChaptersHTML(book) {
+  return `<h2 class="sheet-title">${esc(book.name)}</h2>
+    <p class="muted" style="margin-top:-6px">Choose a chapter (Septuagint numbering)</p>
+    <div class="pick-chapters">${book.chapters.map((c) => `<a class="pick-ch" href="#/lxx/${book.id}/${c}">${c}</a>`).join("")}</div>
+    <p><button type="button" class="btn secondary" data-back>All books</button></p>`;
+}
+
+/** The book and chapter picker, shared by the Reader and the Septuagint. */
+function openBookPicker({ books, bible, current, testament, returnFocus }) {
+  let lxxBooks = null;
+  const body = openSheet(pickerHTML(bible, current, testament, lxxBooks), { label: "Choose a book and chapter", returnFocus });
+  const show = () => {
+    body.innerHTML = pickerHTML(bible, current, testament, lxxBooks);
+    if (testament === "LXX" && !lxxBooks) {
+      data.lxxBooks().then((lb) => { lxxBooks = lb; if (body.isConnected && testament === "LXX") show(); })
+        .catch(() => { if (body.isConnected) body.querySelector(".pick-lang").textContent = "The Septuagint couldn't load. Connect to the internet once and it will be saved for offline reading."; });
+    }
+  };
+  if (testament === "LXX") show();
+  body.addEventListener("click", (e) => {
+    const t = e.target.closest("[data-testament]");
+    if (t) {
+      testament = t.dataset.testament;
+      show();
+      body.querySelector(`[data-testament="${testament}"]`)?.focus();
+      return;
+    }
+    const lb = e.target.closest("[data-lxx-book]");
+    if (lb && lxxBooks) {
+      body.innerHTML = lxxChaptersHTML(lxxBooks.find((x) => x.id === lb.dataset.lxxBook));
+      body.querySelector(".pick-ch")?.focus();
+      return;
+    }
+    const b = e.target.closest("[data-book]");
+    if (b) {
+      body.innerHTML = chaptersHTML(books.find((x) => x.id === b.dataset.book));
+      body.querySelector(".pick-ch")?.focus();
+    }
+    if (e.target.closest("[data-back]")) show();
+    if (e.target.closest(".pick-ch")) closeSheet();
+  });
 }
 
 function chaptersHTML(book) {
@@ -542,31 +793,31 @@ function chaptersHTML(book) {
 
 function displayHTML(prefs) {
   const box = (key, label, help = "") => `<label class="toggle"><input type="checkbox" data-pref="${key}" ${prefs[key] ? "checked" : ""}><span><strong>${label}</strong>${help ? `<span class="muted">${help}</span>` : ""}</span></label>`;
+  const radio = (v, label) => `<label><input type="radio" name="readLayout" value="${v}" ${prefs.readLayout === v ? "checked" : ""}> ${label}</label>`;
   return `<h2 class="sheet-title">Display</h2>
     <fieldset>
       <legend>Layout</legend>
-      <div class="choices">
-        <label><input type="radio" name="readLayout" value="words" ${prefs.readLayout === "words" ? "checked" : ""}> Word by word</label>
-        <label><input type="radio" name="readLayout" value="text" ${prefs.readLayout === "text" ? "checked" : ""}> Running text</label>
-      </div>
-      <p class="field-help">Running text shows the Hebrew or Greek on its own, like a reader's edition. Tap any word for help.</p>
+      <div class="choices">${radio("words", "Word by word")}${radio("text", "Running text")}${radio("parallel", "Side by side")}</div>
+      <p class="field-help">Running text shows the Hebrew or Greek on its own, like a reader's edition. Side by side puts it next to the translations, verse by verse. Tap any word for help.</p>
     </fieldset>
-    <fieldset class="word-opts" ${prefs.readLayout === "text" ? "disabled" : ""}>
+    <fieldset class="word-opts" ${prefs.readLayout !== "words" ? "disabled" : ""}>
       <legend>Under each word</legend>
       ${box("showEnglish", "English meaning")}
       ${box("showTranslit", "Pronunciation", "Letters spelt out in English. In Hebrew, the syllable with a capital letter is stressed.")}
       ${box("showGrammar", "Grammar", "Greek: e.g. noun nom. sg. masc. Hebrew: e.g. Qal pf. 3ms (3ms = he; 3fs = she; 1cs = I; cstr. = “of”).")}
     </fieldset>
-    <fieldset class="word-opts" ${prefs.readLayout === "text" ? "disabled" : ""}>
-      <legend>Under each verse</legend>
-      ${box("showBSB", "Berean Standard Bible")}
+    <fieldset class="tr-opts" ${prefs.readLayout === "text" ? "disabled" : ""}>
+      <legend>Translations</legend>
+      ${box("showBSB", "Berean Standard Bible (BSB)")}
+      ${box("showESV", "English Standard Version (ESV)", esv.hasKey() ? "" : "Needs your free ESV key: add it in Settings.")}
+      ${box("showLXX", "Septuagint (LXX)", "The Greek Old Testament, lined up with the Hebrew where the verses match. Old Testament only.")}
     </fieldset>`;
 }
 
 // ---------------------------------------------------------------- the screen
 
 function prefsNow() {
-  return Object.fromEntries(["readLayout", "showEnglish", "showTranslit", "showGrammar", "showBSB"].map((k) => [k, store.get(k)]));
+  return Object.fromEntries(["readLayout", "showEnglish", "showTranslit", "showGrammar", "showBSB", "showESV", "showLXX"].map((k) => [k, store.get(k)]));
 }
 
 export const read = {
@@ -643,13 +894,61 @@ export const read = {
       book, ch, he, lex: original.lex, morph, prefs: prefsNow(), bsbBook, other: {},
       verses: chapter ? chapter[1] : [], bsb: bsbChapter(bsbBook, ch),
     };
+    state.bookNumber = books.indexOf(book) + 1; // 1 = Genesis … 66 = Revelation (the ESV's numbering)
     const draw = () => {
       state.bracketNoted = false;
       holder.className = `chapter layout-${state.prefs.readLayout}${he ? " lang-he" : ""}`;
+      const screen = holder.closest(".reader");
+      if (screen) screen.classList.toggle("wide", state.prefs.readLayout === "parallel");
       holder.innerHTML = chapterHTML(state);
       holder.removeAttribute("aria-busy");
     };
+    // redraw without losing the reader's place
+    const redraw = () => {
+      const anchor = [...holder.querySelectorAll(".v")].find((v) => v.getBoundingClientRect().bottom > 80);
+      const offset = anchor ? anchor.getBoundingClientRect().top : 0;
+      draw();
+      const again = anchor?.id && holder.querySelector(`#${anchor.id}`);
+      if (again) window.scrollBy(0, again.getBoundingClientRect().top - offset);
+    };
     draw();
+
+    // The ESV and the Septuagint arrive separately; the chapter is already readable while they load
+    const loadExtras = () => {
+      if (showsLXX(state) && !state.lxxCh && !state.lxxLoading) {
+        state.lxxLoading = Promise.all([data.lxxForOT(book.id), data.lxxBooks()]).then(([ot, lb]) => {
+          state.lxxBooks = lb;
+          state.lxxCh = (ot.ch.find(([c]) => c === ch) || [0, { lxx: "", weak: 1, v: [] }])[1];
+          state.lxxMap = new Map(state.lxxCh.v.map((x) => [x[0], x]));
+          state.lxxMsg = null;
+          if (main.contains(holder)) redraw();
+        }).catch(() => {
+          state.lxxLoading = null;
+          state.lxxMsg = "The Septuagint couldn't load. Connect to the internet once and it will be saved for offline reading.";
+          showExtraMsgs(holder, state);
+        });
+      }
+      if (showsESV(state) && !state.esvLoading) {
+        state.esvChapters = state.esvChapters || new Map();
+        state.esvError = null;
+        const chapters = [...new Set(ownedRefs(state).flat().map((r) => Number(r.split(".")[0])))];
+        state.esvLoading = Promise.all(chapters.map((c) => esv.chapter(state.bookNumber, c)
+          .then((vs) => state.esvChapters.set(c, vs))
+          .catch((err) => { state.esvChapters.set(c, err); state.esvError = err; })))
+          .then(() => {
+            if (!main.contains(holder)) return;
+            fillEsv(holder, state);
+            state.esvMsg = null;
+            showExtraMsgs(holder, state);
+            if (state.esvError) {
+              state.esvMsg = `${esc(state.esvError.message)}${/nokey|auth/.test(state.esvError.kind) ? ` <a href="#/settings">Open Settings</a>.` : ""}`;
+              showExtraMsgs(holder, state);
+              if (state.esvError.kind !== "auth" && state.esvError.kind !== "nokey") state.esvLoading = null; // try again later
+            }
+          });
+      }
+    };
+    loadExtras();
 
     main.querySelector("[data-return]")?.addEventListener("click", () => nav.goBack("#/words"));
     // A word to show: from a dictionary link (#/read/BOOK/CH/VERSE/WORD) or the word you left from
@@ -687,33 +986,19 @@ export const read = {
         openSheet(`<h2 class="sheet-title">Translator's note</h2><p>${esc(notes[i])}</p><p class="muted">From the Berean Standard Bible.</p>`, { label: "Translator's note", returnFocus: fn });
         return;
       }
+      const lw = e.target.closest(".lw");
+      if (lw) { showLxxWord(lw, `${title} · Septuagint`); return; }
       if (e.target.closest(".w")) pick(e.target);
     });
     holder.addEventListener("keydown", (e) => {
-      if ((e.key === "Enter" || e.key === " ") && e.target.closest(".w")) { e.preventDefault(); pick(e.target); }
+      if (!(e.key === "Enter" || e.key === " ")) return;
+      const lw = e.target.closest(".lw");
+      if (lw) { e.preventDefault(); showLxxWord(lw, `${title} · Septuagint`); return; }
+      if (e.target.closest(".w")) { e.preventDefault(); pick(e.target); }
     });
 
     // book and chapter picker
-    const openPicker = (returnFocus) => {
-      let testament = he ? "OT" : "NT";
-      const body = openSheet(pickerHTML(bible, book.id, testament), { label: "Choose a book and chapter", returnFocus });
-      body.addEventListener("click", (e) => {
-        const t = e.target.closest("[data-testament]");
-        if (t) {
-          testament = t.dataset.testament;
-          body.innerHTML = pickerHTML(bible, book.id, testament);
-          body.querySelector(`[data-testament="${testament}"]`)?.focus();
-          return;
-        }
-        const b = e.target.closest("[data-book]");
-        if (b) {
-          body.innerHTML = chaptersHTML(books.find((x) => x.id === b.dataset.book));
-          body.querySelector(".pick-ch")?.focus();
-        }
-        if (e.target.closest("[data-back]")) body.innerHTML = pickerHTML(bible, book.id, testament);
-        if (e.target.closest(".pick-ch")) closeSheet();
-      });
-    };
+    const openPicker = (returnFocus) => openBookPicker({ books, bible, current: book.id, testament: he ? "OT" : "NT", returnFocus });
     main.querySelector("[data-pick]").addEventListener("click", (e) => openPicker(e.currentTarget));
 
     // display options: apply at once, keep the reader's place
@@ -724,11 +1009,101 @@ export const read = {
         if (t.dataset.pref) store.set(t.dataset.pref, t.checked);
         if (t.name === "readLayout") store.set("readLayout", t.value);
         state.prefs = prefsNow();
-        body.querySelectorAll(".word-opts").forEach((f) => (f.disabled = state.prefs.readLayout === "text"));
-        const anchor = [...holder.querySelectorAll(".v")].find((v) => v.getBoundingClientRect().bottom > 80);
-        draw();
-        if (anchor?.id) holder.querySelector(`#${anchor.id}`)?.scrollIntoView({ block: "start" });
+        body.querySelectorAll(".word-opts").forEach((f) => (f.disabled = state.prefs.readLayout !== "words"));
+        body.querySelectorAll(".tr-opts").forEach((f) => (f.disabled = state.prefs.readLayout === "text"));
+        redraw();
+        loadExtras();
       });
     });
+  },
+};
+
+// ---------------------------------------------------------------- the Septuagint on its own (#/lxx/BOOK/CH[/VERSE])
+
+export const lxx = {
+  title: "Septuagint",
+  handlesTitle: true,
+  handlesScroll: true,
+  async render(main, params = []) {
+    let lxxBooks;
+    let books;
+    try {
+      [lxxBooks, books] = await Promise.all([data.lxxBooks(), data.books()]);
+    } catch {
+      main.innerHTML = `<div class="screen"><header class="screen-head"><div><h1>Septuagint</h1></div></header>
+        <div class="note"><p>The Septuagint couldn't load. Connect to the internet once and it will be saved for offline reading.</p></div></div>`;
+      document.title = "Septuagint · Aleph to Omega";
+      return;
+    }
+    let [bookId, chStr, vStr] = params;
+    if (!bookId) [bookId, chStr] = String(store.get("lastLxx") || "PSA/22").split("/");
+    const book = lxxBooks.find((b) => b.id === String(bookId).toUpperCase());
+    if (!book) {
+      main.innerHTML = `<div class="screen"><header class="screen-head"><div><h1>Septuagint</h1></div></header>
+        <div class="note"><p>That book isn't in the Septuagint here. Choose one to read.</p></div>
+        <p><a class="btn" href="#/lxx/GEN/1">Open Genesis 1</a> <a class="btn secondary" href="#/lxx/PSA/22">Open Psalm 22</a></p></div>`;
+      document.title = "Septuagint · Aleph to Omega";
+      return;
+    }
+    const chapters = book.chapters;
+    const ch = chapters.includes(Number(chStr)) ? Number(chStr) : chapters[0];
+    const flat = lxxBooks.flatMap((b) => b.chapters.map((c) => [b, c]));
+    const at = flat.findIndex(([b, c]) => b === book && c === ch);
+    const prevRef = flat[at - 1];
+    const nextRef = flat[at + 1];
+    const name = (b, c) => `${b.id === "PSA" ? "Psalm" : b.name} ${c}`;
+    const link = (r) => `#/lxx/${r[0].id}/${r[1]}`;
+    const title = name(book, ch);
+    const heb = book.heb && book.heb[String(ch)];
+    const hebBook = heb && books.find((b) => b.id === heb[0]);
+    document.title = `${title} · Septuagint · Aleph to Omega`;
+    store.set("lastLxx", `${book.id}/${ch}`);
+    main.innerHTML = `<div class="screen reader lxx-reader">
+      <header class="reader-head">
+        <h1 class="reader-h1"><button type="button" class="reader-title" data-pick aria-haspopup="dialog" aria-label="${esc(title)} in the Septuagint, choose another chapter">
+          <span class="rt-name">${esc(title)}</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg>
+        </button></h1>
+        <div class="reader-tools">
+          ${prevRef ? `<a class="icon-btn" href="${link(prevRef)}" aria-label="Previous chapter: ${esc(name(...prevRef))}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a>` : ""}
+          ${nextRef ? `<a class="icon-btn" href="${link(nextRef)}" aria-label="Next chapter: ${esc(name(...nextRef))}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>` : ""}
+        </div>
+      </header>
+      <p class="reader-source">Septuagint, the Greek Old Testament (Swete's edition), with its own chapter and verse numbers. Tap a word to look it up.</p>
+      ${hebBook ? `<p class="lxx-compare"><a class="btn secondary" href="#/read/${hebBook.id}/${heb[1]}">Compare with the Hebrew: ${esc(chapterName(hebBook, heb[1]))}</a></p>` : ""}
+      <div class="chapter lxx-chapter" aria-busy="true"><p class="muted">Loading ${esc(title)}…</p></div>
+      <nav class="chapter-nav" aria-label="Chapters">
+        ${prevRef ? `<a class="btn secondary" href="${link(prevRef)}">${esc(name(...prevRef))}</a>` : "<span></span>"}
+        ${nextRef ? `<a class="btn secondary" href="${link(nextRef)}">${esc(name(...nextRef))}</a>` : ""}
+      </nav>
+    </div>`;
+    if (!vStr) window.scrollTo(0, 0);
+    const holder = main.querySelector(".lxx-chapter");
+    let text;
+    try {
+      text = await data.lxxText(book.id);
+    } catch {
+      holder.innerHTML = `<div class="note"><p>${esc(book.name)} couldn't load. Connect to the internet once and it will be saved for offline reading.</p></div>`;
+      holder.removeAttribute("aria-busy");
+      return;
+    }
+    if (!main.contains(holder)) return;
+    const verses = (text.ch.find(([c]) => c === ch) || [0, []])[1];
+    holder.innerHTML = `<div class="lxx-text" lang="grc">${verses.map(([v, t]) =>
+      `<p class="lv" id="v${v}"><sup class="vn"><span class="sr">Verse </span>${v}</sup> ${lxxWordsHTML(t)}</p>`).join("")}</div>`;
+    holder.removeAttribute("aria-busy");
+    if (vStr) {
+      const target = holder.querySelector(`#v${Number(vStr)}`);
+      if (target) { target.classList.add("focus"); target.scrollIntoView({ block: "center" }); }
+    }
+    const open = (el) => showLxxWord(el, `${title} · Septuagint`);
+    holder.addEventListener("click", (e) => { const lw = e.target.closest(".lw"); if (lw) open(lw); });
+    holder.addEventListener("keydown", (e) => {
+      const lw = e.target.closest(".lw");
+      if (lw && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); open(lw); }
+    });
+    const bible = books.filter((b) => b.lang === "grc" || b.lang === "he");
+    main.querySelector("[data-pick]").addEventListener("click", (e) =>
+      openBookPicker({ books, bible, current: `LXX:${book.id}`, testament: "LXX", returnFocus: e.currentTarget }));
   },
 };

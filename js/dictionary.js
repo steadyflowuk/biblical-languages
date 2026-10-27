@@ -214,6 +214,31 @@ async function search(q, which) {
   return { hits, pending };
 }
 
+/** Dictionary entries that a Greek word as written may belong to (the Septuagint isn't tagged word by word yet):
+ *  written forms known from the New Testament, then dictionary forms, then words that start the same. */
+export async function lookupForm(word) {
+  const norm = greekNorm(word);
+  if (!norm) return [];
+  const found = new Map();
+  for (const k of (await formsList("G"))[norm] || []) {
+    const e = await resolveKey(k);
+    if (e) found.set(e.key, e);
+  }
+  const list = await index("G");
+  list.filter((e) => e.lemmaN === norm).forEach((e) => found.set(e.key, e));
+  if (!found.size && norm.length >= 4) {
+    // no exact match: dictionary forms sharing the first letters (a rough guess, shown as such)
+    list.filter((e) => e.count && e.lemmaN.startsWith(norm.slice(0, Math.max(4, norm.length - 3))))
+      .sort((a, c) => c.count - a.count).slice(0, 4).forEach((e) => found.set(e.key, { ...e, guess: true }));
+  }
+  return [...found.values()].sort((a, c) => (a.guess ? 1 : 0) - (c.guess ? 1 : 0) || c.count - a.count).slice(0, 6);
+}
+
+/** Open the Words tab with a search already typed (e.g. "Search the dictionary for …" from the Septuagint). */
+export function setQuery(q) { lastQuery = String(q || ""); }
+
+export { rowHTML as entryRowHTML };
+
 const keyMaps = {};
 /** The lexicon key an outside key belongs to: exact, else the bare number, else its first lettered sense. */
 export async function resolveKey(key) {

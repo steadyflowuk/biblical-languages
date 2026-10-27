@@ -548,6 +548,11 @@ def main():
     import build_dictionary
     build_dictionary.build()
 
+    # Session 6: the Septuagint (Swete), lined up with the Hebrew/English verse numbers
+    if os.path.isdir(os.path.join(SRC, "lxx-swete")):
+        import build_lxx
+        build_lxx.build(SRC)
+
 
 if __name__ == "__main__":
     main()

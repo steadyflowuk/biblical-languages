@@ -7,6 +7,8 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 
 ## Rules
 - Only public-domain or CC BY data is committed (site is public on GitHub Pages). No NA28, LSB or Logos text.
+  One exception (Session 6): `data/lxx` is Swete's public-domain Septuagint from the GPL-3.0 LXX-Swete-1930 database,
+  committed with its LICENSE and README. Keep that folder's LICENSE/README with it.
 - ESV only via Crossway's API with the user's own key, entered in Settings and kept on the device. Never commit a key.
 - Logos (user's Logos Max library) is a research tool only: lesson order, checking glosses/explanations. Write in our own words.
 - Plain HTML/CSS/ES modules, no build step. Large data is converted by scripts in `tools/`, never pasted by hand.
@@ -39,6 +41,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - `js/reader.js` Reader: chapter view, word sheet, picker, display options (sheet component lives here too)
 - `js/hebrew.js` Hebrew helpers: word parts, pronunciation, punctuation, short/full grammar labels
 - `js/dictionary.js` Words tab: search + entries (routes `#/words`, `#/words/KEY`) · `js/nav.js` back/return memory
+- `js/esv.js` ESV key + API + small offline store · Septuagint screen (`#/lxx/ID/CH[/V]`) lives in `js/reader.js`
 - `assets/fonts`, `assets/icons`
 
 ## Testing
@@ -57,12 +60,12 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - [x] 5 (27 Oct 2026): Dictionary — search every way, full entries, every occurrence, joined to Reader and Today.
 - [x] 5b (27 Oct 2026): deep check — written-form search, verse-English keywords, looser spelling, retry after offline, 21,234 entries swept.
 - [x] 5c (27 Oct 2026): transliteration search of written words ("bereshit", "vayomer", phrases like "bara elohim").
-- [ ] 6 ESV + LXX + parallel
+- [x] 6 (27 Oct 2026): ESV (own key), Septuagint lined up with the Hebrew + its own screen, side-by-side layout.
 - [ ] 7 Lesson engine · [ ] 8 Greek lessons · [ ] 9 Vocab trainer + audio
 - [ ] 10 Hebrew lessons · [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
 
 ## Data (Session 2)
-- Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (37 checks).
+- Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (41 checks).
 - Greek = TAGNT words whose editions include NA28, plus 64 places where NA28's reading sits in TAGNT's variant column
   (e.g. Jude 5 Ἰησοῦς) and 9 NA28 spellings. 137,954 words, 7,942 verses, NA28 verse numbering. 92% of verses
   letter-identical to SBLGNT; the rest are NA28 bracketed words and known NA28/SBL differences.
@@ -169,12 +172,39 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - Source quirks kept as published: G2199H "[wife of Zebedee]" has no headword (we show the transliteration);
   κύριος/πνεῦμα/γυνή etc. are split into senses (counts per sense; together they match NA28 totals).
 
+## Translations (Session 6)
+- ESV: `js/esv.js`. Key in localStorage "esv:key" (not "ao:", so never in backups); Settings saves only after a test
+  fetch (John 3:16). One request per chapter (`q=BBCCC001-BBCCC999`, book number = position in books.json, 1–66).
+  Offline store "esv:chapters" ≤ 450 verses, 30 days (Crossway: ≤ 500 verses stored). parseChapter splits on [n];
+  text before [1] is verse 0 only in Psalms; Song of Songs speaker labels (short unpunctuated lines) are dropped.
+  Every page showing ESV text carries the credit + www.esv.org link; full notice in Settings. Never commit a key;
+  tests mock api.esv.org (tools/test_translations.py).
+- Septuagint data: `tools/build_lxx.py` (called by build_data.py when `<src>/lxx-swete` exists).
+  data/lxx/books.json (60 books; app ids, DAN = Theodotion, DAG = Old Greek, ESG = Greek Esther, heb = {lxxCh: [OT id, ch]}),
+  text/<ID>.json (Swete numbering), ot/<OTID>.json (each Hebrew/English verse → Swete ref + text, or null).
+  Text is NFC (Swete source uses oxia ύ; NFC gives tonos as in the NT data). Alignment: TVTMS Greek column, then a
+  per-chapter choice of numbering by verse lengths and learned Strong's→Greek word pairs; only local moves; hand
+  OVERRIDES for Mal 4:4–6 and Dan 4:1–3. 15 "weak" chapters (EXO 37, JOB 5/16/40/41, PRO 1/13/17/19/20/24/28/30/31,
+  SNG 6) aren't lined up: a note links to the Septuagint screen instead. A whole-book word search was tried and
+  removed (false moves like Gen 2:1 → 1:1).
+- Reader: display options "Translations" (showBSB, showESV, showLXX; off in running text). Lines get a small tag
+  (BSB tag only when another translation shows). LXX label "22:1" when numbering differs; psalm titles inside LXX
+  verse 1 get a note. Load problems are kept in state.esvMsg / state.lxxMsg so redraws keep them.
+- Side by side (readLayout "parallel"): `.pv` rows, `.cols.nN`; stacked with labels on phones, columns ≥ 760px with
+  a header row; the Reader screen gets `.wide` (76rem). Words stay tappable.
+- Septuagint words aren't tagged: a tap runs dictionary.lookupForm (NT forms list → lemma → prefix guesses) and offers
+  a dictionary search. Septuagint screen: picker tab "Septuagint", prev/next across books, "Compare with the Hebrew",
+  store lastLxx; the Read tab stays current.
+
 ## Checks
 - `python3 tools/test_app.py` (server on :8765 first) — 101 end-to-end checks; run before every push.
 - `python3 tools/test_reader_edges.py` — 28 Reader edge cases (odd links, fast switching incl. OT↔NT, offline Hebrew, focus, back button, 320px).
 - `python3 tools/sweep_reader.py [nt|ot|all]` — opens every chapter at 360px (NT ~10 min, OT ~35 min); expect
   0 issues and only 3JN 15 / REV 12:18 notes.
-- `tools/check_data.py` now has 37 checks (5 for the dictionary) (incl. OT BSB alignment both ways, psalm titles, Today's verses).
+- `tools/check_data.py` now has 41 checks (5 for the dictionary, 4 for the Septuagint) (incl. OT BSB alignment both ways, psalm titles, Today's verses).
 - `python3 tools/test_dictionary.py` — 51 Dictionary checks (search, entries, links both ways, offline, 320px).
+- `python3 tools/test_translations.py` — 52 ESV/Septuagint/side-by-side checks (ESV API mocked).
+- `python3 tools/sweep_lxx.py [ot|lxx|all]` — every OT chapter side by side with the Septuagint + every Septuagint
+  chapter at 360px (~40 min); expect 0 issues.
 - `python3 tools/sweep_dictionary.py [G|H|all] [every-nth]` — opens every entry at 360px (~11 min); expect 0 issues.
 - No WebKit here: iPhone/iPad behaviour must be checked on the user's devices.

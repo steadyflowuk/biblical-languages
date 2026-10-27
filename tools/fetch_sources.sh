@@ -12,8 +12,13 @@ if [ ! -d step ]; then
   (cd step && git config gc.auto 0 && git sparse-checkout init --no-cone &&
    git sparse-checkout set --no-cone \
      '/Translators Amalgamated OT+NT/TAGNT*' '/Translators Amalgamated OT+NT/TAHOT*' \
-     '/Lexicons/TBES*' '/Morphology codes/*' &&
+     '/Lexicons/TBES*' '/Morphology codes/*' '/Versification/*' &&
    git checkout -q HEAD)
+fi
+
+# Swete's Septuagint (text public domain, 1909-1930; this database GPL-3.0) — Eliran Wong / BibleBento
+if [ ! -d lxx-swete ]; then
+  git clone -q --depth 1 https://github.com/eliranwong/LXX-Swete-1930 lxx-swete
 fi
 
 # Berean Standard Bible (public domain), as prepared for communityofbrothers.github.io

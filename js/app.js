@@ -1,6 +1,6 @@
 import * as store from "./store.js";
 import * as screens from "./screens.js";
-import { read, closeSheet } from "./reader.js";
+import { read, lxx, closeSheet } from "./reader.js";
 import { words } from "./dictionary.js";
 import * as nav from "./nav.js";
 
@@ -8,6 +8,7 @@ const ROUTES = {
   today: screens.today,
   learn: screens.learn,
   read,
+  lxx,
   words,
   review: screens.review,
   media: screens.media,
@@ -31,7 +32,7 @@ function route() {
     return;
   }
   document.querySelectorAll(".tabs a[data-tab]").forEach((a) => {
-    if (a.dataset.tab === name) a.setAttribute("aria-current", "page");
+    if (a.dataset.tab === (name === "lxx" ? "read" : name)) a.setAttribute("aria-current", "page");
     else a.removeAttribute("aria-current");
   });
   nav.visited();

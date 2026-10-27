@@ -199,6 +199,35 @@ for b in books:
                     uncovered.append(f"{b['id']} {ci}:{x}")
 check("Reader: every NT verse of the BSB appears under an NA28 verse", not uncovered, ", ".join(uncovered[:8]))
 
+# The Hebrew Reader puts each BSB verse under the Hebrew verse with the same (English) number, and psalm titles
+# (Hebrew verse 0) under the BSB title text. Both directions must match exactly.
+he_uncovered, he_extra, titles_missing = [], [], []
+for b in books:
+    if b["lang"] != "he":
+        continue
+    src = load(f"hot/{b['id']}.json")
+    bsb = load(f"bsb/{b['id']}.json")
+    for c, vs in src["ch"]:
+        ours = {v[0] for v in vs}
+        theirs, pre = set(), False
+        for kind, items in bsb["chapters"][c - 1][0]:
+            for x in items:
+                if isinstance(x, int):
+                    theirs.add(x)
+                elif isinstance(x, str) and not theirs and kind not in ("s", "r", "b") and x.strip():
+                    pre = True  # text before verse 1: a psalm title
+        he_uncovered += [f"{b['id']} {c}:{x}" for x in sorted(theirs - ours)]
+        he_extra += [f"{b['id']} {c}:{x}" for x in sorted(ours - theirs - {0})]
+        if 0 in ours and not pre:
+            titles_missing.append(f"{b['id']} {c}")
+check("Reader: every OT verse of the BSB has a Hebrew verse, and the other way round", not he_uncovered and not he_extra,
+      ", ".join((he_uncovered + he_extra)[:8]))
+votd = load("votd.json")
+bad_votd = [v["id"] for v in votd if re.search(r"\(\w+ \d+:\d+", v["english"])
+            or any(re.search(r"(^|\s)[\u05e4\u05e1](\s|$)", w.get("p", "")) for w in v["words"])]
+check("Today's verses: no BSB headings in the English, no paragraph letters in the Hebrew", not bad_votd, ", ".join(bad_votd))
+check("Reader: every psalm title in Hebrew has the BSB title to go with it", not titles_missing, ", ".join(titles_missing[:8]))
+
 # ------------------------------------------------ lexicon and grammar coverage
 for lang, folder, idx, morph in (("Greek", "gnt", "greek", "greek"), ("Hebrew", "hot", "hebrew", "hebrew")):
     mt = load(f"morph/{morph}.json")

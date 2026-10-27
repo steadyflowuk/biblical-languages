@@ -37,6 +37,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - `js/app.js` hash router · `js/screens.js` all screens · `js/store.js` settings + backup (localStorage keys `ao:*`)
 - `js/install.js` add-to-home-screen help · `js/verses.js` built-in fallback verses · `js/data.js` data loader
 - `js/reader.js` Reader: chapter view, word sheet, picker, display options (sheet component lives here too)
+- `js/hebrew.js` Hebrew helpers: word parts, pronunciation, punctuation, short/full grammar labels
 - `assets/fonts`, `assets/icons`
 
 ## Testing
@@ -50,12 +51,13 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - [x] 2 (26 Oct 2026): data pipeline — `data/` built from STEPBible + BSB; Today uses `data/votd.json`.
 - [x] 3 (27 Oct 2026): Greek Reader — `js/reader.js`, routes `#/read/BOOK/CH[/VERSE]`.
 - [x] 3b (27 Oct 2026): deep check — BSB placement (own number wins), grammar tag labels, focus trap, contrast, iOS 13.4 baseline.
-- [ ] 4 Hebrew/Aramaic Reader · [ ] 5 Dictionary · [ ] 6 ESV + LXX + parallel
+- [x] 4 (27 Oct 2026): Hebrew/Aramaic Reader — right to left, word parts, Aramaic and ketiv/qere notes, whole-Bible picker.
+- [ ] 5 Dictionary · [ ] 6 ESV + LXX + parallel
 - [ ] 7 Lesson engine · [ ] 8 Greek lessons · [ ] 9 Vocab trainer + audio
 - [ ] 10 Hebrew lessons · [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
 
 ## Data (Session 2)
-- Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (28 checks).
+- Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (31 checks).
 - Greek = TAGNT words whose editions include NA28, plus 64 places where NA28's reading sits in TAGNT's variant column
   (e.g. Jude 5 Ἰησοῦς) and 9 NA28 spellings. 137,954 words, 7,942 verses, NA28 verse numbering. 92% of verses
   letter-identical to SBLGNT; the rest are NA28 bracketed words and known NA28/SBL differences.
@@ -95,11 +97,31 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - Sheets make every other body child `inert` while open (focus stays inside; Escape closes; focus returns).
 - Light-theme small text uses --accent-ink #765A1C and --sage-ink #476050 (≥5:1 on beige). color-mix() has rgba
   fallbacks. JS avoids ??= etc.: baseline is iOS 13.4 (optional chaining). Older iPads won't run the app.
-- Hebrew books currently show "arrives in the next update" — Session 4 replaces that with RTL interlinear.
 - WORD_RE uses named groups (en, word, kind): adding an unnamed group once shifted numbers and broke Hebrew.
 
+## Hebrew Reader (Session 4)
+- Same screen as Greek; `state.he` switches word/chapter/sheet builders (heWordHTML, heChapterHTML, heWordSheetHTML).
+  Chapter holder gets `lang-he`; each word-by-word verse is `dir="rtl"` with the BSB `dir="ltr" lang="en"`;
+  English/pronunciation/grammar spans under Hebrew words are `dir="ltr"` (otherwise brackets and full stops flip).
+- OT verse numbers = English numbering, so the BSB sits under the same number (check_data verifies both ways).
+  Where Hebrew numbering differs, a small "Heb c:v" shows under the verse number. Psalm titles = verse 0, labelled
+  "title", with the BSB title text (bsbChapter puts pre-verse-1 text at 0). Chapter title "Psalm 23" (not Psalms).
+- after: keep maqaf ־ (next word joins with no space), sof pasuq ׃, paseq ׀ (with a space), inverted nun ׆;
+  drop paragraph letters פ ס but use them for running-text paragraphs (heParagraphAfter).
+- Notes, placed before the first verse concerned: Aramaic (ranges, "Aram." label per verse in mixed chapters),
+  ° qere marker (sheet shows the written ketiv), grey written-not-read (k), [brackets] for words not in Leningrad (x).
+- Word sheet: Word parts (prefix/main/suffix with glosses), dictionary form of the {main} key, Strong's only for
+  real numbers (STEPBible H9001+ are prefix/suffix labels, not Strong's), full grammar of the main part, how common.
+- Short grammar: stems capitalised (Qal, Piel, Hiphil, Peal…), forms in grammar-book terms (wayyiqtol, weqatal,
+  pf., impf., ptc., inf. cstr.), person/gender/number as 3ms etc.; "and (narrative)" dropped before a wayyiqtol.
+- Picker has an Old/New Testament switch (opens on the current book's Testament); prev/next runs across the Bible.
+- englishHTML drops unmatched < > [ ] (3 source glosses: Isa 7:23, Ezk 36:23, Lev 11:40) — data left as published.
+- build_votd skips BSB heading/cross-ref lines and drops פ ס from Hebrew (Today once showed "Here Is Your God!").
+
 ## Checks
-- `python3 tools/test_app.py` (server on :8765 first) — 85 end-to-end checks; run before every push.
-- `python3 tools/test_reader_edges.py` — 22 Reader edge cases (odd links, fast switching, focus, back button, 320px).
-- `python3 tools/sweep_reader.py` — opens all 260 NT chapters (~10 min); expect 0 issues and only 3JN 15 / REV 12:18 notes.
+- `python3 tools/test_app.py` (server on :8765 first) — 97 end-to-end checks; run before every push.
+- `python3 tools/test_reader_edges.py` — 25 Reader edge cases (odd links, fast switching, focus, back button, 320px).
+- `python3 tools/sweep_reader.py [nt|ot|all]` — opens every chapter at 360px (NT ~10 min, OT ~35 min); expect
+  0 issues and only 3JN 15 / REV 12:18 notes.
+- `tools/check_data.py` now has 31 checks (incl. OT BSB alignment both ways, psalm titles, Today's verses).
 - No WebKit here: iPhone/iPad behaviour must be checked on the user's devices.

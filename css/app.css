@@ -458,3 +458,27 @@ fieldset:disabled { opacity: .45; }
 .layout-words > .v-note { margin-left: 2.1rem; }
 .layout-text > .v-note { margin: 0 0 18px; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ======================================================================= Hebrew (right to left) */
+
+.wg:lang(he) { font-family: var(--font-hebrew); font-size: 1.75rem; line-height: 1.6; }
+.layout-words.lang-he .v { grid-template-columns: 2.6rem minmax(0, 1fr); }
+.layout-words.lang-he .w { align-items: center; text-align: center; }
+.layout-words.lang-he .words { gap: 12px 16px; }
+.layout-words.lang-he > .v-gap, .layout-words.lang-he > .v-note { margin-left: 0; margin-right: 2.6rem; }
+.lang-he .bsb { text-align: left; }
+.vh { display: block; margin-top: 3px; font-size: .66rem; font-weight: 400; line-height: 1.2; color: var(--muted); }
+.vn-title { font-size: .72rem; }
+.layout-text.lang-he .para { font-family: var(--font-hebrew); font-size: 1.75rem; line-height: 2.2; text-align: right; }
+.layout-text.lang-he .vn { margin: 0 6px 0 3px; }
+.q-mark { color: var(--accent-ink); font-family: var(--font-ui); font-size: .55em; vertical-align: super; line-height: 0; }
+.w-k .wg, .layout-text .w-k { color: var(--muted); }
+.ws-word.he { font-family: var(--font-hebrew); font-size: 2.5rem; line-height: 1.5; text-align: left; }
+.ws-lemma:lang(he) { font-family: var(--font-hebrew); font-size: 1.4rem; line-height: 1.5; }
+.ws-flag { margin: -8px 0 14px; padding: 10px 14px; border-radius: 10px; background: var(--surface-soft); font-size: .92rem; }
+.ws-parts { list-style: none; margin: 0; padding: 0; }
+.ws-parts li + li { margin-top: 4px; }
+.ws-parts li.main { font-weight: 700; }
+.ws-parts .muted { font-weight: 400; font-size: .9rem; }
+.pick-switch { margin: 0 0 6px; }
+.pick-lang { margin: 0; font-size: .9rem; }

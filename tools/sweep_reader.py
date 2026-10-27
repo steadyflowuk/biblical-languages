@@ -1,10 +1,12 @@
-"""Opens every New Testament chapter at 360px with all display options and reports anything odd.
-Slow (about 10 minutes). Run with the local server on :8765:  python3 tools/sweep_reader.py"""
+"""Opens every chapter at 360px with all display options and reports anything odd.
+Run with the local server on :8765:  python3 tools/sweep_reader.py [nt|ot|all]
+NT (260 chapters) takes about 10 minutes, OT (929 chapters) about 35."""
 import asyncio, json, collections, sys
 from playwright.async_api import async_playwright
 BASE = "http://localhost:8765/"
 books = json.load(open("/home/claude/biblical-languages/data/books.json"))
-nt = [b for b in books if b["lang"] == "grc"]
+which = (sys.argv[1] if len(sys.argv) > 1 else "all").lower()
+nt = [b for b in books if (b["lang"] == "grc" and which in ("nt", "all")) or (b["lang"] == "he" and which in ("ot", "all"))]
 issues = collections.defaultdict(list)
 
 CHECK = r"""
@@ -20,7 +22,7 @@ CHECK = r"""
   const bad = (text.match(/\bundefined\b|\bNaN\b|\bnull\b|\[object|¶|¬|\u0001|&lt;|&gt;|&amp;/g) || []);
   const engLeft = [...ch.querySelectorAll('.we')].map(e => e.textContent).filter(t => /[{}<>]|\[\d|\(\d/.test(t)).slice(0, 3);
   const ov = document.documentElement.scrollWidth - document.documentElement.clientWidth;
-  const wide = [...ch.querySelectorAll('.w')].filter(w => w.getBoundingClientRect().right > window.innerWidth + 1).length;
+  const wide = [...ch.querySelectorAll('.w')].filter(w => { const r = w.getBoundingClientRect(); return r.right > window.innerWidth + 1 || r.left < -1; }).length;
   return { verses: verses.length, words, noBsb, emptyBsb, noteBsb, emptyEng, bad: [...new Set(bad)], engLeft, ov, wide,
            gaps: [...ch.querySelectorAll('.v-gap')].map(g => g.textContent.slice(0, 40)), extra: ch.querySelectorAll('.v-bsb-only').length };
 }"""
@@ -36,7 +38,7 @@ async def main():
         page.on("console", lambda m: errs.append(m.text) if m.type == "error" else None)
         total_words = 0; chapters = 0; notes = []
         for bk in nt:
-            data = json.load(open(f"/home/claude/biblical-languages/data/gnt/{bk['id']}.json"))
+            data = json.load(open(f"/home/claude/biblical-languages/data/{'hot' if bk['lang'] == 'he' else 'gnt'}/{bk['id']}.json"))
             expect = {c: len(vs) for c, vs in data["ch"]}
             for c in range(1, bk["ch"] + 1):
                 n0 = len(errs)

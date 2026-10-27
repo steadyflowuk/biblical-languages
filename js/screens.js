@@ -42,7 +42,7 @@ function verseHTML(v) {
     <p class="verse-original" lang="${v.lang}" dir="${dir}">${words}</p>
     <p class="verse-english">${esc(v.english)}</p>
     <div class="verse-gloss" aria-live="polite"></div>
-    ${v.lang === "grc" && /^[0-9A-Z]{3}-\d+-\d+$/.test(v.id) ? `<a class="verse-link" href="#/read/${v.id.replace(/-/g, "/")}">Read ${esc(v.ref.replace(/:\d+$/, ""))} word by word</a>` : ""}
+    ${/^[0-9A-Z]{3}-\d+-\d+$/.test(v.id) ? `<a class="verse-link" href="#/read/${v.id.replace(/-/g, "/")}">Read ${esc(v.ref.replace(/:\d+$/, ""))} word by word</a>` : ""}
   </section>
   <p class="verse-source">Tap any word to see what it means. ${SOURCE[v.lang]}; English: Berean Standard Bible.</p>`;
 }

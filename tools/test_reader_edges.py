@@ -19,9 +19,9 @@ async def main():
         pg.on("pageerror", lambda e: errs.append(str(e)))
 
         # 1. Odd links
-        for link, expect in [("read/XYZ/1", "next update|Open John 1"), ("read/JHN/0", "John 1"), ("read/JHN/999", "John 21"),
+        for link, expect in [("read/XYZ/1", "Open Genesis 1"), ("read/PSA/151", "Psalm 150"), ("read/psa/23/0", "Psalm 23"), ("read/JHN/0", "John 1"), ("read/JHN/999", "John 21"),
                              ("read/jhn/3", "John 3"), ("read/JHN/abc", "John 1"), ("read/JHN/3/999", "John 3"), ("read/JHN/3/abc", "John 3"),
-                             ("read/PHM/2", "Philemon 1"), ("read/GEN/1", "next update")]:
+                             ("read/PHM/2", "Philemon 1"), ("read/GEN/1", "Genesis 1"), ("read/MAT/1", "Matthew 1")]:
             await pg.goto(f"{BASE}#/{link}"); await ready(pg)
             txt = await pg.text_content("main")
             import re
@@ -83,7 +83,7 @@ async def main():
             await c2.add_init_script("localStorage.setItem('ao:textSize', JSON.stringify('largest'))")
             p2 = await c2.new_page()
             bad = []
-            for r in ["today", "read/1TH/1", "read/REV/22", "settings"]:
+            for r in ["today", "read/1TH/1", "read/REV/22", "read/1CH/1", "read/PSA/119", "read/EZR/2", "settings"]:
                 await p2.goto(f"{BASE}#/{r}"); await ready(p2)
                 ov = await p2.evaluate("document.documentElement.scrollWidth - document.documentElement.clientWidth")
                 if ov > 0: bad.append(f"{r} {ov}px")

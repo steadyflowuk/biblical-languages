@@ -405,8 +405,10 @@ VOTD = {
 def bsb_verse_text(bsb_book, ch, vs):
     out, on = [], False
     for kind, items in bsb_book["chapters"][ch - 1][0]:
+        if kind in ("s", "r", "b"):
+            continue  # section headings, cross-references and blank lines belong to no verse
         for x in items:
-            if isinstance(x, int) or (isinstance(x, str) and x.isdigit() and False):
+            if isinstance(x, int):
                 on = (x == vs)
             elif on and isinstance(x, str):
                 out.append(re.sub(r"\u0001\d+\u0001", "", x).strip())
@@ -451,7 +453,10 @@ def build_votd(gnt, hot, bsb, glex, hlex, gmorph, hmorph, books_meta):
                             d = f"{d} {form} \u201c{e.get('gloss', '').split(': ')[-1]}\u201d".strip()
                         parts.append(d)
                     parse = " + ".join(parts)
-                    item = {"t": w[0].replace("/", ""), "p": w[5]}
+                    # drop the paragraph letters פ ס; keep maqaf, sof pasuq, paseq (see js/hebrew.js heAfter)
+                    after = re.sub(r"(^|\s)[\u05e4\u05e1](?=\s|$)", "", w[5]).strip()
+                    after = re.sub(r"\s+(?![\u05c0\u05c6])", "", re.sub(r"\s*([\u05c0\u05c6])", r" \1", after))
+                    item = {"t": w[0].replace("/", ""), "p": after}
                 gloss = (lex.get("gloss", "") or w[2]).split(": ")[-1]
                 item.update({"lemma": lex.get("lemma", ""), "gloss": gloss,
                              "parse": parse, "en": w[2]})

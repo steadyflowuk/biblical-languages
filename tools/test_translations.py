@@ -336,12 +336,14 @@ async def main():
         first5 = nfc(await pg.locator(".lxx-text .lv >> nth=0").inner_text())
         check("fast switching: shows Isaiah 5 only", (await pg.locator(".lxx-chapter").count()) == 1 and "ᾌσω" in first5 or "Ἄισω" in first5 or "ἀμπελ" in first5, first5[:60])
 
-        # 13h. Psalm 119 side by side with everything on: drawn quickly
+        # 13h. Psalm 119 side by side with everything on: drawn quickly (verses with no Greek match stay grey)
         await set_prefs(pg, readLayout="parallel", showESV=True, showLXX=True)
         await open_chapter(pg, "PSA/118", ".pv")
         t = await pg.evaluate("""async () => { const t0 = performance.now(); location.hash = '#/read/PSA/119';
-          await new Promise(r => { const tick = () => document.querySelectorAll('.pv').length > 170 && !document.querySelector('.col-lxx .muted') ? r() : setTimeout(tick, 20); tick(); });
-          return performance.now() - t0; }""")
+          const ok = await new Promise(r => { const tick = () => document.querySelectorAll('.pv').length > 170
+            && !/Loading/.test(document.querySelector('.chapter').textContent) ? r(true)
+            : performance.now() - t0 > 10000 ? r(false) : setTimeout(tick, 20); tick(); });
+          return ok ? performance.now() - t0 : 'still loading: ' + ((document.querySelector('.chapter').textContent.match(/Loading[^.]{0,40}/) || [''])[0]); }""")
         check("Psalm 119 side by side (Hebrew, BSB, ESV, Septuagint) draws in under 2.5 s", isinstance(t, (int, float)) and t < 2500, str(t))
 
         # 13g. Offline: a Septuagint chapter read before still opens; an unread book says so

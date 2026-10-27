@@ -7,7 +7,8 @@ data/lex/G/<nn>.json and data/lex/H/<nn>.json so each entry is:
 
 The search index lex/<greek|hebrew>-index.json becomes [key, lemma, translit, gloss, count, keywords]
 (keywords = English words used for it in the verses, then from its definition, so "Yahweh" finds יהוה and
-"shepherd" finds רָעָה; count 0 is kept when keywords follow). lex/<greek|hebrew>-forms.json lists written forms.
+"shepherd" finds רָעָה; count 0 is kept when keywords follow). lex/<greek|hebrew>-forms.json lists written forms;
+lex/<greek|hebrew>-sounds.json lists their pronunciations (for "bereshit").
 
 occ   = {"JHN": "1.1.4 1.14.2 …", …}   chapter.verse.word-index, as the Reader numbers them
         (Greek: NA28 verse numbers; Hebrew: English verse numbers, Psalm titles = verse 0)
@@ -90,6 +91,15 @@ def greek_norm(s):
     return re.sub("[^α-ω]", "", s)
 
 
+def loose_norm(s):
+    """Same as looseNorm() in js/dictionary.js: pronunciation with y/u, ph/f, ch/kh/h, w/v, tz/ts and doubled
+    letters counted as the same (so "bereshit", "Bereshit" and "be.re.Shit" agree)."""
+    s = unicodedata.normalize("NFD", str(s))
+    s = re.sub("[^a-z]", "", "".join(ch for ch in s if not unicodedata.combining(ch)).lower())
+    s = re.sub("[ck]h", "h", s.replace("ph", "f")).replace("tz", "ts").replace("y", "u").replace("w", "v").replace("h", "")
+    return re.sub(r"(.)\1+", r"\1", s)
+
+
 FINALS = str.maketrans("ךםןףץ", "כמנפצ")
 
 
@@ -147,6 +157,7 @@ def build():
         unresolved = Counter()
         text_forms = defaultdict(Counter)             # normalised written form → key → count
         text_gloss = defaultdict(Counter)             # key → English word used for it in the verses → count
+        text_sounds = defaultdict(Counter)            # pronunciation of the written word (loose) → key → count
         for b in books:
             if (b["lang"] == "grc") != (letter == "G"):
                 continue
@@ -162,6 +173,7 @@ def build():
                             items = hebrew_main_parts(w)
                         seen = set()
                         whole = greek_norm(w[0]) if letter == "G" else hebrew_norm(w[0])
+                        sound = loose_norm(w[1] if len(w) > 1 else "")
                         for k, text, code, eng in items:
                             key = lookup(k)
                             if not key and k in src["lex"]:
@@ -178,6 +190,8 @@ def build():
                             # its prefixes), and the English it is given in the verses
                             if whole:
                                 text_forms[whole][key] += 1
+                            if len(sound) > 1:
+                                text_sounds[sound][key] += 1
                             if letter == "H":
                                 part = hebrew_norm(text)
                                 if part and part != whole:
@@ -213,6 +227,11 @@ def build():
         lemma_norm = {e[0]: (greek_norm if letter == "G" else hebrew_norm)(e[1] if len(e) > 1 else "") for e in index}
         dump(f"lex/{name}-forms.json", {f: [k for k, _ in ks.most_common(3)] for f, ks in sorted(text_forms.items())
                                          if any(lemma_norm.get(k) != f for k in ks)})
+        # The same for pronunciations of written words, so "bereshit" (with its prefix) finds רֵאשִׁית:
+        # lex/<greek|hebrew>-sounds.json = {loose pronunciation: [keys]}
+        lemma_sound = {e[0]: loose_norm(e[2] if len(e) > 2 else "") for e in index}
+        dump(f"lex/{name}-sounds.json", {f: [k for k, _ in ks.most_common(3)] for f, ks in sorted(text_sounds.items())
+                                          if any(lemma_sound.get(k) != f for k in ks)})
         chunks = {}
         for k, l in extra.items():
             path = f"{k[1:3]}.json"

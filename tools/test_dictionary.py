@@ -17,9 +17,10 @@ async def rows(pg):
 
 
 async def search(pg, q):
+    await pg.fill("#dict-q", "")
     await pg.fill("#dict-q", q)
     await pg.wait_for_function("document.querySelector('.dict-count')", timeout=10000)
-    await pg.wait_for_timeout(250)
+    await pg.wait_for_timeout(700)  # pronunciation lists may arrive and redraw
     return await rows(pg)
 
 
@@ -62,6 +63,13 @@ async def main():
             ("ἠγάπησεν", lambda r: r and r[0].startswith("ἀγαπάω") and "Form in the text" in r[0], "a form copied from a verse (ἠγάπησεν) finds ἀγαπάω"),
             ("בְּרֵאשִׁית", lambda r: r and "H7225" in r[0] and "Form in the text" in r[0], "a Hebrew word with its prefix (בְּרֵאשִׁית) finds רֵאשִׁית"),
             ("ἀγάπη", lambda r: r and r[0].startswith("ἀγάπη") and "Form in the text" not in " ".join(r), "dictionary forms aren't labelled as text forms"),
+            # Pronunciations of whole written words (prefixes and all), loaded in the background
+            ("bereshit", lambda r: r and "H7225" in r[0] and "Form in the text" in r[0], "pronunciation with its prefix (bereshit) finds רֵאשִׁית"),
+            ("bereishit", lambda r: r and "H7225" in r[0], "another spelling (bereishit) still finds רֵאשִׁית"),
+            ("vayomer", lambda r: r and "H559" in r[0], "vayomer finds אָמַר (to say)"),
+            ("egapesen", lambda r: r and r[0].startswith("ἀγαπάω"), "a Greek form's pronunciation (egapesen) finds ἀγαπάω"),
+            ("bereshit bara elohim", lambda r: len(r) > 2 and "H7225" in r[0] and any("H1254" in x for x in r[:6]) and any("H430" in x for x in r), "a phrase finds each word, in order"),
+            ("love", lambda r: r and "H157" in r[0] and not any("Sounds like" in x for x in r[:5]), "English searches are not crowded by sound-alikes"),
         ]
         for q, ok, label in cases:
             r = await search(pg, q)

@@ -252,6 +252,9 @@ logos_entry = load("lex/G/30.json")["G3056"]
 check("Dictionary: λόγος has 330 occurrences, John 1:1 among them, and its forms", "1.1.4" in logos_entry[6]["JHN"].split(" ")
       and sum(len(r.split(" ")) for r in logos_entry[6].values()) == 330 and logos_entry[7][0][1] > 30, str(logos_entry[7][:3]))
 
+sounds_h, sounds_g = load("lex/hebrew-sounds.json"), load("lex/greek-sounds.json")
+check("Dictionary: pronunciations of written words find their entry (bereshit → H7225, egapesen → G25)",
+      "H7225G" in sounds_h.get("beresit", []) and "G0025" in sounds_g.get("egapesen", []))
 votd = load("votd.json")
 bad_votd = [v["id"] for v in votd if re.search(r"\(\w+ \d+:\d+", v["english"])
             or any(re.search(r"(^|\s)[\u05e4\u05e1](\s|$)", w.get("p", "")) for w in v["words"])]

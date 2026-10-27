@@ -56,12 +56,13 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - [x] 4b (27 Oct 2026): deep check — count keys, compounds, clearer labels, not-read glosses, book memory limit.
 - [x] 5 (27 Oct 2026): Dictionary — search every way, full entries, every occurrence, joined to Reader and Today.
 - [x] 5b (27 Oct 2026): deep check — written-form search, verse-English keywords, looser spelling, retry after offline, 21,234 entries swept.
+- [x] 5c (27 Oct 2026): transliteration search of written words ("bereshit", "vayomer", phrases like "bara elohim").
 - [ ] 6 ESV + LXX + parallel
 - [ ] 7 Lesson engine · [ ] 8 Greek lessons · [ ] 9 Vocab trainer + audio
 - [ ] 10 Hebrew lessons · [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
 
 ## Data (Session 2)
-- Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (36 checks).
+- Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (37 checks).
 - Greek = TAGNT words whose editions include NA28, plus 64 places where NA28's reading sits in TAGNT's variant column
   (e.g. Jude 5 Ἰησοῦς) and 9 NA28 spellings. 137,954 words, 7,942 verses, NA28 verse numbering. 92% of verses
   letter-identical to SBLGNT; the rest are NA28 bracketed words and known NA28/SBL differences.
@@ -159,6 +160,12 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   refs to verses NA28 omits still link — the Reader explains the gap). 34,381 links, all checked by audit.
 - Failed loads (offline) aren't cached: prepared/keyMaps/formLists and the Reader's counts retry next time.
 - data.js memory groups: Bible books keep 6, dictionary chunks keep 8. Results announce only "N matches" (role=status).
+- Transliteration of written words (5c): lex/<greek|hebrew>-sounds.json = {looseNorm(TAHOT/TAGNT translit of the word):
+  [keys]} (66/230 KB gz), only where it differs from the lemma's. Loaded in the background on the first Latin-letter
+  search (search() returns {hits, pending}; draw() redraws when pending resolves). Exact sound → 0.7 "Form in the
+  text"; same consonants (skeleton) within edit distance ≤2 → 1.6+ "Sounds like a word in the text" (bereishit,
+  b'reshit, vayomer); phrases look up each word (sound or lemma trL), ranked in typed order. looseNorm now also maps
+  tz→ts ('A.retz = erets) — loose_norm() in build_dictionary.py must stay identical.
 - Source quirks kept as published: G2199H "[wife of Zebedee]" has no headword (we show the transliteration);
   κύριος/πνεῦμα/γυνή etc. are split into senses (counts per sense; together they match NA28 totals).
 
@@ -167,7 +174,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - `python3 tools/test_reader_edges.py` — 28 Reader edge cases (odd links, fast switching incl. OT↔NT, offline Hebrew, focus, back button, 320px).
 - `python3 tools/sweep_reader.py [nt|ot|all]` — opens every chapter at 360px (NT ~10 min, OT ~35 min); expect
   0 issues and only 3JN 15 / REV 12:18 notes.
-- `tools/check_data.py` now has 36 checks (5 for the dictionary) (incl. OT BSB alignment both ways, psalm titles, Today's verses).
-- `python3 tools/test_dictionary.py` — 45 Dictionary checks (search, entries, links both ways, offline, 320px).
+- `tools/check_data.py` now has 37 checks (5 for the dictionary) (incl. OT BSB alignment both ways, psalm titles, Today's verses).
+- `python3 tools/test_dictionary.py` — 51 Dictionary checks (search, entries, links both ways, offline, 320px).
 - `python3 tools/sweep_dictionary.py [G|H|all] [every-nth]` — opens every entry at 360px (~11 min); expect 0 issues.
 - No WebKit here: iPhone/iPad behaviour must be checked on the user's devices.

@@ -29,10 +29,23 @@ const greekNorm = (s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, 
 const FINALS = { "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" };
 const hebrewNorm = (s) => String(s).replace(/[\u0591-\u05c7]/g, "").replace(/[ךםןףץ]/g, (c) => FINALS[c])
   .replace(/[^א-ת]/g, "");
-/** Looser spelling for pronunciations: y/u, ph/f, w/v, ch/kh/h and doubled letters count as the same
- *  (kyrios = kurios, huios = uhios, nefesh = ne.phesh, chesed = hesed). */
-const looseNorm = (s) => latinNorm(s).replace(/ph/g, "f").replace(/[ck]h/g, "h").replace(/y/g, "u").replace(/w/g, "v")
-  .replace(/h/g, "").replace(/(.)\1+/g, "$1");
+/** Looser spelling for pronunciations: y/u, ph/f, w/v, ch/kh/h, tz/ts and doubled letters count as the same
+ *  (kyrios = kurios, huios = uhios, nefesh = ne.phesh, chesed = hesed, erets = 'A.retz).
+ *  Must match loose_norm() in tools/build_dictionary.py. */
+const looseNorm = (s) => latinNorm(s).replace(/ph/g, "f").replace(/[ck]h/g, "h").replace(/tz/g, "ts").replace(/y/g, "u")
+  .replace(/w/g, "v").replace(/h/g, "").replace(/(.)\1+/g, "$1");
+/** Consonants only, for spellings that differ in their vowels (bereishit, b'reshit, vayomer = be.re.Shit, vai.Yo.mer). */
+const skeleton = (loose) => loose.replace(/[aeiou]/g, "");
+/** Letters to change, add or remove to turn one spelling into another (short strings only). */
+function distance(a, b) {
+  let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    const cur = [i];
+    for (let j = 1; j <= b.length; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    prev = cur;
+  }
+  return prev[b.length];
+}
 const latinNorm = (s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z]/g, "");
 const IS_GREEK = /[\u0370-\u03ff\u1f00-\u1fff]/;
 const IS_HEBREW = /[\u0590-\u05ff]/;
@@ -118,7 +131,29 @@ function formsList(letter) {
   return formLists[letter];
 }
 
-/** Matching entries, best first. A word typed exactly as written in a verse (ἠγάπησεν) finds its entry first. */
+const soundLists = {};
+const soundsLoaded = {};
+/** Pronunciations of written words (be.re.Shit → bereshit), loaded in the background on the first English-letter search. */
+function soundsList(letter) {
+  if (!soundLists[letter]) {
+    soundLists[letter] = data.getJSON(`data/lex/${LANGS[letter].name}-sounds.json`).then((map) => {
+      const skel = new Map(); // consonants → [pronunciation, …]
+      for (const sound of Object.keys(map)) {
+        const k = skeleton(sound);
+        if (k.length < 3) continue;
+        const list = skel.get(k) || [];
+        list.push(sound);
+        skel.set(k, list);
+      }
+      soundsLoaded[letter] = { map, skel };
+      return soundsLoaded[letter];
+    }).catch(() => { delete soundLists[letter]; return null; });
+  }
+  return soundLists[letter];
+}
+
+/** Matching entries, best first. A word typed exactly as written in a verse (ἠγάπησεν, bereshit) finds its entry.
+ *  Returns { hits, pending }: pending resolves when the pronunciation lists arrive, so results can be redrawn. */
 async function search(q, which) {
   const letters = which === "both" ? ["G", "H"] : [which];
   const lists = await Promise.all(letters.map(index));
@@ -140,7 +175,43 @@ async function search(q, which) {
       if (e && !(best.has(e.key) && best.get(e.key)[0] <= 0)) best.set(e.key, [0.05 + i / 100, e, true]);
     }
   }
-  return [...best.values()].sort((a, b) => a[0] - b[0] || b[1].count - a[1].count).map(([, e, form]) => ({ e, form }));
+  // Pronunciations of written words, prefixes and all: "bereshit" → רֵאשִׁית; consonants alone catch other spellings
+  let pending = null;
+  const ql = looseNorm(raw);
+  const isStrong = /^[GHgh]?\s*\d/.test(raw);
+  if (!letter && !isStrong && ql.length >= 4) {
+    const waiting = [];
+    for (const L of letters) {
+      const sounds = soundsLoaded[L];
+      if (!sounds) { waiting.push(soundsList(L)); continue; }
+      const add = async (keys, score, how) => {
+        for (const [i, k] of keys.entries()) {
+          const e = await resolveKey(k);
+          if (e && !(best.has(e.key) && best.get(e.key)[0] <= score)) best.set(e.key, [score + i / 1000, e, how]);
+        }
+      };
+      const words = raw.split(/\s+/).map(looseNorm).filter((w) => w.length >= 3);
+      if (words.length > 1) {
+        // a phrase ("shema yisrael", "bara elohim"): each word as written, or as its dictionary form
+        // results follow the order of the words typed ("bereshit bara elohim" → רֵאשִׁית, בָּרָא, אֱלֹהִים)
+        for (const [i, w] of words.entries()) await add(sounds.map[w] || [], 0.8 + i / 10, true);
+        for (const e of await index(L)) {
+          const i = e.count ? words.indexOf(e.trL) : -1;
+          if (i >= 0 && !(best.has(e.key) && best.get(e.key)[0] <= 0.8 + i / 10)) best.set(e.key, [0.8 + i / 10, e, false]);
+        }
+        continue;
+      }
+      await add(sounds.map[ql] || [], 0.7, true);
+      // Same consonants, nearly the same spelling (bereishit, b'reshit → be.re.Shit): closest first, at most two letters out
+      const near = (sounds.skel.get(skeleton(ql)) || [])
+        .map((snd) => [distance(ql, snd), snd]).filter(([d, snd]) => d > 0 && d <= Math.min(2, Math.floor(ql.length / 3)) && snd !== ql)
+        .sort((a, b) => a[0] - b[0]).slice(0, 4);
+      for (const [d, snd] of near) await add(sounds.map[snd] || [], 1.6 + d / 10, "similar");
+    }
+    if (waiting.length) pending = Promise.all(waiting);
+  }
+  const hits = [...best.values()].sort((a, b) => a[0] - b[0] || b[1].count - a[1].count).map(([, e, form]) => ({ e, form }));
+  return { hits, pending };
 }
 
 const keyMaps = {};
@@ -175,7 +246,7 @@ function rowHTML(e, asForm = false) {
   return `<li><a class="row dict-row" href="#/words/${encodeURIComponent(e.key)}">
       ${lemmaHTML(e)}
       <span class="row-main"><span class="row-title">${esc(compact(e.gloss) || "—")}</span>
-        <span class="row-sub">${asForm ? `<span class="dict-form">Form in the text</span> · ` : ""}${esc(tr)}${tr && sn ? " · " : ""}${esc(sn)}</span></span>
+        <span class="row-sub">${asForm ? `<span class="dict-form">${asForm === "similar" ? "Sounds like a word in the text" : "Form in the text"}</span> · ` : ""}${esc(tr)}${tr && sn ? " · " : ""}${esc(sn)}</span></span>
       <span class="row-end">${e.count ? `${e.count.toLocaleString("en-GB")}<span class="sr"> times</span>×` : `<span class="dict-none">${notInText(e)}</span>`}</span>
     </a></li>`;
 }
@@ -206,7 +277,7 @@ async function renderSearch(main) {
       <label class="sr" for="dict-q">Search the dictionary</label>
       <input id="dict-q" type="search" placeholder="English, Greek, Hebrew or Strong's" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="search" value="${esc(lastQuery)}">
     </form>
-    <p class="field-help dict-help">Try “word”, λόγος, logos, דָּבָר, G3056 or H1697.</p>
+    <p class="field-help dict-help">Try “word”, λόγος, logos, דָּבָר, bereshit, G3056 or H1697.</p>
     <div class="switch dict-switch" role="group" aria-label="Language">${tab("both", "Both")}${tab("G", "Greek")}${tab("H", "Hebrew")}</div>
     <p class="sr" role="status" aria-live="polite" data-status></p>
     <div class="dict-results"></div>
@@ -261,7 +332,10 @@ async function renderSearch(main) {
     }
     let hits;
     try {
-      hits = await search(q, lang);
+      const found = await search(q, lang);
+      hits = found.hits;
+      // The pronunciation lists load in the background the first time; search again when they arrive
+      if (found.pending) found.pending.then(() => { if (input.value === q) draw(); });
     } catch {
       if (id === run) out.innerHTML = `<div class="note"><p>The dictionary couldn't load. Connect to the internet once and it will be saved for offline use.</p></div>`;
       return;

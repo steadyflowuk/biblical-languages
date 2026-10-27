@@ -2,6 +2,7 @@
 // with the BSB under each verse. Hebrew runs right to left; its helpers live in hebrew.js.
 import * as store from "./store.js";
 import * as data from "./data.js";
+import * as nav from "./nav.js";
 import {
   heText, heTranslit, heEnglish, heAfter, heJoined, heParagraphAfter, isAramaic, heParts, heMainKey,
   heShortGrammar, heFriendlyGrammar,
@@ -243,7 +244,7 @@ function heWordSheetHTML(w, ctx) {
       <button type="button" class="btn secondary" data-step="-1" ${ctx.i === 0 ? "disabled" : ""}>Previous word</button>
       <button type="button" class="btn secondary" data-step="1" ${ctx.i >= ctx.n - 1 ? "disabled" : ""}>Next word</button>
     </div>
-    <p class="muted ws-soon">Every place this word appears, in the dictionary, comes in a later update.</p>`;
+`;
 }
 
 function wordSheetHTML(w, ctx) {
@@ -269,7 +270,7 @@ function wordSheetHTML(w, ctx) {
       <button type="button" class="btn secondary" data-step="-1" ${ctx.i === 0 ? "disabled" : ""}>Previous word</button>
       <button type="button" class="btn secondary" data-step="1" ${ctx.i >= ctx.n - 1 ? "disabled" : ""}>Next word</button>
     </div>
-    <p class="muted ws-soon">Every place this word appears, in the dictionary, comes in a later update.</p>`;
+`;
 }
 
 function showWord(state, vi, wi, returnFocus) {
@@ -299,6 +300,16 @@ function showWord(state, vi, wi, returnFocus) {
     showWord(state, vi, next, target || returnFocus);
     target?.scrollIntoView({ block: "nearest" });
   }));
+  // The dictionary: every place this word appears (one button per dictionary word in it)
+  let keys = state.he ? heParts(w).filter((p) => p.main).map((p) => p.key) : String(w[3] || "").split("+");
+  keys = keys.filter((k, i) => k && keys.indexOf(k) === i);
+  if (state.he && !keys.length) keys = [heMainKey(w)];
+  if (keys.length) {
+    const lemma = (k) => plainLemma((state.lex[k] || [k])[0]);
+    body.querySelector(".ws-facts").insertAdjacentHTML("afterend", `<div class="ws-dict">${keys.map((k) => `<a class="btn" href="#/words/${encodeURIComponent(k)}">${keys.length > 1
+      ? `<span lang="${state.he ? "he" : "grc"}">${esc(lemma(k))}</span>: every place it appears` : "Every place this word appears"}</a>`).join("")}</div>`);
+    body.querySelectorAll(".ws-dict a").forEach((a) => a.addEventListener("click", () => nav.remember(location.hash, { vi, wi })));
+  }
   wordCounts(state.he).then((m) => {
     const key = state.he ? heMainKey(w) : String(w[3] || "").split("+")[0];
     const n = countFor(m, key);
@@ -310,6 +321,8 @@ function showWord(state, vi, wi, returnFocus) {
     }
   }).catch(() => {});
 }
+
+const plainLemma = (s) => String(s || "").replace(/^\//, "").replace(/\//g, "");
 
 // ---------------------------------------------------------------- chapter rendering
 
@@ -560,7 +573,7 @@ export const read = {
   async render(main, params = []) {
     const books = await data.books().catch(() => null);
     const bible = (books || []).filter((b) => b.lang === "grc" || b.lang === "he");
-    let [bookId, chStr, vStr] = params;
+    let [bookId, chStr, vStr, wStr] = params;
     if (!bookId) [bookId, chStr] = String(store.get("lastRead")).split("/");
     bookId = String(bookId || "JHN").toUpperCase();
     const book = (books || []).find((b) => b.id === bookId);
@@ -589,7 +602,9 @@ export const read = {
 
     document.title = `${title} · Aleph to Omega`;
     store.set("lastRead", `${book.id}/${ch}`);
+    const back = nav.takeReturn(location.hash); // opened from the dictionary: offer the way back
     main.innerHTML = `<div class="screen reader">
+      ${back ? `<button type="button" class="return-chip" data-return>‹ Back to <span lang="${he ? "he" : "grc"}">&nbsp;${esc(back.label)}</span></button>` : ""}
       <header class="reader-head">
         <h1 class="reader-h1"><button type="button" class="reader-title" data-pick aria-haspopup="dialog" aria-label="${esc(title)}, choose another chapter">
           <span class="rt-name">${esc(title)}</span>
@@ -633,12 +648,26 @@ export const read = {
     };
     draw();
 
-    if (vStr) {
+    main.querySelector("[data-return]")?.addEventListener("click", () => nav.goBack("#/words"));
+    // A word to show: from a dictionary link (#/read/BOOK/CH/VERSE/WORD) or the word you left from
+    const place = nav.recall(location.hash);
+    const markWord = (vi, wi) => {
+      const el = holder.querySelector(`[data-vi="${vi}"] .w[data-wi="${wi}"]`);
+      if (!el) return false;
+      el.classList.add("on");
+      el.scrollIntoView({ block: "center" });
+      return true;
+    };
+    if (place) {
+      markWord(place.vi, place.wi);
+    } else if (vStr) {
       const target = holder.querySelector(`#v${Number(vStr)}`);
       if (target) {
         target.classList.add("focus");
         target.scrollIntoView({ block: "center" });
       }
+      const vi = state.verses.findIndex((v) => v[0] === Number(vStr));
+      if (wStr != null && vi >= 0) markWord(vi, Number(wStr));
     }
 
     // word taps (one listener for the whole chapter)

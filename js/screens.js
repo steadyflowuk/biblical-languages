@@ -7,7 +7,7 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
 
 const SETTINGS_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>`;
 
-function head(title, sub = "") {
+export function head(title, sub = "") {
   return `<header class="screen-head">
     <div><h1>${esc(title)}</h1>${sub ? `<p>${esc(sub)}</p>` : ""}</div>
     ${title === "Settings" ? "" : `<a class="head-settings" href="#/settings" aria-label="Settings">${SETTINGS_ICON}</a>`}
@@ -53,7 +53,8 @@ function showGloss(root, v, i) {
   root.querySelector(".verse-gloss").innerHTML =
     `<span class="lemma" lang="${v.lang}">${esc(w.lemma)}</span>
      <span class="meaning">${esc(w.gloss)}</span>
-     <span class="hint">${esc(w.parse)}</span>`;
+     <span class="hint">${esc(w.parse)}</span>
+     ${w.k ? `<a class="verse-link verse-dict" href="#/words/${encodeURIComponent(w.k)}">Look it up in the dictionary</a>` : ""}`;
 }
 
 export const today = {
@@ -173,20 +174,6 @@ export const learn = {
   },
 };
 
-// ---------------------------------------------------------------- Words
-
-export const words = {
-  title: "Words",
-  render(main) {
-    main.innerHTML = `<div class="screen">
-      ${head("Words", "The dictionary for both languages")}
-      <div class="note">
-        <p>The dictionary arrives in Week 2. Search by English, Greek, Hebrew or Strong's number, and see every place a word appears.</p>
-      </div>
-    </div>`;
-  },
-};
-
 // ---------------------------------------------------------------- Review
 
 export const review = {
@@ -274,7 +261,7 @@ export const settings = {
 
       <h2>About</h2>
       <p class="muted" style="margin-top:0">Aleph to Omega is a personal study app.</p>
-      <p class="muted">Greek New Testament (NA28 text), Hebrew and Aramaic Old Testament (Leningrad Codex), word-by-word translations, grammar and lexicons: STEPBible Data, created by STEPBible.org based on work at Tyndale House Cambridge, licensed CC BY 4.0, reformatted for this app. English: Berean Standard Bible, public domain. Fonts: Gentium Plus, Noto Serif Hebrew and Atkinson Hyperlegible, SIL Open Font Licence.</p>
+      <p class="muted">Greek New Testament (NA28 text), Hebrew and Aramaic Old Testament (Leningrad Codex), word-by-word translations, grammar and lexicons: STEPBible Data, created by STEPBible.org based on work at Tyndale House Cambridge, licensed CC BY 4.0, reformatted for this app. Dictionary definitions draw on Abbott-Smith's Manual Greek Lexicon of the New Testament, the Liddell–Scott lexicon and Brown–Driver–Briggs, as included in STEPBible's lexicons. English: Berean Standard Bible, public domain. Fonts: Gentium Plus, Noto Serif Hebrew and Atkinson Hyperlegible, SIL Open Font Licence.</p>
     </div>`;
 
     main.querySelector(".settings").addEventListener("change", (e) => {

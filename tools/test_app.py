@@ -323,7 +323,7 @@ async def main():
         await page.evaluate("localStorage.setItem('ao:readLayout', JSON.stringify('words'))")
         await page.goto(f"{BASE}#/today"); await page.wait_for_selector(".verse-original")
         await page.click('.switch button:nth-child(2)'); await page.wait_for_selector('.verse-original[lang="he"]')
-        href = await page.get_attribute(".verse-link", "href") or ""
+        href = await page.get_attribute(".verse-link:not(.verse-dict)", "href") or ""
         heb = await page.text_content(".verse-original")
         check("Today: Hebrew verse links into the Reader and shows no paragraph letters", href.startswith("#/read/")
               and not any(t in ("\u05e1", "\u05e4") for t in heb.split()), href)

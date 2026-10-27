@@ -11,7 +11,8 @@ Writes into data/ (relative to the repo root):
     bsb/<BOOK>.json                 Berean Standard Bible with headings, paragraphs, poetry and notes
     lex/greek-index.json            every Greek lexicon entry: key, lemma, transliteration, gloss, NT count
     lex/hebrew-index.json           the same for Hebrew/Aramaic with OT counts
-    lex/G/<nn>.json, lex/H/<nn>.json full lexicon entries, chunked by Strong's number
+    lex/G/<nn>.json, lex/H/<nn>.json full lexicon entries, chunked by Strong's number, with every occurrence
+                                    and form (added by tools/build_dictionary.py)
     morph/greek.json, morph/hebrew.json   plain-English explanations of every grammar code used
     votd.json                       verses for the Today screen, fully glossed and parsed
     stats.json                      counts used by the checks
@@ -459,7 +460,8 @@ def build_votd(gnt, hot, bsb, glex, hlex, gmorph, hmorph, books_meta):
                     item = {"t": w[0].replace("/", ""), "p": after}
                 gloss = (lex.get("gloss", "") or w[2]).split(": ")[-1]
                 item.update({"lemma": lex.get("lemma", ""), "gloss": gloss,
-                             "parse": parse, "en": w[2]})
+                             "parse": parse, "en": w[2],
+                             "k": lookup(glex if lang == "grc" else hlex, main) or ""})  # dictionary entry
                 if any(k.strip("{}").startswith(focus) for k in keys) and not focus_i:
                     focus_i = i
                 items.append({k: v for k, v in item.items() if v})
@@ -540,6 +542,11 @@ def main():
     }
     dump("stats.json", stats)
     print(json.dumps(stats, indent=1))
+
+    # Session 5: every occurrence and form for each dictionary entry (rewrites data/lex/G|H chunks)
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import build_dictionary
+    build_dictionary.build()
 
 
 if __name__ == "__main__":

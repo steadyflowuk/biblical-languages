@@ -15,6 +15,9 @@ const DEFAULTS = {
   showTranslit: false,     // pronunciation under each word
   showGrammar: false,      // short grammar under each word
   showBSB: true,           // Berean Standard Bible under each verse
+  // Dictionary
+  dictLang: "both",        // both | G | H
+  recentWords: [],         // lexicon keys, most recent first
 };
 
 export function get(key) {

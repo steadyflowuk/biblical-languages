@@ -222,6 +222,36 @@ for b in books:
             titles_missing.append(f"{b['id']} {c}")
 check("Reader: every OT verse of the BSB has a Hebrew verse, and the other way round", not he_uncovered and not he_extra,
       ", ".join((he_uncovered + he_extra)[:8]))
+# ------------------------------------------------ Dictionary (Session 5): every word listed under an entry
+for letter, name, folder in (("G", "greek", "gnt"), ("H", "hebrew", "hot")):
+    idx = {e[0]: (e[4] if len(e) > 4 else 0) for e in load(f"lex/{name}-index.json")}
+    text = {b["id"]: {c: {v[0]: v[1] for v in vs} for c, vs in load(f"{folder}/{b['id']}.json")["ch"]}
+            for b in books if (b["lang"] == "grc") == (letter == "G")}
+    listed, bad, mismatch, words_hit = 0, [], [], set()
+    for path in sorted(glob.glob(os.path.join(DATA, "lex", letter, "*.json"))):
+        with open(path, encoding="utf-8") as f:
+            chunk = json.load(f)
+        for key, e in chunk.items():
+            n = 0
+            for bk, refs in (e[6] if len(e) > 6 else {}).items():
+                for r in refs.split(" "):
+                    c, v, wi = map(int, r.split("."))
+                    n += 1
+                    if wi >= len(text.get(bk, {}).get(c, {}).get(v, [])):
+                        bad.append(f"{key} {bk} {r}")
+                    words_hit.add((bk, c, v, wi))
+            listed += n
+            if n != idx.get(key, 0):
+                mismatch.append(f"{key} {n}/{idx.get(key, 0)}")
+    all_words = sum(len(ws) for bk in text.values() for ch in bk.values() for ws in ch.values())
+    lang = "Greek" if letter == "G" else "Hebrew"
+    check(f"Dictionary: every {lang} word is listed under an entry, at a real place", not bad and len(words_hit) == all_words,
+          f"{len(words_hit):,}/{all_words:,} words; bad refs: {bad[:3]}")
+    check(f"Dictionary: {lang} 'how common' counts equal the occurrence lists", not mismatch, ", ".join(mismatch[:5]))
+logos_entry = load("lex/G/30.json")["G3056"]
+check("Dictionary: λόγος has 330 occurrences, John 1:1 among them, and its forms", "1.1.4" in logos_entry[6]["JHN"].split(" ")
+      and sum(len(r.split(" ")) for r in logos_entry[6].values()) == 330 and logos_entry[7][0][1] > 30, str(logos_entry[7][:3]))
+
 votd = load("votd.json")
 bad_votd = [v["id"] for v in votd if re.search(r"\(\w+ \d+:\d+", v["english"])
             or any(re.search(r"(^|\s)[\u05e4\u05e1](\s|$)", w.get("p", "")) for w in v["words"])]

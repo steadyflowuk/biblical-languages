@@ -1,12 +1,14 @@
 import * as store from "./store.js";
 import * as screens from "./screens.js";
 import { read, closeSheet } from "./reader.js";
+import { words } from "./dictionary.js";
+import * as nav from "./nav.js";
 
 const ROUTES = {
   today: screens.today,
   learn: screens.learn,
   read,
-  words: screens.words,
+  words,
   review: screens.review,
   media: screens.media,
   settings: screens.settings,
@@ -32,6 +34,7 @@ function route() {
     if (a.dataset.tab === name) a.setAttribute("aria-current", "page");
     else a.removeAttribute("aria-current");
   });
+  nav.visited();
   const sameScreen = name === current;
   current = name;
   closeSheet();

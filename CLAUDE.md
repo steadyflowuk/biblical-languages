@@ -38,6 +38,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - `js/install.js` add-to-home-screen help · `js/verses.js` built-in fallback verses · `js/data.js` data loader
 - `js/reader.js` Reader: chapter view, word sheet, picker, display options (sheet component lives here too)
 - `js/hebrew.js` Hebrew helpers: word parts, pronunciation, punctuation, short/full grammar labels
+- `js/dictionary.js` Words tab: search + entries (routes `#/words`, `#/words/KEY`) · `js/nav.js` back/return memory
 - `assets/fonts`, `assets/icons`
 
 ## Testing
@@ -53,12 +54,13 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - [x] 3b (27 Oct 2026): deep check — BSB placement (own number wins), grammar tag labels, focus trap, contrast, iOS 13.4 baseline.
 - [x] 4 (27 Oct 2026): Hebrew/Aramaic Reader — right to left, word parts, Aramaic and ketiv/qere notes, whole-Bible picker.
 - [x] 4b (27 Oct 2026): deep check — count keys, compounds, clearer labels, not-read glosses, book memory limit.
-- [ ] 5 Dictionary · [ ] 6 ESV + LXX + parallel
+- [x] 5 (27 Oct 2026): Dictionary — search every way, full entries, every occurrence, joined to Reader and Today.
+- [ ] 6 ESV + LXX + parallel
 - [ ] 7 Lesson engine · [ ] 8 Greek lessons · [ ] 9 Vocab trainer + audio
 - [ ] 10 Hebrew lessons · [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
 
 ## Data (Session 2)
-- Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (31 checks).
+- Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (36 checks).
 - Greek = TAGNT words whose editions include NA28, plus 64 places where NA28's reading sits in TAGNT's variant column
   (e.g. Jude 5 Ἰησοῦς) and 9 NA28 spellings. 137,954 words, 7,942 verses, NA28 verse numbering. 92% of verses
   letter-identical to SBLGNT; the rest are NA28 bracketed words and known NA28/SBL differences.
@@ -127,10 +129,31 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   that runs iOS 13 can update to iOS 15, so "keep iOS up to date" is the advice; JS stays at the 13.4 level.
 - build_votd skips BSB heading/cross-ref lines and drops פ ס from Hebrew (Today once showed "Here Is Your God!").
 
+## Dictionary (Session 5)
+- Data: `tools/build_dictionary.py` (called at the end of build_data.py) rewrites lex/G|H/<nn>.json entries to
+  [lemma, translit, morph, gloss, def, rel, occ, forms]; occ = {BOOK: "c.v.wi …"} in Reader numbering; forms =
+  [[form, count, code]] (Hebrew: main part, cantillation removed, grouped ignoring dagesh/rafe, one row per grammar).
+  Index = [key, lemma, translit, gloss, count, keywords]; count = occurrence count (single source of truth for the
+  Reader's "how common" too); keywords = up to 12 English words from the definition (so "shepherd" finds רָעָה).
+  Keys resolve like build_data.lookup(); Hebrew counts main parts only (H9001+ prefixes are never listed).
+  G20447 ἐπίστασις and G20833 ὁμείρομαι had no lexicon entry: added from the book lexicon.
+- Search: Strong's (G3056, H430, 430, H430G), Greek/Hebrew with or without accents/vowels (finals folded),
+  pronunciation, English gloss (both parts of "general: specific"), then definition keywords; lexicon-only words last.
+- Glosses "general: specific" show as "to love (lover)" unless one contains the other (glossText).
+- Definitions: STEPBible markup → safe HTML (b, i, br, ref). NT refs link into the Reader; Abbott-Smith's OT refs
+  follow LXX numbering so stay plain. Sense markers (__I. __1. __(a); Hebrew 1) 1a) 1a1)) become indented lines.
+  Mentions of other entries (H0157H) link to them. Credits in entry footer, Settings > About, README.
+- Navigation: nav.js counts screens (Back = history.back when there is history, else #/words); entry remembers open
+  books + scroll; Reader word → dictionary remembers the word (nav.remember) and highlights it on return; dictionary
+  verse link → `#/read/BOOK/CH/V/WORD` highlights the word and shows "‹ Back to …" (nav.offerReturn/takeReturn).
+- Today's verse words carry "k" (dictionary key) → "Look it up in the dictionary".
+- Store: dictLang (both|G|H), recentWords (12 keys).
+
 ## Checks
 - `python3 tools/test_app.py` (server on :8765 first) — 101 end-to-end checks; run before every push.
 - `python3 tools/test_reader_edges.py` — 28 Reader edge cases (odd links, fast switching incl. OT↔NT, offline Hebrew, focus, back button, 320px).
 - `python3 tools/sweep_reader.py [nt|ot|all]` — opens every chapter at 360px (NT ~10 min, OT ~35 min); expect
   0 issues and only 3JN 15 / REV 12:18 notes.
-- `tools/check_data.py` now has 31 checks (incl. OT BSB alignment both ways, psalm titles, Today's verses).
+- `tools/check_data.py` now has 36 checks (5 for the dictionary) (incl. OT BSB alignment both ways, psalm titles, Today's verses).
+- `python3 tools/test_dictionary.py` — 37 Dictionary checks (search, entries, links both ways, offline, 320px).
 - No WebKit here: iPhone/iPad behaviour must be checked on the user's devices.

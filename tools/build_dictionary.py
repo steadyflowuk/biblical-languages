@@ -6,7 +6,8 @@ data/lex/G/<nn>.json and data/lex/H/<nn>.json so each entry is:
     [lemma, translit, morph, gloss, def, rel, occ, forms]
 
 The search index lex/<greek|hebrew>-index.json becomes [key, lemma, translit, gloss, count, keywords]
-(keywords = English words from the definition, so "shepherd" finds רָעָה; count 0 is kept when keywords follow).
+(keywords = English words used for it in the verses, then from its definition, so "Yahweh" finds יהוה and
+"shepherd" finds רָעָה; count 0 is kept when keywords follow). lex/<greek|hebrew>-forms.json lists written forms.
 
 occ   = {"JHN": "1.1.4 1.14.2 …", …}   chapter.verse.word-index, as the Reader numbers them
         (Greek: NA28 verse numbers; Hebrew: English verse numbers, Psalm titles = verse 0)
@@ -63,6 +64,7 @@ def hebrew_main_parts(w):
     raw_keys = [k.split("\\")[0] for k in w[3].split("/")]
     segs = w[4].split("/")
     lang = segs[0][:1] or "H"
+    en_parts = str(w[2] if len(w) > 2 else "").split("/")
     parts = []
     for i, t in enumerate(texts):
         if not t.strip() or t.strip() == "\u05be":
@@ -70,14 +72,31 @@ def hebrew_main_parts(w):
         raw = raw_keys[i] if i < len(raw_keys) else ""
         key = re.sub(r"[{}+\s]", "", raw)
         code = segs[0] if i == 0 else (lang + segs[i] if i < len(segs) and segs[i] else "")
-        parts.append((key, t, code, bool(re.search(r"[{}]", raw)) and not re.match(r"^H90\d\d", key)))
+        eng = en_parts[i] if i < len(en_parts) else ""
+        parts.append((key, t, code, bool(re.search(r"[{}]", raw)) and not re.match(r"^H90\d\d", key), eng))
     mains = [p for p in parts if p[3]]
     if not mains:  # e.g. "{H4480A\H9014}" or no braces: first real key
         m = re.search(r"\{([^}]+)\}", w[3])
         cand = [k.strip("{} ") for k in re.split(r"[/\\+\s]", m.group(1) if m else w[3]) if k.strip("{} ")]
         key = next((k for k in cand if not k.startswith("H90")), cand[0] if cand else "")
-        mains = [(key, w[0].replace("/", ""), segs[0], True)]
-    return [(k, t, c) for k, t, c, _ in mains]
+        mains = [(key, w[0].replace("/", ""), segs[0], True, str(w[2] if len(w) > 2 else ""))]
+    return [(k, t, c, e) for k, t, c, _, e in mains]
+
+
+def greek_norm(s):
+    """Same as greekNorm() in js/dictionary.js: no accents or breathings, lower case, σ for ς, letters only."""
+    s = unicodedata.normalize("NFD", str(s))
+    s = "".join(ch for ch in s if not unicodedata.combining(ch)).lower().replace("ς", "σ")
+    return re.sub("[^α-ω]", "", s)
+
+
+FINALS = str.maketrans("ךםןףץ", "כמנפצ")
+
+
+def hebrew_norm(s):
+    """Same as hebrewNorm() in js/dictionary.js: consonants only, final letters folded."""
+    s = re.sub("[\u0591-\u05c7]", "", str(s)).translate(FINALS)
+    return re.sub("[^\u05d0-\u05ea]", "", s)
 
 
 STOP = set("""a an the of to in on at by for from with and or as is be been being it its this that these those which who whom
@@ -86,25 +105,31 @@ other another one ones etc used use see esp especially lit literally fig figurat
 thing things person persons something someone used make made cause caused causing become became being have has had do does
 did his her their them they he she him you your we our us i me my mine subst literal means act pass ptcp prep adj adv
 noun verb intrans trans absol poss pron pers sing plur pl sg masc fem neut gen dat acc nom voc infin impf perf aor
-pres fut mid dep comp superl one two""".split())
+pres fut mid dep comp superl one two may might shall will would should let were was are having can could
+there here when where how why just about""".split())
 
 
-def keywords(entry, letter):
-    """English words from a definition, for search: Greek = the bold glosses; Hebrew = the outline's words."""
+def keywords(entry, letter, from_text=()):
+    """English words for search: those used for it in the verses (e.g. "Yahweh"), then from the definition
+    (Greek: the bold glosses; Hebrew: the outline's words)."""
     d = entry[4] if len(entry) > 4 else ""
     if letter == "G":
         text = " ".join(re.findall(r"<b>(.*?)</b>", d, flags=re.S))
     else:
         text = re.sub(r"\((?:Qal|Niphal|Piel|Pual|Hiphil|Hophal|Hithpael|Peal|Pael|Aphel|Hithpeel|Hithpaal|[A-Z][a-z]+)\)", " ", d)
     text = re.sub(r"<[^>]+>", " ", text)
-    words, seen = [], set(re.findall(r"[a-z]+", str(entry[3] if len(entry) > 3 else "").lower()))
-    for w in re.findall(r"[A-Za-z]+", text):
-        w = w.lower()
-        if len(w) < 3 or w in STOP or w in seen:
-            continue
-        seen.add(w)
-        words.append(w)
-    return " ".join(words[:12])
+    seen = set(re.findall(r"[a-z]+", str(entry[3] if len(entry) > 3 else "").lower()))
+    lists = ([], [])
+    for i, source in enumerate((list(from_text), re.findall(r"[A-Za-z]+", text))):
+        for w in source:
+            w = w.lower()
+            if len(w) < 3 or w in STOP or w in seen:
+                continue
+            seen.add(w)
+            lists[i].append(w)
+    # "words used in the verses|words from the definition" (the app ranks the first kind higher)
+    out = " ".join(lists[0][:5]) + "|" + " ".join(lists[1][:10])
+    return "" if out == "|" else out
 
 
 def build():
@@ -120,6 +145,8 @@ def build():
         spellings = defaultdict(Counter)              # (key, form key) → spelling → count
         codes = defaultdict(Counter)
         unresolved = Counter()
+        text_forms = defaultdict(Counter)             # normalised written form → key → count
+        text_gloss = defaultdict(Counter)             # key → English word used for it in the verses → count
         for b in books:
             if (b["lang"] == "grc") != (letter == "G"):
                 continue
@@ -130,11 +157,12 @@ def build():
                     for wi, w in enumerate(verse[1]):
                         if letter == "G":
                             ks, cs = w[3].split("+"), w[4].split("+") if len(w) > 4 else []
-                            items = [(k, w[0], cs[i] if i < len(cs) else "") for i, k in enumerate(ks) if k]
+                            items = [(k, w[0], cs[i] if i < len(cs) else "", w[2] if len(ks) == 1 else "") for i, k in enumerate(ks) if k]
                         else:
                             items = hebrew_main_parts(w)
                         seen = set()
-                        for k, text, code in items:
+                        whole = greek_norm(w[0]) if letter == "G" else hebrew_norm(w[0])
+                        for k, text, code, eng in items:
                             key = lookup(k)
                             if not key and k in src["lex"]:
                                 key = k
@@ -146,6 +174,17 @@ def build():
                                 continue  # a word counts once per entry
                             seen.add(key)
                             occ[key][b["id"]].append(f"{c}.{v}.{wi}")
+                            # for search: the word as written in the text (and, in Hebrew, the main word without
+                            # its prefixes), and the English it is given in the verses
+                            if whole:
+                                text_forms[whole][key] += 1
+                            if letter == "H":
+                                part = hebrew_norm(text)
+                                if part and part != whole:
+                                    text_forms[part][key] += 1
+                            for word in re.findall(r"[a-z]+", re.sub(r"<[^>]*>|\[[^\]]*\]", " ", str(eng)).lower()):
+                                if len(word) > 2 and word not in STOP:
+                                    text_gloss[key][word] += 1
                             if letter == "H":
                                 # Group spellings that differ only by the dagesh/rafe dot (בָּרָא after a prefix is בָרָא)
                                 # and keep each grammar separate; show the commonest spelling of each group.
@@ -164,11 +203,16 @@ def build():
             full.update(load(f"lex/{letter}/{path}"))
         for e in index:  # the occurrence list is the one source of truth for "how common"
             n = sum(len(r) for r in occ[e[0]].values()) if e[0] in occ else 0
-            kw = keywords(full.get(e[0], []), letter)
+            kw = keywords(full.get(e[0], []), letter, [x for x, _ in text_gloss[e[0]].most_common(5)])
             e[:] = (e + [""] * 4)[:4] + [n, kw]  # [key, lemma, translit, gloss, count, definition keywords]
             while e and e[-1] in ("", 0):
                 e.pop()
         dump(f"lex/{name}-index.json", index)
+        # Written forms that differ from every dictionary form they belong to, so a word copied from a verse
+        # (ἠγάπησεν, בְּרֵאשִׁית) still finds its entry: lex/<greek|hebrew>-forms.json = {normalised form: [keys]}
+        lemma_norm = {e[0]: (greek_norm if letter == "G" else hebrew_norm)(e[1] if len(e) > 1 else "") for e in index}
+        dump(f"lex/{name}-forms.json", {f: [k for k, _ in ks.most_common(3)] for f, ks in sorted(text_forms.items())
+                                         if any(lemma_norm.get(k) != f for k in ks)})
         chunks = {}
         for k, l in extra.items():
             path = f"{k[1:3]}.json"

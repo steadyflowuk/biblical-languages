@@ -29,6 +29,10 @@ const greekNorm = (s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, 
 const FINALS = { "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" };
 const hebrewNorm = (s) => String(s).replace(/[\u0591-\u05c7]/g, "").replace(/[ךםןףץ]/g, (c) => FINALS[c])
   .replace(/[^א-ת]/g, "");
+/** Looser spelling for pronunciations: y/u, ph/f, w/v, ch/kh/h and doubled letters count as the same
+ *  (kyrios = kurios, huios = uhios, nefesh = ne.phesh, chesed = hesed). */
+const looseNorm = (s) => latinNorm(s).replace(/ph/g, "f").replace(/[ck]h/g, "h").replace(/y/g, "u").replace(/w/g, "v")
+  .replace(/h/g, "").replace(/(.)\1+/g, "$1");
 const latinNorm = (s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z]/g, "");
 const IS_GREEK = /[\u0370-\u03ff\u1f00-\u1fff]/;
 const IS_HEBREW = /[\u0590-\u05ff]/;
@@ -40,16 +44,20 @@ function index(letter) {
     prepared[letter] = data.getJSON(`data/lex/${LANGS[letter].name}-index.json`).then((list) => list.map((e) => {
       const [key, lemma = "", translit = "", gloss = "", count = 0, kw = ""] = e;
       return {
-        key, lemma: plain(lemma), translit, gloss, count, letter,
+        key, lemma: plain(lemma) || translit || key, translit, gloss, count, letter, // a few entries have no headword (G2199H)
         num: parseInt(key.slice(1), 10),
         lemmaN: letter === "G" ? greekNorm(lemma) : hebrewNorm(lemma),
         trN: latinNorm(translit),
+        trL: looseNorm(translit),
         main: String(gloss).split(": ")[0].toLowerCase().trim(),
         alt: (String(gloss).split(": ")[1] || "").toLowerCase().trim(),
+        slash: String(gloss).toLowerCase().split(/[:/]\s*/).map((x) => x.trim()), // "in/on/among" → in, on, among
         words: ` ${String(gloss).toLowerCase().replace(/[^a-z0-9']+/g, " ").trim()} `,
-        kw: ` ${kw} `, // English words from the definition (lower ranked)
+        tg: ` ${String(kw).split("|")[0]} `, // English used for it in the verses
+        kw: ` ${String(kw).split("|").pop()} `, // English words from the definition (lower ranked)
       };
     }));
+    prepared[letter].catch(() => { delete prepared[letter]; }); // try again next time (e.g. back online)
   }
   return prepared[letter];
 }
@@ -77,33 +85,62 @@ function scorer(q) {
   }
   const qw = raw.toLowerCase().replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ").trim();
   const qn = latinNorm(raw);
+  const ql = looseNorm(raw);
+  const many = qw.split(" ").filter((x) => x.length > 2);
   if (!qn) return () => null;
   return (e) => {
     if (e.main === qw || e.main === `to ${qw}` || e.alt === qw || e.alt === `to ${qw}`) return 0.2;
+    if (e.slash.includes(qw) || e.slash.includes(`to ${qw}`)) return 0.3;
     if (e.trN === qn) return 0.4;
+    if (ql.length >= 3 && e.trL === ql) return 0.6;
     if (e.words.includes(` ${qw} `)) return 1;
+    if (qw.length >= 3 && e.tg.includes(` ${qw} `)) return 1.2;
     if (qn.length >= 3 && e.trN.startsWith(qn)) return 1.5;
+    if (ql.length >= 5 && e.trL.startsWith(ql)) return 1.7;
     if (qw.length >= 3 && e.words.includes(` ${qw}`)) return 2;
     if (qw.length >= 3 && e.kw.includes(` ${qw} `)) return 2.5;
     if (qn.length >= 4 && e.trN.includes(qn)) return 3;
     if (qw.length >= 4 && e.kw.includes(` ${qw}`)) return 3.5;
+    if (many.length > 1 && many.every((x) => e.words.includes(` ${x}`) || e.tg.includes(` ${x}`) || e.kw.includes(` ${x}`))) return 3.8; // "holy spirit"
     return null;
   };
 }
 
+const formLists = {};
+/** Written forms in the text that differ from their dictionary form (loaded only when Greek or Hebrew is typed). */
+function formsList(letter) {
+  if (!formLists[letter]) {
+    formLists[letter] = data.getJSON(`data/lex/${LANGS[letter].name}-forms.json`).catch(() => {
+      delete formLists[letter];
+      return {};
+    });
+  }
+  return formLists[letter];
+}
+
+/** Matching entries, best first. A word typed exactly as written in a verse (ἠγάπησεν) finds its entry first. */
 async function search(q, which) {
   const letters = which === "both" ? ["G", "H"] : [which];
   const lists = await Promise.all(letters.map(index));
   const score = scorer(q);
-  const hits = [];
+  const best = new Map(); // key → [score, entry, found as a written form]
   for (const list of lists) {
     for (const e of list) {
       const s = score(e);
-      if (s != null) hits.push([s + (e.count ? 0 : 5), e]); // words not in the Bible text (lexicon only) go last
+      if (s != null) best.set(e.key, [s + (e.count ? 0 : 5), e, false]); // words not in the Bible text (lexicon only) go last
     }
   }
-  hits.sort((a, b) => a[0] - b[0] || b[1].count - a[1].count);
-  return hits.map((h) => h[1]);
+  const raw = q.trim();
+  const letter = IS_GREEK.test(raw) ? "G" : IS_HEBREW.test(raw) ? "H" : "";
+  if (letter && letters.includes(letter)) {
+    const norm = letter === "G" ? greekNorm(raw) : hebrewNorm(raw);
+    const keys = (await formsList(letter))[norm] || [];
+    for (const [i, k] of keys.entries()) {
+      const e = await resolveKey(k);
+      if (e && !(best.has(e.key) && best.get(e.key)[0] <= 0)) best.set(e.key, [0.05 + i / 100, e, true]);
+    }
+  }
+  return [...best.values()].sort((a, b) => a[0] - b[0] || b[1].count - a[1].count).map(([, e, form]) => ({ e, form }));
 }
 
 const keyMaps = {};
@@ -111,7 +148,10 @@ const keyMaps = {};
 export async function resolveKey(key) {
   const letter = String(key).charAt(0).toUpperCase();
   if (!LANGS[letter]) return null;
-  if (!keyMaps[letter]) keyMaps[letter] = index(letter).then((list) => new Map(list.map((e) => [e.key, e])));
+  if (!keyMaps[letter]) {
+    keyMaps[letter] = index(letter).then((list) => new Map(list.map((e) => [e.key, e])));
+    keyMaps[letter].catch(() => { delete keyMaps[letter]; }); // try again next time (e.g. back online)
+  }
   const byKey = await keyMaps[letter];
   if (byKey.has(key)) return byKey.get(key);
   const num = String(key).replace(/^([GH])0*(\d+).*$/i, (m, l, n) => l.toUpperCase() + n.padStart(4, "0"));
@@ -129,13 +169,13 @@ const showStrongs = (key) => (/^H90\d\d/.test(key) ? "" : strongs(key));
 
 const notInText = (e) => (/^H90\d\d/.test(e.key) ? "joined to words" : e.letter === "G" ? "not in the NT" : "not in this text");
 
-function rowHTML(e) {
+function rowHTML(e, asForm = false) {
   const tr = e.letter === "H" ? heTranslit(e.translit) : e.translit;
   const sn = showStrongs(e.key);
   return `<li><a class="row dict-row" href="#/words/${encodeURIComponent(e.key)}">
       ${lemmaHTML(e)}
       <span class="row-main"><span class="row-title">${esc(compact(e.gloss) || "—")}</span>
-        <span class="row-sub">${esc(tr)}${tr && sn ? " · " : ""}${esc(sn)}</span></span>
+        <span class="row-sub">${asForm ? `<span class="dict-form">Form in the text</span> · ` : ""}${esc(tr)}${tr && sn ? " · " : ""}${esc(sn)}</span></span>
       <span class="row-end">${e.count ? `${e.count.toLocaleString("en-GB")}<span class="sr"> times</span>×` : `<span class="dict-none">${notInText(e)}</span>`}</span>
     </a></li>`;
 }
@@ -168,11 +208,14 @@ async function renderSearch(main) {
     </form>
     <p class="field-help dict-help">Try “word”, λόγος, logos, דָּבָר, G3056 or H1697.</p>
     <div class="switch dict-switch" role="group" aria-label="Language">${tab("both", "Both")}${tab("G", "Greek")}${tab("H", "Hebrew")}</div>
-    <div class="dict-results" aria-live="polite"></div>
+    <p class="sr" role="status" aria-live="polite" data-status></p>
+    <div class="dict-results"></div>
   </div>`;
   document.title = "Words · Aleph to Omega";
   const input = main.querySelector("#dict-q");
   const out = main.querySelector(".dict-results");
+  const status = main.querySelector("[data-status]");
+  const announce = (text) => { if (status.textContent !== text) status.textContent = text; };
   let shown = 60;
   let run = 0;
 
@@ -191,7 +234,7 @@ async function renderSearch(main) {
           const found = (await Promise.all(recent.map(resolveKey))).filter(Boolean)
             .filter((e) => lang === "both" || e.letter === lang);
           if (found.length) {
-            html += `<div class="dict-section"><h2>Recently looked up</h2><ul class="rows">${found.map(rowHTML).join("")}</ul>
+            html += `<div class="dict-section"><h2>Recently looked up</h2><ul class="rows">${found.map((x) => rowHTML(x)).join("")}</ul>
               <p><button type="button" class="link-btn" data-clear>Clear this list</button></p></div>`;
           }
         }
@@ -199,7 +242,7 @@ async function renderSearch(main) {
           const list = (await index(L)).filter((e) => e.count).sort((a, b) => b.count - a.count).slice(0, 100);
           html += `<div class="dict-section"><h2>Most common in the ${LANGS[L].label === "Greek" ? "Greek New Testament" : "Hebrew Old Testament"}</h2>
             <p class="muted">${COMMON[L].note}</p>
-            <ol class="rows dict-common" data-letter="${L}">${list.slice(0, COMMON[L].n).map(rowHTML).join("")}</ol>
+            <ol class="rows dict-common" data-letter="${L}">${list.slice(0, COMMON[L].n).map((x) => rowHTML(x)).join("")}</ol>
             <p><button type="button" class="btn secondary" data-more-common="${L}">Show the top 100</button></p></div>`;
         }
       } catch {
@@ -210,7 +253,7 @@ async function renderSearch(main) {
       out.querySelectorAll("[data-more-common]").forEach((b) => b.addEventListener("click", async () => {
         const L = b.dataset.moreCommon;
         const list = (await index(L)).filter((e) => e.count).sort((a, c) => c.count - a.count).slice(0, 100);
-        out.querySelector(`.dict-common[data-letter="${L}"]`).innerHTML = list.map(rowHTML).join("");
+        out.querySelector(`.dict-common[data-letter="${L}"]`).innerHTML = list.map((x) => rowHTML(x)).join("");
         b.remove();
       }));
       out.querySelector("[data-clear]")?.addEventListener("click", () => { store.set("recentWords", []); draw(); });
@@ -224,13 +267,14 @@ async function renderSearch(main) {
       return;
     }
     if (id !== run) return;
+    announce(!hits.length ? "No matches" : hits.length === 1 ? "1 match" : `${hits.length} matches`);
     if (!hits.length) {
       out.innerHTML = `<p class="dict-count">No matches for “${esc(q.trim())}”.</p>
         <p class="muted">Search for an English meaning (shepherd), a Greek or Hebrew word with or without accents and vowels, its pronunciation (poimen, roeh) or a Strong's number (G4166, H7462).</p>`;
       return;
     }
     out.innerHTML = `<p class="dict-count">${hits.length === 1 ? "1 match" : `${hits.length.toLocaleString("en-GB")} matches`}</p>
-      <ul class="rows">${hits.slice(0, shown).map(rowHTML).join("")}</ul>
+      <ul class="rows">${hits.slice(0, shown).map((h) => rowHTML(h.e, h.form)).join("")}</ul>
       ${hits.length > shown ? `<p><button type="button" class="btn secondary" data-more>Show more</button></p>` : ""}`;
     out.querySelector("[data-more]")?.addEventListener("click", () => { shown += 60; draw(); });
   };
@@ -253,15 +297,23 @@ async function renderSearch(main) {
 
 // ---------------------------------------------------------------- definitions
 
-const BOOK_BY_STEP = {}; // "Mat" → "MAT" for New Testament references in Abbott-Smith (its OT references follow the Septuagint)
+// New Testament references in Abbott-Smith ("Mat.8.8") → Reader book ids. Its Old Testament references follow the
+// Septuagint's numbering, so they are left as plain text.
+const BOOK_BY_STEP = Object.fromEntries(("Mat MAT Mrk MRK Luk LUK Jhn JHN Act ACT Rom ROM 1Co 1CO 2Co 2CO Gal GAL Eph EPH Php PHP " +
+  "Col COL 1Th 1TH 2Th 2TH 1Ti 1TI 2Ti 2TI Tit TIT Phm PHM Heb HEB Jas JAS 1Pe 1PE 2Pe 2PE 1Jn 1JN 2Jn 2JN 3Jn 3JN Jud JUD Jude JUD " +
+  "Rev REV").split(" ").reduce((pairs, x, i, all) => (i % 2 ? pairs : pairs.concat([[x, all[i + 1]]])), []));
+
+const NT_CHAPTERS = { MAT: 28, MRK: 16, LUK: 24, JHN: 21, ACT: 28, ROM: 16, "1CO": 16, "2CO": 13, GAL: 6, EPH: 6, PHP: 4, COL: 4,
+  "1TH": 5, "2TH": 3, "1TI": 6, "2TI": 4, TIT: 3, PHM: 1, HEB: 13, JAS: 5, "1PE": 5, "2PE": 3, "1JN": 5, "2JN": 1, "3JN": 1, JUD: 1, REV: 22 };
 
 /** Turn a lexicon definition (STEPBible markup) into safe HTML: bold, italics, line breaks, linked NT references. */
-function definitionHTML(raw) {
+export function definitionHTML(raw) {
   const parts = [];
   const re = /<\s*(\/?)\s*([A-Za-z]+)([^>]*)>/g;
   let last = 0;
   let m;
-  const text = (t) => esc(t.replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&amp;/g, "&"));
+  // long "a/b/c" lists may break after a slash
+  const text = (t) => esc(t.replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&amp;/g, "&")).replace(/\//g, "/<wbr>");
   while ((m = re.exec(raw))) {
     parts.push(text(raw.slice(last, m.index)));
     last = re.lastIndex;
@@ -275,7 +327,8 @@ function definitionHTML(raw) {
       const r = (attrs.match(/='([^']*)'/) || [])[1] || "";
       const rm = r.match(/^(\w+)\.(\d+)\.(\d+)/);
       const id = rm && BOOK_BY_STEP[rm[1]];
-      parts.push(id ? `<ref href="#/read/${id}/${rm[2]}/${rm[3]}">` : "<ref>");
+      const real = id && Number(rm[2]) >= 1 && Number(rm[2]) <= NT_CHAPTERS[id]; // a few source typos, e.g. "Mat.92.6"
+      parts.push(real ? `<ref href="#/read/${id}/${rm[2]}/${rm[3]}">` : "<ref>");
     }
     // other source tags (note, greek, corr, author, date, re, def, a) are dropped; their text stays
   }
@@ -286,8 +339,10 @@ function definitionHTML(raw) {
     .replace(/<\/?ref[^>]*>/g, "")
     // Mentions of other entries ("H0157H", "G2424") open that entry (only in text, never inside a tag)
     .replace(/(^|>)([^<]*)/g, (m, gt, txt) => gt + txt.replace(/\b([GH]\d{4,5}[A-Z]?)\b/g, '<a href="#/words/$1">$1</a>'));
-  // One line per sense: "__1." (Abbott-Smith) and "1a)" (Hebrew outline) start indented lines
-  const lines = html.split("\n").map((l) => l.trim()).filter(Boolean);
+  // One line per sense: "__1." (Abbott-Smith) and "1a)" (Hebrew outline) start indented lines.
+  // A few entries run a marker on mid-line (no break in the source): start a new line there too.
+  html = html.replace(/\s*__(?=\s*\S)/g, "\n__");
+  const lines = html.split("\n").map((l) => l.trim().replace(/^:\s*/, "")).filter(Boolean); // some entries start with ": …"
   return lines.map((line) => {
     let depth = 0;
     let body = line;
@@ -315,9 +370,12 @@ const POS = [
   [/:N\b/, "Noun"], [/:A-NUI/, "Number"], [/:A/, "Adjective"], [/:ADV|:Adv/, "Adverb"], [/:PREP|:Prep/, "Preposition"],
   [/:CONJ|:Conj/, "Conjunction"], [/:COND|:Cond/, "Conditional word (if)"], [/:PRT-N/, "Negative (not)"], [/:PRT/, "Particle"],
   [/:INJ|:Intj/, "Exclamation"], [/:Intg/, "Question word"], [/:DemP/, "Pointing word (this, that)"], [/:D\b/, "Article (the)"],
-  [/:P-\d|:P\b|:PerP/, "Pronoun"], [/^Prefix/, "Prefix"],
+  [/:P-\d|:P\b|:PerP/, "Pronoun"], [/:F-\d/, "Pronoun (-self)"], [/:S-\d/, "Pronoun (my, your…)"],
+  [/:R\b|:RelP/, "Relative word (who, which)"], [/:I\b/, "Question word"], [/:X\b|:IndP/, "Pronoun (someone, anyone)"],
+  [/:Q\b|:K\b/, "Pronoun (such, as many as)"], [/:C-/, "Pronoun (one another)"], [/:T\b/, "Article (the)"],
+  [/:Neg/, "Negative (not)"], [/:Part/, "Particle"], [/^Prefix/, "Prefix"],
 ];
-function partOfSpeech(code, key) {
+export function partOfSpeech(code, key) {
   if (/^H90\d\d/.test(key)) return "Part of a word (prefix or suffix)";
   const c = String(code || "");
   const found = POS.find(([re]) => re.test(c));
@@ -347,14 +405,16 @@ function verseLine(letter, w, words, wi) {
 async function renderEntry(main, rawKey) {
   main.innerHTML = `<div class="screen dict-entry"><p class="muted">Loading…</p></div>`;
   let e;
+  let failed = false;
   try {
     e = await resolveKey(rawKey);
-  } catch { e = null; }
+  } catch { e = null; failed = true; }
   if (!main.querySelector(".dict-entry") || location.hash !== `#/words/${encodeURIComponent(rawKey)}`) return;
   if (!e) {
     main.innerHTML = `<div class="screen dict-entry">
       <p><button type="button" class="back-btn" data-back>‹ Back</button></p>
-      <div class="note"><p>That word isn't in the dictionary, or the dictionary couldn't load. Connect to the internet once and it will be saved for offline use.</p></div></div>`;
+      <div class="note"><p>${failed ? "The dictionary couldn't load. Connect to the internet once and it will be saved for offline use."
+        : "That word isn't in the dictionary."}</p></div></div>`;
     main.querySelector("[data-back]").addEventListener("click", () => nav.goBack("#/words"));
     document.title = "Words · Aleph to Omega";
     return;
@@ -377,8 +437,6 @@ async function renderEntry(main, rawKey) {
     return;
   }
   if (location.hash !== hash) return; // moved on while loading
-  books.forEach((b) => { if (b.lang === "grc") BOOK_BY_STEP[b.step] = b.id; });
-  BOOK_BY_STEP.Jude = "JUD";
   const [, , pos, , def = "", , occ = {}, forms = []] = entry;
   addRecent(e.key);
   document.title = `${e.lemma} · Words · Aleph to Omega`;
@@ -434,7 +492,7 @@ async function renderEntry(main, rawKey) {
     ${siblings.length ? `<section class="entry-sec">
       <h2>Other meanings under ${esc(strongs(e.key.slice(0, 5)))}</h2>
       <p class="muted">STEPBible splits some Strong's numbers into separate meanings or names.</p>
-      <ul class="rows">${siblings.map(rowHTML).join("")}</ul>
+      <ul class="rows">${siblings.map((x) => rowHTML(x)).join("")}</ul>
     </section>` : ""}
 
     ${total ? `<section class="entry-sec">

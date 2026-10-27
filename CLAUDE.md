@@ -55,6 +55,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - [x] 4 (27 Oct 2026): Hebrew/Aramaic Reader — right to left, word parts, Aramaic and ketiv/qere notes, whole-Bible picker.
 - [x] 4b (27 Oct 2026): deep check — count keys, compounds, clearer labels, not-read glosses, book memory limit.
 - [x] 5 (27 Oct 2026): Dictionary — search every way, full entries, every occurrence, joined to Reader and Today.
+- [x] 5b (27 Oct 2026): deep check — written-form search, verse-English keywords, looser spelling, retry after offline, 21,234 entries swept.
 - [ ] 6 ESV + LXX + parallel
 - [ ] 7 Lesson engine · [ ] 8 Greek lessons · [ ] 9 Vocab trainer + audio
 - [ ] 10 Hebrew lessons · [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
@@ -148,6 +149,18 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   verse link → `#/read/BOOK/CH/V/WORD` highlights the word and shows "‹ Back to …" (nav.offerReturn/takeReturn).
 - Today's verse words carry "k" (dictionary key) → "Look it up in the dictionary".
 - Store: dictLang (both|G|H), recentWords (12 keys).
+- Deep check (5b): index keywords are "verse English|definition words" (tg ranks 1.2, kw 2.5) — "Yahweh" → יהוה,
+  "church" → ἐκκλησία. lex/<greek|hebrew>-forms.json = {normalised written form: [keys]} (77/221 KB gz), loaded only
+  when Greek/Hebrew is typed: ἠγάπησεν, בְּרֵאשִׁית find their entry, labelled "Form in the text". Python
+  greek_norm/hebrew_norm in build_dictionary.py must match greekNorm/hebrewNorm in dictionary.js.
+  looseNorm (y/u, ph/f, ch/kh/h, w/v, doubles) for pronunciations: kyrios, huios (source "uhios"), nefesh, chesed.
+  A gloss's slash parts match exactly ("in" → ἐν "in/on/among"). Multi-word English needs every word.
+- NT reference links use a fixed BOOK_BY_STEP + NT_CHAPTERS table (6 source typos like "Mat.92.6" stay plain; 39
+  refs to verses NA28 omits still link — the Reader explains the gap). 34,381 links, all checked by audit.
+- Failed loads (offline) aren't cached: prepared/keyMaps/formLists and the Reader's counts retry next time.
+- data.js memory groups: Bible books keep 6, dictionary chunks keep 8. Results announce only "N matches" (role=status).
+- Source quirks kept as published: G2199H "[wife of Zebedee]" has no headword (we show the transliteration);
+  κύριος/πνεῦμα/γυνή etc. are split into senses (counts per sense; together they match NA28 totals).
 
 ## Checks
 - `python3 tools/test_app.py` (server on :8765 first) — 101 end-to-end checks; run before every push.
@@ -155,5 +168,6 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - `python3 tools/sweep_reader.py [nt|ot|all]` — opens every chapter at 360px (NT ~10 min, OT ~35 min); expect
   0 issues and only 3JN 15 / REV 12:18 notes.
 - `tools/check_data.py` now has 36 checks (5 for the dictionary) (incl. OT BSB alignment both ways, psalm titles, Today's verses).
-- `python3 tools/test_dictionary.py` — 37 Dictionary checks (search, entries, links both ways, offline, 320px).
+- `python3 tools/test_dictionary.py` — 45 Dictionary checks (search, entries, links both ways, offline, 320px).
+- `python3 tools/sweep_dictionary.py [G|H|all] [every-nth]` — opens every entry at 360px (~11 min); expect 0 issues.
 - No WebKit here: iPhone/iPad behaviour must be checked on the user's devices.

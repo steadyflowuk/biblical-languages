@@ -4,19 +4,21 @@
 const cache = new Map();
 // Bible book files are large (Old Testament books up to 3.5 MB in memory), so only the most recently used
 // few are kept here; the rest stay saved by the service worker and reload quickly from there.
-const BOOK_FILE = /^data\/(gnt|hot|bsb)\//;
-const KEEP_BOOKS = 6;
+// Dictionary entry files (data/lex/G|H/nn.json) are kept the same way, in a group of their own.
+const GROUPS = [{ re: /^data\/(gnt|hot|bsb)\//, keep: 6 }, { re: /^data\/lex\/[GH]\//, keep: 8 }];
+const groupOf = (path) => GROUPS.find((g) => g.re.test(path));
 
 export function getJSON(path) {
-  if (cache.has(path) && BOOK_FILE.test(path)) {
+  const group = groupOf(path);
+  if (cache.has(path) && group) {
     const p = cache.get(path); // mark as recently used
     cache.delete(path);
     cache.set(path, p);
   }
   if (!cache.has(path)) {
-    if (BOOK_FILE.test(path)) {
-      const books = [...cache.keys()].filter((k) => BOOK_FILE.test(k));
-      books.slice(0, Math.max(0, books.length - KEEP_BOOKS + 1)).forEach((k) => cache.delete(k));
+    if (group) {
+      const same = [...cache.keys()].filter((k) => group.re.test(k));
+      same.slice(0, Math.max(0, same.length - group.keep + 1)).forEach((k) => cache.delete(k));
     }
     const p = fetch(path).then((r) => {
       if (!r.ok) throw new Error(`Couldn't load ${path} (${r.status})`);

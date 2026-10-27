@@ -53,6 +53,15 @@ async def main():
             ("דבר", lambda r: any("H1697" in x for x in r) and any("H1696" in x for x in r), "Hebrew without vowels finds דָּבָר and דָבַר"),
             ("ἀγάπη", lambda r: r and r[0].startswith("ἀγάπη"), "Greek with accents finds ἀγάπη"),
             ("love", lambda r: any(x.startswith("ἀγαπάω") for x in r[:4]) and any("H157" in x for x in r[:4]), "English 'love' finds ἀγαπάω and אָהֵב (H157) at the top"),
+            # Session 5 deep check
+            ("Yahweh", lambda r: r and "H3068" in r[0], "'Yahweh' (the English used in the verses) finds יהוה first"),
+            ("in", lambda r: r and r[0].startswith("ἐν"), "'in' finds ἐν (in/on/among) first"),
+            ("kyrios", lambda r: r and r[0].startswith("κύριος"), "looser spelling: kyrios finds κύριος"),
+            ("nefesh", lambda r: r and "H5315" in r[0], "looser spelling: nefesh finds נֶפֶשׁ"),
+            ("church", lambda r: r and r[0].startswith("ἐκκλησία"), "'church' finds ἐκκλησία"),
+            ("ἠγάπησεν", lambda r: r and r[0].startswith("ἀγαπάω") and "Form in the text" in r[0], "a form copied from a verse (ἠγάπησεν) finds ἀγαπάω"),
+            ("בְּרֵאשִׁית", lambda r: r and "H7225" in r[0] and "Form in the text" in r[0], "a Hebrew word with its prefix (בְּרֵאשִׁית) finds רֵאשִׁית"),
+            ("ἀγάπη", lambda r: r and r[0].startswith("ἀγάπη") and "Form in the text" not in " ".join(r), "dictionary forms aren't labelled as text forms"),
         ]
         for q, ok, label in cases:
             r = await search(pg, q)

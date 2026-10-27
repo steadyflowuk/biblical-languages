@@ -179,7 +179,10 @@ export function closeSheet() {
 const counts = {}; // language → Promise of Map(lexicon key → number of times in that Testament)
 function wordCounts(he) {
   const file = he ? "hebrew" : "greek";
-  if (!counts[file]) counts[file] = data.getJSON(`data/lex/${file}-index.json`).then((idx) => new Map(idx.map((e) => [e[0], e[4] || 0])));
+  if (!counts[file]) {
+    counts[file] = data.getJSON(`data/lex/${file}-index.json`).then((idx) => new Map(idx.map((e) => [e[0], e[4] || 0])));
+    counts[file].catch(() => { delete counts[file]; }); // try again next time (e.g. back online)
+  }
   return counts[file];
 }
 

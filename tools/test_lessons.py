@@ -123,6 +123,11 @@ async def main():
         check("Wrong answer: 'Not quite', the right answer is marked, another go promised",
               "Not quite" in fb and "another go" in fb and await pg.locator(".ls-option.right").count() == 1 and await pg.locator(".ls-option.wrong").count() == 1, fb)
         check("Wrong answer: Continue unlocks", await pg.locator("[data-next]").is_enabled())
+        check("After answering, focus moves to Continue", await pg.evaluate("document.activeElement.hasAttribute('data-next')"))
+        await go_next(pg)
+        await pg.click("[data-back]")
+        await pg.wait_for_timeout(150)
+        check("Going Back to an answered drill doesn't lock Continue", await pg.locator("[data-next]").is_enabled())
         await go_next(pg)
         await answer(pg, GRC)  # second choose, right
         check("Right answer: 'Right.' with the explanation", "Right." in await pg.locator(".ls-feedback").inner_text())
@@ -256,6 +261,16 @@ async def main():
         await pg.wait_for_timeout(200)
         focused = await pg.evaluate("document.activeElement.className + '|' + document.activeElement.tagName")
         check("Keyboard: Continue moves focus to the new card's heading", "ls-big" in focused or "ls-title" in focused, focused)
+
+        # 9b. A lesson file that changes while someone is part-way through restarts cleanly
+        await pg.goto(f"{BASE}#/learn")
+        await pg.wait_for_selector(".path li")
+        await pg.click("[data-lang=grc]")
+        await pg.evaluate("""() => { const a = JSON.parse(localStorage.getItem('ao:lessons')); a['grc-0'].pos = 7; a['grc-0'].sig = 'old'; localStorage.setItem('ao:lessons', JSON.stringify(a)); }""")
+        await pg.click('a[href="#/lesson/grc/grc-0"]')
+        await pg.wait_for_selector(".ls-card .ls-title")
+        check("A changed lesson file restarts at the first card", await pg.locator("[data-back]").is_hidden()
+              and await pg.locator('.ls-steps li[aria-current="step"] .ls-step-full').inner_text() == "Hear and see")
 
         # 10. Odd links
         await pg.goto(f"{BASE}#/lesson/grc/grc-9")

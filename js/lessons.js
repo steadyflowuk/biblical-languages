@@ -11,6 +11,7 @@ import { heText, heEnglish, heAfter, heJoined, heMainKey, heParts, heFriendlyGra
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
 export const STEP_NAMES = { hear: "Hear and see", notice: "Notice", practise: "Practise", read: "Read", review: "Review" };
+const STEP_SHORT = { hear: "Hear" };
 const STEP_ORDER = ["hear", "notice", "practise", "read", "review"];
 const DRILLS = new Set(["choose", "match", "build", "parse"]);
 const LANG_NAME = { grc: "Greek", he: "Hebrew" };
@@ -97,7 +98,7 @@ function sequence(lesson, retries) {
 function stepBar(step) {
   const at = STEP_ORDER.indexOf(step);
   return `<ol class="ls-steps" aria-label="Steps">${STEP_ORDER.map((s, i) =>
-    `<li class="${i < at ? "done" : i === at ? "now" : ""}" ${i === at ? 'aria-current="step"' : ""}><span>${STEP_NAMES[s]}</span></li>`).join("")}</ol>`;
+    `<li class="${i < at ? "done" : i === at ? "now" : ""}" ${i === at ? 'aria-current="step"' : ""}><span class="ls-step-full">${STEP_NAMES[s]}</span>${STEP_SHORT[s] ? `<span class="ls-step-short" aria-hidden="true">${STEP_SHORT[s]}</span>` : ""}</li>`).join("")}</ol>`;
 }
 
 function sceneHTML(c) {
@@ -280,7 +281,11 @@ export const lesson = {
 
     // progress: start again if the lesson was finished, else carry on where it was left
     let p = progressOf(id);
-    if (!p || p.done || p.v !== 1) p = { v: 1, pos: 0, retries: [], first: {}, done: p && p.done, best: p && p.best, completed: p && p.completed };
+    // the lesson's shape: if the file has changed since the learner's place was saved, start it again cleanly
+    const sig = L.steps.map((s) => `${s.step}:${s.cards.length}`).join(",");
+    if (!p || p.done || p.v !== 1 || p.sig !== sig) {
+      p = { v: 1, sig, pos: 0, retries: [], first: {}, done: p && p.done, best: p && p.best, completed: p && p.completed };
+    }
     let seq = sequence(L, p.retries);
     if (p.pos >= seq.length) p.pos = 0;
     let state = {}; // the current card's answers
@@ -324,6 +329,7 @@ export const lesson = {
       }
       setFeedback(ok, `<strong>${ok ? "Right." : "Not quite."}</strong> ${explain ? mixed(explain) : ""}${!ok && !item.retry ? ` <span class="muted">You'll get another go at this one before the end of the practice.</span>` : ""}`);
       nextBtn.disabled = false;
+      nextBtn.focus({ preventScroll: true }); // keyboard and screen-reader users go straight on (the feedback is announced)
       saveProgress(id, p);
     };
 
@@ -331,7 +337,8 @@ export const lesson = {
       const item = seq[p.pos];
       const c = item.card;
       state = {};
-      answered = !isDrill(item);
+      // a drill already answered (going Back, or reopening the lesson) doesn't have to be answered again
+      answered = !isDrill(item) || (!item.retry && p.first[item.base] !== undefined);
       gloss = null;
       setFeedback(null, "");
       main.querySelector(".ls-stepbar").innerHTML = stepBar(item.step);
@@ -505,7 +512,7 @@ export const lesson = {
       })));
       store.set("reviewQueue", queue);
       const best = Math.max(p.best || 0, drills.length ? Math.round((right / drills.length) * 100) : 100);
-      saveProgress(id, { v: 1, done: true, best, completed: new Date().toISOString().slice(0, 10), pos: 0, retries: [], first: {} });
+      saveProgress(id, { v: 1, sig, done: true, best, completed: new Date().toISOString().slice(0, 10), pos: 0, retries: [], first: {} });
       const next = (index[lang] || []).slice(entries.indexOf(entry) + 1).find((e) => e.file);
       main.querySelector(".ls-stepbar").innerHTML = "";
       main.querySelector(".ls-progress span").style.width = "100%";

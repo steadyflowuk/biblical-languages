@@ -684,7 +684,12 @@ ol.rows { list-style: none; padding: 0; }
 .ls-steps li span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ls-steps li.done { border-top-color: var(--sage); color: var(--sage-ink); }
 .ls-steps li.now { border-top-color: var(--gold); color: var(--ink); }
-@media (max-width: 380px) { .ls-steps li { font-size: .66rem; } }
+.ls-steps .ls-step-short { display: none; }
+@media (max-width: 380px) {
+  .ls-steps li { font-size: .66rem; }
+  .ls-steps .ls-step-short { display: block; }
+  .ls-steps .ls-step-full:not(:only-child) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } /* still read out */
+}
 .ls-intro { margin: 0 0 16px; color: var(--muted); }
 .ls-again { margin: 0 0 8px; font-weight: 700; color: var(--accent-ink); }
 .ls-card { min-height: 240px; }

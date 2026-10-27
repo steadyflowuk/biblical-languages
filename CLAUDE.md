@@ -66,6 +66,8 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - [x] 6 (27 Oct 2026): ESV (own key), Septuagint lined up with the Hebrew + its own screen, side-by-side layout.
 - [x] 6b (27 Oct 2026): deep check — ESV half-book limit, brackets, 3 John 15; Septuagint runs/boundaries re-aligned; better look-ups.
 - [x] 7 (27 Oct 2026): lesson engine — five steps, 4 drill types, retries, resume, progress, review list; two taster lessons.
+- [x] 7b (27 Oct 2026): deep check — focus to Continue after answering, Back to an answered drill stays open, lesson
+  signature (`sig`: steps and card counts) restarts a changed lesson cleanly, short step labels under 380px.
 - [ ] 8 Greek lessons · [ ] 9 Vocab trainer + audio
 - [ ] 10 Hebrew lessons · [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
 
@@ -243,7 +245,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   0 issues and only 3JN 15 / REV 12:18 notes.
 - `tools/check_data.py` now has 42 checks (5 for the dictionary, 5 for the Septuagint) (incl. OT BSB alignment both ways, psalm titles, Today's verses).
 - `python3 tools/check_lessons.py` — validates every lesson (run after any lesson change).
-- `python3 tools/test_lessons.py` — 47 lesson engine checks (drills, retries, resume, scores, review list, Hebrew RTL,
+- `python3 tools/test_lessons.py` — 50 lesson engine checks (drills, retries, resume, scores, review list, Hebrew RTL,
   keyboard, offline, 320px).
 - `python3 tools/test_dictionary.py` — 51 Dictionary checks (search, entries, links both ways, offline, 320px).
 - `python3 tools/test_translations.py` — 70 ESV/Septuagint/side-by-side checks (ESV API mocked with real verse counts;

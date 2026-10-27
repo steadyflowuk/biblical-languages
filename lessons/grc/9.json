@@ -1,0 +1,164 @@
+{
+  "id": "grc-9",
+  "lang": "grc",
+  "title": "First declension nouns",
+  "steps": [
+    {
+      "step": "hear",
+      "intro": "Many feminine nouns end in -η or -α. Listen for ἡ and τῆς, the feminine “the”.",
+      "cards": [
+        { "type": "scene", "picture": "❤️", "text": "ἡ ἀγάπη", "say": "hay a-GA-pay", "en": "love" },
+        { "type": "scene", "picture": "🔊", "text": "ἡ φωνὴ τοῦ κυρίου", "say": "hay foh-NAY too kü-REE-oo", "en": "the voice of the Lord" },
+        { "type": "scene", "picture": "👑", "text": "ἡ βασιλεία τοῦ θεοῦ", "say": "hay ba-si-LAY-a too the-OO", "en": "the kingdom of God" },
+        { "type": "scene", "picture": "💗", "text": "ἐν τῇ καρδίᾳ", "say": "en tay kar-DEE-a", "en": "in the heart" },
+        { "type": "scene", "picture": "📜", "text": "αἱ γραφαί", "say": "hai gra-FAI", "en": "the Scriptures" },
+        { "type": "scene", "picture": "🕊️", "text": "εἰρήνη", "say": "ay-RAY-nay", "en": "peace (the name Irene comes from it)" }
+      ]
+    },
+    {
+      "step": "notice",
+      "cards": [
+        {
+          "type": "explain",
+          "title": "The -η pattern",
+          "body": [
+            "Most nouns ending -η are feminine and follow γραφή (writing, Scripture). The four jobs are the same as before; only the endings differ. Grammar books call this the first declension.",
+            "The plural endings, -αι, -ων, -αις, -ας, are shared by every noun in this pattern."
+          ],
+          "table": {
+            "head": ["case", "one", "more than one"],
+            "rows": [
+              ["nominative: subject", "ἡ γραφή", "αἱ γραφαί"],
+              ["genitive: of", "τῆς γραφῆς", "τῶν γραφῶν"],
+              ["dative: to, for", "τῇ γραφῇ", "ταῖς γραφαῖς"],
+              ["accusative: object", "τὴν γραφήν", "τὰς γραφάς"]
+            ]
+          }
+        },
+        {
+          "type": "explain",
+          "title": "The -α pattern",
+          "body": [
+            "When the stem ends in ε, ι or ρ, the singular keeps α instead of η: ἡμέρα, καρδία, βασιλεία, ἀλήθεια. The plural is just like γραφή.",
+            "Watch ἡμέρας: it can be “of a day” or “days” as an object. The article settles it: τῆς ἡμέρας, of the day; τὰς ἡμέρας, the days."
+          ],
+          "table": {
+            "head": ["case", "one", "more than one"],
+            "rows": [
+              ["nominative: subject", "ἡ ἡμέρα", "αἱ ἡμέραι"],
+              ["genitive: of", "τῆς ἡμέρας", "τῶν ἡμερῶν"],
+              ["dative: to, for", "τῇ ἡμέρᾳ", "ταῖς ἡμέραις"],
+              ["accusative: object", "τὴν ἡμέραν", "τὰς ἡμέρας"]
+            ]
+          }
+        },
+        {
+          "type": "explain",
+          "title": "The whole article",
+          "body": [
+            "You have now met every form of “the”: ὁ (masculine), ἡ (feminine), τό (neuter). The article always matches its noun's gender, number and case, so it is your best guide to a noun's job."
+          ],
+          "table": {
+            "head": ["case", "masculine", "feminine", "neuter"],
+            "rows": [
+              ["nominative", "ὁ", "ἡ", "τό"],
+              ["genitive", "τοῦ", "τῆς", "τοῦ"],
+              ["dative", "τῷ", "τῇ", "τῷ"],
+              ["accusative", "τόν", "τήν", "τό"]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "step": "practise",
+      "cards": [
+        {
+          "type": "choose",
+          "prompt": "What does ἡ βασιλεία τοῦ θεοῦ mean?",
+          "options": ["the kingdom of God", "God's kings", "the king of God", "God rules the kingdom"],
+          "answer": 0,
+          "explain": "ἡ βασιλεία (subject) + τοῦ θεοῦ (of God): the kingdom of God."
+        },
+        {
+          "type": "choose",
+          "prompt": "Which article goes with καρδία as a subject?",
+          "options": ["ἡ", "ὁ", "τό", "τήν"],
+          "answer": 0,
+          "explain": "καρδία is feminine: ἡ καρδία. τήν would make it an object."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each ending of γραφή to its job.",
+          "pairs": [["-η", "subject, one"], ["-ης", "of, one"], ["-ῃ", "to, for, one"], ["-ην", "object, one"]]
+        },
+        {
+          "type": "match",
+          "prompt": "And the plural endings.",
+          "pairs": [["-αι", "subject, more than one"], ["-ων", "of, more than one"], ["-αις", "to, for, more than one"], ["-ας", "object, more than one"]]
+        },
+        {
+          "type": "parse",
+          "prompt": "Describe τῇ καρδίᾳ.",
+          "word": "τῇ καρδίᾳ",
+          "fields": [
+            { "label": "Case", "options": ["nominative: subject", "genitive: of", "dative: to, for", "accusative: object"], "answer": "dative: to, for" },
+            { "label": "How many?", "options": ["one", "more than one"], "answer": "one" },
+            { "label": "Gender", "options": ["masculine", "feminine", "neuter"], "answer": "feminine" }
+          ],
+          "explain": "τῇ and the ι under α mark the dative singular: “in the heart” after ἐν."
+        },
+        {
+          "type": "parse",
+          "prompt": "Describe τὰς ἐντολάς.",
+          "word": "τὰς ἐντολάς",
+          "fields": [
+            { "label": "Case", "options": ["nominative: subject", "genitive: of", "dative: to, for", "accusative: object"], "answer": "accusative: object" },
+            { "label": "How many?", "options": ["one", "more than one"], "answer": "more than one" }
+          ],
+          "explain": "τάς and -ας: accusative plural, “the commandments” as an object."
+        },
+        {
+          "type": "choose",
+          "prompt": "ἡμέρας on its own could be two things. Which two?",
+          "options": ["“of a day” or “days” (as an object)", "“a day” (subject) or “to a day”", "“days” (subject) or “of days”"],
+          "answer": 0,
+          "explain": "ἡμέρας is genitive singular or accusative plural. The article decides: τῆς ἡμέρας or τὰς ἡμέρας."
+        },
+        {
+          "type": "build",
+          "prompt": "Write “the love of God”.",
+          "tiles": ["ἡ", "ἀγάπη", "τοῦ", "θεοῦ"],
+          "explain": "ἡ ἀγάπη (feminine subject) τοῦ θεοῦ (of God)."
+        }
+      ]
+    },
+    {
+      "step": "read",
+      "intro": "Find each feminine noun and its article, and say what job it is doing.",
+      "cards": [
+        { "type": "verse", "ref": "1JN 4:8", "note": "The end of the verse: ὁ θεὸς ἀγάπη ἐστίν, “God is love”." },
+        { "type": "verse", "ref": "MAT 6:33", "note": "ζητεῖτε (you seek) τὴν βασιλείαν (object, feminine): “But seek first the kingdom of God and his righteousness.”" }
+      ]
+    },
+    {
+      "step": "review",
+      "cards": [
+        {
+          "type": "words",
+          "items": [
+            { "k": "G1124", "t": "γραφή", "say": "gra-FAY", "en": "writing, Scripture" },
+            { "k": "G5456G", "t": "φωνή", "say": "foh-NAY", "en": "voice, sound" },
+            { "k": "G0026", "t": "ἀγάπη", "say": "a-GA-pay", "en": "love" },
+            { "k": "G2588", "t": "καρδία", "say": "kar-DEE-a", "en": "heart" },
+            { "k": "G1577", "t": "ἐκκλησία", "say": "ek-klay-SEE-a", "en": "church, assembly" },
+            { "k": "G0932", "t": "βασιλεία", "say": "ba-si-LAY-a", "en": "kingdom, reign" },
+            { "k": "G0225", "t": "ἀλήθεια", "say": "a-LAY-thay-a", "en": "truth" },
+            { "k": "G1515", "t": "εἰρήνη", "say": "ay-RAY-nay", "en": "peace" },
+            { "k": "G1785", "t": "ἐντολή", "say": "en-to-LAY", "en": "commandment" }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+{
+  "id": "grc-6",
+  "lang": "grc",
+  "title": "Second declension nouns",
+  "steps": [
+    {
+      "step": "hear",
+      "intro": "Nouns change their endings too. Watch the endings of the nouns: they show who does what, wherever the word stands.",
+      "cards": [
+        { "type": "scene", "picture": "🗣️", "text": "ὁ ἀδελφὸς λέγει.", "say": "ho a-del-FOS LE-gay", "en": "The brother speaks." },
+        { "type": "scene", "picture": "👥", "text": "οἱ ἀδελφοὶ λέγουσιν.", "say": "hoi a-del-FOI LE-goo-sin", "en": "The brothers speak." },
+        { "type": "scene", "picture": "👀", "text": "ὁ δοῦλος βλέπει τὸν κύριον.", "say": "ho DOO-los BLE-pay ton KÜ-ree-on", "en": "The servant sees the master." },
+        { "type": "scene", "picture": "🔁", "text": "τὸν κύριον βλέπει ὁ δοῦλος.", "say": "ton KÜ-ree-on BLE-pay ho DOO-los", "en": "The servant sees the master. (same meaning: the endings decide, not the order)" },
+        { "type": "scene", "picture": "✍️", "text": "γράφομεν τοὺς λόγους.", "say": "GRA-fo-men toos LO-goos", "en": "We write the words." }
+      ]
+    },
+    {
+      "step": "notice",
+      "cards": [
+        {
+          "type": "explain",
+          "title": "Subject and object endings",
+          "body": [
+            "The doer of the verb (the subject) takes one set of endings; the thing the verb is done to (the object) takes another. Grammar books call these the nominative and accusative cases.",
+            "λόγος, ἀδελφός, κύριος and many other nouns ending -ος follow this pattern (the second declension)."
+          ],
+          "table": {
+            "head": ["job", "one", "more than one"],
+            "rows": [
+              ["subject (nominative)", "λόγος", "λόγοι"],
+              ["object (accusative)", "λόγον", "λόγους"]
+            ]
+          }
+        },
+        {
+          "type": "explain",
+          "title": "“The” changes too",
+          "body": [
+            "The article (“the”) has the same jobs: ὁ and οἱ with subjects, τόν and τούς with objects. Greek has no word for “a”: λόγος alone is “a word”.",
+            "Because endings carry the meaning, Greek can put words in almost any order. Find the verb, then find its subject (-ος, -οι) and its object (-ον, -ους).",
+            "The verb agrees with its subject: one brother λέγει, more than one λέγουσιν."
+          ],
+          "table": {
+            "head": ["job", "one", "more than one"],
+            "rows": [
+              ["subject", "ὁ λόγος", "οἱ λόγοι"],
+              ["object", "τὸν λόγον", "τοὺς λόγους"]
+            ]
+          }
+        },
+        {
+          "type": "explain",
+          "title": "How dictionaries list nouns",
+          "body": [
+            "A noun is listed in its subject form, one of it: λόγος. Word lists often add the article to show its gender: ὁ λόγος means a masculine noun. These words are masculine because of how the language works, not because of what they mean: ὁ νόμος, the law, is masculine too."
+          ],
+          "examples": [
+            { "t": "ὁ λόγος", "say": "ho LO-gos", "en": "word (masculine)" },
+            { "t": "ὁ νόμος", "say": "ho NO-mos", "en": "law (masculine)" }
+          ]
+        }
+      ]
+    },
+    {
+      "step": "practise",
+      "cards": [
+        {
+          "type": "choose",
+          "prompt": "ὁ ἄνθρωπος βλέπει τὸν ἀδελφόν. Who sees whom?",
+          "options": ["The man sees the brother.", "The brother sees the man."],
+          "answer": 0,
+          "explain": "ἄνθρωπος (-ος) is the subject; ἀδελφόν (-ον) is the object."
+        },
+        {
+          "type": "choose",
+          "prompt": "τὸν ἀδελφὸν βλέπει ὁ ἄνθρωπος. Now who sees whom?",
+          "options": ["The man sees the brother.", "The brother sees the man."],
+          "answer": 0,
+          "explain": "The order changed, but the endings didn't: ὁ ἄνθρωπος is still the subject and τὸν ἀδελφόν the object."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each ending to its job.",
+          "pairs": [["-ος", "subject, one"], ["-ον", "object, one"], ["-οι", "subject, more than one"], ["-ους", "object, more than one"]]
+        },
+        {
+          "type": "parse",
+          "prompt": "Describe λόγους.",
+          "word": "λόγους",
+          "fields": [
+            { "label": "Job", "options": ["subject (nominative)", "object (accusative)"], "answer": "object (accusative)" },
+            { "label": "How many?", "options": ["one", "more than one"], "answer": "more than one" }
+          ],
+          "explain": "-ους is the object ending for more than one: “words”, as the object of the verb."
+        },
+        {
+          "type": "parse",
+          "prompt": "Describe ἀδελφοί.",
+          "word": "ἀδελφοί",
+          "fields": [
+            { "label": "Job", "options": ["subject (nominative)", "object (accusative)"], "answer": "subject (nominative)" },
+            { "label": "How many?", "options": ["one", "more than one"], "answer": "more than one" }
+          ],
+          "explain": "-οι is the subject ending for more than one: “brothers” doing the action."
+        },
+        {
+          "type": "choose",
+          "prompt": "Which verb fits? οἱ δοῦλοι ___ τὸν κύριον (the servants see the master).",
+          "options": ["βλέπουσιν", "βλέπει", "βλέπω", "βλέπομεν"],
+          "answer": 0,
+          "explain": "οἱ δοῦλοι is “they” (more than one), so the verb takes -ουσιν."
+        },
+        {
+          "type": "build",
+          "prompt": "Write “The brothers hear the law”, in the same order as the English.",
+          "tiles": ["οἱ", "ἀδελφοὶ", "ἀκούουσιν", "τὸν", "νόμον"],
+          "explain": "οἱ ἀδελφοὶ (subject) ἀκούουσιν (they hear) τὸν νόμον (object)."
+        }
+      ]
+    },
+    {
+      "step": "read",
+      "intro": "Find the verb, then its subject (-ος, -οι) and its object (-ον, -ους).",
+      "cards": [
+        { "type": "verse", "ref": "JHN 3:17", "note": "ὁ θεὸς is the subject, τὸν υἱὸν the object: “For God did not send his Son into the world to condemn the world…”" },
+        { "type": "verse", "ref": "MRK 13:31", "note": "οἱ λόγοι μου, “my words”, is a subject with -οι: “Heaven and earth will pass away, but my words will not pass away.”" }
+      ]
+    },
+    {
+      "step": "review",
+      "cards": [
+        {
+          "type": "words",
+          "items": [
+            { "k": "G0080", "t": "ἀδελφός", "say": "a-del-FOS", "en": "brother" },
+            { "k": "G2962G", "t": "κύριος", "say": "KÜ-ree-os", "en": "lord, Lord; master" },
+            { "k": "G3551", "t": "νόμος", "say": "NO-mos", "en": "law" },
+            { "k": "G2889", "t": "κόσμος", "say": "KOS-mos", "en": "world" },
+            { "k": "G1401", "t": "δοῦλος", "say": "DOO-los", "en": "servant, slave" },
+            { "k": "G3793", "t": "ὄχλος", "say": "OKH-los", "en": "crowd" },
+            { "k": "G2288", "t": "θάνατος", "say": "THA-na-tos", "en": "death" },
+            { "k": "G0652", "t": "ἀπόστολος", "say": "a-POS-to-los", "en": "apostle, messenger" }
+          ]
+        }
+      ]
+    }
+  ]
+}

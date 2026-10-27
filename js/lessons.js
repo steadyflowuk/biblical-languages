@@ -121,10 +121,21 @@ function videoHTML(c) {
     </div>`;
 }
 
+/** A small table (verb endings, noun patterns): { caption, head: [...], rows: [[...]] }. */
+function tableHTML(t) {
+  const cell = (x, tag) => `<${tag}${langAttrs(x) && !/[a-z]/i.test(x) ? langAttrs(x) : ""}>${mixed(x)}</${tag}>`;
+  return `<div class="ls-table-wrap"><table class="ls-table">
+      ${t.caption ? `<caption>${mixed(t.caption)}</caption>` : ""}
+      ${t.head ? `<thead><tr>${t.head.map((h) => cell(h, "th")).join("")}</tr></thead>` : ""}
+      <tbody>${t.rows.map((r) => `<tr>${r.map((x, i) => cell(x, i === 0 && t.rowHeads ? "th" : "td")).join("")}</tr>`).join("")}</tbody>
+    </table></div>`;
+}
+
 function explainHTML(c) {
   return `<div class="ls-explain">
       <h2 class="ls-title" tabindex="-1">${mixed(c.title)}</h2>
       ${(c.body || []).map((p) => `<p>${mixed(p)}</p>`).join("")}
+      ${c.table ? tableHTML(c.table) : ""}
       ${c.examples && c.examples.length ? `<ul class="ls-examples">${c.examples.map((x) => `<li>
         <span class="ls-ex-t"${langAttrs(x.t)}>${esc(x.t)}</span>
         ${x.say ? `<span class="ls-ex-say">${esc(x.say)}</span>` : ""}
@@ -160,11 +171,12 @@ function buildHTML(c, state, lang) {
   state.bank = state.bank || mixedUp(c.tiles.map((_, i) => i));
   state.line = state.line || [];
   const dir = lang === "he" ? ' dir="rtl"' : "";
+  const joined = c.join === "" ? " joined" : ""; // tiles that make one word (letters, stem + ending)
   const tile = (i, where) => `<button type="button" class="ls-tile" data-${where}="${i}"${langAttrs(c.tiles[i])}>${esc(c.tiles[i])}</button>`;
   return `<div class="ls-drill ls-build">
       <h2 class="ls-title" tabindex="-1">${mixed(c.prompt)}</h2>
       <p class="muted ls-how">Tap the words in order. Tap a placed word to take it back.</p>
-      <div class="ls-line"${dir} aria-label="Your answer" role="group">${state.line.length ? state.line.map((i) => tile(i, "placed")).join("") : `<span class="ls-line-empty">Your answer</span>`}</div>
+      <div class="ls-line${joined}"${dir} aria-label="Your answer" role="group">${state.line.length ? state.line.map((i) => tile(i, "placed")).join("") : `<span class="ls-line-empty">Your answer</span>`}</div>
       <div class="ls-bank"${dir} role="group" aria-label="Words to use">${state.bank.filter((i) => !state.line.includes(i)).map((i) => tile(i, "tile")).join("")}</div>
       <p><button type="button" class="btn" data-check ${state.line.length === c.tiles.length ? "" : "disabled"}>Check</button></p>
     </div>`;
@@ -449,7 +461,8 @@ export const lesson = {
           box.querySelectorAll(".ls-build .ls-tile").forEach((x) => { x.disabled = true; });
           box.querySelector(".ls-line").classList.add(ok ? "right" : "wrong");
           e.target.closest("[data-check]").disabled = true;
-          answer(ok, ok ? c.explain : `The order is: ${c.tiles.join(" ")}. ${c.explain || ""}`);
+          const whole = c.join === "" ? c.tiles.map((x) => x.replace(/^-|-$/g, "")).join("") : c.tiles.join(" ");
+          answer(ok, ok ? c.explain : `The right order is ${whole}. ${c.explain || ""}`);
         }
       } else if (c.type === "parse") {
         if (answered) return;

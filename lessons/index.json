@@ -1,20 +1,123 @@
 {
   "grc": [
-    { "id": "grc-0", "title": "A first taste: John 1:1", "sub": "Read your first verse of the Greek New Testament", "minutes": 10, "file": "lessons/grc/0.json" },
-    { "id": "grc-1", "title": "The alphabet and its sounds", "sub": "24 letters, reading aloud, writing them" },
-    { "id": "grc-2", "title": "Breathings, accents and punctuation", "sub": "The small marks above and around words" },
-    { "id": "grc-3", "title": "Present verbs", "sub": "λύω, I loose: the endings that show who acts" },
-    { "id": "grc-4", "title": "Second declension nouns", "sub": "λόγος, word: your first noun pattern" },
-    { "id": "grc-5", "title": "The article and the cases", "sub": "ὁ, ἡ, τό, and what each case does in a sentence" },
-    { "id": "grc-6", "title": "First declension nouns", "sub": "ἀρχή, beginning: the feminine pattern" }
+    {
+      "id": "grc-0",
+      "title": "A first taste: John 1:1",
+      "sub": "Read your first verse of the Greek New Testament",
+      "minutes": 10,
+      "file": "lessons/grc/0.json"
+    },
+    {
+      "id": "grc-1",
+      "title": "The alphabet, part 1: α to μ",
+      "sub": "The first twelve letters and their sounds",
+      "minutes": 20,
+      "file": "lessons/grc/1.json"
+    },
+    {
+      "id": "grc-2",
+      "title": "The alphabet, part 2: ν to ω",
+      "sub": "The last twelve letters, final sigma and vowel pairs",
+      "minutes": 20,
+      "file": "lessons/grc/2.json"
+    },
+    {
+      "id": "grc-3",
+      "title": "Breathings, accents and punctuation",
+      "sub": "The small marks above and around words",
+      "minutes": 20,
+      "file": "lessons/grc/3.json"
+    },
+    {
+      "id": "grc-4",
+      "title": "Present verbs",
+      "sub": "λύω, I loose: the endings that show who acts",
+      "minutes": 25,
+      "file": "lessons/grc/4.json"
+    },
+    {
+      "id": "grc-5",
+      "title": "Verbs ending -έω",
+      "sub": "ποιέω, I do: when vowels merge",
+      "minutes": 20,
+      "file": "lessons/grc/5.json"
+    },
+    {
+      "id": "grc-6",
+      "title": "Second declension nouns",
+      "sub": "λόγος, word: subjects and objects",
+      "minutes": 25,
+      "file": "lessons/grc/6.json"
+    },
+    {
+      "id": "grc-7",
+      "title": "The article, and the genitive and dative",
+      "sub": "ὁ, τοῦ, τῷ, τόν: of, to, and prepositions",
+      "minutes": 25,
+      "file": "lessons/grc/7.json"
+    },
+    {
+      "id": "grc-8",
+      "title": "Neuter nouns",
+      "sub": "ἔργον, work: the second declension's neuter pattern",
+      "minutes": 20,
+      "file": "lessons/grc/8.json"
+    },
+    {
+      "id": "grc-9",
+      "title": "First declension nouns",
+      "sub": "γραφή and ἡμέρα: the feminine patterns, and the whole article",
+      "minutes": 25,
+      "file": "lessons/grc/9.json"
+    },
+    {
+      "id": "grc-10",
+      "title": "More first declension nouns",
+      "sub": "δόξα, and masculine nouns like μαθητής, disciple"
+    },
+    {
+      "id": "grc-11",
+      "title": "Adjectives and the verb “to be”",
+      "sub": "ἀγαθός, good; εἰμί, I am"
+    }
   ],
   "he": [
-    { "id": "he-0", "title": "A first taste: Genesis 1:1", "sub": "Read the first verse of the Hebrew Bible", "minutes": 10, "file": "lessons/he/0.json" },
-    { "id": "he-1", "title": "The consonants", "sub": "22 letters, their sounds and final forms" },
-    { "id": "he-2", "title": "The vowels", "sub": "The dots and dashes added by the Masoretes" },
-    { "id": "he-3", "title": "Syllables and the shewa", "sub": "How words break up when read aloud" },
-    { "id": "he-4", "title": "Dagesh and other marks", "sub": "The dot that changes a letter's sound" },
-    { "id": "he-5", "title": "Nouns and the article", "sub": "הַ, the: making a noun definite" },
-    { "id": "he-6", "title": "Prepositions and “and”", "sub": "בְּ, לְ, כְּ and וְ joined to the next word" }
+    {
+      "id": "he-0",
+      "title": "A first taste: Genesis 1:1",
+      "sub": "Read the first verse of the Hebrew Bible",
+      "minutes": 10,
+      "file": "lessons/he/0.json"
+    },
+    {
+      "id": "he-1",
+      "title": "The consonants",
+      "sub": "22 letters, their sounds and final forms"
+    },
+    {
+      "id": "he-2",
+      "title": "The vowels",
+      "sub": "The dots and dashes added by the Masoretes"
+    },
+    {
+      "id": "he-3",
+      "title": "Syllables and the shewa",
+      "sub": "How words break up when read aloud"
+    },
+    {
+      "id": "he-4",
+      "title": "Dagesh and other marks",
+      "sub": "The dot that changes a letter's sound"
+    },
+    {
+      "id": "he-5",
+      "title": "Nouns and the article",
+      "sub": "הַ, the: making a noun definite"
+    },
+    {
+      "id": "he-6",
+      "title": "Prepositions and “and”",
+      "sub": "בְּ, לְ, כְּ and וְ joined to the next word"
+    }
   ]
 }

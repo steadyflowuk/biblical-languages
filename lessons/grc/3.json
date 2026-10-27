@@ -1,0 +1,156 @@
+{
+  "id": "grc-3",
+  "lang": "grc",
+  "title": "Breathings, accents and punctuation",
+  "steps": [
+    {
+      "step": "hear",
+      "intro": "Greek words carry small marks above and beside their letters. Listen for what each one changes as you read these aloud.",
+      "cards": [
+        { "type": "scene", "picture": "📜", "text": "ὁ λόγος", "say": "ho LO-gos", "en": "the word (the mark ‘ on ὁ adds an h)" },
+        { "type": "scene", "picture": "☀️", "text": "ἡμέρα", "say": "hay-ME-ra", "en": "day (h again, then stress on ME)" },
+        { "type": "scene", "picture": "👦", "text": "υἱός", "say": "hwee-OS", "en": "son" },
+        { "type": "scene", "picture": "✨", "text": "ἅγιος", "say": "HA-gee-os", "en": "holy" },
+        { "type": "scene", "picture": "💬", "text": "ῥῆμα", "say": "RAY-ma", "en": "word, saying (ῥ at the start of a word, like English rh in rhythm)" },
+        { "type": "scene", "picture": "🤔", "text": "τίς;", "say": "tis?", "en": "who? (the ; is a question mark)" }
+      ]
+    },
+    {
+      "step": "notice",
+      "cards": [
+        {
+          "type": "explain",
+          "title": "Breathing marks: is there an h?",
+          "body": [
+            "Every word that begins with a vowel has a breathing mark over it. ῾ (rough breathing, like an opening quote) means say an h first. ᾿ (smooth breathing, like an apostrophe) means no h.",
+            "When a word begins with a pair of vowels, the mark sits on the second one: οὐρανός, εἰμί, υἱός. A word beginning with ρ or υ always takes the rough breathing, which is why English has rhythm and hydro-."
+          ],
+          "examples": [
+            { "t": "ἡμέρα", "say": "hay-ME-ra", "en": "rough: h" },
+            { "t": "ἐν", "say": "en", "en": "smooth: no h" },
+            { "t": "οὐρανός", "say": "oo-ra-NOS", "en": "smooth, on the second vowel" },
+            { "t": "υἱός", "say": "hwee-OS", "en": "rough, on the second vowel" }
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "Accents: which syllable to stress",
+          "body": [
+            "Most words carry one accent. In the pronunciation used here, all three simply mark the stressed syllable: acute ´, grave ` and circumflex ῀.",
+            "A grave usually replaces an acute on the last syllable when another word follows: καί on its own, but καὶ in a sentence. It is the same word.",
+            "Sometimes the accent is the only difference between two words, so it is worth noticing."
+          ],
+          "examples": [
+            { "t": "ἄνθρωπος", "say": "AN-thro-pos", "en": "person (stress AN)" },
+            { "t": "εἰ", "say": "ay", "en": "if" },
+            { "t": "εἶ", "say": "ay", "en": "you are" },
+            { "t": "ἤ", "say": "ay", "en": "or" }
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "Little marks with a job",
+          "body": [
+            "A small ι written under α, η or ω (ᾳ ῃ ῳ) is called iota subscript. It isn't sounded, but it matters for grammar, as you'll see with nouns.",
+            "Two dots over a vowel (¨) mean it starts a new syllable: Ἠσαΐας is Hay-sa-EE-as (Isaiah).",
+            "An apostrophe shows a dropped vowel before another vowel: δι’ αὐτοῦ is διά αὐτοῦ, through him."
+          ],
+          "examples": [
+            { "t": "ἐν ἀρχῇ", "say": "en ar-KHAY", "en": "in the beginning (ι under η, not sounded)" },
+            { "t": "Ἠσαΐας", "say": "hay-sa-EE-as", "en": "Isaiah" },
+            { "t": "ἀλλ’", "say": "all", "en": "but (ἀλλά before a vowel)" }
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "Punctuation and capitals",
+          "body": [
+            "Full stops and commas look and work as in English. A raised dot (·) is a pause like a colon or semicolon. And the Greek question mark is ; — a semicolon in English eyes.",
+            "Capital letters mark names, and the start of a paragraph or a quotation, not every sentence. Quotation marks aren't used, so a capital is often the clue that someone has begun speaking."
+          ],
+          "examples": [
+            { "t": "τίς;", "say": "tis?", "en": "who?" },
+            { "t": "Ἰησοῦς", "say": "ee-ay-SOOS", "en": "Jesus (a name, so a capital)" }
+          ]
+        }
+      ]
+    },
+    {
+      "step": "practise",
+      "cards": [
+        {
+          "type": "choose",
+          "prompt": "Which word begins with an h sound?",
+          "options": ["ἡμέρα", "ἐν", "εἰμί", "ἀρχή"],
+          "answer": 0,
+          "explain": "ἡμέρα has the rough breathing ῾ : hay-ME-ra. The others have the smooth breathing ᾿ : no h."
+        },
+        {
+          "type": "choose",
+          "letters": true,
+          "prompt": "In οὐρανός the breathing mark sits on υ, not ο. Why?",
+          "options": ["ου is one sound, and the mark goes on the second vowel", "υ always has a breathing", "it shows where to stress the word", "it is a different breathing"],
+          "answer": 0,
+          "explain": "With a pair of vowels the breathing (and any accent) goes on the second vowel."
+        },
+        {
+          "type": "choose",
+          "prompt": "A Greek sentence ends with ; — what does that mean?",
+          "options": ["It's a question", "A long pause", "The end of a paragraph", "Someone starts speaking"],
+          "answer": 0,
+          "explain": "; is the Greek question mark."
+        },
+        {
+          "type": "choose",
+          "prompt": "Which syllable do you stress in ἄνθρωπος (person)?",
+          "options": ["AN-thro-pos", "an-THRO-pos", "an-thro-POS"],
+          "answer": 0,
+          "explain": "The accent sits on ἄ, so stress the first syllable. Anthropology comes from this word."
+        },
+        {
+          "type": "match",
+          "letters": true,
+          "prompt": "Match each mark to what it tells you.",
+          "pairs": [["ἡ (῾)", "say h first"], ["ἐ (᾿)", "no h"], ["ά ὰ ᾶ", "stress this syllable"], ["ᾳ ῃ ῳ", "written, not sounded"], [";", "question"]]
+        },
+        {
+          "type": "parse",
+          "prompt": "Describe the marks on ᾧ (to whom).",
+          "word": "ᾧ",
+          "fields": [
+            { "label": "Breathing", "options": ["rough: h", "smooth: no h"], "answer": "rough: h" },
+            { "label": "Accent", "options": ["acute ´", "grave `", "circumflex ῀"], "answer": "circumflex ῀" },
+            { "label": "Little ι underneath?", "options": ["yes", "no"], "answer": "yes" }
+          ],
+          "explain": "ᾧ is said hoh: the rough breathing gives the h, the circumflex marks the stress, and the ι underneath is written but not sounded."
+        }
+      ]
+    },
+    {
+      "step": "read",
+      "intro": "Read these aloud, watching the marks: h sounds, stressed syllables and punctuation.",
+      "cards": [
+        { "type": "verse", "ref": "MAT 16:15", "note": "Spot the raised dot after αὐτοῖς (“he says to them:”) and the question mark at the end: “But who do you say that I am?”" },
+        { "type": "verse", "ref": "JHN 1:3", "note": "δι’ αὐτοῦ is διά with its last vowel dropped: “all things came into being through him”." }
+      ]
+    },
+    {
+      "step": "review",
+      "cards": [
+        {
+          "type": "words",
+          "items": [
+            { "k": "G2250", "t": "ἡμέρα", "say": "hay-ME-ra", "en": "day" },
+            { "k": "G5207", "t": "υἱός", "say": "hwee-OS", "en": "son" },
+            { "k": "G0040G", "t": "ἅγιος", "say": "HA-gee-os", "en": "holy" },
+            { "k": "G4487", "t": "ῥῆμα", "say": "RAY-ma", "en": "word, saying" },
+            { "k": "G5101", "t": "τίς", "say": "tis", "en": "who? what?" },
+            { "k": "G0444", "t": "ἄνθρωπος", "say": "AN-thro-pos", "en": "person, human being" },
+            { "k": "G0235", "t": "ἀλλά", "say": "al-LA", "en": "but" },
+            { "k": "G1223", "t": "διά", "say": "dee-A", "en": "through; because of" }
+          ]
+        }
+      ]
+    }
+  ]
+}

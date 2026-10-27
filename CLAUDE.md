@@ -68,7 +68,8 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - [x] 7 (27 Oct 2026): lesson engine — five steps, 4 drill types, retries, resume, progress, review list; two taster lessons.
 - [x] 7b (27 Oct 2026): deep check — focus to Continue after answering, Back to an answered drill stays open, lesson
   signature (`sig`: steps and card counts) restarts a changed lesson cleanly, short step labels under 380px.
-- [ ] 8 Greek lessons · [ ] 9 Vocab trainer + audio
+- [x] 8 (27 Oct 2026): Greek lessons grc-1…9 (Schwandt 1–8; alphabet split in two); tables, letter cards, joined tiles.
+- [ ] 9 Vocab trainer + audio
 - [ ] 10 Hebrew lessons · [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
 
 ## Data (Session 2)
@@ -238,6 +239,18 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   capitals (Erasmian for Greek). Session 8 writes grc-1… following Schwandt; Session 10 he-1… following Wegner.
 - Leaving and re-entering the same hash doesn't re-render (router): tests reach lessons via Learn.
 
+## Greek course (Session 8)
+- Order follows Schwandt (Logos: LLS:INTROGKGRAMEXREV; TOC at app.logos.com …/references/page.v): grc-1/2 alphabet
+  (α–μ, ν–ω + vowel pairs; Schwandt 1), grc-3 breathings/accents/punctuation (2), grc-4 present active (3), grc-5 -έω
+  contract verbs (4), grc-6 second declension nom/acc (5), grc-7 article + gen/dat + prepositions (6), grc-8 neuter (7),
+  grc-9 first declension γραφή/ἡμέρα + whole article (8). Coming soon: grc-10 (Schwandt 9: δόξα, masc. 1st decl.),
+  grc-11 (10: adjectives, εἰμί). Schwandt prints Koine first with Erasmian alternatives; the app teaches Erasmian.
+- Pronunciation respelling (Erasmian): η ay, ει ay, ου oo, υ ü, ω oh, χ kh, ζ dz, ευ eu, αι ai, οι oi; stress in caps.
+- Vocabulary: high-frequency NT words fitting each topic (not Schwandt's lists); keys checked against greek-index
+  (split senses: τηρέω G5083G, κύριος G2962G, φωνή G5456G, οἶκος G3624G). Read verses chosen with tools/find_verses.py.
+- Explain cards can carry `table`; `"letters": true` skips spelling; lesson `"unattested"` lists paradigm forms
+  absent from the NT (λύεις, λύομεν); build `"join": ""` joins tiles into one word. Endings written "-ομεν" skip spelling.
+
 ## Checks
 - `python3 tools/test_app.py` (server on :8765 first) — 101 end-to-end checks; run before every push.
 - `python3 tools/test_reader_edges.py` — 28 Reader edge cases (odd links, fast switching incl. OT↔NT, offline Hebrew, focus, back button, 320px).
@@ -245,8 +258,8 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   0 issues and only 3JN 15 / REV 12:18 notes.
 - `tools/check_data.py` now has 42 checks (5 for the dictionary, 5 for the Septuagint) (incl. OT BSB alignment both ways, psalm titles, Today's verses).
 - `python3 tools/check_lessons.py` — validates every lesson (run after any lesson change).
-- `python3 tools/test_lessons.py` — 50 lesson engine checks (drills, retries, resume, scores, review list, Hebrew RTL,
-  keyboard, offline, 320px).
+- `python3 tools/test_lessons.py` — 61 lesson engine checks (drills, retries, resume, scores, review list, Hebrew RTL,
+  keyboard, offline, 320px; every written lesson finished with right answers at 320px).
 - `python3 tools/test_dictionary.py` — 51 Dictionary checks (search, entries, links both ways, offline, 320px).
 - `python3 tools/test_translations.py` — 70 ESV/Septuagint/side-by-side checks (ESV API mocked with real verse counts;
   ~12 min).

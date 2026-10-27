@@ -38,12 +38,24 @@ Any Greek or Hebrew inside English text is picked out automatically and shown in
 - `explain`: `title`, `body` (a list of short paragraphs), `examples` (optional list of `{ "t", "say", "en" }`).
   Write explanations in your own words (Logos is for checking, not copying).
 
+Explain cards can also carry a `table`: `{ "head": ["who", "ending", "λύω"], "rows": [["I", "-ω", "λύω"], …] }`
+(every row as long as the head). Write endings and stems with a hyphen (`-ομεν`, `πιστεύ-`): the checker skips them.
+
+### Spelling exceptions
+
+- `"letters": true` on a card: it is about single letters, letter pairs or sounds, so its Greek/Hebrew isn't spell-checked.
+- `"unattested": ["λύεις", "λύομεν"]` at the top of a lesson: textbook forms that happen not to occur in the Bible. The
+  checker complains if a listed form does occur, so the list stays honest.
+- Find verses for the Read step with `python3 tools/find_verses.py <lesson id> [extra keys…]`: it ranks New Testament
+  verses by how many of their words the learner knows by the end of that lesson.
+
 ### Practise (`practise`), at least three drills
 
 - `choose`: `prompt`, `options`, `answer` (the index of the right option, counted from 0), `explain`.
   Options are shuffled on screen. Add `"fragments": true` if the options are parts of words on purpose.
 - `match`: `prompt`, `pairs` (`[["λόγος", "word"], …]`). Both columns are shuffled.
 - `build`: `prompt`, `tiles` in the right order, `explain`. The tiles are shuffled; Hebrew runs right to left.
+  Add `"join": ""` when the tiles make one word (letters, or stem + ending): they're spelt and shown joined.
 - `parse`: `prompt`, `word`, `fields` (`{ "label", "options", "answer" }`), `explain`.
 
 A drill missed the first time comes back once at the end of the practice ("Have another go"). The score on the

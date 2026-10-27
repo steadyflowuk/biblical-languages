@@ -79,11 +79,13 @@ async def main():
         await pg.evaluate("localStorage.clear()")
         await pg.reload()
         await pg.wait_for_selector(".path li")
+        IX = json.load(open("/home/claude/biblical-languages/lessons/index.json"))
+        n_all, n_soon = len(IX["grc"]), sum(1 for e in IX["grc"] if not e.get("file"))
         items = await pg.locator(".path li").count()
-        check("Learn: Greek path from the lesson index (7 entries, first one ready)", items == 7
-              and await pg.locator('.path li.next a[href="#/lesson/grc/grc-0"]').count() == 1, str(items))
+        check("Learn: Greek path from the lesson index, first one ready", items == n_all
+              and await pg.locator('.path li.next a[href="#/lesson/grc/grc-0"]').count() == 1, f"{items} vs {n_all}")
         check("Learn: lessons not written yet say 'Coming soon' and aren't links",
-              await pg.locator(".path li.soon").count() == 6 and await pg.locator(".path li.soon a").count() == 0)
+              await pg.locator(".path li.soon").count() == n_soon and await pg.locator(".path li.soon a").count() == 0)
         await pg.click("[data-lang=he]")
         await pg.wait_for_selector('a[href="#/lesson/he/he-0"]')
         await pg.reload()
@@ -222,9 +224,10 @@ async def main():
 
         # 7. Today and Review
         await pg.goto(f"{BASE}#/today")
-        await pg.wait_for_function("document.querySelector('.today-lesson')?.textContent.includes('every Greek lesson')", timeout=5000)
-        check("Today: all Greek lessons done so far; 8 words in the review list",
-              "8 words in your review list" in await pg.locator(".today-review").inner_text())
+        await pg.wait_for_function("document.querySelector('.today-lesson a[href=\"#/lesson/grc/grc-1\"]')", timeout=5000)
+        check("Today: the next Greek lesson is the alphabet; 8 words in the review list",
+              "alphabet" in await pg.locator(".today-lesson").inner_text()
+              and "8 words in your review list" in await pg.locator(".today-review").inner_text())
         await pg.goto(f"{BASE}#/review")
         await pg.wait_for_selector(".rows .row")
         check("Review: lists the 8 words, each linking to its dictionary entry",
@@ -273,7 +276,7 @@ async def main():
               and await pg.locator('.ls-steps li[aria-current="step"] .ls-step-full').inner_text() == "Hear and see")
 
         # 10. Odd links
-        await pg.goto(f"{BASE}#/lesson/grc/grc-9")
+        await pg.goto(f"{BASE}#/lesson/grc/grc-10")
         await pg.wait_for_selector(".note")
         check("A lesson that isn't written yet: friendly message", "isn't ready yet" in await pg.locator(".note").inner_text())
         await pg.goto(f"{BASE}#/lesson/xx/yy")
@@ -315,6 +318,41 @@ async def main():
         await pg2.wait_for_selector(".ls-card .ls-title", timeout=10000)
         check("Offline: a lesson never opened before still opens (saved with the app)", await pg2.locator(".ls-card .ls-title").count() == 1)
         await ctx2.close()
+
+        # 13. Every written lesson can be finished with the right answers, fits a 320px phone, and has no errors
+        index = json.load(open("/home/claude/biblical-languages/lessons/index.json"))
+        await pg.set_viewport_size({"width": 320, "height": 640})
+        for lang, entries in index.items():
+            for e in entries:
+                if not e.get("file"):
+                    continue
+                L = json.load(open("/home/claude/biblical-languages/" + e["file"]))
+                await pg.goto(f"{BASE}#/learn")
+                await pg.wait_for_selector(".path li")
+                await pg.evaluate(f"localStorage.setItem('ao:learnLang', JSON.stringify('{lang}'))")
+                await pg.reload()
+                await pg.wait_for_selector(f'a[href="#/lesson/{lang}/{e["id"]}"]')
+                await pg.click(f'a[href="#/lesson/{lang}/{e["id"]}"]')
+                await pg.wait_for_selector(".ls-card .ls-title, .ls-card .ls-big")
+                wide, stuck = [], False
+                for _ in range(80):
+                    k = await kind(pg)
+                    if k == "verse":
+                        await pg.wait_for_selector(".ls-vw, .ls-verse .note, .ls-card .note", timeout=10000)
+                    if await pg.evaluate("document.documentElement.scrollWidth") > 320:
+                        wide.append(k)
+                    if k in ("choose", "match", "build", "parse"):
+                        await answer(pg, L)
+                        if "Right." not in await pg.locator(".ls-feedback").inner_text():
+                            stuck = f"{k}: {await title(pg)}"
+                            break
+                    label = await pg.locator("[data-next]").inner_text()
+                    await go_next(pg)
+                    if label.startswith("Finish"):
+                        break
+                done = await pg.locator(".ls-done").count() == 1 and "right first time" in await pg.locator(".ls-done").inner_text()
+                check(f"{e['id']}: finished with every answer right, fits 320px", done and not wide and not stuck, f"{stuck} {wide}")
+        await pg.set_viewport_size({"width": 390, "height": 844})
 
         check("no console errors", not errs, "; ".join(errs[:4]))
         await b.close()

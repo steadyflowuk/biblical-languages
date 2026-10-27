@@ -785,3 +785,15 @@ ol.rows { list-style: none; padding: 0; }
 .ls-done { text-align: center; padding-top: 10px; }
 .ls-done .ls-picture { color: var(--sage-ink); font-weight: 700; font-family: var(--font-ui); }
 .ls-done-actions { display: grid; gap: 10px; max-width: 24rem; margin: 20px auto 0; }
+
+/* Lesson tables (verb endings, noun patterns) and words built from pieces */
+.ls-table-wrap { overflow-x: auto; margin: 14px 0 0; }
+.ls-table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.ls-table caption { text-align: left; font-weight: 700; padding: 0 0 6px; }
+.ls-table th, .ls-table td { padding: 8px 12px; border-top: 1px solid var(--line); text-align: left; vertical-align: baseline; }
+.ls-table thead th { border-top: 0; font-size: .85rem; color: var(--muted); font-weight: 700; }
+.ls-table td:lang(grc), .ls-table th:lang(grc) { font-family: var(--font-greek); font-size: 1.2rem; }
+.ls-table td:lang(he), .ls-table th:lang(he) { font-family: var(--font-hebrew); font-size: 1.35rem; text-align: right; }
+.ls-table .t-grc { font-size: 1.15em; }
+.ls-line.joined { gap: 2px; }
+.ls-line.joined .ls-tile { padding-left: 8px; padding-right: 8px; }

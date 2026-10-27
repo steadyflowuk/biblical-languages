@@ -1,0 +1,161 @@
+{
+  "id": "grc-7",
+  "lang": "grc",
+  "title": "The article, and the genitive and dative",
+  "steps": [
+    {
+      "step": "hear",
+      "intro": "Two more endings carry the little English words “of” and “to”. Listen for -ου and -ῳ, and the small words in front: ἐν, εἰς, ἐκ.",
+      "cards": [
+        { "type": "scene", "picture": "📖", "text": "ὁ λόγος τοῦ θεοῦ", "say": "ho LO-gos too the-OO", "en": "the word of God" },
+        { "type": "scene", "picture": "🏠", "text": "ἐν τῷ οἴκῳ", "say": "en toh OI-koh", "en": "in the house" },
+        { "type": "scene", "picture": "🚪", "text": "εἰς τὸν οἶκον", "say": "ays ton OI-kon", "en": "into the house" },
+        { "type": "scene", "picture": "☁️", "text": "ἐκ τοῦ οὐρανοῦ", "say": "ek too oo-ra-NOO", "en": "out of heaven, from heaven" },
+        { "type": "scene", "picture": "🗣️", "text": "λέγει τοῖς ἀδελφοῖς", "say": "LE-gay tois a-del-FOIS", "en": "he says to the brothers" },
+        { "type": "scene", "picture": "👥", "text": "μετὰ τῶν δούλων", "say": "me-TA tohn DOO-lohn", "en": "with the servants" }
+      ]
+    },
+    {
+      "step": "notice",
+      "cards": [
+        {
+          "type": "explain",
+          "title": "Four jobs, four sets of endings",
+          "body": [
+            "You know the subject and object endings. Two more cases complete the set: the genitive, which usually means “of” (or “from”), and the dative, which usually means “to” or “for” (and sometimes “in” or “with”).",
+            "In the dative singular, ῳ has an iota written underneath: that little ι is how you spot it."
+          ],
+          "table": {
+            "head": ["case and job", "one", "more than one"],
+            "rows": [
+              ["nominative: subject", "λόγος", "λόγοι"],
+              ["genitive: of", "λόγου", "λόγων"],
+              ["dative: to, for", "λόγῳ", "λόγοις"],
+              ["accusative: object", "λόγον", "λόγους"]
+            ]
+          }
+        },
+        {
+          "type": "explain",
+          "title": "The article in all four cases",
+          "body": [
+            "The article follows its noun into every case, so it is often the quickest clue to what a noun is doing. A genitive often comes straight after the noun it describes: ὁ λόγος τοῦ θεοῦ, the word of God."
+          ],
+          "table": {
+            "head": ["case", "one", "more than one"],
+            "rows": [
+              ["nominative", "ὁ λόγος", "οἱ λόγοι"],
+              ["genitive", "τοῦ λόγου", "τῶν λόγων"],
+              ["dative", "τῷ λόγῳ", "τοῖς λόγοις"],
+              ["accusative", "τὸν λόγον", "τοὺς λόγους"]
+            ]
+          }
+        },
+        {
+          "type": "explain",
+          "title": "Prepositions choose a case",
+          "body": [
+            "Small words like in, into and from are prepositions. In Greek, each one is followed by a noun in a particular case, so the case helps you tell them apart.",
+            "ἐκ becomes ἐξ before a vowel, as in ἐξ οὐρανοῦ."
+          ],
+          "examples": [
+            { "t": "ἐν τῷ οἴκῳ", "say": "en toh OI-koh", "en": "in the house (ἐν + dative)" },
+            { "t": "εἰς τὸν οἶκον", "say": "ays ton OI-kon", "en": "into the house (εἰς + accusative)" },
+            { "t": "ἐκ τοῦ οἴκου", "say": "ek too OI-koo", "en": "out of the house (ἐκ + genitive)" },
+            { "t": "ἀπὸ τοῦ κυρίου", "say": "a-PO too kü-REE-oo", "en": "from the Lord (ἀπό + genitive)" },
+            { "t": "μετὰ τῶν ἀδελφῶν", "say": "me-TA tohn a-del-FOHN", "en": "with the brothers (μετά + genitive)" },
+            { "t": "πρὸς τὸν κύριον", "say": "pros ton KÜ-ree-on", "en": "to, towards the Lord (πρός + accusative)" }
+          ]
+        }
+      ]
+    },
+    {
+      "step": "practise",
+      "cards": [
+        {
+          "type": "choose",
+          "prompt": "What does ὁ λόγος τοῦ θεοῦ mean?",
+          "options": ["the word of God", "God's words to us", "God speaks the word", "the word to God"],
+          "answer": 0,
+          "explain": "τοῦ θεοῦ is genitive: “of God”."
+        },
+        {
+          "type": "choose",
+          "prompt": "Which preposition means “into”?",
+          "options": ["εἰς", "ἐν", "ἐκ", "ἀπό"],
+          "answer": 0,
+          "explain": "εἰς, into (with the accusative). ἐν is in, ἐκ out of, ἀπό from."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each ending to its case.",
+          "pairs": [["-ου", "of (genitive), one"], ["-ῳ", "to, for (dative), one"], ["-ων", "of (genitive), more than one"], ["-οις", "to, for (dative), more than one"]]
+        },
+        {
+          "type": "parse",
+          "prompt": "Describe τοῖς ἀδελφοῖς.",
+          "word": "τοῖς ἀδελφοῖς",
+          "fields": [
+            { "label": "Case", "options": ["nominative: subject", "genitive: of", "dative: to, for", "accusative: object"], "answer": "dative: to, for" },
+            { "label": "How many?", "options": ["one", "more than one"], "answer": "more than one" }
+          ],
+          "explain": "-οις is dative plural: “to the brothers”."
+        },
+        {
+          "type": "parse",
+          "prompt": "Describe τοῦ οὐρανοῦ.",
+          "word": "τοῦ οὐρανοῦ",
+          "fields": [
+            { "label": "Case", "options": ["nominative: subject", "genitive: of", "dative: to, for", "accusative: object"], "answer": "genitive: of" },
+            { "label": "How many?", "options": ["one", "more than one"], "answer": "one" }
+          ],
+          "explain": "-ου is genitive singular: “of heaven”, or “from heaven” after ἐκ."
+        },
+        {
+          "type": "choose",
+          "prompt": "ἐν ___ οἴκῳ: which article fits?",
+          "options": ["τῷ", "τόν", "τοῦ", "ὁ"],
+          "answer": 0,
+          "explain": "ἐν takes the dative, and οἴκῳ is dative, so the article is τῷ: ἐν τῷ οἴκῳ, in the house."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each preposition to its meaning.",
+          "pairs": [["ἐν", "in"], ["εἰς", "into"], ["ἐκ", "out of"], ["ἀπό", "away from"], ["μετά", "with"]]
+        },
+        {
+          "type": "build",
+          "prompt": "Write “out of the house”.",
+          "tiles": ["ἐκ", "τοῦ", "οἴκου"],
+          "explain": "ἐκ takes the genitive: ἐκ τοῦ οἴκου."
+        }
+      ]
+    },
+    {
+      "step": "read",
+      "intro": "Look for -ου (of), -ῳ and -οις (to, for), and the case after each preposition.",
+      "cards": [
+        { "type": "verse", "ref": "JHN 6:33", "note": "ὁ ἄρτος τοῦ θεοῦ, “the bread of God”, and ἐκ τοῦ οὐρανοῦ, “out of heaven”." },
+        { "type": "verse", "ref": "LUK 2:14", "note": "The angels' song. θεῷ is dative, “to God”; ἐν ἀνθρώποις is “among people”." }
+      ]
+    },
+    {
+      "step": "review",
+      "cards": [
+        {
+          "type": "words",
+          "items": [
+            { "k": "G1519", "t": "εἰς", "say": "ays", "en": "into, to (+ accusative)" },
+            { "k": "G1537", "t": "ἐκ", "say": "ek", "en": "out of, from (+ genitive; ἐξ before a vowel)" },
+            { "k": "G0575", "t": "ἀπό", "say": "a-PO", "en": "(away) from (+ genitive)" },
+            { "k": "G3326", "t": "μετά", "say": "me-TA", "en": "with (+ genitive); after (+ accusative)" },
+            { "k": "G3624G", "t": "οἶκος", "say": "OI-kos", "en": "house, home" },
+            { "k": "G2992", "t": "λαός", "say": "la-OS", "en": "people, nation" },
+            { "k": "G2362", "t": "θρόνος", "say": "THRO-nos", "en": "throne" },
+            { "k": "G2246", "t": "ἥλιος", "say": "HAY-lee-os", "en": "sun" }
+          ]
+        }
+      ]
+    }
+  ]
+}

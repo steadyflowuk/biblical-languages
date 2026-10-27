@@ -22,6 +22,7 @@ CARDS = {
 GREEK = re.compile("[Ͱ-Ͽἀ-῿]")
 HEBREW = re.compile("[א-ת]")
 problems = []
+SKIP_SPELL = False
 
 
 def load(path):
@@ -76,11 +77,16 @@ for lang, f in (("grc", "greek-index.json"), ("he", "hebrew-index.json")):
         (greek_forms if lang == "grc" else hebrew_forms).add(greek_key(e[1]) if lang == "grc" else hebrew_key(e[1]))
 
 
+ALLOWED = set()  # per lesson: textbook forms that don't happen to occur in the Bible (lesson "unattested" list)
+
+
 def spell(where, text, lang):
     """Every Greek/Hebrew word in text must be written as in the Bible (or be a dictionary form)."""
-    for tok in re.split(r"[\s,.;:·()“”‘’!?—–׃־\"]+", text or ""):
-        if not tok:
-            continue
+    if SKIP_SPELL:
+        return
+    for tok in re.split(r"[\s,.;:·()“”‘’!?—–׃־\"/=+…]+", text or ""):
+        if not tok or tok in ALLOWED or tok.startswith("-") or tok.endswith("-"):
+            continue  # "-ομεν", "πιστευ-": endings and stems written as such
         if lang == "grc" and GREEK.search(tok) and greek_key(tok) not in greek_forms:
             bad(where, f"Greek word not found as written in the Bible: {tok}")
         if lang == "he" and HEBREW.search(tok) and hebrew_key(tok) not in hebrew_forms:
@@ -114,6 +120,11 @@ for lang, entries in lesson_index.items():
             bad(lid, f"missing file {f}")
             continue
         L = load(path)
+        ALLOWED.clear()
+        for f in L.get("unattested", []):
+            ALLOWED.add(f)
+            if lang == "grc" and greek_key(f) in greek_forms:
+                bad(lid, f"{f} is listed as unattested but does occur in the Bible: remove it from the list")
         if L.get("id") != lid or L.get("lang") != lang:
             bad(lid, f"file says id {L.get('id')} / lang {L.get('lang')}")
         steps = [s.get("step") for s in L.get("steps", [])]
@@ -127,6 +138,7 @@ for lang, entries in lesson_index.items():
             for i, c in enumerate(s.get("cards", [])):
                 w = f"{lid} {st} card {i + 1} ({c.get('type')})"
                 t = c.get("type")
+                SKIP_SPELL = bool(c.get("letters"))  # "letters": true — cards about single letters and sounds
                 if t not in CARDS.get(st, set()):
                     bad(w, f"card type {t} doesn't belong in step {st}")
                     continue
@@ -144,6 +156,13 @@ for lang, entries in lesson_index.items():
                         if not (ex.get("t") and ex.get("en")):
                             bad(w, "each example needs t and en")
                         spell(w, ex.get("t"), lang)
+                    tb = c.get("table")
+                    if tb:
+                        if not tb.get("rows") or any(len(r) != len(tb.get("head") or tb["rows"][0]) for r in tb["rows"]):
+                            bad(w, "table rows must all have as many cells as the head")
+                        for r in tb.get("rows", []):
+                            for x in r:
+                                spell(w, x, lang)
                 elif t == "choose":
                     drills += 1
                     opts = c.get("options", [])
@@ -170,7 +189,7 @@ for lang, entries in lesson_index.items():
                         bad(w, "needs at least two tiles")
                     if not c.get("prompt") or not c.get("explain"):
                         bad(w, "needs a prompt and an explain")
-                    spell(w, " ".join(tiles), lang)
+                    spell(w, "".join(tiles) if c.get("join") == "" else " ".join(tiles), lang)
                 elif t == "parse":
                     drills += 1
                     if not c.get("word") or not c.get("fields") or not c.get("explain"):

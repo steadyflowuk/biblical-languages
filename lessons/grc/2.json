@@ -1,0 +1,178 @@
+{
+  "id": "grc-2",
+  "lang": "grc",
+  "title": "The alphabet, part 2: ν to ω",
+  "steps": [
+    {
+      "step": "hear",
+      "intro": "Twelve more letters and you can sound out any word in the New Testament. Read each word aloud with the guide.",
+      "cards": [
+        { "type": "scene", "picture": "🍞", "text": "ἄρτος", "say": "AR-tos", "en": "bread" },
+        { "type": "scene", "picture": "💧", "text": "ὕδωρ", "say": "HÜ-dohr", "en": "water (think of hydro-)" },
+        { "type": "scene", "picture": "💡", "text": "φῶς", "say": "fohs", "en": "light (think of photo)" },
+        { "type": "scene", "picture": "🔥", "text": "πῦρ", "say": "pür", "en": "fire (think of pyre)" },
+        { "type": "scene", "picture": "⛰️", "text": "ὄρος", "say": "O-ros", "en": "mountain" },
+        { "type": "scene", "picture": "⛵", "text": "πλοῖον", "say": "PLOI-on", "en": "boat" },
+        { "type": "scene", "picture": "☁️", "text": "οὐρανός", "say": "oo-ra-NOS", "en": "heaven, sky" },
+        { "type": "scene", "picture": "👼", "text": "ἄγγελος", "say": "ANG-ge-los", "en": "angel, messenger" }
+      ]
+    },
+    {
+      "step": "notice",
+      "cards": [
+        {
+          "type": "explain",
+          "letters": true,
+          "title": "Six more letters",
+          "body": [
+            "Sigma has two small forms: σ at the start or in the middle of a word, ς at the very end. They are the same letter.",
+            "You'll see small marks over many letters. The next lesson explains them all; for now, ‘ over a first vowel means add an h, as in ὕδωρ, HÜ-dohr."
+          ],
+          "examples": [
+            { "t": "Ν ν", "say": "nü", "en": "n" },
+            { "t": "Ξ ξ", "say": "ksee", "en": "x as in fox" },
+            { "t": "Ο ο", "say": "O-mi-kron", "en": "o as in lot" },
+            { "t": "Π π", "say": "pee", "en": "p" },
+            { "t": "Ρ ρ", "say": "roh", "en": "r" },
+            { "t": "Σ σ ς", "say": "SIG-ma", "en": "s (ς at the end of a word)" }
+          ]
+        },
+        {
+          "type": "explain",
+          "letters": true,
+          "title": "The last six",
+          "body": [
+            "ο and ω are both o: ο is short (micro, small) and ω long (mega, great). Their names say so: o-micron and o-mega."
+          ],
+          "examples": [
+            { "t": "Τ τ", "say": "tau", "en": "t" },
+            { "t": "Υ υ", "say": "Ü-psi-lon", "en": "ü as in French tu (or simply oo)" },
+            { "t": "Φ φ", "say": "fee", "en": "f (written ph in English words)" },
+            { "t": "Χ χ", "say": "khee", "en": "kh as in Scottish loch" },
+            { "t": "Ψ ψ", "say": "psee", "en": "ps as in lips" },
+            { "t": "Ω ω", "say": "o-MAY-ga", "en": "o as in tone" }
+          ]
+        },
+        {
+          "type": "explain",
+          "letters": true,
+          "title": "More letters that fool English eyes",
+          "body": [
+            "ν is n, not v. ρ is r, not p. χ is kh, not x. ω is a long o, not w. If a word looks odd, check these four first."
+          ],
+          "examples": [
+            { "t": "ν", "say": "n", "en": "not v" },
+            { "t": "ρ", "say": "r", "en": "not p" },
+            { "t": "χ", "say": "kh", "en": "not x" },
+            { "t": "ω", "say": "o", "en": "not w" }
+          ]
+        },
+        {
+          "type": "explain",
+          "letters": true,
+          "title": "Pairs of vowels",
+          "body": [
+            "Some pairs of vowels make one sound together. ου is the commonest: οὐρανός is oo-ra-NOS.",
+            "Two gammas together (γγ) sound ng, as in ἄγγελος, ANG-ge-los. That's where English “angel” comes from."
+          ],
+          "examples": [
+            { "t": "ου", "say": "oo", "en": "as in food" },
+            { "t": "αι", "say": "ai", "en": "as in aisle" },
+            { "t": "ει", "say": "ay", "en": "as in eight" },
+            { "t": "οι", "say": "oi", "en": "as in oil" },
+            { "t": "αυ", "say": "ow", "en": "as in how" },
+            { "t": "ευ", "say": "eu", "en": "as in feud" },
+            { "t": "γγ", "say": "ng", "en": "as in angel" }
+          ]
+        }
+      ]
+    },
+    {
+      "step": "practise",
+      "cards": [
+        {
+          "type": "choose",
+          "letters": true,
+          "prompt": "Which form of sigma is used at the end of a word?",
+          "options": ["ς", "σ", "ζ", "ξ"],
+          "answer": 0,
+          "explain": "ς is sigma at the end of a word; σ everywhere else."
+        },
+        {
+          "type": "choose",
+          "letters": true,
+          "prompt": "ρ looks like an English p. What sound does it make?",
+          "options": ["r", "p", "ph", "b"],
+          "answer": 0,
+          "explain": "ρ (rho) is r. Greek p is π."
+        },
+        {
+          "type": "match",
+          "letters": true,
+          "prompt": "Match each letter to its sound.",
+          "pairs": [["ν", "n"], ["ξ", "x (ks)"], ["π", "p"], ["ρ", "r"], ["τ", "t"], ["ψ", "ps"]]
+        },
+        {
+          "type": "match",
+          "letters": true,
+          "prompt": "And these.",
+          "pairs": [["ο", "o (lot)"], ["ω", "o (tone)"], ["υ", "ü"], ["φ", "f"], ["χ", "kh"], ["σ", "s"]]
+        },
+        {
+          "type": "match",
+          "letters": true,
+          "prompt": "Match each pair of vowels to its sound.",
+          "pairs": [["ου", "oo (food)"], ["αι", "ai (aisle)"], ["ει", "ay (eight)"], ["οι", "oi (oil)"]]
+        },
+        {
+          "type": "choose",
+          "prompt": "How do you say οὐρανός (heaven)?",
+          "options": ["oo-ra-NOS", "oh-ra-NOS", "ow-ra-NOS", "ü-ra-NOS"],
+          "answer": 0,
+          "explain": "ου together is oo: oo-ra-NOS. Uranus, the planet, is named after it."
+        },
+        {
+          "type": "build",
+          "prompt": "Spell ἄρτος (bread).",
+          "tiles": ["ἄ", "ρ", "τ", "ο", "ς"],
+          "join": "",
+          "explain": "ἄ-ρ-τ-ο-ς, with the end-of-word sigma ς."
+        },
+        {
+          "type": "build",
+          "prompt": "Spell φῶς (light).",
+          "tiles": ["φ", "ῶ", "ς"],
+          "join": "",
+          "explain": "φ-ῶ-ς: fohs."
+        }
+      ]
+    },
+    {
+      "step": "read",
+      "intro": "You now know every letter. Sound out each word slowly, then tap it to check its meaning.",
+      "cards": [
+        { "type": "verse", "ref": "JHN 6:35", "note": "Jesus says: Ἐγώ εἰμι ὁ ἄρτος τῆς ζωῆς, “I am the bread of life”." },
+        { "type": "verse", "ref": "JHN 1:4", "note": "ζωή is life and φῶς is light: “In him was life, and the life was the light of men.”" }
+      ]
+    },
+    {
+      "step": "review",
+      "cards": [
+        {
+          "type": "words",
+          "items": [
+            { "k": "G0740", "t": "ἄρτος", "say": "AR-tos", "en": "bread" },
+            { "k": "G5204", "t": "ὕδωρ", "say": "HÜ-dohr", "en": "water" },
+            { "k": "G5457", "t": "φῶς", "say": "fohs", "en": "light" },
+            { "k": "G4442", "t": "πῦρ", "say": "pür", "en": "fire" },
+            { "k": "G3735", "t": "ὄρος", "say": "O-ros", "en": "mountain" },
+            { "k": "G4143", "t": "πλοῖον", "say": "PLOI-on", "en": "boat" },
+            { "k": "G3772", "t": "οὐρανός", "say": "oo-ra-NOS", "en": "heaven, sky" },
+            { "k": "G0032G", "t": "ἄγγελος", "say": "ANG-ge-los", "en": "angel, messenger" },
+            { "k": "G2222", "t": "ζωή", "say": "dzoh-AY", "en": "life" }
+          ]
+        }
+      ]
+    }
+  ]
+}

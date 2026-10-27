@@ -1,0 +1,137 @@
+{
+  "id": "grc-8",
+  "lang": "grc",
+  "title": "Neuter nouns",
+  "steps": [
+    {
+      "step": "hear",
+      "intro": "Some -ον nouns are neither masculine nor feminine: they are neuter. Listen for τό and τά, the neuter “the”.",
+      "cards": [
+        { "type": "scene", "picture": "🔨", "text": "τὸ ἔργον", "say": "to ER-gon", "en": "the work" },
+        { "type": "scene", "picture": "👧", "text": "τὰ τέκνα", "say": "ta TEK-na", "en": "the children" },
+        { "type": "scene", "picture": "📣", "text": "τὸ εὐαγγέλιον", "say": "to eu-ang-GE-lee-on", "en": "the good news, the gospel" },
+        { "type": "scene", "picture": "🏛️", "text": "ἐν τῷ ἱερῷ", "say": "en toh hee-e-ROH", "en": "in the temple" },
+        { "type": "scene", "picture": "📜", "text": "τὸ βιβλίον", "say": "to bib-LEE-on", "en": "the book, the scroll" },
+        { "type": "scene", "picture": "🐑", "text": "τὰ πρόβατα ἀκούει.", "say": "ta PRO-ba-ta a-KOO-ay", "en": "The sheep hear. (a singular verb!)" }
+      ]
+    },
+    {
+      "step": "notice",
+      "cards": [
+        {
+          "type": "explain",
+          "title": "The neuter pattern",
+          "body": [
+            "Neuter nouns like ἔργον follow λόγος in the “of” and “to” cases. The difference: the subject and object forms are the same. One: -ον; more than one: -α.",
+            "So in τὸ τέκνον βλέπει τὸ πλοῖον, the endings can't tell you who sees what. Word order and common sense do: the child sees the boat."
+          ],
+          "table": {
+            "head": ["case", "one", "more than one"],
+            "rows": [
+              ["nominative: subject", "τὸ ἔργον", "τὰ ἔργα"],
+              ["genitive: of", "τοῦ ἔργου", "τῶν ἔργων"],
+              ["dative: to, for", "τῷ ἔργῳ", "τοῖς ἔργοις"],
+              ["accusative: object", "τὸ ἔργον", "τὰ ἔργα"]
+            ]
+          }
+        },
+        {
+          "type": "explain",
+          "title": "Grammar gender, not real gender",
+          "body": [
+            "τέκνον (child) and παιδίον (little child) are neuter, though children are boys and girls. Gender here is part of the word, like its spelling: learn each noun with its article, τὸ τέκνον.",
+            "A surprise: when the subject is a neuter plural, the verb is often singular. τὰ πρόβατα ἀκούει, “the sheep hear”, uses the “he, she, it” ending. Read it as plural anyway."
+          ],
+          "examples": [
+            { "t": "τὸ τέκνον", "say": "to TEK-non", "en": "the child (neuter)" },
+            { "t": "τὰ πρόβατα ἀκούει", "say": "ta PRO-ba-ta a-KOO-ay", "en": "the sheep hear" }
+          ]
+        }
+      ]
+    },
+    {
+      "step": "practise",
+      "cards": [
+        {
+          "type": "choose",
+          "prompt": "What does τὰ ἔργα mean?",
+          "options": ["the works", "the work", "of the works", "to the work"],
+          "answer": 0,
+          "explain": "-α is the neuter plural: τὰ ἔργα, the works."
+        },
+        {
+          "type": "choose",
+          "prompt": "Which article goes with βιβλίον as a subject?",
+          "options": ["τό", "ὁ", "τόν", "τά"],
+          "answer": 0,
+          "explain": "βιβλίον is neuter and singular: τὸ βιβλίον."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each neuter ending to its job.",
+          "pairs": [["-ον", "subject or object, one"], ["-α", "subject or object, more than one"], ["-ου", "of, one"], ["-ῳ", "to, for, one"]]
+        },
+        {
+          "type": "parse",
+          "prompt": "Describe τῶν ἔργων.",
+          "word": "τῶν ἔργων",
+          "fields": [
+            { "label": "Case", "options": ["subject or object", "genitive: of", "dative: to, for"], "answer": "genitive: of" },
+            { "label": "How many?", "options": ["one", "more than one"], "answer": "more than one" }
+          ],
+          "explain": "-ων is genitive plural, the same for every gender: “of the works”."
+        },
+        {
+          "type": "parse",
+          "prompt": "Describe τὰ σημεῖα.",
+          "word": "τὰ σημεῖα",
+          "fields": [
+            { "label": "Case", "options": ["subject or object", "genitive: of", "dative: to, for"], "answer": "subject or object" },
+            { "label": "How many?", "options": ["one", "more than one"], "answer": "more than one" },
+            { "label": "Gender", "options": ["masculine", "neuter"], "answer": "neuter" }
+          ],
+          "explain": "τά and -α mark a neuter plural, either subject or object: “the signs”. The sentence decides which."
+        },
+        {
+          "type": "choose",
+          "prompt": "τὰ τέκνα ἀκούει τὸν λόγον. What does it mean?",
+          "options": ["The children hear the word.", "The child hears the word.", "The word hears the children."],
+          "answer": 0,
+          "explain": "τὰ τέκνα is plural; with a neuter plural subject the verb is often singular, so ἀκούει still means “they hear”."
+        },
+        {
+          "type": "build",
+          "prompt": "Write “the works of God”.",
+          "tiles": ["τὰ", "ἔργα", "τοῦ", "θεοῦ"],
+          "explain": "τὰ ἔργα, then the genitive τοῦ θεοῦ, “of God”."
+        }
+      ]
+    },
+    {
+      "step": "read",
+      "intro": "Look for τό and τά, and for neuter plurals with singular verbs.",
+      "cards": [
+        { "type": "verse", "ref": "MRK 1:1", "note": "The first words of Mark: Ἀρχὴ τοῦ εὐαγγελίου, “the beginning of the gospel”, with εὐαγγελίου in the genitive." },
+        { "type": "verse", "ref": "JHN 10:3", "note": "τὰ πρόβατα… ἀκούει: the sheep (plural) hear (singular verb), just as in this lesson." }
+      ]
+    },
+    {
+      "step": "review",
+      "cards": [
+        {
+          "type": "words",
+          "items": [
+            { "k": "G2041", "t": "ἔργον", "say": "ER-gon", "en": "work, deed" },
+            { "k": "G5043", "t": "τέκνον", "say": "TEK-non", "en": "child" },
+            { "k": "G2098", "t": "εὐαγγέλιον", "say": "eu-ang-GE-lee-on", "en": "good news, gospel" },
+            { "k": "G2411", "t": "ἱερόν", "say": "hee-e-RON", "en": "temple" },
+            { "k": "G0975", "t": "βιβλίον", "say": "bib-LEE-on", "en": "book, scroll" },
+            { "k": "G4263", "t": "πρόβατον", "say": "PRO-ba-ton", "en": "sheep" },
+            { "k": "G4592", "t": "σημεῖον", "say": "say-MAY-on", "en": "sign, miracle" },
+            { "k": "G3813", "t": "παιδίον", "say": "pai-DEE-on", "en": "little child" }
+          ]
+        }
+      ]
+    }
+  ]
+}

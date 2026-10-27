@@ -1,0 +1,145 @@
+{
+  "id": "grc-4",
+  "lang": "grc",
+  "title": "Present verbs",
+  "unattested": ["λύεις", "λύομεν"],
+  "steps": [
+    {
+      "step": "hear",
+      "intro": "One Greek word can say “we believe” or “they have”: the ending tells you who. Read each aloud and notice how the ends change.",
+      "cards": [
+        { "type": "scene", "picture": "👀", "text": "βλέπω.", "say": "BLE-poh", "en": "I see." },
+        { "type": "scene", "picture": "👂", "text": "ἀκούεις.", "say": "a-KOO-ays", "en": "You hear. (one person)" },
+        { "type": "scene", "picture": "✍️", "text": "γράφει.", "say": "GRA-fay", "en": "He writes. (or she, or it)" },
+        { "type": "scene", "picture": "🙏", "text": "πιστεύομεν.", "say": "pis-TEU-o-men", "en": "We believe." },
+        { "type": "scene", "picture": "🗣️", "text": "λέγετε.", "say": "LE-ge-te", "en": "You say. (more than one person)" },
+        { "type": "scene", "picture": "🍞", "text": "ἔχουσιν ἄρτον.", "say": "E-khoo-sin AR-ton", "en": "They have bread." }
+      ]
+    },
+    {
+      "step": "notice",
+      "cards": [
+        {
+          "type": "explain",
+          "title": "The ending tells you who",
+          "body": [
+            "A Greek verb is a stem plus an ending. The stem gives the meaning (λυ-, loose); the ending says who is doing it. So Greek doesn't need a separate word for I, you or they.",
+            "Learn these six endings: they appear on thousands of verbs."
+          ],
+          "table": {
+            "head": ["who", "ending", "λύω, I loose"],
+            "rows": [
+              ["I", "-ω", "λύω"],
+              ["you (one)", "-εις", "λύεις"],
+              ["he, she, it", "-ει", "λύει"],
+              ["we", "-ομεν", "λύομεν"],
+              ["you (more than one)", "-ετε", "λύετε"],
+              ["they", "-ουσιν", "λύουσιν"]
+            ]
+          }
+        },
+        {
+          "type": "explain",
+          "title": "What the present means",
+          "body": [
+            "The present describes an action as going on: λύω is “I loose” or “I am loosing”. Pick whichever sounds natural in English.",
+            "Dictionaries list a verb by its “I” form: look up λύω, not λύει. That's also why the word lists in this app give “I see” forms.",
+            "The “they” ending is sometimes -ουσι, without the ν, when the next word starts with a consonant. It's the same ending.",
+            "οὐ means not, and stands before the verb: οὐ βλέπω, I do not see. Before a vowel it becomes οὐκ, and before a rough breathing οὐχ."
+          ],
+          "examples": [
+            { "t": "λύω", "say": "LÜ-oh", "en": "I loose, I am loosing" },
+            { "t": "οὐ βλέπω", "say": "oo BLE-poh", "en": "I do not see" },
+            { "t": "οὐκ ἔχουσιν", "say": "ook E-khoo-sin", "en": "they do not have" }
+          ]
+        }
+      ]
+    },
+    {
+      "step": "practise",
+      "cards": [
+        {
+          "type": "choose",
+          "prompt": "What does βλέπομεν mean?",
+          "options": ["we see", "I see", "they see", "you see"],
+          "answer": 0,
+          "explain": "-ομεν is “we”: βλέπομεν, we see."
+        },
+        {
+          "type": "choose",
+          "prompt": "Which word means “they hear”?",
+          "options": ["ἀκούουσιν", "ἀκούομεν", "ἀκούει", "ἀκούετε"],
+          "answer": 0,
+          "explain": "-ουσιν is “they”: ἀκούουσιν, they hear."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each ending to who is doing it.",
+          "pairs": [["-ω", "I"], ["-εις", "you (one)"], ["-ει", "he, she, it"], ["-ομεν", "we"], ["-ετε", "you (more than one)"], ["-ουσιν", "they"]]
+        },
+        {
+          "type": "parse",
+          "prompt": "Describe ἀκούετε.",
+          "word": "ἀκούετε",
+          "fields": [
+            { "label": "Who?", "options": ["I", "you", "he, she or it", "we", "they"], "answer": "you" },
+            { "label": "How many?", "options": ["one", "more than one"], "answer": "more than one" }
+          ],
+          "explain": "-ετε is “you”, more than one person: ἀκούετε, you (all) hear. Grammar books call it second person plural."
+        },
+        {
+          "type": "parse",
+          "prompt": "Describe λαμβάνει.",
+          "word": "λαμβάνει",
+          "fields": [
+            { "label": "Who?", "options": ["I", "you", "he, she or it", "we", "they"], "answer": "he, she or it" },
+            { "label": "How many?", "options": ["one", "more than one"], "answer": "one" }
+          ],
+          "explain": "-ει is “he, she or it”: λαμβάνει, he takes (third person singular). The sentence around it shows which."
+        },
+        {
+          "type": "build",
+          "prompt": "Make “we believe” from the stem and an ending.",
+          "tiles": ["πιστεύ-", "-ομεν"],
+          "join": "",
+          "explain": "πιστεύ + ομεν = πιστεύομεν, we believe."
+        },
+        {
+          "type": "choose",
+          "prompt": "What does οὐ γινώσκετε mean?",
+          "options": ["you do not know", "you know", "we do not know", "they know"],
+          "answer": 0,
+          "explain": "οὐ is not, and -ετε is “you” (more than one): you do not know."
+        }
+      ]
+    },
+    {
+      "step": "read",
+      "intro": "Find the verbs: look at the ending to see who is acting.",
+      "cards": [
+        { "type": "verse", "ref": "JHN 10:27", "note": "ἀκούουσιν (they hear) and γινώσκω (I know): “My sheep hear my voice, and I know them, and they follow me.”" },
+        { "type": "verse", "ref": "MRK 9:24", "note": "In the middle, after the raised dot, one word: πιστεύω, “I believe”. The father goes on: “help my unbelief!”" }
+      ]
+    },
+    {
+      "step": "review",
+      "cards": [
+        {
+          "type": "words",
+          "items": [
+            { "k": "G3089", "t": "λύω", "say": "LÜ-oh", "en": "I loose, untie, destroy" },
+            { "k": "G0191", "t": "ἀκούω", "say": "a-KOO-oh", "en": "I hear" },
+            { "k": "G0991", "t": "βλέπω", "say": "BLE-poh", "en": "I see, look at" },
+            { "k": "G1097", "t": "γινώσκω", "say": "gi-NOHS-koh", "en": "I know, come to know" },
+            { "k": "G1125", "t": "γράφω", "say": "GRA-foh", "en": "I write" },
+            { "k": "G2192", "t": "ἔχω", "say": "E-khoh", "en": "I have" },
+            { "k": "G3004G", "t": "λέγω", "say": "LE-goh", "en": "I say, speak" },
+            { "k": "G4100", "t": "πιστεύω", "say": "pis-TEU-oh", "en": "I believe, trust" },
+            { "k": "G2983", "t": "λαμβάνω", "say": "lam-BA-noh", "en": "I take, receive" },
+            { "k": "G3756", "t": "οὐ", "say": "oo", "en": "not (οὐκ before a vowel, οὐχ before h)" }
+          ]
+        }
+      ]
+    }
+  ]
+}

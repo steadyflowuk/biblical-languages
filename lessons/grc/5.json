@@ -1,0 +1,134 @@
+{
+  "id": "grc-5",
+  "lang": "grc",
+  "title": "Verbs ending -έω",
+  "steps": [
+    {
+      "step": "hear",
+      "intro": "Some verbs have an ε at the end of their stem. When the endings meet that ε, the two vowels merge into one sound. Listen for the long vowels.",
+      "cards": [
+        { "type": "scene", "picture": "🗣️", "text": "λαλῶ.", "say": "la-LOH", "en": "I speak." },
+        { "type": "scene", "picture": "🔍", "text": "ζητεῖς.", "say": "dzay-TAYS", "en": "You seek. (one person)" },
+        { "type": "scene", "picture": "🔨", "text": "ποιεῖ.", "say": "poi-AY", "en": "He does, he makes. (or she, or it)" },
+        { "type": "scene", "picture": "🛡️", "text": "τηροῦμεν.", "say": "tay-ROO-men", "en": "We keep." },
+        { "type": "scene", "picture": "📣", "text": "καλεῖτε.", "say": "ka-LAY-te", "en": "You call. (more than one)" },
+        { "type": "scene", "picture": "❤️", "text": "φιλοῦσιν.", "say": "fi-LOO-sin", "en": "They love." }
+      ]
+    },
+    {
+      "step": "notice",
+      "cards": [
+        {
+          "type": "explain",
+          "title": "Same endings, merged vowels",
+          "body": [
+            "ποιέω (I do, I make) has the stem ποιε-. Add the endings you know and the ε merges with the vowel that follows. Greek grammars call these contract verbs.",
+            "The endings are still there, just squeezed: you can still see who is acting. A circumflex (῀) often sits on the merged vowel."
+          ],
+          "table": {
+            "head": ["who", "ποιε- + ending", "what you read"],
+            "rows": [
+              ["I", "ποιε- + -ω", "ποιῶ"],
+              ["you (one)", "ποιε- + -εις", "ποιεῖς"],
+              ["he, she, it", "ποιε- + -ει", "ποιεῖ"],
+              ["we", "ποιε- + -ομεν", "ποιοῦμεν"],
+              ["you (more than one)", "ποιε- + -ετε", "ποιεῖτε"],
+              ["they", "ποιε- + -ουσιν", "ποιοῦσιν"]
+            ]
+          }
+        },
+        {
+          "type": "explain",
+          "letters": true,
+          "title": "How the vowels merge",
+          "body": [
+            "ε disappears before a long vowel or a vowel pair: ε + ω = ω, ε + ει = ει, ε + ου = ου.",
+            "ε + ε becomes ει, and ε + ο becomes ου. That covers every ending in the table.",
+            "In a dictionary these verbs are listed with the ε showing: look up ποιέω, not ποιῶ. When a form has a circumflex on ῶ, εῖ or οῦ, try an -έω verb."
+          ],
+          "examples": [
+            { "t": "ε + ε → ει", "en": "as in ποιεῖτε" },
+            { "t": "ε + ο → ου", "en": "as in ποιοῦμεν" },
+            { "t": "ε + ω → ω", "en": "as in ποιῶ" }
+          ]
+        }
+      ]
+    },
+    {
+      "step": "practise",
+      "cards": [
+        {
+          "type": "choose",
+          "prompt": "What does λαλοῦμεν mean?",
+          "options": ["we speak", "I speak", "they speak", "you speak"],
+          "answer": 0,
+          "explain": "λαλε- + ομεν: ε + ο merge to ου, so λαλοῦμεν, we speak."
+        },
+        {
+          "type": "choose",
+          "prompt": "Which word means “they seek”?",
+          "options": ["ζητοῦσιν", "ζητεῖτε", "ζητεῖ", "ζητῶ"],
+          "answer": 0,
+          "explain": "ζητε- + ουσιν becomes ζητοῦσιν, they seek."
+        },
+        {
+          "type": "match",
+          "letters": true,
+          "prompt": "Match each pair of vowels to what it merges into.",
+          "pairs": [["ε + ε", "ει"], ["ε + ο", "ου"], ["ε + ω", "ω"]]
+        },
+        {
+          "type": "parse",
+          "prompt": "Describe ποιεῖτε.",
+          "word": "ποιεῖτε",
+          "fields": [
+            { "label": "Who?", "options": ["I", "you", "he, she or it", "we", "they"], "answer": "you" },
+            { "label": "How many?", "options": ["one", "more than one"], "answer": "more than one" },
+            { "label": "Look it up under", "options": ["ποιέω", "ποιῶ", "ποιεῖτε"], "answer": "ποιέω" }
+          ],
+          "explain": "ποιε- + ετε = ποιεῖτε, you (all) do. Dictionaries list it under ποιέω."
+        },
+        {
+          "type": "build",
+          "prompt": "Make “they make” from ποιε- and the “they” ending, merged.",
+          "tiles": ["ποι-", "-οῦσιν"],
+          "join": "",
+          "explain": "ποιε- + ουσιν: the ε disappears into ου, giving ποιοῦσιν."
+        },
+        {
+          "type": "choose",
+          "prompt": "You meet τηρεῖ in a verse. Which dictionary word do you look up?",
+          "options": ["τηρέω", "τηρῶ", "τηροῦμεν", "τηρεῖν"],
+          "answer": 0,
+          "explain": "-εῖ with a circumflex points to an -έω verb: τηρέω, I keep. τηρεῖ is “he keeps”."
+        }
+      ]
+    },
+    {
+      "step": "read",
+      "intro": "Find the -έω verbs by their merged vowels and circumflexes.",
+      "cards": [
+        { "type": "verse", "ref": "JHN 3:11", "note": "λαλοῦμεν (we speak) and μαρτυροῦμεν (we bear witness), both “we” forms of -έω verbs." },
+        { "type": "verse", "ref": "JHN 8:50", "note": "οὐ ζητῶ: “I do not seek” my glory. ζητῶ is ζητε- + ω." }
+      ]
+    },
+    {
+      "step": "review",
+      "cards": [
+        {
+          "type": "words",
+          "items": [
+            { "k": "G4160G", "t": "ποιέω", "say": "poi-E-oh", "en": "I do, make" },
+            { "k": "G2980", "t": "λαλέω", "say": "la-LE-oh", "en": "I speak" },
+            { "k": "G2212", "t": "ζητέω", "say": "dzay-TE-oh", "en": "I seek, look for" },
+            { "k": "G5083G", "t": "τηρέω", "say": "tay-RE-oh", "en": "I keep, guard" },
+            { "k": "G2564G", "t": "καλέω", "say": "ka-LE-oh", "en": "I call" },
+            { "k": "G3140", "t": "μαρτυρέω", "say": "mar-tü-RE-oh", "en": "I bear witness, testify" },
+            { "k": "G5368", "t": "φιλέω", "say": "fi-LE-oh", "en": "I love, am fond of" },
+            { "k": "G0154", "t": "αἰτέω", "say": "ai-TE-oh", "en": "I ask" }
+          ]
+        }
+      ]
+    }
+  ]
+}

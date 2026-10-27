@@ -1,0 +1,156 @@
+{
+  "id": "grc-1",
+  "lang": "grc",
+  "title": "The alphabet, part 1: α to μ",
+  "steps": [
+    {
+      "step": "hear",
+      "intro": "Here are six real words from the New Testament, made only from the first twelve letters. Read each one aloud using the guide; capitals show the stressed syllable.",
+      "cards": [
+        {
+          "type": "video",
+          "title": "Alpha with Angela, lessons 1 to 3",
+          "href": "https://www.youtube.com/watch?v=gLe1GhR5l0E&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq&index=1",
+          "note": "Optional: hear the letters spoken. Angela uses the same pronunciation as this app."
+        },
+        { "type": "scene", "picture": "🌍", "text": "γῆ", "say": "gay", "en": "earth, land" },
+        { "type": "scene", "picture": "🔟", "text": "δέκα", "say": "DE-ka", "en": "ten (think of decade)" },
+        { "type": "scene", "picture": "☝️", "text": "μία", "say": "MEE-a", "en": "one" },
+        { "type": "scene", "picture": "🌟", "text": "μέγα", "say": "ME-ga", "en": "great, large (think of mega)" },
+        { "type": "scene", "picture": "👍", "text": "ἀγαθή", "say": "a-ga-THAY", "en": "good" },
+        { "type": "scene", "picture": "➕", "text": "καί", "say": "kai (rhymes with eye)", "en": "and" }
+      ]
+    },
+    {
+      "step": "notice",
+      "cards": [
+        {
+          "type": "explain",
+          "letters": true,
+          "title": "The first six letters",
+          "body": [
+            "Greek has 24 letters. Each has a capital and a small form; in the Bible you mostly read small letters, so learn those first. The name of each letter starts with its sound."
+          ],
+          "examples": [
+            { "t": "Α α", "say": "AL-fa", "en": "a as in father" },
+            { "t": "Β β", "say": "BAY-ta", "en": "b" },
+            { "t": "Γ γ", "say": "GAM-ma", "en": "g as in go" },
+            { "t": "Δ δ", "say": "DEL-ta", "en": "d" },
+            { "t": "Ε ε", "say": "EP-si-lon", "en": "e as in met" },
+            { "t": "Ζ ζ", "say": "DZAY-ta", "en": "dz as in adze" }
+          ]
+        },
+        {
+          "type": "explain",
+          "letters": true,
+          "title": "The next six",
+          "body": [
+            "Say each sound aloud as you go. Saying letters out loud fixes them in your memory far better than reading silently."
+          ],
+          "examples": [
+            { "t": "Η η", "say": "AY-ta", "en": "ay as in they" },
+            { "t": "Θ θ", "say": "THAY-ta", "en": "th as in thin" },
+            { "t": "Ι ι", "say": "ee-O-ta", "en": "ee as in see (or i as in sit)" },
+            { "t": "Κ κ", "say": "KAP-pa", "en": "k" },
+            { "t": "Λ λ", "say": "LAMB-da", "en": "l" },
+            { "t": "Μ μ", "say": "mü", "en": "m" }
+          ]
+        },
+        {
+          "type": "explain",
+          "letters": true,
+          "title": "Letters that fool English eyes",
+          "body": [
+            "η looks like an English n, but it is a vowel: “ay”. γ looks a little like y, but it is g. ι has no dot. And θ is one sound, th, written with one letter.",
+            "ε and η are both e-sounds: ε is short, as in met, and η is long, “ay” as in they. Greek writes the difference with two letters; English doesn't.",
+            "This is the pronunciation taught in most colleges, called Erasmian. In the first century some letters sounded different (β was nearer v, and δ like the th in “this”); Settings says more."
+          ],
+          "examples": [
+            { "t": "η", "say": "ay", "en": "not n" },
+            { "t": "γ", "say": "g", "en": "not y" },
+            { "t": "θ", "say": "th", "en": "one letter for th" }
+          ]
+        }
+      ]
+    },
+    {
+      "step": "practise",
+      "cards": [
+        {
+          "type": "choose",
+          "letters": true,
+          "prompt": "Which letter is gamma?",
+          "options": ["γ", "η", "κ", "λ"],
+          "answer": 0,
+          "explain": "γ (gamma) is the g sound."
+        },
+        {
+          "type": "choose",
+          "letters": true,
+          "prompt": "η looks like an English n. What sound does it make?",
+          "options": ["ay, as in they", "n", "ee, as in see", "h"],
+          "answer": 0,
+          "explain": "η (AY-ta) is a vowel, the long “ay” sound."
+        },
+        {
+          "type": "match",
+          "letters": true,
+          "prompt": "Match each letter to its sound.",
+          "pairs": [["β", "b"], ["δ", "d"], ["θ", "th"], ["λ", "l"], ["μ", "m"], ["ζ", "dz"]]
+        },
+        {
+          "type": "match",
+          "letters": true,
+          "prompt": "Now the vowels and the rest.",
+          "pairs": [["α", "a (father)"], ["ε", "e (met)"], ["η", "ay (they)"], ["ι", "ee (see)"], ["κ", "k"], ["γ", "g"]]
+        },
+        {
+          "type": "choose",
+          "prompt": "How do you say μία (one)?",
+          "options": ["MEE-a", "NAI-a", "MAY-ka", "LEE-a"],
+          "answer": 0,
+          "explain": "μ is m, ι is ee and α is a: MEE-a."
+        },
+        {
+          "type": "build",
+          "prompt": "Spell δέκα (ten) from its letters.",
+          "tiles": ["δ", "έ", "κ", "α"],
+          "join": "",
+          "explain": "δ-έ-κ-α: DE-ka. The little mark over ε shows the stressed syllable; more on these marks soon."
+        },
+        {
+          "type": "build",
+          "prompt": "Spell ἀγαθή (good).",
+          "tiles": ["ἀ", "γ", "α", "θ", "ή"],
+          "join": "",
+          "explain": "ἀ-γ-α-θ-ή: a-ga-THAY."
+        }
+      ]
+    },
+    {
+      "step": "read",
+      "intro": "You can't read every letter yet, but you can already find words you know. Look for the gold underlines and sound them out.",
+      "cards": [
+        { "type": "verse", "ref": "ROM 7:12", "note": "Find καί (and) three times, and the last word ἀγαθή: “the commandment is holy and righteous and good”." },
+        { "type": "verse", "ref": "MAT 4:16", "note": "Find μέγα near the middle: the people in darkness “saw a great light”." }
+      ]
+    },
+    {
+      "step": "review",
+      "cards": [
+        {
+          "type": "words",
+          "items": [
+            { "k": "G1093G", "t": "γῆ", "say": "gay", "en": "earth, land" },
+            { "k": "G1176", "t": "δέκα", "say": "DE-ka", "en": "ten" },
+            { "k": "G1520", "t": "εἷς", "say": "hays", "en": "one (μία with feminine words)" },
+            { "k": "G3173", "t": "μέγας", "say": "ME-gas", "en": "great, large (μέγα with neuter words)" },
+            { "k": "G0018", "t": "ἀγαθός", "say": "a-ga-THOS", "en": "good (ἀγαθή with feminine words)" },
+            { "k": "G3361", "t": "μή", "say": "may", "en": "not" },
+            { "k": "G1161", "t": "δέ", "say": "de", "en": "and, but" }
+          ]
+        }
+      ]
+    }
+  ]
+}

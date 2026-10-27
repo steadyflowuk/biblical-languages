@@ -8,7 +8,9 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 ## Rules
 - Only public-domain or CC BY data is committed (site is public on GitHub Pages). No NA28, LSB or Logos text.
   One exception (Session 6): `data/lxx` is Swete's public-domain Septuagint from the GPL-3.0 LXX-Swete-1930 database,
-  committed with its LICENSE and README. Keep that folder's LICENSE/README with it.
+  committed with its LICENSE and README. Keep that folder's LICENSE/README with it. The user confirmed keeping it
+  (27 Oct 2026). GPL duties: licence + credit + dated notice of changes (written by build_lxx.py into
+  data/lxx/README.md) + the files stay GPL; the rest of the repo isn't affected.
 - ESV only via Crossway's API with the user's own key, entered in Settings and kept on the device. Never commit a key.
 - Logos (user's Logos Max library) is a research tool only: lesson order, checking glosses/explanations. Write in our own words.
 - Plain HTML/CSS/ES modules, no build step. Large data is converted by scripts in `tools/`, never pasted by hand.

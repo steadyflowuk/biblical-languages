@@ -7,7 +7,8 @@ The app (`js/lessons.js`) turns it into the five-step loop. After adding or chan
 2. Add the file to `SHELL_FILES` in `sw.js` and bump `VERSION`, so it works offline.
 3. Run `python3 tools/check_lessons.py`. It checks the format and spells every Greek and Hebrew word against the
    Bible text (Greek accents and Hebrew vowels included), checks verse references and dictionary keys, and checks
-   that every answer is one of the options.
+   that every answer is one of the options. For Greek it also checks that the capitalised syllable in each `say` is
+   the accented one (one hyphenated part per vowel sound), and that Greek quoted in a verse `note` is in that verse.
 
 ## The index
 

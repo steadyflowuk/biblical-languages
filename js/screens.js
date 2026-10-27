@@ -262,7 +262,7 @@ function radios(name, legend, options, current, help = "") {
     <div class="choices">
       ${options.map(([value, label]) => `<label><input type="radio" name="${name}" value="${value}" ${value === current ? "checked" : ""}> ${label}</label>`).join("")}
     </div>
-    ${help ? `<p class="field-help">${help}</p>` : ""}
+    ${help ? `<p class="field-help">${lessons.mixed(help)}</p>` : ""}
   </fieldset>`;
 }
 
@@ -318,7 +318,7 @@ export const settings = {
         ${radios("textSize", "Text size", [["normal", "Standard"], ["large", "Large"], ["larger", "Larger"], ["largest", "Largest"]], store.get("textSize"))}
         ${radios("theme", "Appearance", [["auto", "Match device"], ["light", "Light"], ["dark", "Dark"]], store.get("theme"))}
         ${radios("greekVoice", "Greek pronunciation", [["erasmian", "Erasmian (taught in most colleges)"], ["koine", "Restored Koine (first-century sounds)"]], store.get("greekVoice"),
-          "Erasmian keeps the vowels distinct, which helps with spelling. Restored Koine is closer to how the apostles spoke. Audio arrives in Week 3.")}
+          "Erasmian keeps the vowels distinct, which helps with spelling. Restored Koine is closer to how the apostles spoke: ει sounds like “ee”, αι like the e in “bet”, β like v, and δ like the th in “this”. The lessons write pronunciations the Erasmian way; recorded audio comes in a later update.")}
       </form>
 
       <h2>English Standard Version (ESV)</h2>

@@ -97,7 +97,7 @@ async def main():
         # 2. Start, leave, come back to the same card
         await pg.click('a[href="#/lesson/grc/grc-0"]')
         await pg.wait_for_selector(".ls-card .ls-title")
-        check("Lesson: opens on step 1 (Hear and see), Back hidden", await pg.locator('.ls-steps li[aria-current="step"]').inner_text() == "Hear and see"
+        check("Lesson: opens on step 1 (Hear and see), Back hidden", "Hear and see" in await pg.locator('.ls-steps li[aria-current="step"] .ls-step-full').text_content()
               and await pg.locator("[data-back]").is_hidden())
         check("Read/Learn tab: Learn is current inside a lesson", await pg.locator('.tabs a[data-tab="learn"][aria-current="page"]').count() >= 1)
         for _ in range(3):
@@ -353,6 +353,54 @@ async def main():
                 done = await pg.locator(".ls-done").count() == 1 and "right first time" in await pg.locator(".ls-done").inner_text()
                 check(f"{e['id']}: finished with every answer right, fits 320px", done and not wide and not stuck, f"{stuck} {wide}")
         await pg.set_viewport_size({"width": 390, "height": 844})
+
+        # 14. Largest text on a 320px phone (8b): step labels readable, Continue inside the screen, tables fully in view
+        await pg.set_viewport_size({"width": 320, "height": 640})
+        await pg.evaluate("localStorage.setItem('ao:textSize', JSON.stringify('largest'))")
+        cut, wide_at, scrolls = set(), [], []
+        for e in index["grc"]:
+            if not e.get("file"):
+                continue
+            L = json.load(open("/home/claude/biblical-languages/" + e["file"]))
+            sig = ",".join(f"{st['step']}:{len(st['cards'])}" for st in L["steps"])
+            cards = [c for st in L["steps"] for c in st["cards"]]
+            for pos in sorted({0, 1} | {i for i, c in enumerate(cards) if c.get("table") or c["type"] in ("build", "verse", "words")}):
+                await pg.evaluate(f"localStorage.setItem('ao:lessons', JSON.stringify({{'{e['id']}': {{v: 1, sig: '{sig}', pos: {pos}, retries: [], first: {{}}}}}}))")
+                await pg.goto(f"{BASE}#/learn")
+                await pg.goto(f"{BASE}#/lesson/grc/{e['id']}")
+                await pg.wait_for_selector(".ls-card .ls-title, .ls-card .ls-big")
+                r = await pg.evaluate("""() => ({
+                  cut: [...document.querySelectorAll('.ls-steps li span')].filter((s) => getComputedStyle(s).display !== 'none' && getComputedStyle(s).position !== 'absolute' && s.scrollWidth > s.clientWidth).map((s) => s.textContent),
+                  wide: document.documentElement.scrollWidth > innerWidth,
+                  scrolls: [...document.querySelectorAll('.ls-table-wrap')].some((w) => w.scrollWidth > w.clientWidth) })""")
+                cut |= set(r["cut"])
+                if r["wide"]:
+                    wide_at.append(f"{e['id']}@{pos}")
+                if r["scrolls"]:
+                    scrolls.append(f"{e['id']}@{pos}")
+        check("largest text, 320px: every step label fits", not cut, str(sorted(cut)))
+        check("largest text, 320px: lesson screens never scroll sideways (Continue inside)", not wide_at, str(wide_at[:5]))
+        check("largest text, 320px: every lesson table fits without scrolling", not scrolls, str(scrolls[:5]))
+        await pg.evaluate("localStorage.setItem('ao:textSize', JSON.stringify('normal')); localStorage.setItem('ao:lessons', '{}')")
+        await pg.set_viewport_size({"width": 390, "height": 844})
+
+        # 15. Joined builds say "pieces"; Settings shows Greek in the Greek font (8b)
+        L4 = json.load(open("/home/claude/biblical-languages/lessons/grc/4.json"))
+        sig4 = ",".join(f"{st['step']}:{len(st['cards'])}" for st in L4["steps"])
+        pos4 = [i for i, c in enumerate([c for st in L4["steps"] for c in st["cards"]]) if c.get("join") == ""][0]
+        await pg.evaluate(f"localStorage.setItem('ao:lessons', JSON.stringify({{'grc-4': {{v: 1, sig: '{sig4}', pos: {pos4}, retries: [], first: {{}}}}}}))")
+        await pg.goto(f"{BASE}#/learn")
+        await pg.goto(f"{BASE}#/lesson/grc/grc-4")
+        await pg.wait_for_selector(".ls-build")
+        how = await pg.locator(".ls-how").inner_text()
+        await pg.click(".ls-bank [data-tile='1']"); await pg.click(".ls-bank [data-tile='0']"); await pg.click("[data-check]")
+        fb = await pg.locator(".ls-feedback").inner_text()
+        check("joined build: asks for pieces, and a wrong try shows the whole word", "pieces" in how and "The word is πιστεύομεν" in fb, f"{how} | {fb}")
+        await pg.evaluate("localStorage.setItem('ao:lessons', '{}')")
+        await pg.goto(f"{BASE}#/settings")
+        await pg.wait_for_selector(".field-help")
+        n = await pg.locator(".field-help .t-grc").count()
+        check("Settings: pronunciation help shows Greek letters in the Greek font", n >= 4, str(n))
 
         check("no console errors", not errs, "; ".join(errs[:4]))
         await b.close()

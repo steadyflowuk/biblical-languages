@@ -132,6 +132,8 @@
         {
           "type": "words",
           "items": [
+            { "k": "G3588", "t": "ὁ", "say": "ho", "en": "the (τόν for an object)" },
+            { "k": "G3056", "t": "λόγος", "say": "LO-gos", "en": "word" },
             { "k": "G0080", "t": "ἀδελφός", "say": "a-del-FOS", "en": "brother" },
             { "k": "G2962G", "t": "κύριος", "say": "KÜ-ree-os", "en": "lord, Lord; master" },
             { "k": "G3551", "t": "νόμος", "say": "NO-mos", "en": "law" },

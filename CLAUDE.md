@@ -69,6 +69,9 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - [x] 7b (27 Oct 2026): deep check — focus to Continue after answering, Back to an answered drill stays open, lesson
   signature (`sig`: steps and card counts) restarts a changed lesson cleanly, short step labels under 380px.
 - [x] 8 (27 Oct 2026): Greek lessons grc-1…9 (Schwandt 1–8; alphabet split in two); tables, letter cards, joined tiles.
+- [x] 8b (27 Oct 2026): deep check — quotations aren't capitalised in our text (lesson 3 fixed), Isaiah's smooth
+  breathing, ω respelt "oh" everywhere, core words (ὁ, λόγος, καί, ἐν, θεός) also in course review lists, largest-text
+  fixes (step labels, Continue, tables), joined builds say "pieces", Settings explains Restored Koine.
 - [ ] 9 Vocab trainer + audio
 - [ ] 10 Hebrew lessons · [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
 
@@ -248,6 +251,11 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - Pronunciation respelling (Erasmian): η ay, ει ay, ου oo, υ ü, ω oh, χ kh, ζ dz, ευ eu, αι ai, οι oi; stress in caps.
 - Vocabulary: high-frequency NT words fitting each topic (not Schwandt's lists); keys checked against greek-index
   (split senses: τηρέω G5083G, κύριος G2962G, φωνή G5456G, οἶκος G3624G). Read verses chosen with tools/find_verses.py.
+- check_lessons also checks Greek pronunciations (capitalised syllable = accented one, one part per vowel sound;
+  skipped when the say has a note in it) and that Greek quoted in a verse note is in that verse (form or dictionary
+  form; endings/stems with "-" skipped). Our NT text doesn't capitalise quotations (110 of 4,004 after "·").
+- Short step labels show up to 460px (and to 680px at larger/largest text); lesson tables tighten and hyphenate
+  English under 460px so every column stays in view; don't put long English in Greek table columns.
 - Explain cards can carry `table`; `"letters": true` skips spelling; lesson `"unattested"` lists paradigm forms
   absent from the NT (λύεις, λύομεν); build `"join": ""` joins tiles into one word. Endings written "-ομεν" skip spelling.
 
@@ -258,8 +266,8 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   0 issues and only 3JN 15 / REV 12:18 notes.
 - `tools/check_data.py` now has 42 checks (5 for the dictionary, 5 for the Septuagint) (incl. OT BSB alignment both ways, psalm titles, Today's verses).
 - `python3 tools/check_lessons.py` — validates every lesson (run after any lesson change).
-- `python3 tools/test_lessons.py` — 61 lesson engine checks (drills, retries, resume, scores, review list, Hebrew RTL,
-  keyboard, offline, 320px; every written lesson finished with right answers at 320px).
+- `python3 tools/test_lessons.py` — 66 lesson engine checks (drills, retries, resume, scores, review list, Hebrew RTL,
+  keyboard, offline, 320px; every written lesson finished with right answers at 320px; largest text at 320px).
 - `python3 tools/test_dictionary.py` — 51 Dictionary checks (search, entries, links both ways, offline, 320px).
 - `python3 tools/test_translations.py` — 70 ESV/Septuagint/side-by-side checks (ESV API mocked with real verse counts;
   ~12 min).

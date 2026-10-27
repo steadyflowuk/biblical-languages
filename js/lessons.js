@@ -124,7 +124,8 @@ function videoHTML(c) {
 /** A small table (verb endings, noun patterns): { caption, head: [...], rows: [[...]] }. */
 function tableHTML(t) {
   const cell = (x, tag) => `<${tag}${langAttrs(x) && !/[a-z]/i.test(x) ? langAttrs(x) : ""}>${mixed(x)}</${tag}>`;
-  return `<div class="ls-table-wrap"><table class="ls-table">
+  return `<div class="ls-table-wrap" tabindex="0" role="region" aria-label="Table">
+    <table class="ls-table">
       ${t.caption ? `<caption>${mixed(t.caption)}</caption>` : ""}
       ${t.head ? `<thead><tr>${t.head.map((h) => cell(h, "th")).join("")}</tr></thead>` : ""}
       <tbody>${t.rows.map((r) => `<tr>${r.map((x, i) => cell(x, i === 0 && t.rowHeads ? "th" : "td")).join("")}</tr>`).join("")}</tbody>
@@ -175,9 +176,9 @@ function buildHTML(c, state, lang) {
   const tile = (i, where) => `<button type="button" class="ls-tile" data-${where}="${i}"${langAttrs(c.tiles[i])}>${esc(c.tiles[i])}</button>`;
   return `<div class="ls-drill ls-build">
       <h2 class="ls-title" tabindex="-1">${mixed(c.prompt)}</h2>
-      <p class="muted ls-how">Tap the words in order. Tap a placed word to take it back.</p>
+      <p class="muted ls-how">${joined ? "Tap the pieces in order to make one word. Tap a placed piece to take it back." : "Tap the words in order. Tap a placed word to take it back."}</p>
       <div class="ls-line${joined}"${dir} aria-label="Your answer" role="group">${state.line.length ? state.line.map((i) => tile(i, "placed")).join("") : `<span class="ls-line-empty">Your answer</span>`}</div>
-      <div class="ls-bank"${dir} role="group" aria-label="Words to use">${state.bank.filter((i) => !state.line.includes(i)).map((i) => tile(i, "tile")).join("")}</div>
+      <div class="ls-bank"${dir} role="group" aria-label="${joined ? "Pieces" : "Words"} to use">${state.bank.filter((i) => !state.line.includes(i)).map((i) => tile(i, "tile")).join("")}</div>
       <p><button type="button" class="btn" data-check ${state.line.length === c.tiles.length ? "" : "disabled"}>Check</button></p>
     </div>`;
 }
@@ -462,7 +463,7 @@ export const lesson = {
           box.querySelector(".ls-line").classList.add(ok ? "right" : "wrong");
           e.target.closest("[data-check]").disabled = true;
           const whole = c.join === "" ? c.tiles.map((x) => x.replace(/^-|-$/g, "")).join("") : c.tiles.join(" ");
-          answer(ok, ok ? c.explain : `The right order is ${whole}. ${c.explain || ""}`);
+          answer(ok, ok ? c.explain : `${c.join === "" ? "The word is" : "The right order is"} ${whole}. ${c.explain || ""}`);
         }
       } else if (c.type === "parse") {
         if (answered) return;

@@ -41,7 +41,7 @@
             "Sometimes the accent is the only difference between two words, so it is worth noticing."
           ],
           "examples": [
-            { "t": "ἄνθρωπος", "say": "AN-thro-pos", "en": "person (stress AN)" },
+            { "t": "ἄνθρωπος", "say": "AN-throh-pos", "en": "person (stress AN)" },
             { "t": "εἰ", "say": "ay", "en": "if" },
             { "t": "εἶ", "say": "ay", "en": "you are" },
             { "t": "ἤ", "say": "ay", "en": "or" }
@@ -52,12 +52,12 @@
           "title": "Little marks with a job",
           "body": [
             "A small ι written under α, η or ω (ᾳ ῃ ῳ) is called iota subscript. It isn't sounded, but it matters for grammar, as you'll see with nouns.",
-            "Two dots over a vowel (¨) mean it starts a new syllable: Ἠσαΐας is Hay-sa-EE-as (Isaiah).",
+            "Two dots over a vowel (¨) mean it starts a new syllable: Ἠσαΐας is ay-sa-EE-as (Isaiah).",
             "An apostrophe shows a dropped vowel before another vowel: δι’ αὐτοῦ is διά αὐτοῦ, through him."
           ],
           "examples": [
             { "t": "ἐν ἀρχῇ", "say": "en ar-KHAY", "en": "in the beginning (ι under η, not sounded)" },
-            { "t": "Ἠσαΐας", "say": "hay-sa-EE-as", "en": "Isaiah" },
+            { "t": "Ἠσαΐας", "say": "ay-sa-EE-as", "en": "Isaiah" },
             { "t": "ἀλλ’", "say": "all", "en": "but (ἀλλά before a vowel)" }
           ]
         },
@@ -66,7 +66,7 @@
           "title": "Punctuation and capitals",
           "body": [
             "Full stops and commas look and work as in English. A raised dot (·) is a pause like a colon or semicolon. And the Greek question mark is ; — a semicolon in English eyes.",
-            "Capital letters mark names, and the start of a paragraph or a quotation, not every sentence. Quotation marks aren't used, so a capital is often the clue that someone has begun speaking."
+            "Capital letters mark names and the start of a paragraph, not every sentence. There are no quotation marks either: a raised dot often comes just before someone's words, as in λέγει αὐτοῖς· (he says to them:)."
           ],
           "examples": [
             { "t": "τίς;", "say": "tis?", "en": "who?" },
@@ -103,7 +103,7 @@
         {
           "type": "choose",
           "prompt": "Which syllable do you stress in ἄνθρωπος (person)?",
-          "options": ["AN-thro-pos", "an-THRO-pos", "an-thro-POS"],
+          "options": ["AN-throh-pos", "an-THROH-pos", "an-throh-POS"],
           "answer": 0,
           "explain": "The accent sits on ἄ, so stress the first syllable. Anthropology comes from this word."
         },
@@ -145,7 +145,7 @@
             { "k": "G0040G", "t": "ἅγιος", "say": "HA-gee-os", "en": "holy" },
             { "k": "G4487", "t": "ῥῆμα", "say": "RAY-ma", "en": "word, saying" },
             { "k": "G5101", "t": "τίς", "say": "tis", "en": "who? what?" },
-            { "k": "G0444", "t": "ἄνθρωπος", "say": "AN-thro-pos", "en": "person, human being" },
+            { "k": "G0444", "t": "ἄνθρωπος", "say": "AN-throh-pos", "en": "person, human being" },
             { "k": "G0235", "t": "ἀλλά", "say": "al-LA", "en": "but" },
             { "k": "G1223", "t": "διά", "say": "dee-A", "en": "through; because of" }
           ]

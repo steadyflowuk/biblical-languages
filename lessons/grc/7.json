@@ -145,6 +145,7 @@
         {
           "type": "words",
           "items": [
+            { "k": "G1722", "t": "ἐν", "say": "en", "en": "in (+ dative)" },
             { "k": "G1519", "t": "εἰς", "say": "ays", "en": "into, to (+ accusative)" },
             { "k": "G1537", "t": "ἐκ", "say": "ek", "en": "out of, from (+ genitive; ἐξ before a vowel)" },
             { "k": "G0575", "t": "ἀπό", "say": "a-PO", "en": "(away) from (+ genitive)" },
@@ -152,7 +153,8 @@
             { "k": "G3624G", "t": "οἶκος", "say": "OI-kos", "en": "house, home" },
             { "k": "G2992", "t": "λαός", "say": "la-OS", "en": "people, nation" },
             { "k": "G2362", "t": "θρόνος", "say": "THRO-nos", "en": "throne" },
-            { "k": "G2246", "t": "ἥλιος", "say": "HAY-lee-os", "en": "sun" }
+            { "k": "G2246", "t": "ἥλιος", "say": "HAY-lee-os", "en": "sun" },
+            { "k": "G2316", "t": "θεός", "say": "the-OS", "en": "God" }
           ]
         }
       ]

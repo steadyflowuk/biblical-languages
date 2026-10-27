@@ -4,7 +4,8 @@ python3 tools/check_lessons.py
 
 Checks: the index and files agree; each lesson has the five steps in order (hear, notice, practise, read, review);
 every card is a known type with what it needs; answers are among the options; verses exist; review words exist in the
-dictionary with the same spelling; every Greek and Hebrew word in a lesson is spelt as it is written in the Bible
+dictionary with the same spelling; Greek pronunciations stress the accented syllable; Greek words quoted in a verse
+note are in that verse; every Greek and Hebrew word in a lesson is spelt as it is written in the Bible
 (Greek accents and Hebrew vowels included); every lesson file is in sw.js SHELL_FILES so it works offline.
 """
 import json, os, re, sys, unicodedata
@@ -93,6 +94,71 @@ def spell(where, text, lang):
             bad(where, f"Hebrew word not found as written in the Bible: {tok}")
 
 
+# ---------------------------------------------------------------- pronunciation stress (Greek)
+DIPHTHONGS = {"αι", "ει", "οι", "υι", "αυ", "ευ", "ου", "ηυ"}
+
+
+def greek_stress(word):
+    """(number of vowel sounds, which one carries the accent counted from the end) — diphthongs count once."""
+    letters = []
+    for ch in unicodedata.normalize("NFD", word):
+        if unicodedata.combining(ch):
+            if letters:
+                letters[-1][1].append(ch)
+        else:
+            letters.append([ch.lower(), []])
+    groups, i = [], 0
+    while i < len(letters):
+        b, m = letters[i]
+        if b in "αεηιουω":
+            nxt = letters[i + 1] if i + 1 < len(letters) else None
+            if nxt and b + nxt[0] in DIPHTHONGS and "̈" not in nxt[1] and "ͅ" not in m:
+                groups.append(m + nxt[1])
+                i += 2
+                continue
+            groups.append(m)
+        i += 1
+    acc = None
+    for k, m in enumerate(groups):
+        if any(x in m for x in ("́", "̀", "͂")):
+            acc = len(groups) - 1 - k
+    return len(groups), acc
+
+
+def check_say(where, text, say):
+    """The capitalised syllable of a pronunciation must be the accented one, with one part per vowel sound."""
+    words = [x for x in re.split(r"\s+", re.sub(r"[.,;·:!?()“”]", "", text or "")) if GREEK.search(x)]
+    says = (say or "").split()
+    if len(words) != len(says):
+        return  # a note in the pronunciation ("kai (rhymes with eye)")
+    for word, sy in zip(words, says):
+        n, acc = greek_stress(word)
+        parts = sy.split("-")
+        caps = [k for k, p in enumerate(parts) if re.search("[A-ZÜ]", p) and p.upper() == p]
+        if acc is None or n < 2:
+            continue
+        if not caps:
+            bad(where, f"{sy}: no stressed syllable in capitals for {word}")
+        elif len(parts) - 1 - caps[-1] != acc:
+            bad(where, f"{sy}: the stress should fall on the accented syllable of {word}")
+        elif len(parts) != n:
+            bad(where, f"{sy}: {word} has {n} syllables")
+
+
+def check_note(where, note, ref):
+    """Greek words quoted in a verse note must be in that verse (as written, or as the dictionary form of a word in it)."""
+    if ref not in verses or verses[ref][0] != "grc":
+        return
+    words = verses[ref][1]
+    ok = {greek_key(w[0]) for w in words} | {greek_key(index[w[3]][1]) for w in words if w[3] in index}
+    for m in re.finditer(r"[Ͱ-Ͽἀ-῿]+", note or ""):
+        before, after = note[m.start() - 1:m.start()], note[m.end():m.end() + 1]
+        if len(m.group()) < 2 or "-" in (before, after):
+            continue  # endings and stems ("-οι", "ζητε-")
+        if greek_key(m.group()) not in ok:
+            bad(where, f"the note quotes {m.group()}, which isn't in {ref}")
+
+
 # ---------------------------------------------------------------- lessons
 lesson_index = load(os.path.join(ROOT, "lessons", "index.json"))
 sw = open(os.path.join(ROOT, "sw.js"), encoding="utf-8").read()
@@ -146,6 +212,8 @@ for lang, entries in lesson_index.items():
                     if not (c.get("text") and c.get("en") and c.get("say")):
                         bad(w, "needs text, say and en")
                     spell(w, c.get("text"), lang)
+                    if lang == "grc" and not SKIP_SPELL:
+                        check_say(w, c.get("text"), c.get("say"))
                 elif t == "video":
                     if not str(c.get("href", "")).startswith("https://") or not c.get("title"):
                         bad(w, "needs an https href and a title")
@@ -156,6 +224,8 @@ for lang, entries in lesson_index.items():
                         if not (ex.get("t") and ex.get("en")):
                             bad(w, "each example needs t and en")
                         spell(w, ex.get("t"), lang)
+                        if lang == "grc" and not SKIP_SPELL and ex.get("say"):
+                            check_say(w, ex.get("t"), ex.get("say"))
                     tb = c.get("table")
                     if tb:
                         if not tb.get("rows") or any(len(r) != len(tb.get("head") or tb["rows"][0]) for r in tb["rows"]):
@@ -204,6 +274,8 @@ for lang, entries in lesson_index.items():
                         bad(w, f"verse {ref} not found")
                     elif verses[ref][0] != lang:
                         bad(w, f"verse {ref} is not in this lesson's language")
+                    else:
+                        check_note(w, c.get("note"), ref)
                 elif t == "words":
                     if not c.get("items"):
                         bad(w, "needs items")
@@ -217,6 +289,8 @@ for lang, entries in lesson_index.items():
                             bad(w, f"{it.get('k')} is {e[1]} in the dictionary, not {it.get('t')}")
                         if not it.get("en") or not it.get("say"):
                             bad(w, f"{it.get('k')} needs say and en")
+                        elif lang == "grc":
+                            check_say(w, it.get("t"), it.get("say"))
         if drills < 3:
             bad(lid, f"only {drills} drills; a lesson needs at least 3")
 

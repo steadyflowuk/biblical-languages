@@ -90,7 +90,7 @@
         },
         {
           "type": "build",
-          "prompt": "Make “they make” from ποιε- and the “they” ending, merged.",
+          "prompt": "Make “they make”: ποιε- with the “they” ending, after the vowels merge.",
           "tiles": ["ποι-", "-οῦσιν"],
           "join": "",
           "explain": "ποιε- + ουσιν: the ε disappears into ου, giving ποιοῦσιν."

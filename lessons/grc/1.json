@@ -147,7 +147,8 @@
             { "k": "G3173", "t": "μέγας", "say": "ME-gas", "en": "great, large (μέγα with neuter words)" },
             { "k": "G0018", "t": "ἀγαθός", "say": "a-ga-THOS", "en": "good (ἀγαθή with feminine words)" },
             { "k": "G3361", "t": "μή", "say": "may", "en": "not" },
-            { "k": "G1161", "t": "δέ", "say": "de", "en": "and, but" }
+            { "k": "G1161", "t": "δέ", "say": "de", "en": "and, but" },
+            { "k": "G2532", "t": "καί", "say": "kai", "en": "and" }
           ]
         }
       ]

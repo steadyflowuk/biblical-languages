@@ -685,10 +685,17 @@ ol.rows { list-style: none; padding: 0; }
 .ls-steps li.done { border-top-color: var(--sage); color: var(--sage-ink); }
 .ls-steps li.now { border-top-color: var(--gold); color: var(--ink); }
 .ls-steps .ls-step-short { display: none; }
-@media (max-width: 380px) {
-  .ls-steps li { font-size: .66rem; }
+@media (max-width: 460px) {
+  .ls-steps li { font-size: min(.66rem, 12.5px); } /* largest text: keep the five labels readable side by side */
+  .ls-steps li.now { flex: 1.35; }
   .ls-steps .ls-step-short { display: block; }
   .ls-steps .ls-step-full:not(:only-child) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } /* still read out */
+}
+@media (min-width: 461px) and (max-width: 680px) { /* bigger text needs the short labels on wider screens too */
+  html[data-size="larger"] .ls-steps li, html[data-size="largest"] .ls-steps li { font-size: min(.66rem, 12.5px); } /* largest text: keep the five labels readable side by side */
+  html[data-size="larger"] .ls-steps li.now, html[data-size="largest"] .ls-steps li.now { flex: 1.35; }
+  html[data-size="larger"] .ls-steps .ls-step-short, html[data-size="largest"] .ls-steps .ls-step-short { display: block; }
+  html[data-size="larger"] .ls-steps .ls-step-full:not(:only-child), html[data-size="largest"] .ls-steps .ls-step-full:not(:only-child) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } /* still read out */
 }
 .ls-intro { margin: 0 0 16px; color: var(--muted); }
 .ls-again { margin: 0 0 8px; font-weight: 700; color: var(--accent-ink); }
@@ -758,7 +765,7 @@ ol.rows { list-style: none; padding: 0; }
 .ls-feedback.try { border-color: var(--gold-deep); }
 .ls-feedback.try strong { color: var(--accent-ink); }
 .ls-nav { display: flex; justify-content: space-between; gap: 12px; margin: 22px 0 0; }
-.ls-nav [data-next] { margin-left: auto; min-width: 9rem; }
+.ls-nav [data-next] { margin-left: auto; min-width: min(9rem, 58vw); }
 .ls-nav [hidden] { display: none; }
 
 /* reading a real verse */
@@ -795,5 +802,13 @@ ol.rows { list-style: none; padding: 0; }
 .ls-table td:lang(grc), .ls-table th:lang(grc) { font-family: var(--font-greek); font-size: 1.2rem; }
 .ls-table td:lang(he), .ls-table th:lang(he) { font-family: var(--font-hebrew); font-size: 1.35rem; text-align: right; }
 .ls-table .t-grc { font-size: 1.15em; }
+@media (max-width: 460px) { /* narrow phones and large text: every column stays in view */
+  .ls-table th, .ls-table td { padding: 7px 7px; }
+  .ls-table th:first-child, .ls-table td:first-child { padding-left: 10px; }
+  .ls-table thead th { font-size: .78rem; }
+  .ls-table td:lang(grc), .ls-table th:lang(grc) { font-size: 1.05rem; }
+  .ls-table td, .ls-table th { -webkit-hyphens: auto; hyphens: auto; } /* "nomi-native", never "nominativ e" */
+  .ls-table td:lang(grc), .ls-table td:lang(he) { -webkit-hyphens: manual; hyphens: manual; }
+}
 .ls-line.joined { gap: 2px; }
 .ls-line.joined .ls-tile { padding-left: 8px; padding-right: 8px; }

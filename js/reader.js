@@ -910,8 +910,10 @@ export const read = {
     try {
       [original, bsbBook, morph] = await Promise.all([data.original(book.id), data.bsb(book.id), data.morph(he ? "he" : "grc")]);
     } catch {
-      holder.innerHTML = `<div class="note"><p>${esc(book.name)} couldn't load. Connect to the internet once and it will be saved for offline reading.</p></div>`;
+      holder.innerHTML = `<div class="note"><p>${esc(book.name)} couldn't load. Check you're connected to the internet; once it has loaded it is saved for offline reading.</p>
+        <p><button type="button" class="btn secondary" data-retry>Try again</button></p></div>`;
       holder.removeAttribute("aria-busy");
+      holder.querySelector("[data-retry]").addEventListener("click", () => this.render(main, params));
       return;
     }
     if (!main.contains(holder)) return; // moved on while loading
@@ -1113,8 +1115,10 @@ export const lxx = {
     try {
       text = await data.lxxText(book.id);
     } catch {
-      holder.innerHTML = `<div class="note"><p>${esc(book.name)} couldn't load. Connect to the internet once and it will be saved for offline reading.</p></div>`;
+      holder.innerHTML = `<div class="note"><p>${esc(book.name)} couldn't load. Check you're connected to the internet; once it has loaded it is saved for offline reading.</p>
+        <p><button type="button" class="btn secondary" data-retry>Try again</button></p></div>`;
       holder.removeAttribute("aria-busy");
+      holder.querySelector("[data-retry]").addEventListener("click", () => this.render(main, params));
       return;
     }
     if (!main.contains(holder)) return;

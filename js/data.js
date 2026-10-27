@@ -20,10 +20,12 @@ export function getJSON(path) {
       const same = [...cache.keys()].filter((k) => group.re.test(k));
       same.slice(0, Math.max(0, same.length - group.keep + 1)).forEach((k) => cache.delete(k));
     }
-    const p = fetch(path).then((r) => {
+    // one quiet retry after a moment: a dropped connection on the first download shouldn't look like being offline
+    const get = () => fetch(path).then((r) => {
       if (!r.ok) throw new Error(`Couldn't load ${path} (${r.status})`);
       return r.json();
     });
+    const p = get().catch(() => new Promise((ok) => setTimeout(ok, 1200)).then(get));
     p.catch(() => cache.delete(path)); // allow a retry after a failure
     cache.set(path, p);
   }

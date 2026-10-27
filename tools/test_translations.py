@@ -357,7 +357,12 @@ async def main():
         await pg.wait_for_selector(".lxx-text .lv", timeout=10000)
         check("offline: a book read before opens; an unread one asks for a connection",
               "internet" in off or "Ἰεζεκιήλ" in off or len(off) > 200, off[:80])
+        await pg.evaluate("location.hash = '#/lxx/EZK/1'")
+        await pg.wait_for_selector(".lxx-chapter [data-retry]", timeout=10000)
         await ctx.set_offline(False)
+        await pg.click(".lxx-chapter [data-retry]")
+        await pg.wait_for_selector(".lxx-text .lv", timeout=10000)
+        check("'Try again' loads the chapter once back online", await pg.locator(".lxx-text .lv").count() > 10)
 
         # 13i. Largest text: side by side still fits on a phone and an iPad
         await pg.evaluate("localStorage.setItem('ao:textSize', JSON.stringify('largest'))")

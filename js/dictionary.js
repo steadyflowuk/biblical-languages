@@ -216,20 +216,88 @@ async function search(q, which) {
 
 /** Dictionary entries that a Greek word as written may belong to (the Septuagint isn't tagged word by word yet):
  *  written forms known from the New Testament, then dictionary forms, then words that start the same. */
+const lemmaMaps = {};
+
+/** Spellings to try for a Septuagint word: Swete's spellings (ει for ι, unassimilated συν-/ἐν-) and the word
+ * without its past-tense augment (ἐκληρονόμησαν → κληρονομ…, ἐπεμαρτύρατο → ἐπιμαρτυρ…). Works on greekNorm text. */
+function lxxVariants(norm) {
+  const out = new Set([norm]);
+  const add = (x) => { if (x && x.length >= 3) out.add(x); };
+  add(norm.replace(/ει/g, "ι"));
+  const nasal = (x) => x.replace(/^(συν|εν)(?=[κγχξ])/, (m) => m.slice(0, -1) + "γ")
+    .replace(/^(συν|εν)(?=[πβφψμ])/, (m) => m.slice(0, -1) + "μ")
+    .replace(/^(συν|εν)(?=λ)/, (m) => m.slice(0, -1) + "λ").replace(/^συν(?=σ)/, "συ");
+  [...out].forEach((x) => add(nasal(x)));
+  const PREP = [["απε", "απο"], ["αφε", "αφι"], ["επε", "επι"], ["εφε", "εφι"], ["κατε", "κατα"], ["καθε", "καθι"],
+    ["μετε", "μετα"], ["παρε", "παρα"], ["διε", "δια"], ["ανε", "ανα"], ["υπε", "υπο"], ["προσε", "προσ"],
+    ["περιε", "περι"], ["συνε", "συν"], ["ενε", "εν"], ["εξε", "εκ"], ["εισε", "εισ"]];
+  [...out].forEach((x) => {
+    for (const [a, b] of PREP) if (x.startsWith(a) && x.length > a.length + 2) add(b + x.slice(a.length));
+    if (/^ε[^ιυ]/.test(x)) add(x.slice(1)); // ἔπταισεν → πταισεν (not ει-, ευ- which are often the word itself)
+    if (/^η/.test(x)) { add("ε" + x.slice(1)); add("α" + x.slice(1)); } // ἠρήμωται → ερημ…, ἤκουσαν → ακου…
+    if (/^ω/.test(x)) add("ο" + x.slice(1));
+  });
+  return [...out];
+}
+
+/** Dictionary entries for a written Greek word that isn't tagged (the Septuagint): its form in the New Testament,
+ * a headword spelt the same, else headwords sharing the longest start with one of its spellings (marked as guesses). */
 export async function lookupForm(word) {
   const norm = greekNorm(word);
   if (!norm) return [];
   const found = new Map();
-  for (const k of (await formsList("G"))[norm] || []) {
-    const e = await resolveKey(k);
-    if (e) found.set(e.key, e);
-  }
+  const forms = await formsList("G");
   const list = await index("G");
-  list.filter((e) => e.lemmaN === norm).forEach((e) => found.set(e.key, e));
+  const variants = lxxVariants(norm);
+  for (const v of variants) {
+    for (const k of forms[v] || []) {
+      const e = await resolveKey(k);
+      if (e) found.set(e.key, e);
+    }
+    list.filter((e) => e.lemmaN === v).forEach((e) => found.set(e.key, e));
+    if (found.size) break; // the plain spelling first; variants only when it finds nothing
+  }
   if (!found.size && norm.length >= 4) {
-    // no exact match: dictionary forms sharing the first letters (a rough guess, shown as such)
-    list.filter((e) => e.count && e.lemmaN.startsWith(norm.slice(0, Math.max(4, norm.length - 3))))
-      .sort((a, c) => c.count - a.count).slice(0, 4).forEach((e) => found.set(e.key, { ...e, guess: true }));
+    // no exact match: (1) a stem of the word plus a usual dictionary ending (μισοῦντας → μισ+έω, κοιμηθῆναι →
+    // κοιμ+άω, στενάξουσιν → στενα(ξ→ζ)+ω); (2) headwords sharing the longest start. Names only for capitalised words.
+    const isName = word.trim().charAt(0) !== word.trim().charAt(0).toLowerCase();
+    const ok = (e) => e.count && (isName || e.lemma.charAt(0) === e.lemma.charAt(0).toLowerCase());
+    if (!lemmaMaps.G) {
+      lemmaMaps.G = new Map();
+      list.forEach((e) => { if (!lemmaMaps.G.has(e.lemmaN)) lemmaMaps.G.set(e.lemmaN, []); lemmaMaps.G.get(e.lemmaN).push(e); });
+    }
+    const byLemma = lemmaMaps.G;
+    const ENDINGS = ["ω", "εω", "αω", "οω", "ευω", "ιζω", "αζω", "ζω", "ομαι", "οσ", "ον", "η", "α", "ισ", "ησ", "υσ", "μι"];
+    const SHORT = ["εω", "αω", "οω"]; // a 3-letter stem only for contract verbs (μισ-έω, βο-άω)
+    const SWAP = { ξ: ["γ", "κ", "χ", "ζ", "σσ"], ψ: ["π", "β", "φ", "πτ"], σ: ["", "ζ", "δ", "θ", "τ"], θ: ["", "ζ"] };
+    let stemHits = [];
+    let stemLen = 0;
+    for (const v of variants) {
+      for (let k = v.length - 1; k >= (isName ? 4 : 3) && k > stemLen; k--) {
+        const stem = v.slice(0, k);
+        const last = stem.slice(-1);
+        const stems = [stem].concat((SWAP[last] || []).map((x) => stem.slice(0, -1) + x));
+        const hits = [];
+        stems.forEach((st) => (k === 3 ? SHORT : ENDINGS).forEach((end) => (byLemma.get(st + end) || [])
+          .forEach((e) => { if (ok(e) && (!isName || e.lemma.charAt(0) !== e.lemma.charAt(0).toLowerCase())) hits.push(e); })));
+        if (hits.length) { stemHits = hits; stemLen = k; break; }
+      }
+    }
+    let best = [];
+    let bestLen = 0;
+    for (const v of variants) {
+      for (let k = v.length - 1; k >= Math.max(4, v.length - 4) && k >= bestLen; k--) {
+        const stem = v.slice(0, k);
+        const hits = list.filter((e) => ok(e) && e.lemmaN.startsWith(stem)
+          && (!isName || e.lemma.charAt(0) !== e.lemma.charAt(0).toLowerCase())); // a name only matches a name
+        if (hits.length) {
+          if (k > bestLen) { best = hits; bestLen = k; }
+          break;
+        }
+      }
+    }
+    if (stemHits.length && (stemLen >= bestLen || (stemLen >= 4 && stemLen === bestLen - 1))) best = stemHits;
+    best.sort((a, c) => c.count - a.count).slice(0, 4).forEach((e) => found.set(e.key, { ...e, guess: true }));
   }
   return [...found.values()].sort((a, c) => (a.guess ? 1 : 0) - (c.guess ? 1 : 0) || c.count - a.count).slice(0, 6);
 }

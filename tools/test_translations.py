@@ -28,6 +28,10 @@ def esv_body(url):
     b, c = int(m.group(1)), int(m.group(2))
     if b == 19 and c == 23:  # shaped like the real API's plain text
         return {"passages": ["A Psalm of David.\n\n[1] The LORD is my shepherd; I shall not want.\n    [2] He makes me lie down in green pastures.\n He leads me beside still waters.\n[3] He restores my soul.\n[4] Even though I walk.\n[5] You prepare a table.\n[6] Surely goodness and mercy.\n"]}
+    if b == 41 and c == 16:  # Mark 16: the ESV's note and double brackets come just before [9]
+        return {"passages": [" ".join(f"[{v}] Mark verse {v}." for v in range(1, 8)) + "\n  [8] And they fled.\n\n[Some of the earliest manuscripts do not include 16:9–20.]\n\n[[[9] Now when he rose early. " + " ".join(f"[{v}] Mark verse {v}." for v in range(10, 20)) + " [20] And they went out.]]\n"]}
+    if b == 64:  # 3 John: the ESV has 15 verses, the BSB 14
+        return {"passages": [" ".join(f"[{v}] Third John {v}." for v in range(1, 14)) + " [14] I hope to see you soon.\n\n[15] Peace be to you. The friends greet you."]}
     if b == 22 and c == 1:  # Song of Songs speaker labels
         return {"passages": ["She\n\n[2] Let him kiss me with the kisses of his mouth!\n\n" + " ".join(f"[{v}] Song verse {v}." for v in range(3, 18))]}
     return {"passages": [" ".join(f"[{v}] ESV {b}:{c}:{v}." for v in range(1, 60))]}
@@ -217,7 +221,7 @@ async def main():
 
         # 13. The offline ESV store stays within Crossway's limit
         await pg.evaluate("""async () => { const e = await import('./js/esv.js');
-          for (let c = 1; c <= 25; c++) { try { await e.chapter(1, c); } catch (x) {} } }""")
+          for (let c = 1; c <= 25; c++) { try { await e.chapter(1, c, 1533); } catch (x) {} } }""")
         stored = await pg.evaluate("JSON.parse(localStorage.getItem('esv:chapters')||'[]').reduce((n, x) => n + Object.keys(x[1]).length, 0)")
         check("ESV offline store holds no more than 450 verses", 0 < stored <= 450, str(stored))
 
@@ -266,6 +270,100 @@ async def main():
         check("picker: choosing Tobit 3 opens it", (await pg.locator(".rt-name").inner_text()) == "Tobit 3")
         sw = await pg.evaluate("document.documentElement.scrollWidth")
         check("Septuagint screen: no sideways scrolling", sw <= 390, str(sw))
+
+        # 13b. Half a book at most is stored; a one-chapter book is never stored
+        await pg.evaluate("""async () => { localStorage.removeItem('esv:chapters'); const e = await import('./js/esv.js');
+          for (let c = 1; c <= 4; c++) { try { await e.chapter(8, c, 85); } catch (x) {} }
+          try { await e.chapter(65, 1, 25); } catch (x) {} }""")
+        kept = await pg.evaluate("JSON.parse(localStorage.getItem('esv:chapters')||'[]').map(x => [x[0], Object.keys(x[1]).length])")
+        ruth = sum(n for k, n in kept if k.startswith("08"))
+        check("ESV store keeps less than half of Ruth and none of Jude", 0 < ruth < 43 and not any(k.startswith("65") for k, _ in kept), str(kept))
+        esv_calls.clear()
+        await set_prefs(pg, readLayout="words")
+        await open_chapter(pg, "RUT/1")
+        await pg.wait_for_function("document.querySelector('#v1 .esv') && !document.querySelector('#v1 .esv .muted')", timeout=8000)
+        check("a stored ESV chapter opens without a new request", not esv_calls, str(esv_calls))
+
+        # 13c. The ESV's brackets and its verse the BSB numbers differently
+        await open_chapter(pg, "MRK/16")
+        await pg.wait_for_function("document.querySelector('#v9 .esv') && !document.querySelector('#v9 .esv .muted')", timeout=8000)
+        m8, m9 = await pg.locator("#v8 .esv").inner_text(), await pg.locator("#v9 .esv").inner_text()
+        check("Mark 16: '[[' and the ESV's note start verse 9, not the end of verse 8",
+              "[[" not in m8 and "earliest manuscripts" not in m8 and "[[Now when he rose" in m9 and "earliest manuscripts" in m9, f"{m8} | {m9}")
+        await open_chapter(pg, "3JN/1")
+        await pg.wait_for_function("document.querySelector('#v15 .esv') && !document.querySelector('#v15 .esv .muted')", timeout=8000)
+        j15 = await pg.locator("#v15 .esv").inner_text()
+        check("3 John 15: the ESV's verse 15 shows (the BSB folds it into 14)", "Peace be to you" in j15, j15)
+        await set_prefs(pg, readLayout="parallel")
+        await open_chapter(pg, "3JN/1", ".pv")
+        await pg.wait_for_function("document.querySelector('#v15 .col-esv') && /Peace/.test(document.querySelector('#v15 .col-esv').textContent)", timeout=8000)
+        check("3 John 15 side by side: ESV column has verse 15", True)
+
+        # 13d. Keyboard: Septuagint words open with Enter, and focus comes back to the word
+        await pg.goto(f"{BASE}#/lxx/GEN/1")
+        await pg.wait_for_selector(".lxx-text .lw")
+        await pg.focus(".lxx-text .lw >> nth=2")
+        await pg.keyboard.press("Enter")
+        await pg.wait_for_selector(".sheet .lxx-look .rows, .sheet .lxx-look p", timeout=8000)
+        inside = await pg.evaluate("document.activeElement.closest('.sheet') !== null")
+        await pg.keyboard.press("Escape")
+        await pg.wait_for_timeout(300)
+        back = await pg.evaluate("document.activeElement.classList.contains('lw') && document.activeElement.textContent")
+        check("keyboard: Enter on a Septuagint word opens it, focus stays inside, Escape returns to the word", inside and bool(back), f"{inside} {back}")
+        g = await pg.locator(".lxx-text .lw >> nth=0").inner_text()
+        await pg.click(".lxx-text .lw >> nth=0")
+        await pg.wait_for_selector(".sheet .lxx-look .rows", timeout=8000)
+        look = nfc(await pg.locator(".sheet .lxx-look").inner_text())
+        check("Genesis 1:1 'ΕΝ' finds ἐν", "ἐν" in look, f"{g}: {look[:80]}")
+        await pg.keyboard.press("Escape")
+
+        # 13e. Odd Septuagint links
+        for link, want in [("PSA/22/999", "Psalm 22"), ("psa/22", "Psalm 22"), ("PSA/0", "Psalm 1"), ("PSA/abc", "Psalm 1"), ("DAN/3/52", "Daniel")]:
+            await pg.goto(f"{BASE}#/lxx/{link}")
+            await pg.wait_for_selector(".lxx-text .lv", timeout=8000)
+            got = await pg.locator(".rt-name").inner_text()
+            check(f"#/lxx/{link} opens {want}", got.startswith(want), got)
+        check("#/lxx/DAN/3/52 highlights verse 52 (Song of the Three)", await pg.locator("#v52.focus").count() == 1)
+
+        # 13f. Fast switching between Septuagint chapters ends on the last one
+        for c in (1, 2, 3, 4, 5):
+            await pg.evaluate(f"location.hash = '#/lxx/ISA/{c}'")
+        await pg.wait_for_function("document.querySelector('.rt-name')?.textContent === 'Isaiah 5' && document.querySelector('.lxx-text')", timeout=8000)
+        await pg.wait_for_timeout(500)
+        first5 = nfc(await pg.locator(".lxx-text .lv >> nth=0").inner_text())
+        check("fast switching: shows Isaiah 5 only", (await pg.locator(".lxx-chapter").count()) == 1 and "ᾌσω" in first5 or "Ἄισω" in first5 or "ἀμπελ" in first5, first5[:60])
+
+        # 13g. Offline: a Septuagint chapter read before still opens; an unread book says so
+        await pg.goto(f"{BASE}#/lxx/ISA/5")
+        await pg.wait_for_selector(".lxx-text .lv")
+        await ctx.set_offline(True)
+        await pg.evaluate("location.hash = '#/lxx/EZK/1'")
+        await pg.wait_for_selector(".lxx-chapter .note, .lxx-text .lv", timeout=10000)
+        off = await pg.locator(".lxx-chapter").inner_text()
+        await pg.evaluate("location.hash = '#/lxx/ISA/6'")
+        await pg.wait_for_selector(".lxx-text .lv", timeout=10000)
+        check("offline: a book read before opens; an unread one asks for a connection",
+              "internet" in off or "Ἰεζεκιήλ" in off or len(off) > 200, off[:80])
+        await ctx.set_offline(False)
+
+        # 13h. Psalm 119 side by side with everything on: drawn quickly
+        await set_prefs(pg, readLayout="parallel", showESV=True, showLXX=True)
+        await open_chapter(pg, "PSA/118", ".pv")
+        t = await pg.evaluate("""async () => { const t0 = performance.now(); location.hash = '#/read/PSA/119';
+          await new Promise(r => { const tick = () => document.querySelectorAll('.pv').length > 170 && !document.querySelector('.col-lxx .muted') ? r() : setTimeout(tick, 20); tick(); });
+          return performance.now() - t0; }""")
+        check("Psalm 119 side by side (Hebrew, BSB, ESV, Septuagint) draws in under 2.5 s", t < 2500, f"{t:.0f} ms")
+
+        # 13i. Largest text: side by side still fits on a phone and an iPad
+        await pg.evaluate("localStorage.setItem('ao:textSize', JSON.stringify('largest'))")
+        await open_chapter(pg, "PSA/23", ".pv")
+        sw = await pg.evaluate("document.documentElement.scrollWidth")
+        await pg.set_viewport_size({"width": 1180, "height": 820})
+        await pg.wait_for_timeout(300)
+        sw2 = await pg.evaluate("document.documentElement.scrollWidth")
+        check("largest text: side by side fits (phone and iPad)", sw <= 390 and sw2 <= 1180, f"{sw} {sw2}")
+        await pg.evaluate("localStorage.setItem('ao:textSize', JSON.stringify('normal'))")
+        await pg.set_viewport_size({"width": 390, "height": 844})
 
         # 16. 320px: side by side and Septuagint
         await pg.set_viewport_size({"width": 320, "height": 640})

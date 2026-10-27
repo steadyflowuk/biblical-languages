@@ -92,7 +92,8 @@ def main():
     build(sys.argv[1])
 
 
-def build(src):
+def build(src, report=None):
+    """report: optional dict that receives the alignment's internals (used by tools/audit_lxx.py)."""
     sw = os.path.join(src, "lxx-swete")
     tv_path = glob.glob(os.path.join(src, "step", "Versification", "TVTMS*.txt"))[0]
 
@@ -246,6 +247,58 @@ def build(src):
         hits = sum(1 for h in H if any(t in G for t in trans[h]))
         return hits / len(H), hits, len(H)
 
+    # 3b. runs shifted by a verse or two: Swete sometimes numbers a stretch differently (all of Ecclesiastes 7 is +1,
+    # Exodus 25:11-33 is -1). Choose an offset per verse (-2..+2 Septuagint verses) that maximises the pair scores,
+    # paying SWITCH for every change of offset, so only a consistent run moves, never a single verse on its own.
+    SWITCH, STAY = 0.8, 0.05
+
+    def shift_runs(bid, c, how, out, scores):
+        pv = pairs(bid, c, how)
+        vs = [v for v, _ in pv]
+        base = [gs[0] if len(gs) == 1 else None for _, gs in pv]  # the chapter's plain numbering
+        idx = [i for i, e in enumerate(out) if base[i] and (not e[1] or "," not in e[1]) and f"{bid} {c}:{e[0]}" not in OVERRIDES]
+        if len(idx) < 3:
+            return out, scores
+        offs = (-2, -1, 0, 1, 2)
+        code = lambda r: r.split(".")[0]
+
+        def cand(i, k):
+            j = opos[base[i]] + k
+            if not 0 <= j < len(order) or code(order[j]) != code(base[i]):
+                return None
+            return order[j]
+
+        def val(i, k):
+            r = cand(i, k)
+            if r is None:
+                return -9
+            sc, hits, n = score(vs[i], [r])
+            return (0.4 if sc is None or n < 2 else sc) + (STAY if k == 0 else 0)  # too few paired words: neutral
+
+        best = {k: (val(idx[0], k), [k]) for k in offs}
+        for i in idx[1:]:
+            best = {k: max(((t + val(i, k) - (SWITCH if k != p else 0), path + [k]) for p, (t, path) in best.items()),
+                           key=lambda x: x[0]) for k in offs}
+        path = max(best.values(), key=lambda x: x[0])[1]
+        if not any(path):
+            return out, scores
+        out = [list(e) for e in out]
+        for i, k in zip(idx, path):
+            if not k:
+                continue
+            r = cand(i, k)
+            sc, hits, n = score(vs[i], [r])
+            new = None if (n >= 4 and hits == 0) else r  # nothing in common: leave it out
+            if new != out[i][1]:
+                moved.append(f"{bid} {c}:{out[i][0]} {out[i][1]} -> {new}")
+                out[i][1], out[i][2] = new, (text[new] if new else None)
+        scores = [(score(v, [e[1]])[0] if e[1] else 0) for v, e in zip(vs, out)]
+        scores = [1 if x is None else x for x in scores]
+        return out, scores
+
+    opos = {r: i for i, r in enumerate(order)}
+    moved = []
+
     # 2c. best numbering per chapter by translation pairs; 3. local corrections and overrides
     result = {}
     for b in ot:
@@ -277,12 +330,42 @@ def build(src):
                 s2 = score(v, gs)[0]
                 scores.append(s2 if s2 is not None else (1 if gs else 0))
                 out.append([v[0], ",".join(gs) if gs else None, " ".join(text[g] for g in gs) if gs else None])
+            out, scores = shift_runs(bid, c, how, out, scores)
             mean = sum(scores) / len(scores) if scores else 0
             chs = collections.Counter(re.match(r"^(.+?)\.(\d+)", g).groups() for _, r, _ in out if r for g in r.split(","))
             main = chs.most_common(1)[0][0] if chs else (sb, str(c))
             lxx_id = next(x[1] for x in BOOKS if x[0] == main[0])
             result.setdefault(bid, []).append([c, {"lxx": f"{lxx_id} {main[1]}", "weak": 1 if mean < 0.3 else 0,
                                                    "v": [[v, r, t] if r else [v, None] for v, r, t in out]}])
+    # 3c. two neighbouring verses given the same Greek verse while the Greek verse just before (or after) it is unused:
+    # usually a chapter boundary Swete didn't renumber (Deuteronomy 12:32 is Swete's 12:32, not 13:1).
+    used = collections.Counter(g for chs in result.values() for _, d in chs for e in d["v"] if e[1] for g in e[1].split(","))
+    flat = [(bid, c, d, i) for bid, chs in result.items() for c, d in chs for i in range(len(d["v"]))]
+    hv = {(bid, c): {v[0]: v for v in vs} for bid in result for c, vs in hot[bid]["ch"]}
+    sc = lambda bid, c, vn, g: (score(hv[(bid, c)][vn], [g])[0] if g else None)
+    ref = lambda t: t[2]["v"][t[3]][1]
+    for n in range(1, len(flat) - 2):
+        (b1, c1, d1, i1), (b2, c2, d2, i2) = flat[n], flat[n + 1]
+        e1, e2 = d1["v"][i1], d2["v"][i2]
+        if b1 != b2 or not e1[1] or e1[1] != e2[1] or "," in e1[1] or f"{b1} {c1}:{e1[0]}" in OVERRIDES:
+            continue
+        g = e1[1]
+        j = opos[g]
+        # the unused Greek verse sits between this pair and the verse before (or after) it, in order
+        for e, (b, c), k, nb in ((e1, (b1, c1), -1, flat[n - 1]), (e2, (b2, c2), 1, flat[n + 2])):
+            if not 0 <= j + 2 * k < len(order) or nb[0] != b1 or ref(nb) != order[j + 2 * k]:
+                continue
+            alt = order[j + k]
+            if alt.split(".")[0] != g.split(".")[0] or used[alt]:
+                continue
+            _, hits, pn = score(hv[(b, c)][e[0]], [alt])
+            if pn >= 4 and hits == 0:
+                continue
+            moved.append(f"{b} {c}:{e[0]} {g} -> {alt} (shared)")
+            e[1], e[2] = alt, text[alt]
+            used[alt] += 1
+            used[g] -= 1
+            break
     for bid, chs in result.items():
         dump(os.path.join(OUT, "ot", f"{bid}.json"), {"id": bid, "ch": chs})
     # For each Septuagint chapter, the English chapter it mostly lines up with ("Compare with the Hebrew")
@@ -317,13 +400,15 @@ in standard Unicode form (NFC); the words are unchanged.
 `ot/` lines the Septuagint up with the Hebrew/English verse numbers, using STEPBible's TVTMS versification data
 (CC BY 4.0, STEPBible.org / Tyndale House Cambridge) plus the checks described in `tools/build_lxx.py`.
 """)
+    if report is not None:
+        report.update(moved=moved, score=score, verses=verses, order=order, result=result, trans=trans, hot=hot, gw=gw)
     total = sum(len(v) for chs in by_code.values() for v in chs.values())
     weak = [f"{bid} {c}" for bid, chs in result.items() for c, d in chs if d["weak"]]
     missing = sum(1 for chs in result.values() for _, d in chs for v in d["v"] if v[1] is None)
     ot_verses = sum(len(d["v"]) for chs in result.values() for _, d in chs)
     print(json.dumps({"books": len(books_out), "verses": total, "words": sum(len(v) for v in verses.values()),
                       "ot_verses": ot_verses, "lined_up": ot_verses - missing, "weak_chapters": weak,
-                      "word_pairs": len(trans)}, ensure_ascii=False, indent=1))
+                      "word_pairs": len(trans), "moved_in_runs": len(moved)}, ensure_ascii=False, indent=1))
 
 
 if __name__ == "__main__":

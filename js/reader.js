@@ -474,7 +474,7 @@ function greekChapterHTML(state) {
     const bsb = !state.prefs.showBSB ? ""
       : parts.length ? `<p class="bsb">${tag}${parts.join(" ")}</p>`
       : `<p class="bsb muted">${tag}In the BSB these words are part of ${refs.map((r) => (r.startsWith(`${state.ch}.`) ? `verse ${r.split(".")[1]}` : refLabel(r))).join(" and ")}.</p>`;
-    out.push(`<div class="v" data-vi="${vi}" id="v${v}"><span class="vn"><span class="sr">Verse </span>${v}</span><div class="words" lang="grc">${words.map((w, wi) => wordHTML(w, vi, wi, state)).join("")}</div>${bsb}${esvHTML(state, fresh, "p")}</div>`);
+    out.push(`<div class="v" data-vi="${vi}" id="v${v}"><span class="vn"><span class="sr">Verse </span>${v}</span><div class="words" lang="grc">${words.map((w, wi) => wordHTML(w, vi, wi, state)).join("")}</div>${bsb}${esvHTML(state, esvRefs(state, vi, fresh), "p")}</div>`);
   });
   flushPara();
 
@@ -523,7 +523,7 @@ function heChapterHTML(state) {
       ? `<span class="vh" dir="ltr" title="Verse number in Hebrew Bibles"><span class="sr">, Hebrew Bible </span><span aria-hidden="true">Heb </span>${refLabel(heRef)}</span>` : "";
     const aram = mixed && words.some(isAramaic) ? `<span class="vh" dir="ltr">Aram.</span>` : "";
     const vn = v === 0 ? `<span class="vn vn-title">title${heNum}</span>` : `<span class="vn"><span class="sr">Verse </span>${v}${heNum}${aram}</span>`;
-    out.push(`<div class="v" data-vi="${vi}" id="v${v}" dir="rtl">${vn}<div class="words" lang="he">${words.map((w, wi) => wordHTML(w, vi, wi, state)).join("")}</div>${bsb}${esvHTML(state, [`${state.ch}.${v}`], "p")}${lxxHTML(state, v, "p")}</div>`);
+    out.push(`<div class="v" data-vi="${vi}" id="v${v}" dir="rtl">${vn}<div class="words" lang="he">${words.map((w, wi) => wordHTML(w, vi, wi, state)).join("")}</div>${bsb}${esvHTML(state, esvRefs(state, vi, [`${state.ch}.${v}`]), "p")}${lxxHTML(state, v, "p")}</div>`);
   });
   flushPara();
   return out.join("");
@@ -552,6 +552,31 @@ function esvTextFor(state, refs) {
     if (chap[v]) bits.push((own ? "" : `<sup class="bsb-ref">${c === state.ch ? v : `${c}:${v}`}</sup>`) + esc(chap[v]));
   }
   return bits.length ? bits.join(" ") : `<span class="muted">The ESV has no verse here.</span>`;
+}
+
+/** A verse's ESV refs: its English (BSB) refs plus any ESV verse the BSB numbers differently (3 John 1:15). */
+function esvRefs(state, vi, refs) {
+  const extra = state.esvExtra && state.esvExtra.get(vi);
+  return extra ? refs.concat(extra) : refs;
+}
+
+/** ESV verses in this chapter that no verse here carries: give each to the verse with its number, or the one before. */
+function esvExtras(state) {
+  const chap = state.esvChapters && state.esvChapters.get(state.ch);
+  const extra = new Map();
+  if (!chap || chap instanceof Error) return extra;
+  const owned = ownedRefs(state);
+  const all = new Set(owned.flat());
+  Object.keys(chap).map(Number).sort((a, b) => a - b).forEach((n) => {
+    const ref = `${state.ch}.${n}`;
+    if (all.has(ref) || (n === 0 && !state.verses.some((v) => v[0] === 0))) return;
+    let vi = state.verses.findIndex((v) => v[0] === n);
+    for (let m = n - 1; vi < 0 && m >= 0; m--) vi = owned.findIndex((r) => r.includes(`${state.ch}.${m}`));
+    if (vi < 0) vi = state.verses.length - 1;
+    if (vi < 0) return;
+    extra.set(vi, (extra.get(vi) || []).concat(ref));
+  });
+  return extra;
 }
 
 function esvHTML(state, refs, tag) {
@@ -683,8 +708,9 @@ function parallelHTML(state) {
       if (k === "orig") return `<div class="col col-orig" lang="${he ? "he" : "grc"}" dir="${he ? "rtl" : "ltr"}">${orig}</div>`;
       if (k === "bsb") return `<div class="col col-bsb" lang="en">${lab}${bsbForRefs(state, refs, v)}</div>`;
       if (k === "esv") {
-        const t = esvTextFor(state, refs);
-        return `<div class="col col-esv" lang="en" data-esv="${refs.join(" ")}">${lab}${t === null ? `<span class="muted">Loading…</span>` : t}</div>`;
+        const er = esvRefs(state, vi, refs);
+        const t = er.length ? esvTextFor(state, er) : "";
+        return `<div class="col col-esv" lang="en" data-esv="${er.join(" ")}">${lab}${t === null ? `<span class="muted">Loading…</span>` : t}</div>`;
       }
       return `<div class="col col-lxx" lang="grc">${lab}${lxxBody(state, v)}</div>`;
     }).join("");
@@ -708,7 +734,7 @@ async function showLxxWord(el, where) {
     const box = body.querySelector(".lxx-look");
     if (!box) return;
     box.innerHTML = (found.length
-      ? `${found.some((e) => e.guess) ? `<p class="muted">No exact match; words that begin the same way:</p>` : ""}<ul class="rows">${found.map((e) => dict.entryRowHTML(e)).join("")}</ul>`
+      ? `${found.some((e) => e.guess) ? `<p class="muted">No exact match. These look closest; check the meaning fits the verse:</p>` : ""}<ul class="rows">${found.map((e) => dict.entryRowHTML(e)).join("")}</ul>`
       : `<p>No dictionary word matches this spelling exactly.</p>`) +
       `<p><button type="button" class="btn secondary" data-lxx-search>Search the dictionary for ${esc(word)}</button></p>`;
     box.querySelector("[data-lxx-search]").addEventListener("click", () => { dict.setQuery(word); location.hash = "#/words"; });
@@ -932,12 +958,16 @@ export const read = {
         state.esvChapters = state.esvChapters || new Map();
         state.esvError = null;
         const chapters = [...new Set(ownedRefs(state).flat().map((r) => Number(r.split(".")[0])))];
-        state.esvLoading = Promise.all(chapters.map((c) => esv.chapter(state.bookNumber, c)
+        state.esvLoading = Promise.all(chapters.map((c) => esv.chapter(state.bookNumber, c, book.v.reduce((n, x) => n + x, 0))
           .then((vs) => state.esvChapters.set(c, vs))
           .catch((err) => { state.esvChapters.set(c, err); state.esvError = err; })))
           .then(() => {
             if (!main.contains(holder)) return;
-            fillEsv(holder, state);
+            const extra = esvExtras(state);
+            const changed = JSON.stringify([...extra]) !== JSON.stringify([...(state.esvExtra || new Map())]);
+            state.esvExtra = extra;
+            if (changed) redraw();
+            else fillEsv(holder, state);
             state.esvMsg = null;
             showExtraMsgs(holder, state);
             if (state.esvError) {

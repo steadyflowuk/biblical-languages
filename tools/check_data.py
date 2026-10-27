@@ -266,6 +266,9 @@ check("Septuagint lines up: Psalm 23:1 = Ps 22:1, Jeremiah 31:31 = 38:31, Malach
       lxx_at("PSA", 23, 1)[1] == "Psa.22:1" and lxx_at("JER", 31, 31)[1] == "Jer.38:31"
       and unicodedata.normalize("NFC", "Ἠλίαν") in unicodedata.normalize("NFC", lxx_at("MAL", 4, 5)[2] or "")
       and lxx_at("DAN", 4, 1)[1] == "Dat.3:98")
+check("Septuagint runs numbered differently line up: Ecclesiastes 7:1 = 7:2, Exodus 25:17 = 25:16, Proverbs 23:23 absent",
+      lxx_at("ECC", 7, 1)[1] == "Ecc.7:2" and lxx_at("EXO", 25, 17)[1] == "Exo.25:16" and lxx_at("PRO", 23, 23)[1] is None,
+      f'{lxx_at("ECC", 7, 1)[1]} {lxx_at("EXO", 25, 17)[1]} {lxx_at("PRO", 23, 23)[1]}')
 ot_v = [x for b in books if b["lang"] == "he" for _, d in load(f"lxx/ot/{b['id']}.json")["ch"] for x in d["v"]]
 check("Septuagint: at least 96% of Old Testament verses have a matching Greek verse",
       sum(1 for x in ot_v if x[1]) / len(ot_v) >= 0.96, f"{sum(1 for x in ot_v if x[1]):,}/{len(ot_v):,}")

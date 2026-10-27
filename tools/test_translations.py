@@ -282,7 +282,7 @@ async def main():
         check("ESV store keeps less than half of Ruth and none of Jude", 0 < ruth < 43 and not any(k.startswith("65") for k, _ in kept), str(kept))
         esv_calls.clear()
         await set_prefs(pg, readLayout="words")
-        await open_chapter(pg, "RUT/1")
+        await open_chapter(pg, "RUT/4")  # chapters 3 and 4 are kept (40 verses); 1 and 2 were let go to stay under half
         await pg.wait_for_function("document.querySelector('#v1 .esv') && !document.querySelector('#v1 .esv .muted')", timeout=8000)
         check("a stored ESV chapter opens without a new request", not esv_calls, str(esv_calls))
 
@@ -335,6 +335,14 @@ async def main():
         first5 = nfc(await pg.locator(".lxx-text .lv >> nth=0").inner_text())
         check("fast switching: shows Isaiah 5 only", (await pg.locator(".lxx-chapter").count()) == 1 and "ᾌσω" in first5 or "Ἄισω" in first5 or "ἀμπελ" in first5, first5[:60])
 
+        # 13h. Psalm 119 side by side with everything on: drawn quickly
+        await set_prefs(pg, readLayout="parallel", showESV=True, showLXX=True)
+        await open_chapter(pg, "PSA/118", ".pv")
+        t = await pg.evaluate("""async () => { const t0 = performance.now(); location.hash = '#/read/PSA/119';
+          await new Promise(r => { const tick = () => document.querySelectorAll('.pv').length > 170 && !document.querySelector('.col-lxx .muted') ? r() : setTimeout(tick, 20); tick(); });
+          return performance.now() - t0; }""")
+        check("Psalm 119 side by side (Hebrew, BSB, ESV, Septuagint) draws in under 2.5 s", isinstance(t, (int, float)) and t < 2500, str(t))
+
         # 13g. Offline: a Septuagint chapter read before still opens; an unread book says so
         await pg.goto(f"{BASE}#/lxx/ISA/5")
         await pg.wait_for_selector(".lxx-text .lv")
@@ -347,14 +355,6 @@ async def main():
         check("offline: a book read before opens; an unread one asks for a connection",
               "internet" in off or "Ἰεζεκιήλ" in off or len(off) > 200, off[:80])
         await ctx.set_offline(False)
-
-        # 13h. Psalm 119 side by side with everything on: drawn quickly
-        await set_prefs(pg, readLayout="parallel", showESV=True, showLXX=True)
-        await open_chapter(pg, "PSA/118", ".pv")
-        t = await pg.evaluate("""async () => { const t0 = performance.now(); location.hash = '#/read/PSA/119';
-          await new Promise(r => { const tick = () => document.querySelectorAll('.pv').length > 170 && !document.querySelector('.col-lxx .muted') ? r() : setTimeout(tick, 20); tick(); });
-          return performance.now() - t0; }""")
-        check("Psalm 119 side by side (Hebrew, BSB, ESV, Septuagint) draws in under 2.5 s", t < 2500, f"{t:.0f} ms")
 
         # 13i. Largest text: side by side still fits on a phone and an iPad
         await pg.evaluate("localStorage.setItem('ao:textSize', JSON.stringify('largest'))")

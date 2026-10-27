@@ -218,7 +218,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   0 issues and only 3JN 15 / REV 12:18 notes.
 - `tools/check_data.py` now has 42 checks (5 for the dictionary, 5 for the Septuagint) (incl. OT BSB alignment both ways, psalm titles, Today's verses).
 - `python3 tools/test_dictionary.py` — 51 Dictionary checks (search, entries, links both ways, offline, 320px).
-- `python3 tools/test_translations.py` — ESV/Septuagint/side-by-side checks (ESV API mocked with real verse counts;
+- `python3 tools/test_translations.py` — 69 ESV/Septuagint/side-by-side checks (ESV API mocked with real verse counts;
   ~12 min).
 - `python3 tools/sweep_lxx.py [ot|lxx|all]` — every OT chapter side by side with the Septuagint + every Septuagint
   chapter at 360px (~40 min); expect 0 issues.

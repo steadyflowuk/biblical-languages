@@ -86,7 +86,7 @@ OVERRIDES = {
         "פָּלָא": "to be wonderful, too hard", "רָצָה": "to be pleased with, accept", "רָחַק": "to be far, go far away",
         "שָׁכַם": "to rise early", "מָלֵא": "to be full, fill", "שָׁלֵם": "to be complete; to repay",
         "חָשַׁב": "to think, plan, count", "הָלַל": "to praise; to boast", "דָּבַק": "to cling, stick to",
-        "לוּן": "to spend the night", "רֵעַ": "neighbour, friend", "חֵן": "favour, grace", "עָשָׂה": "to do, make", "מִן־": "from", "דָבַר": "to speak", "עַיִן": "eye; spring", "אֱנוֹשׁ": "human, mankind",
+        "לוּן": "to spend the night", "שָׂדֶה": "field, open country", "רֵעַ": "neighbour, friend", "חֵן": "favour, grace", "עָשָׂה": "to do, make", "מִן־": "from", "דָבַר": "to speak", "עַיִן": "eye; spring", "אֱנוֹשׁ": "human, mankind",
         "אָדָם": "man, mankind", "גּוֹי": "nation", "שַׂר": "official, ruler", "תָּוֶךְ": "middle",
     },
 }

@@ -140,7 +140,7 @@ function videoHTML(c) {
 }
 
 /** A small table (verb endings, noun patterns): { caption, head: [...], rows: [[...]] }. */
-function tableHTML(t) {
+export function tableHTML(t) {
   const cell = (x, tag) => `<${tag}${langAttrs(x) && !/[a-z]/i.test(x) ? langAttrs(x) : ""}>${mixed(x)}</${tag}>`;
   return `<div class="ls-table-wrap" tabindex="0" role="region" aria-label="Table">
     <table class="ls-table">
@@ -156,7 +156,7 @@ function explainHTML(c) {
       ${(c.body || []).map((p) => `<p>${mixed(p)}</p>`).join("")}
       ${c.table ? tableHTML(c.table) : ""}
       ${c.examples && c.examples.length ? `<ul class="ls-examples">${c.examples.map((x) => `<li>
-        <span class="ls-ex-t"${langAttrs(x.t)}>${esc(x.t)}</span>${c.letters ? "" : sayButton(x.t, isHebrew(x.t) ? "he" : "grc", { className: "small" })}
+        <span class="ls-ex-head"><span class="ls-ex-t"${langAttrs(x.t)}>${esc(x.t)}</span>${c.letters ? "" : sayButton(x.t, isHebrew(x.t) ? "he" : "grc", { className: "small" })}</span>
         ${x.say ? `<span class="ls-ex-say">${esc(x.say)}</span>` : ""}
         <span class="ls-ex-en">${mixed(x.en)}</span></li>`).join("")}</ul>` : ""}
     </div>`;
@@ -220,7 +220,7 @@ function wordsHTML(c) {
       <h2 class="ls-title" tabindex="-1">Words from this lesson</h2>
       <p>These ${c.items.length} words go into your review list when you finish, so you see them again before you forget them.</p>
       <ul class="ls-wordlist">${c.items.map((w) => `<li>
-        <a class="ls-word-t" href="#/words/${encodeURIComponent(w.k)}"${langAttrs(w.t)}>${esc(w.t)}</a>${sayButton(w.t, isHebrew(w.t) ? "he" : "grc", { className: "small" })}
+        <span class="ls-ex-head"><a class="ls-word-t" href="#/words/${encodeURIComponent(w.k)}"${langAttrs(w.t)}>${esc(w.t)}</a>${sayButton(w.t, isHebrew(w.t) ? "he" : "grc", { className: "small" })}</span>
         <span class="ls-ex-say">${esc(w.say)}</span>
         <span class="ls-ex-en">${mixed(w.en)}</span></li>`).join("")}</ul>
     </div>`;

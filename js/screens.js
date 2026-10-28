@@ -183,6 +183,10 @@ export const learn = {
         <button type="button" data-lang="he" aria-pressed="${lang === "he"}">Hebrew</button>
       </div>
       <p class="muted learn-how">Each lesson has five steps: hear and see, notice, practise, read real verses, then add the new words to your review list.</p>
+      <ul class="rows learn-abc"><li><a class="row" href="#/alphabet/${lang}">
+        <span class="row-glyph" aria-hidden="true">${lang === "he" ? "א" : "α"}</span>
+        <span class="row-main"><span class="row-title">Alphabet and sounds</span><span class="row-sub">Every letter, the marks that change a sound, and verses to read aloud</span></span>
+      </a></li></ul>
       <div class="path-slot"><p class="muted">Loading the lessons…</p></div>
       <p><a class="btn secondary" href="#/media">Videos to watch alongside</a></p>
     </div>`;
@@ -200,6 +204,9 @@ export const learn = {
       b.addEventListener("click", () => {
         lang = b.dataset.lang;
         store.set("learnLang", lang);
+        const abc = main.querySelector(".learn-abc a");
+        abc.setAttribute("href", `#/alphabet/${lang}`);
+        abc.querySelector(".row-glyph").textContent = lang === "he" ? "א" : "α";
         main.querySelectorAll("[data-lang]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
         draw();
       })
@@ -313,7 +320,7 @@ export const settings = {
         ${radios("greekVoice", "Greek pronunciation", [["erasmian", "Erasmian (taught in most colleges)"], ["koine", "Restored Koine (first-century sounds)"]], store.get("greekVoice"),
           "Erasmian keeps the vowels distinct, which helps with spelling. Restored Koine is closer to how the apostles spoke: ει sounds like “ee”, αι like the e in “bet”, β like v, and δ like the th in “this”. The lessons write pronunciations the Erasmian way, and Listen buttons follow this choice.")}
         ${radios("speechRate", "Listening speed", [["slow", "Slow"], ["normal", "Normal"]], store.get("speechRate"),
-          "Listen buttons use your phone's own Greek and Hebrew voices. For Erasmian, the Modern Greek voice is given each word respelt so it comes out the Erasmian way; it's close, not perfect. Hebrew uses the Israeli voice, and the divine name is read Adonai.")}
+          "Listen buttons use your phone's own Greek and Hebrew voices. For Erasmian, the Modern Greek voice is given each word respelt so it comes out the Erasmian way; it's close, not perfect. Hebrew uses the Israeli voice, and the divine name is read Adonai. On an iPhone, the voices follow the ringer switch: on silent, you won't hear them.")}
         <div class="btn-row say-test">${sayButton("ἐν ἀρχῇ ἦν ὁ λόγος", "grc", { label: "Try Greek" })}${sayButton("בְּרֵאשִׁית בָּרָא אֱלֹהִים", "he", { label: "Try Hebrew" })}</div>
       </form>
 

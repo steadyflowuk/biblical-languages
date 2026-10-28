@@ -141,7 +141,7 @@ function bsbVerse(state, ref) {
 
 // ---------------------------------------------------------------- the sheet (word details, display, picker)
 
-function openSheet(html, { label, onClose, returnFocus } = {}) {
+export function openSheet(html, { label, onClose, returnFocus } = {}) {
   closeSheet();
   const wrap = document.createElement("div");
   wrap.className = "sheet";

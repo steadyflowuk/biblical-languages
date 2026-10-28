@@ -1,5 +1,5 @@
 // Offline support. Bump VERSION whenever app files change so phones pick up the update.
-const VERSION = "2026-10-28.3";
+const VERSION = "2026-10-28.4";
 const SHELL = `shell-${VERSION}`;
 const DATA = "data-v1"; // Bible books and lexicons: kept across app updates, refreshed in the background
 
@@ -21,10 +21,13 @@ const SHELL_FILES = [
   "js/esv.js",
   "js/lessons.js",
   "js/review.js",
+  "js/alphabet.js",
   "js/audio.js",
   "js/sound.js",
   "js/vendor/ts-fsrs.js",
   "lessons/index.json",
+  "lessons/alphabet/grc.json",
+  "lessons/alphabet/he.json",
   "lessons/grc/0.json",
   "lessons/grc/1.json",
   "lessons/grc/2.json",

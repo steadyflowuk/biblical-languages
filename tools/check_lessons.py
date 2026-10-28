@@ -325,6 +325,68 @@ for lang, entries in lesson_index.items():
         if drills < 3:
             bad(lid, f"only {drills} drills; a lesson needs at least 3")
 
+# ---------------------------------------------------------------- alphabet guides (lessons/alphabet/<lang>.json)
+_deck_by_form = {hebrew_key(w[1]): w[4] for w in _deck["words"]}
+for lang in ("grc", "he"):
+    path = os.path.join(ROOT, "lessons", "alphabet", f"{lang}.json")
+    if not os.path.exists(path):
+        bad("alphabet", f"missing {path}")
+        continue
+    if f'"lessons/alphabet/{lang}.json"' not in sw:
+        bad(f"alphabet {lang}", "not in sw.js SHELL_FILES (it would not work offline)")
+    A = load(path)
+    SKIP_SPELL = False
+    ALLOWED.clear()
+    n_letters = 24 if lang == "grc" else 22
+    if len(A.get("letters", [])) != n_letters:
+        bad(f"alphabet {lang}", f"expected {n_letters} letters, found {len(A.get('letters', []))}")
+
+    def example(where, ex):
+        if not ex.get("t") or not ex.get("say") or not ex.get("en"):
+            bad(where, "an example needs t, say and en")
+            return
+        spell(where, ex["t"], lang)
+        if lang == "grc":
+            check_say(where, ex["t"], ex["say"])
+        else:
+            card = _deck_by_form.get(hebrew_key(ex["t"]))
+            if card and card != ex["say"]:
+                bad(where, f"{ex['t']}: say is {ex['say']}, but the review card says {card}")
+
+    for L in A.get("letters", []):
+        where = f"alphabet {lang} letter {L.get('name')}"
+        if not (L.get("forms") and L.get("name") and L.get("nameT") and L.get("nameSay") and L.get("sound")):
+            bad(where, "needs forms, name, nameT, nameSay and sound")
+        if lang == "grc" and not L.get("koine"):
+            bad(where, "needs its Restored Koine sound")
+        for k in ("example", "example2"):
+            if L.get(k):
+                example(where, L[k])
+    for sec in A.get("sections", []):
+        where = f"alphabet {lang} section {sec.get('title')}"
+        SKIP_SPELL = bool(sec.get("letters"))
+        for ex in sec.get("examples", []):
+            SKIP_SPELL = False
+            example(where, ex)
+        SKIP_SPELL = bool(sec.get("letters"))
+        tb = sec.get("table")
+        if tb and any(len(r) != len(tb["head"]) for r in tb["rows"]):
+            bad(where, "table rows must all have as many cells as the head")
+        if tb and not sec.get("letters"):
+            for r in tb["rows"]:
+                for x in r:
+                    spell(where, x, lang)
+    SKIP_SPELL = False
+    for pr in A.get("practice", []):
+        where = f"alphabet {lang} practice {pr.get('ref')}"
+        if pr.get("ref") not in verses or verses[pr["ref"]][0] != lang:
+            bad(where, "verse not found in this language")
+            continue
+        if lang == "he":
+            n = sum(1 for w in verses[pr["ref"]][1])
+            if len((pr.get("say") or "").split()) != n:
+                bad(where, f"say has {len((pr.get('say') or '').split())} words; the verse has {n}")
+
 # The app respells any other Greek word itself (dictionary, Reader, review cards): lessons must agree with it.
 if shutil.which("node") and SAY_PAIRS:
     out = subprocess.run(["node", os.path.join(ROOT, "tools", "greek_say.mjs")], input="\n".join(g for _, g, _ in SAY_PAIRS),

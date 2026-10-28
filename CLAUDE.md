@@ -44,6 +44,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - `js/hebrew.js` Hebrew helpers: word parts, pronunciation, punctuation, short/full grammar labels
 - `js/dictionary.js` Words tab: search + entries (routes `#/words`, `#/words/KEY`) · `js/nav.js` back/return memory
 - `js/esv.js` ESV key + API + small offline store · Septuagint screen (`#/lxx/ID/CH[/V]`) lives in `js/reader.js`
+- `js/alphabet.js` Alphabet and sounds (`#/alphabet/grc|he`, content in `lessons/alphabet/<lang>.json`)
 - `js/lessons.js` lesson engine (route `#/lesson/LANG/ID`) · `lessons/` index + one JSON file per lesson (format: lessons/README.md)
 - `js/review.js` Review trainer (#/review) · `js/sound.js` respelling + voice text (no DOM; Node can import it) ·
   `js/audio.js` Listen buttons (one capture-phase click handler in app.js) · `js/vendor/ts-fsrs.js` (MIT, tools/vendor_fsrs.sh)
@@ -82,6 +83,9 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   help if nothing starts in 3 s), 60 simulated days of FSRS on a fake clock, list cards follow list corrections,
   clearer/British list meanings ("to be able", Sheol, honour), phrase entries dropped (743 Hebrew), Hebrew read-step
   underline also by dictionary form (טוֹב in Gen 1 is tagged as the verb), three Hebrew explanations tightened.
+- [x] 10c (28 Oct 2026): Alphabet and sounds guide (from the user's Greek alphabet PDF, corrected) — every letter,
+  marks, letter pairs, Erasmian beside Restored Koine, vowels, signs in the text, verses to read aloud; alphabet
+  flashcards in Review. iPhone ringer switch silences the voices (user: nothing to change; Settings says so).
 - [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
 
 ## Data (Session 2)
@@ -316,11 +320,29 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   word gloss, review cards, dictionary entries, Reader word sheets (Greek, Hebrew, Septuagint), Today's verse gloss,
   Settings "Try Greek/Hebrew". Real voices can only be judged on the devices (Session 12).
 
+## Alphabet and sounds (Session 10c)
+- Started from the user's PDF "Greek Alphabet NA28 Guide": its mistakes were fixed, not copied — ξεῖνος isn't in the
+  NT, υἱός is hwee-OS, it mixed Erasmian and Koine sounds, ⟦ ⟧ marks later additions (not doubtful words), † isn't an
+  NA28 sign. Every example is a real NT/OT word; the apparatus (NA28 sigla) is not in the app.
+- lessons/alphabet/grc.json: 24 letters {forms, name, nameT, nameSay (= lesson letter cards), sound (Erasmian),
+  koine, example, tip?}; he.json: 22 letters (forms incl. dagesh/final, example2, no koine). sections [{title, body,
+  table?, examples?, letters?}]; practice [{ref, en, say (Hebrew only; Greek say = greekSay of the verse)}].
+  Verse text comes from gnt/hot (Hebrew without cantillation). Both files in SHELL_FILES.
+- check_lessons: letter counts, fields, every example spelt as in the Bible, Greek say = greekSay, Hebrew say = deck
+  say where the deck has the word, practice refs exist and Hebrew say has one part per word.
+- Sheet per letter (reader.openSheet) with previous/next; "used in the app" tag follows Settings greekVoice.
+- Review: reviewDecks grcLetters / heLetters (off by default). Card id `<lang>:abc:<n>`, src "abc", t = forms,
+  sp = nameT (what Listen says), say = nameSay, en = "name: sound", ex = example. Letters come before lesson words;
+  cards refresh from the guide (like deck cards); answer shows the example and "Alphabet guide".
+- Example rows everywhere use `.ls-ex-head` (word + small Listen on one line).
+
 ## Checks
 - `python3 tools/test_app.py` (server on :8765 first) — 101 end-to-end checks; run before every push.
 - `python3 tools/test_reader_edges.py` — 28 Reader edge cases (odd links, fast switching incl. OT↔NT, offline Hebrew, focus, back button, 320px).
 - `python3 tools/sweep_reader.py [nt|ot|all]` — opens every chapter at 360px (NT ~10 min, OT ~35 min); expect
   0 issues and only 3JN 15 / REV 12:18 notes.
+- `python3 tools/test_alphabet.py` — 39 alphabet checks (both guides, sheets, voices, Read aloud, letter flashcards,
+  320px largest dark, offline).
 - `python3 tools/test_review.py` — 46 review/audio checks (incl. a week on a fake clock, speech before voices load) (voices replaced by a recorder; FSRS sessions, limits,
   lists, aliases, both languages, offline, 320px largest dark).
 - `tools/check_data.py` now has 46 checks (5 for the dictionary, 5 for the Septuagint, 4 for the decks) (incl. OT BSB alignment both ways, psalm titles, Today's verses).

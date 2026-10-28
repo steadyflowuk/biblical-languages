@@ -4,6 +4,7 @@ import { read, lxx, closeSheet } from "./reader.js";
 import { words } from "./dictionary.js";
 import { lesson } from "./lessons.js";
 import { reviewScreen } from "./review.js";
+import { alphabet } from "./alphabet.js";
 import { bindAudio } from "./audio.js";
 import * as nav from "./nav.js";
 
@@ -15,6 +16,7 @@ const ROUTES = {
   lxx,
   words,
   review: reviewScreen,
+  alphabet,
   media: screens.media,
   settings: screens.settings,
 };
@@ -37,7 +39,7 @@ function route() {
     return;
   }
   document.querySelectorAll(".tabs a[data-tab]").forEach((a) => {
-    if (a.dataset.tab === (name === "lxx" ? "read" : name === "lesson" ? "learn" : name)) a.setAttribute("aria-current", "page");
+    if (a.dataset.tab === (name === "lxx" ? "read" : name === "lesson" || name === "alphabet" ? "learn" : name)) a.setAttribute("aria-current", "page");
     else a.removeAttribute("aria-current");
   });
   nav.visited();

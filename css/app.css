@@ -715,9 +715,11 @@ ol.rows { list-style: none; padding: 0; }
 .ls-examples li + li, .ls-wordlist li + li { border-top: 1px solid var(--line); }
 @media (min-width: 520px) {
   .ls-examples li, .ls-wordlist li { grid-template-columns: minmax(7rem, auto) minmax(0, 1fr); align-items: baseline; }
-  .ls-ex-say { grid-column: 1; }
+  .ls-ex-head, .ls-ex-say { grid-column: 1; }
   .ls-ex-en { grid-column: 2; grid-row: 1 / span 2; }
 }
+.ls-ex-head { display: flex; align-items: center; flex-wrap: wrap; gap: 0 4px; }
+.ls-ex-head .say-btn.small { margin: -8px 0; }
 .ls-ex-t, .ls-word-t { font-size: 1.45rem; line-height: 1.4; }
 .ls-ex-t:lang(grc), .ls-word-t:lang(grc) { font-family: var(--font-greek); }
 .ls-ex-t:lang(he), .ls-word-t:lang(he) { font-family: var(--font-hebrew); font-size: 1.7rem; text-align: left; }
@@ -888,3 +890,42 @@ ol.rows { list-style: none; padding: 0; }
 .entry-listen { margin: 6px 0 10px; }
 .ws-translit .say-btn.small { margin: -10px 0 -10px 2px; }
 .verse-gloss .say-btn { color: var(--panel-ink); vertical-align: baseline; margin: -12px 0 -12px 2px; }
+
+/* ---------- Alphabet and sounds (#/alphabet) ---------- */
+.switch .switch-link { display: inline-flex; align-items: center; min-height: 40px; padding: 0 18px; border-radius: 999px; color: var(--ink); text-decoration: none; font-weight: 700; }
+.switch .switch-link[aria-current="page"] { background: var(--btn-bg); color: var(--btn-ink); }
+.learn-abc { margin: 0 0 18px; }
+.ab-tip { margin-top: 0; }
+.ab-grid { list-style: none; margin: 0 0 8px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(6.4rem, 1fr)); gap: 8px; }
+.ab-tile {
+  width: 100%; min-height: 96px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  padding: 8px 4px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink); font: inherit; cursor: pointer;
+}
+.ab-tile:hover { border-color: var(--control); }
+.ab-glyph { font-size: 1.75rem; line-height: 1.25; white-space: nowrap; }
+.ab-glyph:lang(grc) { font-family: var(--font-greek); }
+.ab-glyph:lang(he) { font-family: var(--font-hebrew); font-size: 2rem; }
+.ab-name { font-weight: 700; font-size: .92rem; direction: ltr; }
+.ab-sound { font-size: .82rem; color: var(--muted); text-align: center; direction: ltr; }
+.ab-section { margin: 26px 0 0; }
+.ab-section .ls-examples { margin-bottom: 4px; }
+.ab-big { font-size: 3.2rem; line-height: 1.2; margin: 4px 0 6px; font-weight: 400; }
+.ab-big:lang(grc) { font-family: var(--font-greek); }
+.ab-big:lang(he) { font-family: var(--font-hebrew); }
+.ab-sheet-name { margin: 0 0 10px; }
+.ab-sheet-name [lang="grc"] { font-family: var(--font-greek); font-size: 1.2rem; }
+.ab-sheet-name [lang="he"] { font-family: var(--font-hebrew); font-size: 1.3rem; }
+.ab-sub { font-size: 1rem; margin: 16px 0 0; }
+.ab-steps { justify-content: space-between; margin: 16px 0 4px; }
+.ab-verses { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 12px; }
+.ab-verse { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 16px; }
+.ab-verse p { margin: 0 0 6px; }
+.ab-verse-ref { font-weight: 700; }
+.ab-verse-t { font-size: 1.4rem; line-height: 1.6; }
+.ab-verse-t:lang(grc) { font-family: var(--font-greek); }
+.ab-verse-t:lang(he) { font-family: var(--font-hebrew); font-size: 1.6rem; }
+.ab-verse-en { color: var(--muted); }
+.ab-practise { margin-top: 24px; }
+.rv-ex { margin: 6px 0; }
+.rv-ex-t:lang(grc) { font-family: var(--font-greek); font-size: 1.3rem; }
+.rv-ex-t:lang(he) { font-family: var(--font-hebrew); font-size: 1.45rem; }

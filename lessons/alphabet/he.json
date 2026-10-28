@@ -1,0 +1,132 @@
+{
+  "lang": "he",
+  "title": "The Hebrew alphabet and its sounds",
+  "intro": "The 22 letters, read from right to left, then the vowel marks and the small dots and signs that change how a word sounds. Sounds follow the pronunciation used in most colleges, based on Israeli Hebrew. Tap a letter for more, and Listen to hear an example.",
+  "letters": [
+    { "forms": ["א"], "name": "alef", "nameT": "אָלֶף", "nameSay": "A-lef", "sound": "silent: it carries a vowel", "example": { "t": "אָב", "say": "av", "en": "father" }, "tip": "Say only its vowel: אָב is av." },
+    { "forms": ["בּ", "ב"], "name": "bet", "nameT": "בֵּית", "nameSay": "bet", "sound": "b with the dot; v without", "example": { "t": "בַּיִת", "say": "BA-yit", "en": "house" }, "example2": { "t": "לֵב", "say": "lev", "en": "heart" }, "tip": "It has a little foot at the bottom right; כ (kaf) is rounded with none." },
+    { "forms": ["ג"], "name": "gimel", "nameT": "גִּימֶל", "nameSay": "GI-mel", "sound": "g as in go", "example": { "t": "גּוֹי", "say": "goy", "en": "nation" } },
+    { "forms": ["ד"], "name": "dalet", "nameT": "דָּלֶת", "nameSay": "DA-let", "sound": "d", "example": { "t": "דָּבָר", "say": "da-VAR", "en": "word" }, "tip": "A square corner at the top right; ר (resh) is rounded there." },
+    { "forms": ["ה"], "name": "he", "nameT": "הֵא", "nameSay": "he", "sound": "h; silent at the end of a word", "example": { "t": "הַר", "say": "har", "en": "mountain" }, "example2": { "t": "תּוֹרָה", "say": "to-RAH", "en": "law: the final ה is silent" }, "tip": "A gap at the top left; ח (chet) is closed." },
+    { "forms": ["ו"], "name": "vav", "nameT": "וָו", "nameSay": "vav", "sound": "v; also writes the vowels o (וֹ) and u (וּ)", "example": { "t": "דָּוִד", "say": "da-VID", "en": "David" }, "example2": { "t": "יוֹם", "say": "yom", "en": "day: וֹ is o" }, "tip": "A plain upright stroke; ז (zayin) has a cap." },
+    { "forms": ["ז"], "name": "zayin", "nameT": "זַיִן", "nameSay": "ZA-yin", "sound": "z", "example": { "t": "זֶה", "say": "zeh", "en": "this" } },
+    { "forms": ["ח"], "name": "chet", "nameT": "חֵית", "nameSay": "chet", "sound": "ch as in Scottish loch", "example": { "t": "לֶחֶם", "say": "LE-chem", "en": "bread" } },
+    { "forms": ["ט"], "name": "tet", "nameT": "טֵית", "nameSay": "tet", "sound": "t", "example": { "t": "טוֹב", "say": "tov", "en": "good" } },
+    { "forms": ["י"], "name": "yod", "nameT": "יוֹד", "nameSay": "yod", "sound": "y as in yes; also helps write the vowels i (ִי) and e (ֵי)", "example": { "t": "יָד", "say": "yad", "en": "hand" }, "example2": { "t": "אִישׁ", "say": "ish", "en": "man: ִי is i" }, "tip": "The smallest letter, hanging high: the “jot” of Matthew 5:18." },
+    { "forms": ["כּ", "כ", "ך"], "name": "kaf", "nameT": "כַּף", "nameSay": "kaf", "sound": "k with the dot; kh without; ך at the end of a word", "example": { "t": "כֹּל", "say": "kol", "en": "all" }, "example2": { "t": "מֶלֶךְ", "say": "ME-lekh", "en": "king: final ך is kh" } },
+    { "forms": ["ל"], "name": "lamed", "nameT": "לָמֶד", "nameSay": "LA-med", "sound": "l", "example": { "t": "לֹא", "say": "lo", "en": "not" }, "tip": "The only letter that rises above the line." },
+    { "forms": ["מ", "ם"], "name": "mem", "nameT": "מֵם", "nameSay": "mem", "sound": "m; ם at the end of a word", "example": { "t": "מַיִם", "say": "MA-yim", "en": "water: both forms in one word" } },
+    { "forms": ["נ", "ן"], "name": "nun", "nameT": "נוּן", "nameSay": "nun", "sound": "n; ן at the end of a word", "example": { "t": "נָבִיא", "say": "na-VI", "en": "prophet" }, "example2": { "t": "בֵּן", "say": "ben", "en": "son: final ן" } },
+    { "forms": ["ס"], "name": "samekh", "nameT": "סָמֶךְ", "nameSay": "SA-mekh", "sound": "s", "example": { "t": "סוּס", "say": "sus", "en": "horse" }, "tip": "Round all over; final ם is square." },
+    { "forms": ["ע"], "name": "ayin", "nameT": "עַיִן", "nameSay": "A-yin", "sound": "silent, as most people read today: it carries a vowel", "example": { "t": "עַם", "say": "am", "en": "people" } },
+    { "forms": ["פּ", "פ", "ף"], "name": "pe", "nameT": "פֵּא", "nameSay": "pe", "sound": "p with the dot; f without; ף at the end of a word", "example": { "t": "פֶּה", "say": "peh", "en": "mouth" }, "example2": { "t": "כֶּסֶף", "say": "KE-sef", "en": "silver: final ף is f" } },
+    { "forms": ["צ", "ץ"], "name": "tsade", "nameT": "צָדִי", "nameSay": "TSA-di", "sound": "ts as in cats; ץ at the end of a word", "example": { "t": "צַדִּיק", "say": "tsa-DIK", "en": "righteous" }, "example2": { "t": "אֶרֶץ", "say": "E-rets", "en": "land: final ץ" } },
+    { "forms": ["ק"], "name": "qof", "nameT": "קוֹף", "nameSay": "kof", "sound": "k", "example": { "t": "קוֹל", "say": "kol", "en": "voice" }, "tip": "Its tail drops below the line." },
+    { "forms": ["ר"], "name": "resh", "nameT": "רֵישׁ", "nameSay": "resh", "sound": "r", "example": { "t": "רוּחַ", "say": "RU-ach", "en": "wind, spirit" } },
+    { "forms": ["שׁ", "שׂ"], "name": "shin, sin", "nameT": "שִׁין", "nameSay": "shin", "sound": "sh with the dot on the right; s with the dot on the left", "example": { "t": "שָׁלוֹם", "say": "sha-LOM", "en": "peace" }, "example2": { "t": "שָׂדֶה", "say": "sa-DEH", "en": "field: dot on the left, s" }, "tip": "The Ephraimites couldn't say sh, only s: “Shibboleth” (Judges 12:6)." },
+    { "forms": ["ת"], "name": "tav", "nameT": "תָּו", "nameSay": "tav", "sound": "t", "example": { "t": "תּוֹרָה", "say": "to-RAH", "en": "law, instruction" } }
+  ],
+  "sections": [
+    {
+      "title": "The vowels",
+      "letters": true,
+      "body": [
+        "Vowel marks sit under, over or beside a letter and are said after it. Here they are on ב (or on א where a vowel only goes with throat letters). They fall into three families: a, e/i and o/u.",
+        "Three small hateph vowels (ֲ ֱ ֳ) are quick versions of a, e and o, used under the throat letters א ה ח ע."
+      ],
+      "table": {
+        "head": ["mark", "name", "sound"],
+        "rows": [
+          ["בָ", "qamets", "a as in father"],
+          ["בַ", "patah", "a"],
+          ["אֲ", "hateph patah", "a, quick"],
+          ["בֵ", "tsere", "e as in they"],
+          ["בֵי", "tsere yod", "e as in they"],
+          ["בֶ", "segol", "e as in bed"],
+          ["אֱ", "hateph segol", "e, quick"],
+          ["בִ", "hireq", "i"],
+          ["בִי", "hireq yod", "i as in machine"],
+          ["בֹ", "holam", "o as in go"],
+          ["בוֹ", "holam vav", "o as in go"],
+          ["בָ", "qamets hatuf", "o, short (a closed, unstressed syllable)"],
+          ["חֳ", "hateph qamets", "o, quick"],
+          ["בֻ", "qibbuts", "u as in flute"],
+          ["בוּ", "shureq", "u as in flute"],
+          ["בְ", "shewa", "a quick e, or silent"]
+        ]
+      }
+    },
+    {
+      "title": "Hear the vowels in real words",
+      "body": [
+        "One word for each vowel, in the order of the table."
+      ],
+      "examples": [
+        { "t": "דָּבָר", "say": "da-VAR", "en": "qamets: word" },
+        { "t": "בַּת", "say": "bat", "en": "patah: daughter" },
+        { "t": "אֲנִי", "say": "a-NI", "en": "hateph patah: I" },
+        { "t": "בֵּן", "say": "ben", "en": "tsere: son" },
+        { "t": "בֵּית", "say": "beit", "en": "tsere yod: house of" },
+        { "t": "מֶלֶךְ", "say": "ME-lekh", "en": "segol: king" },
+        { "t": "אֱמֶת", "say": "e-MET", "en": "hateph segol: truth" },
+        { "t": "אִם", "say": "im", "en": "hireq: if" },
+        { "t": "אִישׁ", "say": "ish", "en": "hireq yod: man" },
+        { "t": "לֹא", "say": "lo", "en": "holam: not" },
+        { "t": "יוֹם", "say": "yom", "en": "holam vav: day" },
+        { "t": "כָּל", "say": "kol", "en": "qamets hatuf: all" },
+        { "t": "חֳלִי", "say": "cho-LI", "en": "hateph qamets: sickness" },
+        { "t": "כֻּלָּם", "say": "ku-LAM", "en": "qibbuts: all of them" },
+        { "t": "סוּס", "say": "sus", "en": "shureq: horse" },
+        { "t": "דְּבָרִים", "say": "de-va-RIM", "en": "shewa, said: words" },
+        { "t": "מִדְבָּר", "say": "mid-BAR", "en": "shewa, silent: wilderness" }
+      ]
+    },
+    {
+      "title": "Dots and marks that change the sound",
+      "body": [
+        "A dot inside ב כ פ makes the sound hard: בּ b, כּ k, פּ p. Without it they are v, kh, f. (ג ד ת take the same dot, but it doesn't change their sound in this pronunciation.)",
+        "The same dot after a vowel doubles the letter: in הַשָּׁמַיִם the שּׁ counts twice. A dot in a final ה means it is sounded: לָהּ, “to her”, ends in h.",
+        "The dot on ש tells shin (שׁ, sh) from sin (שׂ, s). On ו it makes a vowel: וֹ is o, וּ is u; without it ו is the consonant v.",
+        "When ח or ע ends a word after another vowel, a patah is said just before it: רוּחַ is RU-ach. A shewa at the start of a syllable is said as a quick e; at the end of one it is silent."
+      ],
+      "examples": [
+        { "t": "כֶּסֶף", "say": "KE-sef", "en": "כּ k with the dot, final ף f without" },
+        { "t": "הַשָּׁמַיִם", "say": "ha-sha-MA-yim", "en": "the dot doubles שּׁ: the heavens" },
+        { "t": "לָהּ", "say": "lah", "en": "the dot in final הּ: to her" },
+        { "t": "שָׂדֶה", "say": "sa-DEH", "en": "dot on the left: s, field" },
+        { "t": "רוּחַ", "say": "RU-ach", "en": "say the a before ח: spirit" }
+      ]
+    },
+    {
+      "title": "The throat letters",
+      "letters": true,
+      "body": [
+        "א ה ח ע (and often ר) are made at the back of the throat. They never take the doubling dot, and instead of a plain said shewa they take a hateph vowel (ֲ ֱ ֳ). They like a-vowels around them.",
+        "That is why “the” is הָ, not הַ, before them: הָאָרֶץ, the earth."
+      ]
+    },
+    {
+      "title": "Signs in the Bible text",
+      "letters": true,
+      "body": [
+        "־ (maqqef) joins two words to be said as one: כָּל־הָאָרֶץ, kol ha-A-rets. ׃ (sof pasuq) ends a verse. ֑ (atnah), under a word, marks the middle of the verse.",
+        "Most words carry one of many small accent marks. They show the stressed syllable and work like punctuation (they were also a guide for chanting). You don't need to learn them all: just stress the syllable they mark.",
+        "A small ° in the Reader marks a word read differently from how it is written; tap it to see the written form. God's name יהוה is not said: readers say Adonai, “the Lord”, which is why English Bibles print LORD.",
+        "Two Hebrew letters sometimes stand alone between verses: פ and ס mark the end of a paragraph. The Reader uses them to start a new paragraph instead of printing them."
+      ]
+    },
+    {
+      "title": "How it sounded long ago",
+      "letters": true,
+      "body": [
+        "The pronunciation here is the one taught in most colleges, based on Israeli Hebrew. The scribes who added the vowel marks (the Masoretes) heard more differences: ו was w; ג ד ת without the dot were soft (gh, th as in this, th as in thin); ח and ע were throat sounds of their own; and ט ק צ were said further back than ת כ ס.",
+        "You don't need these to read, but they explain why Hebrew has two letters where we now hear one sound: ט and ת, כ and ק, ח and כ."
+      ]
+    }
+  ],
+  "practice": [
+    { "ref": "GEN 1:1", "say": "be-re-SHIT ba-RA e-lo-HIM et ha-sha-MA-yim ve-ET ha-A-rets", "en": "In the beginning God created the heavens and the earth." },
+    { "ref": "DEU 6:4", "say": "she-MA yis-ra-EL a-do-NAI e-lo-HEI-nu a-do-NAI e-CHAD", "en": "Hear, O Israel: the LORD our God, the LORD is one." },
+    { "ref": "PSA 23:1", "say": "a-do-NAI ro-I lo ech-SAR", "en": "The LORD is my shepherd; I shall not want." }
+  ]
+}

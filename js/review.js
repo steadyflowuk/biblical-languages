@@ -79,7 +79,12 @@ export function deck(lang) {
   return deckCache[lang];
 }
 
-const deckSettings = () => Object.assign({ grc: false, he: false }, store.get("reviewDecks") || {});
+const deckSettings = () => Object.assign({ grc: false, he: false, grcLetters: false, heLetters: false }, store.get("reviewDecks") || {});
+
+/** A letter of the alphabet guide as a card: the letter on the front; name, sound and an example on the back. */
+const letterCard = (l, L, i) => ({
+  id: `${l}:abc:${i}`, lang: l, k: "", t: L.forms.join(" "), say: L.nameSay, en: `${L.name}: ${L.sound}`, sp: L.nameT, ex: L.example, src: "abc",
+});
 
 /** The id a word's card goes by: the deck's main sense when the lexicon splits senses (κύριος, בֵּן). */
 const cardId = (lang, key, decks) => `${lang}:${(decks[lang] && decks[lang].alias[key]) || key}`;
@@ -96,7 +101,13 @@ export async function plan(lang, now) {
   const want = (l) => !lang || lang === "all" || lang === l;
   const settings = deckSettings();
   const decks = {};
-  await Promise.all(["grc", "he"].map(async (l) => { decks[l] = await deck(l); }));
+  const abcs = {};
+  await Promise.all(["grc", "he"].map(async (l) => {
+    decks[l] = await deck(l);
+    if (settings[l + "Letters"] || Object.keys(cards()).some((id) => id.indexOf(`${l}:abc:`) === 0)) {
+      abcs[l] = await data.getJSON(`lessons/alphabet/${l}.json`).catch(() => null);
+    }
+  }));
   const all = cards();
   const end = dayEnd(at).getTime();
   const due = Object.values(all).filter((c) => c.f && want(c.lang) && new Date(c.f.due).getTime() <= end)
@@ -106,6 +117,10 @@ export async function plan(lang, now) {
   const seen = new Set(Object.keys(all));
   const offer = (c) => { if (!seen.has(c.id)) { seen.add(c.id); fresh.push(c); } };
   let upgraded = false;
+  // the alphabet comes first: you need the letters before the words
+  ["grc", "he"].forEach((l) => {
+    if (want(l) && settings[l + "Letters"] && abcs[l]) abcs[l].letters.forEach((L, i) => offer(letterCard(l, L, i)));
+  });
   (store.get("reviewQueue") || []).forEach((w) => {
     const l = w.lang === "he" ? "he" : "grc";
     const id = cardId(l, w.k, decks);
@@ -116,8 +131,17 @@ export async function plan(lang, now) {
     }
     if (want(l)) offer({ id, lang: l, k: w.k, t: w.t, say: w.say, en: w.en, src: "lesson", lesson: w.lesson });
   });
-  // list cards follow corrections to the lists (wording, pronunciation, counts)
+  // list cards follow corrections to the lists (wording, pronunciation, counts), letter cards to the guide
   Object.values(all).forEach((c) => {
+    if (c.src === "abc" && abcs[c.lang]) {
+      const L = abcs[c.lang].letters[Number(c.id.split(":")[2])];
+      const now = L && letterCard(c.lang, L, Number(c.id.split(":")[2]));
+      if (now && (now.t !== c.t || now.en !== c.en || now.say !== c.say || JSON.stringify(now.ex) !== JSON.stringify(c.ex))) {
+        Object.assign(c, { t: now.t, en: now.en, say: now.say, sp: now.sp, ex: now.ex });
+        upgraded = true;
+      }
+      return;
+    }
     if (c.src !== "deck" || !decks[c.lang]) return;
     const w = (decks[c.lang].byKey || (decks[c.lang].byKey = new Map(decks[c.lang].words.map((x) => [x[0], x])))).get(c.k);
     if (w && (c.en !== w[2] || (c.say || "") !== (w[4] || "") || c.n !== w[3])) {
@@ -133,7 +157,7 @@ export async function plan(lang, now) {
   const langs = { grc: false, he: false };
   Object.values(all).forEach((c) => { langs[c.lang] = true; });
   (store.get("reviewQueue") || []).forEach((w) => { langs[w.lang === "he" ? "he" : "grc"] = true; });
-  ["grc", "he"].forEach((l) => { if (settings[l]) langs[l] = true; });
+  ["grc", "he"].forEach((l) => { if (settings[l] || settings[l + "Letters"]) langs[l] = true; });
   return { due, fresh: fresh.slice(0, newLeft), freshTotal: fresh.length, newLeft, langs, decks };
 }
 
@@ -189,7 +213,7 @@ export function rate(card, rating, now) {
 
 // ---------------------------------------------------------------- screen
 
-const sayOf = (c) => (c.lang === "grc" ? greekSay(c.t) : c.say || "");
+const sayOf = (c) => (c.src === "abc" ? c.say : c.lang === "grc" ? greekSay(c.t) : c.say || "");
 
 function relativeDue(f, now) {
   const at = now || new Date();
@@ -229,9 +253,14 @@ function listsHTML(p) {
   const deckRow = (l) => `<label class="toggle"><input type="checkbox" data-deck="${l}"${s[l] ? " checked" : ""}>
       <span>The ${p.decks[l] ? p.decks[l].words.length : ""} most common ${LANG_NAME[l]} words
       <span class="muted">${l === "grc" ? "Each used 50 times or more: together about 80% of the words in the New Testament." : "Each used 50 times or more in the Old Testament."} Most common first.</span></span></label>`;
+  const abcRow = (l) => `<label class="toggle"><input type="checkbox" data-deck="${l}Letters"${s[l + "Letters"] ? " checked" : ""}>
+      <span>The ${LANG_NAME[l]} alphabet
+      <span class="muted">${l === "grc" ? "24 letters" : "22 letters"}: see the letter, recall its name and sound. Comes before the words. <a href="#/alphabet/${l}">Open the guide</a></span></span></label>`;
   return `<h2>What you review</h2>
     <div class="rv-lists">
       <p class="rv-line"><strong>Words from your lessons</strong> <span class="muted">${lessonWords} so far, always included</span></p>
+      ${abcRow("grc")}
+      ${abcRow("he")}
       ${deckRow("grc")}
       ${deckRow("he")}
       <label class="rv-select">New words a day
@@ -249,7 +278,7 @@ function wordListHTML(lang) {
   return `<h2>Your words</h2>
     ${groups.map(([l, cs]) => `<details class="rv-words">
       <summary>${LANG_NAME[l]} <span class="muted">${cs.length}</span></summary>
-      <ul class="rows">${cs.map((c) => `<li><a class="row" href="#/words/${encodeURIComponent(c.k)}">
+      <ul class="rows">${cs.map((c) => `<li><a class="row" href="${c.src === "abc" ? `#/alphabet/${c.lang}` : `#/words/${encodeURIComponent(c.k)}`}">
         <span class="row-main"><span class="row-title review-t" lang="${l === "he" ? "he" : "grc"}"${l === "he" ? ' dir="rtl"' : ""}>${esc(c.t)}</span>
         <span class="row-sub">${esc(sayOf(c))} · ${mixed(c.en)}</span></span>
         <span class="row-end rv-due">${esc(relativeDue(c.f))}</span></a></li>`).join("")}</ul>
@@ -266,13 +295,15 @@ function cardHTML(c, shown, pos, count) {
       <p class="rv-count" role="status">${pos} of ${count}</p>
     </div>
     <div class="rv-card${shown ? " shown" : ""}">
-      <p class="rv-meta">${LANG_NAME[c.lang]} · ${status}${c.src === "lesson" ? " · from your lessons" : ""}</p>
+      <p class="rv-meta">${LANG_NAME[c.lang]} · ${status}${c.src === "lesson" ? " · from your lessons" : c.src === "abc" ? " · alphabet" : ""}</p>
       <p class="rv-word" lang="${he ? "he" : "grc"}"${he ? ' dir="rtl"' : ""} tabindex="-1">${esc(c.t)}</p>
-      <p class="rv-listen">${sayButton(c.t, c.lang, { label: "Listen" })}</p>
+      <p class="rv-listen">${sayButton(c.sp || c.t, c.lang, { label: "Listen" })}</p>
       ${shown ? `<div class="rv-answer">
           <p class="rv-say">${esc(sayOf(c))}</p>
           <p class="rv-en">${mixed(c.en)}</p>
-          <p class="rv-more"><a href="#/words/${encodeURIComponent(c.k)}">Dictionary entry</a>${c.n ? ` · used ${c.n.toLocaleString("en-GB")} times` : ""}</p>
+          ${c.src === "abc" ? `${c.ex ? `<p class="rv-ex"><span${he ? ' lang="he" dir="rtl"' : ' lang="grc"'} class="rv-ex-t">${esc(c.ex.t)}</span> ${sayButton(c.ex.t, c.lang, { className: "small" })} <span class="muted">${esc(c.ex.say)} · ${mixed(c.ex.en)}</span></p>` : ""}
+          <p class="rv-more"><a href="#/alphabet/${c.lang}">Alphabet guide</a></p>`
+          : `<p class="rv-more"><a href="#/words/${encodeURIComponent(c.k)}">Dictionary entry</a>${c.n ? ` · used ${c.n.toLocaleString("en-GB")} times` : ""}</p>`}
         </div>
         <p class="rv-ask">How well did you know it?</p>
         <div class="rv-rate" role="group" aria-label="How well did you know it?">

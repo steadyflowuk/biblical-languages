@@ -11,7 +11,7 @@
         { "type": "scene", "picture": "👧", "text": "τὰ τέκνα", "say": "ta TEK-na", "en": "the children" },
         { "type": "scene", "picture": "📣", "text": "τὸ εὐαγγέλιον", "say": "to eu-ang-GE-lee-on", "en": "the good news, the gospel" },
         { "type": "scene", "picture": "🏛️", "text": "ἐν τῷ ἱερῷ", "say": "en toh hee-e-ROH", "en": "in the temple" },
-        { "type": "scene", "picture": "📜", "text": "τὸ βιβλίον", "say": "to bib-LEE-on", "en": "the book, the scroll" },
+        { "type": "scene", "picture": "📜", "text": "τὸ βιβλίον", "say": "to bi-BLEE-on", "en": "the book, the scroll" },
         { "type": "scene", "picture": "🐑", "text": "τὰ πρόβατα ἀκούει.", "say": "ta PRO-ba-ta a-KOO-ay", "en": "The sheep hear. (a singular verb!)" }
       ]
     },
@@ -125,7 +125,7 @@
             { "k": "G5043", "t": "τέκνον", "say": "TEK-non", "en": "child" },
             { "k": "G2098", "t": "εὐαγγέλιον", "say": "eu-ang-GE-lee-on", "en": "good news, gospel" },
             { "k": "G2411", "t": "ἱερόν", "say": "hee-e-RON", "en": "temple" },
-            { "k": "G0975", "t": "βιβλίον", "say": "bib-LEE-on", "en": "book, scroll" },
+            { "k": "G0975", "t": "βιβλίον", "say": "bi-BLEE-on", "en": "book, scroll" },
             { "k": "G4263", "t": "πρόβατον", "say": "PRO-ba-ton", "en": "sheep" },
             { "k": "G4592", "t": "σημεῖον", "say": "say-MAY-on", "en": "sign, miracle" },
             { "k": "G3813", "t": "παιδίον", "say": "pai-DEE-on", "en": "little child" }

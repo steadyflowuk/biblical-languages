@@ -45,6 +45,8 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - `js/dictionary.js` Words tab: search + entries (routes `#/words`, `#/words/KEY`) · `js/nav.js` back/return memory
 - `js/esv.js` ESV key + API + small offline store · Septuagint screen (`#/lxx/ID/CH[/V]`) lives in `js/reader.js`
 - `js/lessons.js` lesson engine (route `#/lesson/LANG/ID`) · `lessons/` index + one JSON file per lesson (format: lessons/README.md)
+- `js/review.js` Review trainer (#/review) · `js/sound.js` respelling + voice text (no DOM; Node can import it) ·
+  `js/audio.js` Listen buttons (one capture-phase click handler in app.js) · `js/vendor/ts-fsrs.js` (MIT, tools/vendor_fsrs.sh)
 - `assets/fonts`, `assets/icons`
 
 ## Testing
@@ -72,11 +74,12 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - [x] 8b (27 Oct 2026): deep check — quotations aren't capitalised in our text (lesson 3 fixed), Isaiah's smooth
   breathing, ω respelt "oh" everywhere, core words (ὁ, λόγος, καί, ἐν, θεός) also in course review lists, largest-text
   fixes (step labels, Continue, tables), joined builds say "pieces", Settings explains Restored Koine.
-- [ ] 9 Vocab trainer + audio
+- [x] 9 (28 Oct 2026): review trainer (FSRS, lesson words + frequency lists of 316 Greek / 745 Hebrew words), Listen
+  buttons everywhere with the phone's voices (Erasmian respelt for the Greek voice, Koine, Israeli Hebrew).
 - [ ] 10 Hebrew lessons · [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
 
 ## Data (Session 2)
-- Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (42 checks).
+- Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (46 checks).
 - Greek = TAGNT words whose editions include NA28, plus 64 places where NA28's reading sits in TAGNT's variant column
   (e.g. Jude 5 Ἰησοῦς) and 9 NA28 spellings. 137,954 words, 7,942 verses, NA28 verse numbering. 92% of verses
   letter-identical to SBLGNT; the rest are NA28 bracketed words and known NA28/SBL differences.
@@ -259,12 +262,42 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - Explain cards can carry `table`; `"letters": true` skips spelling; lesson `"unattested"` lists paradigm forms
   absent from the NT (λύεις, λύομεν); build `"join": ""` joins tiles into one word. Endings written "-ομεν" skip spelling.
 
+## Review and audio (Session 9)
+- FSRS: ts-fsrs 5.4.2 (MIT) bundled to one ES2019 module by tools/vendor_fsrs.sh (git clone + esbuild from
+  /opt/npm-tools; npm itself is blocked here). Defaults: FSRS-6 weights, retention 0.9, fuzz on, max 10 years.
+- Store: cards {"grc:G3056": {id, lang, k, t, say, en, src lesson|deck, lesson, n, added, f: FSRS card (dates as
+  ISO text)}}, reviewLog {day: {r, n}} (~100 days), reviewDecks {grc, he}, newPerDay 10, reviewLang, reviewAutoPlay,
+  speechRate slow|normal. A word becomes a card only when first answered. The review day starts at 4am; "due today"
+  = due before the next 4am. Words due again within 20 min return in the same session (a few cards later).
+- New words: lesson words first (reviewQueue order), then switched-on lists, most common first, up to newPerDay
+  minus today's new. Card id = deck's main sense (deck alias maps split senses: lesson key G2962H → G2962G); a list
+  card later met in a lesson takes the lesson's wording.
+- store.get() returns a fresh copy of object defaults (a mutated default {} once leaked cards across a reset).
+- Decks: tools/build_decks.py (also run by build_data.py) → data/decks/greek.json (316: Mounce's 319 minus split
+  senses) and hebrew.json (745; Aramaic-only and H9001+ left out). [key, lemma, gloss, count, say]; Greek say empty
+  (the app respells), Hebrew say from the commonest standalone TAHOT translit (last capitalised syllable = stress;
+  'E at the start can be hataf) → "ME-lekh"; ph → f; YHWH say "a-do-NAI". OVERRIDES = our wording where the brief
+  gloss misleads on a card (keyed by lemma; Hebrew compared with marks sorted). In SHELL_FILES (offline from install).
+- greekSay (js/sound.js): English-style syllables (one consonant to the next syllable; of two or more the first
+  closes the syllable, except π β κ γ τ δ + λ/ρ and φ θ χ + ρ stay together; ξ splits k|s), ι = "ee" when open
+  and stressed or before a vowel, γγ = ng|g. Matches all 176 hand-written lesson respellings; check_lessons runs
+  tools/greek_say.mjs (Node) so lessons and app stay in step.
+- Voices: Greek el-GR, Hebrew he/iw. Erasmian = respelt in Modern Greek letters (β μπ, δ ντ, γ γκ, ζ τζ, η/ει έι|εϊ,
+  υ ου, αι άι|αϊ, οι όι|οϊ, αυ άου, ευ έου, no h); one-syllable words keep the mark so έι stays one sound. Koine =
+  monotonic text. Hebrew: no cantillation/meteg/sof pasuq, maqaf → space, יהוה (also after one-letter prefixes) →
+  Adonai, with hiriq → Elohim. Rate 0.75 (slow) or 1. No voice → toast explaining how to add one (iOS / Android).
+- Listen buttons: lesson scenes, examples (not letter cards), word lists, verse ("Listen to the verse") and its
+  word gloss, review cards, dictionary entries, Reader word sheets (Greek, Hebrew, Septuagint), Today's verse gloss,
+  Settings "Try Greek/Hebrew". Real voices can only be judged on the devices (Session 12).
+
 ## Checks
 - `python3 tools/test_app.py` (server on :8765 first) — 101 end-to-end checks; run before every push.
 - `python3 tools/test_reader_edges.py` — 28 Reader edge cases (odd links, fast switching incl. OT↔NT, offline Hebrew, focus, back button, 320px).
 - `python3 tools/sweep_reader.py [nt|ot|all]` — opens every chapter at 360px (NT ~10 min, OT ~35 min); expect
   0 issues and only 3JN 15 / REV 12:18 notes.
-- `tools/check_data.py` now has 42 checks (5 for the dictionary, 5 for the Septuagint) (incl. OT BSB alignment both ways, psalm titles, Today's verses).
+- `python3 tools/test_review.py` — 42 review/audio checks (voices replaced by a recorder; FSRS sessions, limits,
+  lists, aliases, both languages, offline, 320px largest dark).
+- `tools/check_data.py` now has 46 checks (5 for the dictionary, 5 for the Septuagint, 4 for the decks) (incl. OT BSB alignment both ways, psalm titles, Today's verses).
 - `python3 tools/check_lessons.py` — validates every lesson (run after any lesson change).
 - `python3 tools/test_lessons.py` — 66 lesson engine checks (drills, retries, resume, scores, review list, Hebrew RTL,
   keyboard, offline, 320px; every written lesson finished with right answers at 320px; largest text at 320px).

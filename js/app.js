@@ -3,6 +3,8 @@ import * as screens from "./screens.js";
 import { read, lxx, closeSheet } from "./reader.js";
 import { words } from "./dictionary.js";
 import { lesson } from "./lessons.js";
+import { reviewScreen } from "./review.js";
+import { bindAudio } from "./audio.js";
 import * as nav from "./nav.js";
 
 const ROUTES = {
@@ -12,12 +14,13 @@ const ROUTES = {
   read,
   lxx,
   words,
-  review: screens.review,
+  review: reviewScreen,
   media: screens.media,
   settings: screens.settings,
 };
 
 store.applyDisplaySettings();
+bindAudio();
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", store.applyDisplaySettings);
 
 const main = document.getElementById("main");

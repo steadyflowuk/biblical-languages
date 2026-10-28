@@ -4,6 +4,7 @@ import * as store from "./store.js";
 import * as data from "./data.js";
 import * as nav from "./nav.js";
 import * as esv from "./esv.js";
+import { sayButton } from "./audio.js";
 import {
   heText, heTranslit, heEnglish, heAfter, heJoined, heParagraphAfter, isAramaic, heParts, heMainKey,
   heShortGrammar, heFriendlyGrammar,
@@ -223,7 +224,7 @@ function heWordSheetHTML(w, ctx) {
   return `
     <p class="ws-ref">${esc(ctx.ref)}</p>
     <h2 class="ws-word he" lang="he" dir="rtl" id="sheet-title">${esc(heText(w))}</h2>
-    <p class="ws-translit">${esc(heTranslit(translit))}</p>
+    <p class="ws-translit">${esc(heTranslit(translit))} ${sayButton(heText(w), "he", { className: "small" })}</p>
     ${flag ? `<p class="ws-flag">${esc(FLAG_NOTES[flag] || "")}</p>` : ""}
     <dl class="ws-facts">
       ${flag === "q" && note ? row("Written", `<span lang="he" dir="rtl" class="ws-lemma">${esc(note)}</span>`) : ""}
@@ -261,7 +262,7 @@ function wordSheetHTML(w, ctx) {
   return `
     <p class="ws-ref">${esc(ctx.ref)}</p>
     <h2 class="ws-word" lang="grc" id="sheet-title">${form}</h2>
-    <p class="ws-translit">${esc(translit)}</p>
+    <p class="ws-translit">${esc(translit)} ${sayButton(text, "grc", { className: "small" })}</p>
     <dl class="ws-facts">
       <div><dt>Dictionary form</dt><dd>${lex.map((l, i) => `<span lang="grc" class="ws-lemma">${esc(l[0])}</span> <span class="muted">${esc(l[1])} · Strong's ${esc(strongs(keys[i]))}</span>`).join("<br>")}</dd></div>
       <div><dt>Meaning</dt><dd>${lex.map((l) => esc(compact(l[2]) || "—")).join(" + ")}</dd></div>
@@ -724,6 +725,7 @@ async function showLxxWord(el, where) {
   const word = el.textContent.replace(/[.,;:·()\[\]᾽’]/g, "").trim();
   const body = openSheet(`<p class="ws-ref">${esc(where || "Septuagint")}</p>
     <h2 class="ws-word" lang="grc" id="sheet-title">${esc(word)}</h2>
+    <p class="ws-translit">${sayButton(word, "grc", { className: "small" })}</p>
     <p class="muted">The Septuagint isn't tagged word by word yet, so these are likely matches found by spelling.</p>
     <div class="lxx-look"><p class="muted">Looking it up…</p></div>`, { label: `Look up ${word}`, returnFocus: el });
   document.querySelectorAll(".lw.on").forEach((x) => x.classList.remove("on"));

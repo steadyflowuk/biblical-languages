@@ -21,18 +21,29 @@ const DEFAULTS = {
   // Lessons (js/lessons.js)
   learnLang: "grc",        // grc | he: the path shown on Learn and Today
   lessons: {},             // id → { pos, retries, first, done, best, completed }
-  reviewQueue: [],         // words from finished lessons: { k, lang, t, say, en, lesson, added } (timed reviews: Session 9)
+  reviewQueue: [],         // words from finished lessons: { k, lang, t, say, en, lesson, added }
+  // Review (js/review.js): FSRS flashcards
+  cards: {},               // "grc:G3056" → { id, lang, k, t, say, en, src, lesson, n, added, f: FSRS card }
+  reviewLog: {},           // "2026-10-28" → { r: answers, n: new words } (the day starts at 4am)
+  reviewDecks: { grc: false, he: false }, // the frequency word lists switched on
+  newPerDay: 10,
+  reviewLang: "all",       // all | grc | he
+  reviewAutoPlay: false,   // say each card's word as it appears
+  speechRate: "slow",      // slow | normal (js/audio.js)
   // Dictionary
   dictLang: "both",        // both | G | H
   recentWords: [],         // lexicon keys, most recent first
 };
 
+// A fresh copy each time: a caller that changes a default object ({} or []) must not change the default itself.
+const fallback = (key) => (DEFAULTS[key] && typeof DEFAULTS[key] === "object" ? JSON.parse(JSON.stringify(DEFAULTS[key])) : DEFAULTS[key]);
+
 export function get(key) {
   try {
     const raw = localStorage.getItem(PREFIX + key);
-    return raw === null ? DEFAULTS[key] : JSON.parse(raw);
+    return raw === null ? fallback(key) : JSON.parse(raw);
   } catch {
-    return DEFAULTS[key];
+    return fallback(key);
   }
 }
 

@@ -305,6 +305,16 @@ for lang, folder, idx, morph in (("Greek", "gnt", "greek", "greek"), ("Hebrew", 
     check(f"{lang} words with a dictionary entry ≥ 99.5%", nolex / total <= 0.005, f"{total - nolex:,}/{total:,}")
     check(f"{lang} words with a grammar explanation ≥ 99.9%", nomorph / total <= 0.001, f"{total - nomorph:,}/{total:,}")
 
+# ------------------------------------------------ review decks (Session 9)
+for fn, lo, hi in (("greek", 310, 325), ("hebrew", 650, 800)):
+    deck = load(f"decks/{fn}.json")
+    idx = {r[0]: r for r in load(f"lex/{fn}-index.json")}
+    words = deck["words"]
+    check(f"{fn} deck: {lo}-{hi} words used 50+ times", lo <= len(words) <= hi and all(w[3] >= 50 for w in words), str(len(words)))
+    check(f"{fn} deck: every card has a dictionary entry, a gloss and (Hebrew) a pronunciation, no duplicates",
+          all(w[0] in idx and w[2] and (fn == "greek" or w[4]) for w in words) and len({w[0] for w in words}) == len(words)
+          and all(a in idx and t in {w[0] for w in words} for a, t in deck["alias"].items()))
+
 print(f"\nGreek verses that differ from SBLGNT (first 10): {', '.join(diffs[:10])}")
 print(f"Hebrew verses that differ from WLC (first 10): {', '.join(hdiffs[:10])}")
 print(f"\n{'All checks passed' if not failures else str(len(failures)) + ' failed'}")

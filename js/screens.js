@@ -4,6 +4,8 @@ import * as data from "./data.js";
 import { installTip, bindInstallTip } from "./install.js";
 import * as esv from "./esv.js";
 import * as lessons from "./lessons.js";
+import * as review from "./review.js";
+import { sayButton } from "./audio.js";
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
@@ -53,7 +55,7 @@ function showGloss(root, v, i) {
   const w = v.words[i];
   root.querySelectorAll(".verse-original .w").forEach((el) => el.setAttribute("aria-pressed", String(Number(el.dataset.i) === i)));
   root.querySelector(".verse-gloss").innerHTML =
-    `<span class="lemma" lang="${v.lang}">${esc(w.lemma)}</span>
+    `<span class="lemma" lang="${v.lang}">${esc(w.lemma)}</span>${sayButton(w.lemma, v.lang, { className: "small" })}
      <span class="meaning">${esc(w.gloss)}</span>
      <span class="hint">${esc(w.parse)}</span>
      ${w.k ? `<a class="verse-link verse-dict" href="#/words/${encodeURIComponent(w.k)}">Look it up in the dictionary</a>` : ""}`;
@@ -87,12 +89,23 @@ export const today = {
           <span class="row-main"><span class="row-title">See your learning path</span><span class="row-sub">Lessons from the first letters to real verses</span></span>
         </a></li>
         <li class="today-review"><a class="row" href="#/review">
-          <span class="row-glyph" aria-hidden="true">${lessons.reviewWords().length}</span>
-          <span class="row-main"><span class="row-title">${lessons.reviewWords().length ? `${lessons.reviewWords().length} ${lessons.reviewWords().length === 1 ? "word" : "words"} in your review list` : "No words to review yet"}</span><span class="row-sub">${lessons.reviewWords().length ? "Timed daily reviews are on their way" : "Words from your lessons will appear here"}</span></span>
+          <span class="row-glyph" aria-hidden="true">↻</span>
+          <span class="row-main"><span class="row-title">Review your words</span><span class="row-sub">Flashcards that come back just before you'd forget</span></span>
         </a></li>
       </ul>
     </div>`;
     bindInstallTip(main);
+    // how many words are waiting in Review today
+    review.waitingCount().then((w) => {
+      const li = main.querySelector(".today-review");
+      if (!li) return;
+      const any = Object.keys(store.get("cards") || {}).length || (store.get("reviewQueue") || []).length;
+      const mins = Math.max(1, Math.round(w.total * 10 / 60));
+      li.innerHTML = `<a class="row" href="#/review">
+          <span class="row-glyph" aria-hidden="true">${w.total || "✓"}</span>
+          <span class="row-main"><span class="row-title">${w.total ? `${w.total} ${w.total === 1 ? "word" : "words"} to review` : any ? "Reviews done for today" : "No words to review yet"}</span><span class="row-sub">${w.total ? `About ${mins} ${mins === 1 ? "minute" : "minutes"}` : any ? "Your words come back when they're due" : "Words from your lessons will appear here"}</span></span>
+        </a>`;
+    }).catch(() => { /* keep the plain link */ });
     // the next lesson in the language being learnt
     lessons.lessonIndex().then((index) => {
       const li = main.querySelector(".today-lesson");
@@ -191,26 +204,6 @@ export const learn = {
         draw();
       })
     );
-  },
-};
-
-// ---------------------------------------------------------------- Review
-
-export const review = {
-  title: "Review",
-  render(main) {
-    const words = lessons.reviewWords();
-    const group = (lang) => words.filter((w) => w.lang === lang);
-    const list = (ws) => `<ul class="rows">${ws.map((w) => `<li><a class="row" href="#/words/${encodeURIComponent(w.k)}">
-        <span class="row-main"><span class="row-title review-t" lang="${w.lang === "he" ? "he" : "grc"}"${w.lang === "he" ? ' dir="rtl"' : ""}>${esc(w.t)}</span>
-        <span class="row-sub">${esc(w.say)} · ${lessons.mixed(w.en)}</span></span></a></li>`).join("")}</ul>`;
-    main.innerHTML = `<div class="screen">
-      ${head("Review", "A few minutes a day keeps words from fading")}
-      ${words.length ? `<div class="note"><p>Timed daily reviews are on their way: each word will come back just before you'd forget it. Until then, here are the ${words.length} words you've collected. Tap one for its full entry.</p></div>
-        ${["grc", "he"].filter((l) => group(l).length).map((l) => `<h2>${l === "he" ? "Hebrew" : "Greek"} <span class="muted review-count">${group(l).length}</span></h2>${list(group(l))}`).join("")}`
-        : `<div class="note"><p>Nothing to review yet. When you finish a lesson, its words appear here, and later they'll come back to you just before you'd forget them.</p></div>
-        <p><a class="btn" href="#/learn">Start a lesson</a></p>`}
-    </div>`;
   },
 };
 
@@ -318,7 +311,10 @@ export const settings = {
         ${radios("textSize", "Text size", [["normal", "Standard"], ["large", "Large"], ["larger", "Larger"], ["largest", "Largest"]], store.get("textSize"))}
         ${radios("theme", "Appearance", [["auto", "Match device"], ["light", "Light"], ["dark", "Dark"]], store.get("theme"))}
         ${radios("greekVoice", "Greek pronunciation", [["erasmian", "Erasmian (taught in most colleges)"], ["koine", "Restored Koine (first-century sounds)"]], store.get("greekVoice"),
-          "Erasmian keeps the vowels distinct, which helps with spelling. Restored Koine is closer to how the apostles spoke: ει sounds like “ee”, αι like the e in “bet”, β like v, and δ like the th in “this”. The lessons write pronunciations the Erasmian way; recorded audio comes in a later update.")}
+          "Erasmian keeps the vowels distinct, which helps with spelling. Restored Koine is closer to how the apostles spoke: ει sounds like “ee”, αι like the e in “bet”, β like v, and δ like the th in “this”. The lessons write pronunciations the Erasmian way, and Listen buttons follow this choice.")}
+        ${radios("speechRate", "Listening speed", [["slow", "Slow"], ["normal", "Normal"]], store.get("speechRate"),
+          "Listen buttons use your phone's own Greek and Hebrew voices. For Erasmian, the Modern Greek voice is given each word respelt so it comes out the Erasmian way; it's close, not perfect. Hebrew uses the Israeli voice, and the divine name is read Adonai.")}
+        <div class="btn-row say-test">${sayButton("ἐν ἀρχῇ ἦν ὁ λόγος", "grc", { label: "Try Greek" })}${sayButton("בְּרֵאשִׁית בָּרָא אֱלֹהִים", "he", { label: "Try Hebrew" })}</div>
       </form>
 
       <h2>English Standard Version (ESV)</h2>
@@ -333,7 +329,7 @@ export const settings = {
 
       <h2>About</h2>
       <p class="muted" style="margin-top:0">Aleph to Omega is a personal study app.</p>
-      <p class="muted">Greek New Testament (NA28 text), Hebrew and Aramaic Old Testament (Leningrad Codex), word-by-word translations, grammar and lexicons: STEPBible Data, created by STEPBible.org based on work at Tyndale House Cambridge, licensed CC BY 4.0, reformatted for this app. Dictionary definitions draw on Abbott-Smith's Manual Greek Lexicon of the New Testament, the Liddell–Scott lexicon and Brown–Driver–Briggs, as included in STEPBible's lexicons. English: Berean Standard Bible, public domain. Septuagint: H. B. Swete's edition (1909–1930), public domain, from the LXX-Swete-1930 database by Eliran Wong (GPL-3.0); lined up with the Hebrew verses using STEPBible's versification data (CC BY 4.0). Fonts: Gentium Plus, Noto Serif Hebrew and Atkinson Hyperlegible, SIL Open Font Licence.</p>
+      <p class="muted">Greek New Testament (NA28 text), Hebrew and Aramaic Old Testament (Leningrad Codex), word-by-word translations, grammar and lexicons: STEPBible Data, created by STEPBible.org based on work at Tyndale House Cambridge, licensed CC BY 4.0, reformatted for this app. Dictionary definitions draw on Abbott-Smith's Manual Greek Lexicon of the New Testament, the Liddell–Scott lexicon and Brown–Driver–Briggs, as included in STEPBible's lexicons. English: Berean Standard Bible, public domain. Septuagint: H. B. Swete's edition (1909–1930), public domain, from the LXX-Swete-1930 database by Eliran Wong (GPL-3.0); lined up with the Hebrew verses using STEPBible's versification data (CC BY 4.0). Fonts: Gentium Plus, Noto Serif Hebrew and Atkinson Hyperlegible, SIL Open Font Licence. Review scheduling: ts-fsrs by Open Spaced Repetition, MIT licence. Listen buttons use your device's own voices.</p>
     </div>`;
 
     main.querySelector(".screen").insertAdjacentHTML("beforeend", `<div class="esv-notice"><p class="muted">${esc(esv.NOTICE)}</p><p><a class="btn secondary" href="https://www.esv.org" target="_blank" rel="noopener">Visit www.esv.org</a></p></div>`);

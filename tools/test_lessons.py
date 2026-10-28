@@ -225,13 +225,14 @@ async def main():
         # 7. Today and Review
         await pg.goto(f"{BASE}#/today")
         await pg.wait_for_function("document.querySelector('.today-lesson a[href=\"#/lesson/grc/grc-1\"]')", timeout=5000)
-        check("Today: the next Greek lesson is the alphabet; 8 words in the review list",
+        await pg.wait_for_function("document.querySelector('.today-review').textContent.includes('to review')", timeout=5000)
+        check("Today: the next Greek lesson is the alphabet; 8 words to review",
               "alphabet" in await pg.locator(".today-lesson").inner_text()
-              and "8 words in your review list" in await pg.locator(".today-review").inner_text())
+              and "8 words to review" in await pg.locator(".today-review").inner_text())
         await pg.goto(f"{BASE}#/review")
-        await pg.wait_for_selector(".rows .row")
-        check("Review: lists the 8 words, each linking to its dictionary entry",
-              await pg.locator(".rows .row").count() == 8 and await pg.locator('.rows a[href="#/words/G3056"]').count() == 1)
+        await pg.wait_for_selector(".rv-summary")
+        check("Review: the 8 lesson words are waiting as new words",
+              "8 words" in await pg.locator(".rv-summary").inner_text() and "8 so far" in await pg.locator(".rv-lists").inner_text())
         await pg.evaluate("localStorage.setItem('ao:learnLang', JSON.stringify('he'))")
         await pg.goto(f"{BASE}#/today")
         await pg.wait_for_function("document.querySelector('.today-lesson a[href=\"#/lesson/he/he-0\"]')", timeout=5000)

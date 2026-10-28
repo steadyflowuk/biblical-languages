@@ -7,6 +7,7 @@ import * as nav from "./nav.js";
 import { strongs, shortGrammar, englishHTML } from "./reader.js";
 import { heText, heAfter, heJoined, heEnglish, heTranslit, heShortGrammar } from "./hebrew.js";
 import { head } from "./screens.js";
+import { sayButton } from "./audio.js";
 
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const LANGS = { G: { name: "greek", lang: "grc", dir: "ltr", where: "New Testament", label: "Greek" },
@@ -628,6 +629,7 @@ async function renderEntry(main, rawKey) {
     <header class="entry-head">
       <h1 class="entry-lemma" lang="${L.lang}" dir="${L.dir}">${esc(e.lemma)}</h1>
       ${tr ? `<p class="entry-translit">${esc(tr)}</p>` : ""}
+      <p class="entry-listen">${sayButton(String(e.lemma || "").split(",")[0].trim(), L.lang === "he" ? "he" : "grc", { label: "Listen" })}</p>
       <p class="entry-tags">
         ${posText ? `<span class="tag">${esc(posText)}</span>` : ""}
         <span class="tag">${aramaic ? "Aramaic" : L.label}</span>

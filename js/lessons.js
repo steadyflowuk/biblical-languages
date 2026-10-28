@@ -6,6 +6,7 @@
 import * as store from "./store.js";
 import * as data from "./data.js";
 import { friendlyGrammar, bsbChapter, englishHTML } from "./reader.js";
+import { sayButton } from "./audio.js";
 import { heText, heEnglish, heAfter, heJoined, heMainKey, heParts, heFriendlyGrammar } from "./hebrew.js";
 
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -106,6 +107,7 @@ function sceneHTML(c) {
       <div class="ls-picture" aria-hidden="true">${esc(c.picture || "")}</div>
       <p class="ls-big"${langAttrs(c.text)}>${esc(c.text)}</p>
       <p class="ls-say"><span class="sr">Say it: </span>${esc(c.say)}</p>
+      ${c.letters ? "" : `<p class="ls-listen">${sayButton(c.text, isHebrew(c.text) ? "he" : "grc", { label: "Listen" })}</p>`}
       <div class="ls-reveal">
         <button type="button" class="btn secondary" data-reveal aria-expanded="false">Show the English</button>
         <p class="ls-en" hidden>${mixed(c.en)}</p>
@@ -138,7 +140,7 @@ function explainHTML(c) {
       ${(c.body || []).map((p) => `<p>${mixed(p)}</p>`).join("")}
       ${c.table ? tableHTML(c.table) : ""}
       ${c.examples && c.examples.length ? `<ul class="ls-examples">${c.examples.map((x) => `<li>
-        <span class="ls-ex-t"${langAttrs(x.t)}>${esc(x.t)}</span>
+        <span class="ls-ex-t"${langAttrs(x.t)}>${esc(x.t)}</span>${c.letters ? "" : sayButton(x.t, isHebrew(x.t) ? "he" : "grc", { className: "small" })}
         ${x.say ? `<span class="ls-ex-say">${esc(x.say)}</span>` : ""}
         <span class="ls-ex-en">${mixed(x.en)}</span></li>`).join("")}</ul>` : ""}
     </div>`;
@@ -202,7 +204,7 @@ function wordsHTML(c) {
       <h2 class="ls-title" tabindex="-1">Words from this lesson</h2>
       <p>These ${c.items.length} words go into your review list when you finish, so you see them again before you forget them.</p>
       <ul class="ls-wordlist">${c.items.map((w) => `<li>
-        <a class="ls-word-t" href="#/words/${encodeURIComponent(w.k)}"${langAttrs(w.t)}>${esc(w.t)}</a>
+        <a class="ls-word-t" href="#/words/${encodeURIComponent(w.k)}"${langAttrs(w.t)}>${esc(w.t)}</a>${sayButton(w.t, isHebrew(w.t) ? "he" : "grc", { className: "small" })}
         <span class="ls-ex-say">${esc(w.say)}</span>
         <span class="ls-ex-en">${mixed(w.en)}</span></li>`).join("")}</ul>
     </div>`;
@@ -237,7 +239,7 @@ async function verseView(card, lang, known) {
     const lex = original.lex[key] || [];
     const code = he ? (heParts(w).find((p) => p.main) || {}).code : w[4];
     const desc = (morph[code] || [code])[0];
-    return `<p><span class="ls-gl-lemma"${he ? ' lang="he" dir="rtl"' : ' lang="grc"'}>${esc(lex[0] || (he ? heText(w) : w[0]))}</span>
+    return `<p><span class="ls-gl-lemma"${he ? ' lang="he" dir="rtl"' : ' lang="grc"'}>${esc(lex[0] || (he ? heText(w) : w[0]))}</span> ${sayButton(he ? heText(w) : w[0], he ? "he" : "grc", { className: "small" })}
       <span class="ls-gl-en">${esc(String(lex[2] || "").split(": ").pop())}</span></p>
       <p class="muted">${esc(he ? heFriendlyGrammar(desc) : friendlyGrammar(desc))}</p>
       ${key ? `<p><a class="verse-link" href="#/words/${encodeURIComponent(key)}">Look it up in the dictionary</a></p>` : ""}`;
@@ -246,6 +248,7 @@ async function verseView(card, lang, known) {
     html: `<div class="ls-verse">
       <h2 class="ls-title" tabindex="-1">${esc(name)}</h2>
       <p class="muted ls-known">You know ${knownCount} of these ${words.length} words.</p>
+      <p class="ls-listen">${sayButton(words.map((w) => (he ? heText(w) + (heJoined(w[5]) ? "־" : "") : w[0] + String(w[5] || "").replace(/[¶¬]/g, ""))).join(" ").replace(/־ /g, "־"), he ? "he" : "grc", { label: "Listen to the verse" })}</p>
       <div class="ls-verse-words"${he ? ' dir="rtl"' : ""}>${html}</div>
       <div class="ls-gloss" aria-live="polite"></div>
       <p class="ls-verse-en">${esc(english.replace(/\u0001\d+\u0001/g, ""))} <span class="muted">(BSB)</span></p>

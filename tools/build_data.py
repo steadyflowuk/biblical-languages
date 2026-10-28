@@ -547,6 +547,8 @@ def main():
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     import build_dictionary
     build_dictionary.build()
+    import build_decks
+    build_decks.main()
 
     # Session 6: the Septuagint (Swete), lined up with the Hebrew/English verse numbers
     if os.path.isdir(os.path.join(SRC, "lxx-swete")):

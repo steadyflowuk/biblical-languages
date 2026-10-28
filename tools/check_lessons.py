@@ -8,7 +8,7 @@ dictionary with the same spelling; Greek pronunciations stress the accented syll
 note are in that verse; every Greek and Hebrew word in a lesson is spelt as it is written in the Bible
 (Greek accents and Hebrew vowels included); every lesson file is in sw.js SHELL_FILES so it works offline.
 """
-import json, os, re, sys, unicodedata
+import json, os, re, shutil, subprocess, sys, unicodedata
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
@@ -131,6 +131,7 @@ def check_say(where, text, say):
     says = (say or "").split()
     if len(words) != len(says):
         return  # a note in the pronunciation ("kai (rhymes with eye)")
+    SAY_PAIRS.append((where, " ".join(words), say))
     for word, sy in zip(words, says):
         n, acc = greek_stress(word)
         parts = sy.split("-")
@@ -143,6 +144,9 @@ def check_say(where, text, say):
             bad(where, f"{sy}: the stress should fall on the accented syllable of {word}")
         elif len(parts) != n:
             bad(where, f"{sy}: {word} has {n} syllables")
+
+
+SAY_PAIRS = []  # (where, Greek, say): compared with the app's own respelling (js/sound.js greekSay) at the end
 
 
 def check_note(where, note, ref):
@@ -293,6 +297,19 @@ for lang, entries in lesson_index.items():
                             check_say(w, it.get("t"), it.get("say"))
         if drills < 3:
             bad(lid, f"only {drills} drills; a lesson needs at least 3")
+
+# The app respells any other Greek word itself (dictionary, Reader, review cards): lessons must agree with it.
+if shutil.which("node") and SAY_PAIRS:
+    out = subprocess.run(["node", os.path.join(ROOT, "tools", "greek_say.mjs")], input="\n".join(g for _, g, _ in SAY_PAIRS),
+                         capture_output=True, text=True, encoding="utf-8")
+    if out.returncode:
+        bad("tools/greek_say.mjs", out.stderr.strip()[:300])
+    else:
+        for (where, g, say), auto in zip(SAY_PAIRS, out.stdout.split("\n")):
+            if auto.replace("?", "") != say.replace("?", ""):
+                bad(where, f"{say}: the app would respell {g} as {auto}; make them agree (lesson or js/sound.js)")
+else:
+    print("(node not found: lesson pronunciations not compared with the app's respelling)")
 
 lessons_written = sum(1 for es in lesson_index.values() for e in es if e.get("file"))
 if problems:

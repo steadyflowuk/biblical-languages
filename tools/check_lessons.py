@@ -400,6 +400,34 @@ if shutil.which("node") and SAY_PAIRS:
 else:
     print("(node not found: lesson pronunciations not compared with the app's respelling)")
 
+# ---------------------------------------------------------------- videos (lessons/media.json)
+media_path = os.path.join(ROOT, "lessons", "media.json")
+M = json.load(open(media_path, encoding="utf-8"))
+if '"lessons/media.json"' not in sw:
+    bad("media", "lessons/media.json is not in sw.js SHELL_FILES")
+if not re.match(r"^\d{4}-\d\d-\d\d$", str(M.get("checked", ""))):
+    bad("media", "needs \"checked\": the date the links were last checked")
+ids = {e["id"] for es in lesson_index.values() for e in es}
+YT = re.compile(r"^https://www\.youtube\.com/(watch\?v=[\w-]{11}(&list=[\w-]+)?|playlist\?list=[\w-]+|@[\w.-]+(/playlists)?|c/[\w-]+)$")
+for lang in ("grc", "he"):
+    m = M.get(lang) or {}
+    links = [(f"media {lang} {lid}", v) for lid, vs in (m.get("lessons") or {}).items() for v in vs]
+    for lid in (m.get("lessons") or {}):
+        if lid not in ids or not lid.startswith(lang + "-"):
+            bad(f"media {lang}", f"{lid} is not a {lang} lesson in lessons/index.json")
+    for sec in m.get("sections") or []:
+        if not sec.get("title") or not sec.get("items"):
+            bad(f"media {lang}", "each section needs a title and items")
+        links += [(f"media {lang} {sec.get('title')}", v) for v in sec.get("items") or []]
+    for where, v in links:
+        h = str(v.get("href", ""))
+        if not v.get("title"):
+            bad(where, "a video needs a title")
+        if not re.match(r"^https?://", h):
+            bad(where, f"{h}: links must start with https:// (or http:// for sites without it)")
+        if "youtube.com" in h and not YT.match(h):
+            bad(where, f"{h}: not a plain YouTube watch/playlist/channel link (no index= or tracking parts)")
+
 lessons_written = sum(1 for es in lesson_index.values() for e in es if e.get("file"))
 if problems:
     print(f"{len(problems)} problems in {lessons_written} lessons:")

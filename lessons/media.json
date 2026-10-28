@@ -1,0 +1,155 @@
+{
+  "checked": "2026-10-28",
+  "grc": {
+    "course": { "title": "Alpha with Angela", "href": "https://www.youtube.com/playlist?list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" },
+    "lessons": {
+      "grc-0": [
+        { "title": "Alpha with Angela, lesson 1", "sub": "Nouns and adjectives, taught in Greek with pictures · 12 min", "href": "https://www.youtube.com/watch?v=gLe1GhR5l0E&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" }
+      ],
+      "grc-1": [
+        { "title": "Alpha with Angela, lesson 9: the alphabet, part 1", "sub": "The letters spoken and written · 24 min", "href": "https://www.youtube.com/watch?v=aTnGokTyOMs&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" },
+        { "title": "The Greek alphabet song", "sub": "All 24 letters in order · 3 min", "href": "https://www.youtube.com/watch?v=749JoaGOCcg&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" }
+      ],
+      "grc-2": [
+        { "title": "Alpha with Angela, lesson 16: the alphabet, part 2", "sub": "More letters, spoken and written · 21 min", "href": "https://www.youtube.com/watch?v=KjdzBrUGMZU&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" },
+        { "title": "Alpha with Angela, lesson 16a: reading vowel pairs", "sub": "Practice with αι, ει, ου and the rest · 9 min", "href": "https://www.youtube.com/watch?v=nqb8iDNttwA&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" },
+        { "title": "Alpha with Angela, lesson 18: the alphabet, part 3", "sub": "The last letters · 19 min", "href": "https://www.youtube.com/watch?v=P1wIRpcVbkM&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" }
+      ],
+      "grc-3": [
+        { "title": "Alpha with Angela, lesson 9a: breathings and accents", "sub": "Reading practice with the small marks · 19 min", "href": "https://www.youtube.com/watch?v=HwtwoSRBVvw&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" },
+        { "title": "Alpha with Angela, lesson 16b: capital letters", "sub": "Reading practice · 8 min", "href": "https://www.youtube.com/watch?v=pwZz24hmiec&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" }
+      ],
+      "grc-4": [
+        { "title": "Alpha with Angela, lesson 27: commands and actions", "sub": "Verbs acted out · 11 min", "href": "https://www.youtube.com/watch?v=kmXKxTgeJRs&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" },
+        { "title": "Alpha with Angela, lesson 30: hear, obey and follow", "sub": "Verbs of hearing and following, acted out · 20 min", "href": "https://www.youtube.com/watch?v=tqlrw8PqnN0&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" }
+      ],
+      "grc-5": [
+        { "title": "Alpha with Angela, lesson 29: speech, flight and messengers", "sub": "More verbs in use · 21 min", "href": "https://www.youtube.com/watch?v=VbW7W6mKVsk&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" }
+      ],
+      "grc-6": [
+        { "title": "Alpha with Angela, lesson 1: masculine nouns", "sub": "Singular nouns and adjectives · 12 min", "href": "https://www.youtube.com/watch?v=gLe1GhR5l0E&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" },
+        { "title": "Alpha with Angela, lesson 6: plurals", "sub": "Plural articles and nouns · 17 min", "href": "https://www.youtube.com/watch?v=SjfGRhudnm8&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" }
+      ],
+      "grc-7": [
+        { "title": "Alpha with Angela, lesson 17: the genitive", "sub": "Singular genitive pronouns and articles · 15 min", "href": "https://www.youtube.com/watch?v=lycceEiy9WM&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" },
+        { "title": "Alpha with Angela, lesson 20: genitive nouns", "sub": "Second declension · 21 min", "href": "https://www.youtube.com/watch?v=OqYszhK66VE&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" },
+        { "title": "Alpha with Angela, lesson 24: prepositions", "sub": "Prepositional phrases · 21 min", "href": "https://www.youtube.com/watch?v=W9Mw4xxSh1U&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" }
+      ],
+      "grc-8": [
+        { "title": "Alpha with Angela, lesson 3: neuter nouns", "sub": "Singular neuter nouns, adjectives and article · 12 min", "href": "https://www.youtube.com/watch?v=9kiTGgrK494&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" }
+      ],
+      "grc-9": [
+        { "title": "Alpha with Angela, lesson 2: feminine nouns", "sub": "Singular feminine nouns, adjectives and article · 12 min", "href": "https://www.youtube.com/watch?v=9wtC-HxfW6U&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" },
+        { "title": "Alpha with Angela, lesson 21: first declension genitive", "sub": "Genitive singular nouns · 19 min", "href": "https://www.youtube.com/watch?v=yXnbmnA7Quc&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" },
+        { "title": "Alpha with Angela, lesson 22: genitive plurals", "sub": "Genitive plural nouns · 20 min", "href": "https://www.youtube.com/watch?v=Wb-C7WstVFY&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" }
+      ],
+      "grc-10": [
+        { "title": "Alpha with Angela, lesson 21: first declension genitive", "sub": "Genitive singular nouns · 19 min", "href": "https://www.youtube.com/watch?v=yXnbmnA7Quc&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" }
+      ],
+      "grc-11": [
+        { "title": "Alpha with Angela, lesson 5: the verb “to be”", "sub": "I and you, and εἰμί · 11 min", "href": "https://www.youtube.com/watch?v=Cus1ts4TLb4&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" },
+        { "title": "Alpha with Angela, lesson 8: adjectives", "sub": "Plural masculine, feminine and neuter adjectives · 17 min", "href": "https://www.youtube.com/watch?v=IGUn-_DYSms&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" }
+      ]
+    },
+    "sections": [
+      {
+        "title": "Learn by listening",
+        "sub": "Short lessons taught in Greek with pictures, using the same Erasmian sounds as this app.",
+        "items": [
+          { "title": "Alpha with Angela: every lesson in order", "sub": "79 videos: lessons, quizzes and easy stories", "href": "https://www.youtube.com/playlist?list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" },
+          { "title": "Alpha with Angela: easy story 1, the little sheep", "sub": "A four-minute story once you've done lessons 1–5", "href": "https://www.youtube.com/watch?v=OCFSKz3tKXA&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" },
+          { "title": "Alpha with Angela as a podcast", "sub": "The same lessons, sound only, for the car or a walk", "href": "https://creators.spotify.com/pod/profile/alphawithangela/" },
+          { "title": "Alpha with Angela: course website", "sub": "Transcripts, grammar notes and worksheets", "href": "https://freegreek.online/resources/" }
+        ]
+      },
+      {
+        "title": "Hear the New Testament read",
+        "sub": "Listen while you follow the text in the Reader.",
+        "items": [
+          { "title": "Readings in Erasmian pronunciation", "sub": "Recommended by the Alpha with Angela team", "href": "https://www.youtube.com/playlist?list=PL92xKgmKTQBIZTse1Q-T9mj_AuXW9LlcV" },
+          { "title": "Polis Institute readings", "sub": "John, Galatians, James, 1 John and Revelation", "href": "https://www.youtube.com/playlist?list=PLXI4Nw5PDR6Rm8i7Z3l8uO5gvhVcuuKci" },
+          { "title": "Restored Koine audio (Biblical Language Center)", "sub": "Randall Buth's first-century pronunciation", "href": "https://www.koinegreek.com/audio" },
+          { "title": "Koine Greek channel (Ben Kantor)", "sub": "Readings and short talks in reconstructed Koine", "href": "https://www.youtube.com/@KoineGreek" }
+        ]
+      },
+      {
+        "title": "Sing it",
+        "sub": "Songs stay in the memory longer than lists.",
+        "items": [
+          { "title": "ΕΦΟΔΙΑ: Scripture sung in Greek", "sub": "Verses set to music", "href": "https://www.youtube.com/playlist?list=PLPMbmCX6xe-ENuIdifpgAorjKoNChRqc9" },
+          { "title": "Sing Greek and Hebrew", "sub": "Playlists of songs in both languages", "href": "https://www.youtube.com/@singgreekandhebrew/playlists" }
+        ]
+      },
+      {
+        "title": "Grammar lectures in English",
+        "sub": "For when you'd like a teacher to explain a lesson's grammar another way.",
+        "items": [
+          { "title": "Learn New Testament Greek (Jeremy Duff)", "sub": "Lectures that go with his book, The Elements of New Testament Greek", "href": "https://www.youtube.com/playlist?list=PLLsORYeo0a66wYX81WQpy8EtEze14vERn" },
+          { "title": "Learn to Read New Testament Greek (David Alan Black)", "sub": "A full course of lectures", "href": "https://www.youtube.com/watch?v=fEVkC1jWZig&list=PLPe-EXRYJg2iob0nrBggwIrr56Y1k2WZ2" }
+        ]
+      }
+    ]
+  },
+  "he": {
+    "course": { "title": "Aleph with Beth", "href": "https://www.youtube.com/watch?v=y640-FIpxQs&list=PLq1vmb-z7PpQt2PDNUr7XOzBjWAOWf0Rt" },
+    "lessons": {
+      "he-0": [
+        { "title": "Aleph with Beth: the first lessons", "sub": "Taught in Biblical Hebrew with pictures", "href": "https://www.youtube.com/watch?v=y640-FIpxQs&list=PLq1vmb-z7PpQt2PDNUr7XOzBjWAOWf0Rt" }
+      ],
+      "he-1": [
+        { "title": "Aleph with Beth, lesson 7: the alphabet, part 1", "sub": "The letters spoken and written", "href": "https://www.youtube.com/watch?v=8qRlZcY_jXc" },
+        { "title": "Aleph with Beth, lesson 10: the alphabet, part 2", "sub": "More letters", "href": "https://www.youtube.com/watch?v=X7ly8n23SrY" },
+        { "title": "How to write the Hebrew alphabet", "sub": "Aleph with Beth", "href": "https://www.youtube.com/watch?v=hQ7MC61w6Fw" }
+      ],
+      "he-2": [
+        { "title": "Aleph with Beth, lesson 13: the alphabet, part 3", "sub": "More letters", "href": "https://www.youtube.com/watch?v=RJP3Kg_mqRk" },
+        { "title": "Aleph with Beth, lesson 16: the alphabet, part 4", "sub": "More letters", "href": "https://www.youtube.com/watch?v=0K6UTCyp_9s" },
+        { "title": "Aleph with Beth, lesson 19: the alphabet, part 5", "sub": "The last letters", "href": "https://www.youtube.com/watch?v=ciuWQdxg5VY" }
+      ]
+    },
+    "sections": [
+      {
+        "title": "Learn by listening",
+        "sub": "Short lessons taught in Biblical Hebrew with pictures, from the makers of Alpha with Angela.",
+        "items": [
+          { "title": "Aleph with Beth: introduction", "sub": "A four-minute English welcome explaining the method", "href": "https://www.youtube.com/watch?v=_rg-Dcfj-fc" },
+          { "title": "Aleph with Beth: the lessons in order", "sub": "Taught in Biblical Hebrew", "href": "https://www.youtube.com/watch?v=y640-FIpxQs&list=PLq1vmb-z7PpQt2PDNUr7XOzBjWAOWf0Rt" },
+          { "title": "Aleph with Beth channel", "sub": "Every lesson, plus songs and stories", "href": "https://www.youtube.com/c/alephwithbeth" },
+          { "title": "Aleph with Beth: course website", "sub": "Transcripts, grammar notes and a progress tracker", "href": "https://freehebrew.online/resources/" }
+        ]
+      },
+      {
+        "title": "Hear the Hebrew Bible read",
+        "sub": "Listen while you follow the text in the Reader.",
+        "items": [
+          { "title": "The Hebrew Bible read by Abraham Shmuelof", "sub": "Every chapter, in Israeli pronunciation (Mechon Mamre)", "href": "http://mechon-mamre.org/p/pt/ptmp3prq.htm" },
+          { "title": "Genesis read by Dan Be'eri", "sub": "A clear, unhurried reading (Internet Archive)", "href": "https://archive.org/details/TanakhAudioRecordingByRabbiDanBeeri-BookByBook/01_genesis.mp3" }
+        ]
+      },
+      {
+        "title": "How it sounded long ago",
+        "sub": "The app teaches the pronunciation used in colleges. The Masoretes, who added the vowel points, said it differently.",
+        "items": [
+          { "title": "The Tiberian Pronunciation Tradition (Geoffrey Khan)", "sub": "A free book on the Masoretes' own pronunciation", "href": "https://books.openedition.org/obp/16762" }
+        ]
+      },
+      {
+        "title": "Sing it",
+        "sub": "Psalms and other passages sung in Hebrew.",
+        "items": [
+          { "title": "Miqedem: the Psalms in Hebrew", "sub": "Psalms sung in the original words", "href": "https://www.youtube.com/playlist?list=PLLipv65jqzhQ_x5KAQAfKX24bQk22Y9JK" },
+          { "title": "Songs in Biblical Hebrew (Andrew Case)", "sub": "From the creator of Aleph with Beth", "href": "https://hismagnificence.com/sing-hebrew/" },
+          { "title": "Sing Greek and Hebrew", "sub": "Playlists of songs in both languages", "href": "https://www.youtube.com/@singgreekandhebrew/playlists" }
+        ]
+      },
+      {
+        "title": "Grammar lectures in English",
+        "sub": "For when you'd like a teacher to explain a lesson's grammar another way.",
+        "items": [
+          { "title": "Picture Hebrew", "sub": "Biblical Hebrew grammar, step by step", "href": "https://www.youtube.com/watch?v=IIH6Ahud07o&list=PL_8Dv2PO1HGYtRW1PaZxdYVK_6y0iq8br" },
+          { "title": "Hebrew grammar lectures (Bill Barrick)", "sub": "A full seminary course", "href": "https://www.youtube.com/watch?v=Qvh8yziVsCE&list=PL9392DD285C853693" }
+        ]
+      }
+    ]
+  }
+}

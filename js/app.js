@@ -5,6 +5,8 @@ import { words } from "./dictionary.js";
 import { lesson } from "./lessons.js";
 import { reviewScreen } from "./review.js";
 import { alphabet } from "./alphabet.js";
+import { media } from "./media.js";
+import { progress } from "./progress.js";
 import { bindAudio } from "./audio.js";
 import * as nav from "./nav.js";
 
@@ -17,7 +19,8 @@ const ROUTES = {
   words,
   review: reviewScreen,
   alphabet,
-  media: screens.media,
+  media,
+  progress,
   settings: screens.settings,
 };
 

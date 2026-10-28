@@ -13,6 +13,7 @@ import { greekSay } from "./sound.js";
 import { sayButton, play } from "./audio.js";
 import { head } from "./screens.js";
 import { mixed } from "./lessons.js";
+import { logActivity } from "./activity.js";
 
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
@@ -208,6 +209,7 @@ export function rate(card, rating, now) {
   saveCards(all);
   bump("r", at);
   if (isNew) bump("n", at);
+  logActivity("r", at);
   return saved;
 }
 

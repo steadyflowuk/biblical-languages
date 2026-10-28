@@ -213,7 +213,10 @@ def build(lang):
         for s in senses[1:]:
             alias[s[1]] = key
     words.sort(key=lambda w: (-w[3], w[0]))
-    return {"lang": lang, "min": MIN, "words": words, "alias": alias}
+    # every counted word in the text (Hebrew: main parts, as the counts are): the Progress screen's "share of the text"
+    total = sum(r[4] for r in index if len(r) > 4 and isinstance(r[4], int)
+                and not (lang == "he" and int(re.sub(r"\D", "", r[0]) or 0) >= 9000))
+    return {"lang": lang, "min": MIN, "total": total, "words": words, "alias": alias}
 
 
 def main():

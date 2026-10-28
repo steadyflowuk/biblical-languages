@@ -6,6 +6,9 @@ import * as esv from "./esv.js";
 import * as lessons from "./lessons.js";
 import * as review from "./review.js";
 import { sayButton } from "./audio.js";
+import { streak } from "./activity.js";
+import { saveBackup, backupDue, languageSummary } from "./progress.js";
+import { firstVideoFor } from "./media.js";
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
@@ -68,8 +71,10 @@ export const today = {
     let todays = { grc: STARTER.find((v) => v.lang === "grc"), he: STARTER.find((v) => v.lang === "he") };
     let lang = "grc";
     const dateText = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+    const run = streak();
     main.innerHTML = `<div class="screen">
       ${head("Today", dateText)}
+      ${run.current ? `<p class="today-streak"><a href="#/progress"><strong>${run.current} ${run.current === 1 ? "day" : "days"} in a row</strong> · ${run.today ? "you've studied today" : "keep it going today"}</a></p>` : ""}
       ${installTip()}
       <div class="switch" role="group" aria-label="Verse language">
         <button type="button" data-lang="grc" aria-pressed="true">Greek</button>
@@ -77,13 +82,8 @@ export const today = {
       </div>
       <div class="verse-slot"></div>
 
-      <h2>Start here</h2>
-      <ul class="rows">
-        <li><a class="row" href="https://www.youtube.com/watch?v=gLe1GhR5l0E&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq&index=1" target="_blank" rel="noopener">
-          <span class="row-glyph" lang="grc" aria-hidden="true">α</span>
-          <span class="row-main"><span class="row-title">Watch Alpha with Angela, lesson 1</span><span class="row-sub">Hear Greek before you study it</span></span>
-          <span class="row-end" aria-hidden="true">↗</span>
-        </a></li>
+      <h2>Your plan for today</h2>
+      <ul class="rows today-plan">
         <li class="today-lesson"><a class="row" href="#/learn">
           <span class="row-glyph" aria-hidden="true">1</span>
           <span class="row-main"><span class="row-title">See your learning path</span><span class="row-sub">Lessons from the first letters to real verses</span></span>
@@ -91,6 +91,18 @@ export const today = {
         <li class="today-review"><a class="row" href="#/review">
           <span class="row-glyph" aria-hidden="true">↻</span>
           <span class="row-main"><span class="row-title">Review your words</span><span class="row-sub">Flashcards that come back just before you'd forget</span></span>
+        </a></li>
+        <li class="today-video"><a class="row" href="#/media">
+          <span class="row-glyph" aria-hidden="true">▶</span>
+          <span class="row-main"><span class="row-title">Watch a video</span><span class="row-sub">Hear the language spoken</span></span>
+        </a></li>
+        ${backupDue() ? `<li class="today-backup"><button type="button" class="row" data-backup>
+          <span class="row-glyph" aria-hidden="true">⤓</span>
+          <span class="row-main"><span class="row-title">Save a backup</span><span class="row-sub">Your progress is kept on this device only</span></span>
+        </button></li>` : ""}
+        <li class="today-progress"><a class="row" href="#/progress">
+          <span class="row-glyph" aria-hidden="true">%</span>
+          <span class="row-main"><span class="row-title">See your progress</span><span class="row-sub">Lessons, words and study days</span></span>
         </a></li>
       </ul>
     </div>`;
@@ -120,7 +132,28 @@ export const today = {
           <span class="row-glyph" aria-hidden="true">✓</span>
           <span class="row-main"><span class="row-title">You've done every ${lang === "he" ? "Hebrew" : "Greek"} lesson so far</span><span class="row-sub">More lessons are on their way</span></span>
         </a>`;
+      // the video that goes with that lesson
+      if (next) firstVideoFor(next.id).then((v) => {
+        const row = main.querySelector(".today-video");
+        if (!v || !row) return;
+        row.innerHTML = `<a class="row" href="${esc(v.href)}" target="_blank" rel="noopener">
+          <span class="row-glyph" aria-hidden="true">▶</span>
+          <span class="row-main"><span class="row-title">Watch: ${lessons.mixed(v.title)}</span><span class="row-sub">Goes with your next lesson · ${lessons.mixed(v.sub || "")}</span></span>
+          <span class="row-end" aria-hidden="true">↗</span>
+        </a>`;
+      }).catch(() => { /* offline: keep the link to Videos */ });
+      // how much of the text the known words make up
+      languageSummary(lang).then((s) => {
+        const sub = main.querySelector(".today-progress .row-sub");
+        if (sub && s.share) sub.textContent = `Your words make up ${s.share < 10 ? s.share.toFixed(1) : Math.round(s.share)}% of the ${lang === "he" ? "Hebrew Old Testament" : "Greek New Testament"}`;
+      }).catch(() => {});
     }).catch(() => { /* offline before the lessons were ever loaded: keep the link to Learn */ });
+    const backupBtn = main.querySelector(".today-backup [data-backup]");
+    if (backupBtn) backupBtn.addEventListener("click", async () => {
+      const msg = await saveBackup();
+      if (msg) toast(msg);
+      if (!backupDue()) main.querySelector(".today-backup")?.remove();
+    });
 
     const slot = main.querySelector(".verse-slot");
     const draw = () => {
@@ -188,7 +221,7 @@ export const learn = {
         <span class="row-main"><span class="row-title">Alphabet and sounds</span><span class="row-sub">Every letter, the marks that change a sound, and verses to read aloud</span></span>
       </a></li></ul>
       <div class="path-slot"><p class="muted">Loading the lessons…</p></div>
-      <p><a class="btn secondary" href="#/media">Videos to watch alongside</a></p>
+      <p class="btn-row learn-more"><a class="btn secondary" href="#/media">Videos to watch alongside</a> <a class="btn secondary" href="#/progress">Your progress</a></p>
     </div>`;
     const slot = main.querySelector(".path-slot");
     let index = null;
@@ -211,46 +244,6 @@ export const learn = {
         draw();
       })
     );
-  },
-};
-
-// ---------------------------------------------------------------- Media
-
-const VIDEOS = [
-  {
-    lang: "grc",
-    heading: "Greek",
-    items: [
-      { glyph: "α", title: "Alpha with Angela: lesson 1", sub: "Picture-based lessons taught entirely in Koine Greek, with the same pronunciation as this app", href: "https://www.youtube.com/watch?v=gLe1GhR5l0E&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq&index=1" },
-      { glyph: "β", title: "Alpha with Angela: course website", sub: "How the course works, downloads and the pronunciation guide", href: "https://freegreek.online/" },
-    ],
-  },
-  {
-    lang: "he",
-    heading: "Hebrew",
-    items: [
-      { glyph: "א", title: "Aleph with Beth: introduction", sub: "A four-minute English welcome explaining the method", href: "https://www.youtube.com/watch?v=_rg-Dcfj-fc" },
-      { glyph: "ב", title: "Aleph with Beth: lessons 1 to 50", sub: "The course in order, taught in Biblical Hebrew", href: "https://www.youtube.com/watch?v=y640-FIpxQs&list=PLq1vmb-z7PpQt2PDNUr7XOzBjWAOWf0Rt" },
-    ],
-  },
-];
-
-export const media = {
-  title: "Videos",
-  render(main) {
-    main.innerHTML = `<div class="screen">
-      ${head("Videos", "Hear the languages before you study them")}
-      ${VIDEOS.map((g) => `
-        <h2>${g.heading}</h2>
-        <ul class="rows">
-          ${g.items.map((it) => `<li><a class="row" href="${it.href}" target="_blank" rel="noopener">
-            <span class="row-glyph" lang="${g.lang}" aria-hidden="true">${it.glyph}</span>
-            <span class="row-main"><span class="row-title">${esc(it.title)}</span><span class="row-sub">${esc(it.sub)}</span></span>
-            <span class="row-end" aria-hidden="true">↗</span>
-          </a></li>`).join("")}
-        </ul>`).join("")}
-      <p class="muted" style="margin-top:20px">More channels for each level, including children's songs for Hebrew sounds, arrive in Week 4. Links open YouTube or the course website.</p>
-    </div>`;
   },
 };
 
@@ -350,35 +343,17 @@ export const settings = {
     });
 
     main.querySelector('[data-action="export"]').addEventListener("click", async () => {
-      const name = `aleph-to-omega-backup-${new Date().toISOString().slice(0, 10)}.json`;
-      const json = JSON.stringify(store.exportBackup(), null, 2);
-      // iPhone/iPad home-screen apps can't download files, so use the share sheet ("Save to Files") there.
-      const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
-      const file = typeof File === "function" ? new File([json], name, { type: "application/json" }) : null;
-      if (standalone && file && navigator.canShare?.({ files: [file] })) {
-        try {
-          await navigator.share({ files: [file], title: "Aleph to Omega backup" });
-          toast("Backup saved");
-        } catch (err) {
-          if (err.name !== "AbortError") toast("The backup couldn't be shared. Try again from Safari.");
-        }
-        return;
-      }
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(new Blob([json], { type: "application/json" }));
-      a.download = name;
-      document.body.append(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-      toast("Backup saved");
+      const msg = await saveBackup();
+      if (msg) toast(msg);
     });
 
     main.querySelector('[data-action="import"]').addEventListener("change", async (e) => {
       const file = e.target.files?.[0];
       if (!file) return;
       try {
-        const count = store.importBackup(JSON.parse(await file.text()));
+        const backup = JSON.parse(await file.text());
+        const count = store.importBackup(backup);
+        if (backup.exported) store.set("lastBackup", backup.exported);
         store.applyDisplaySettings();
         toast(`Backup restored (${count} items)`);
         settings.render(main);

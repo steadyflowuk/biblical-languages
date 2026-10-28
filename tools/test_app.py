@@ -9,7 +9,7 @@ from playwright.async_api import async_playwright
 
 BASE = os.environ.get("APP_URL", "http://localhost:8765/")
 CHROME = "/opt/pw-browsers/chromium-1243/chrome-linux64/chrome"
-ROUTES = ["today", "learn", "alphabet", "read", "words", "review", "media", "settings"]
+ROUTES = ["today", "learn", "alphabet", "read", "words", "review", "progress", "media", "settings"]
 IPHONE_UA = ("Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 "
              "(KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1")
 

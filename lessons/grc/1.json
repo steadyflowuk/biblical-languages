@@ -9,9 +9,9 @@
       "cards": [
         {
           "type": "video",
-          "title": "Alpha with Angela, lessons 1 to 3",
-          "href": "https://www.youtube.com/watch?v=gLe1GhR5l0E&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq&index=1",
-          "note": "Optional: hear the letters spoken. Angela uses the same pronunciation as this app."
+          "title": "Alpha with Angela, lesson 9: the alphabet",
+          "href": "https://www.youtube.com/watch?v=aTnGokTyOMs&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq",
+          "note": "Optional: hear the letters spoken and see them written (24 minutes). Angela uses the same pronunciation as this app."
         },
         { "type": "scene", "picture": "🌍", "text": "γῆ", "say": "gay", "en": "earth, land" },
         { "type": "scene", "picture": "🔟", "text": "δέκα", "say": "DE-ka", "en": "ten (think of decade)" },

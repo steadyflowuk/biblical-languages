@@ -7,7 +7,7 @@
       "step": "hear",
       "intro": "Hebrew has 22 letters, all consonants. Here are words made only from the first eleven. Remember: start on the right.",
       "cards": [
-        { "type": "video", "title": "Aleph with Beth", "href": "https://www.youtube.com/watch?v=y640-FIpxQs&list=PLq1vmb-z7PpQt2PDNUr7XOzBjWAOWf0Rt", "note": "Optional: lessons taught entirely in Biblical Hebrew, with pictures. Watching one or two now helps the sounds settle." },
+        { "type": "video", "title": "Aleph with Beth, lesson 7: the alphabet, part 1", "href": "https://www.youtube.com/watch?v=8qRlZcY_jXc", "note": "Optional: the letters spoken and written, taught in Biblical Hebrew. The next parts are listed in Videos." },
         { "type": "scene", "picture": "👨", "text": "אָב", "say": "av", "en": "father" },
         { "type": "scene", "picture": "✋", "text": "יָד", "say": "yad", "en": "hand" },
         { "type": "scene", "picture": "👍", "text": "טוֹב", "say": "tov", "en": "good" },

@@ -8,6 +8,7 @@ import * as data from "./data.js";
 import { friendlyGrammar, bsbChapter, englishHTML } from "./reader.js";
 import { sayButton } from "./audio.js";
 import { heText, heEnglish, heAfter, heJoined, heMainKey, heParts, heFriendlyGrammar } from "./hebrew.js";
+import { logActivity } from "./activity.js";
 
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
@@ -128,6 +129,28 @@ function sceneHTML(c) {
         <button type="button" class="btn secondary" data-reveal aria-expanded="false">Show the English</button>
         <p class="ls-en" hidden>${mixed(c.en)}</p>
       </div>
+    </div>`;
+}
+
+/** Videos that go with a lesson (lessons/media.json), shown at the end of its Hear step. */
+let mediaFile = null;
+export function lessonVideos(id) {
+  if (!mediaFile) mediaFile = data.getJSON("lessons/media.json").catch(() => { mediaFile = null; return null; });
+  return mediaFile.then((m) => {
+    if (!m) return [];
+    const lang = id.indexOf("he-") === 0 ? "he" : "grc";
+    return ((m[lang] && m[lang].lessons) || {})[id] || [];
+  });
+}
+
+function alongsideHTML(videos) {
+  return `<div class="ls-alongside">
+      <h3>Videos to watch alongside</h3>
+      <ul class="rows">${videos.map((v) => `<li><a class="row" href="${esc(v.href)}" target="_blank" rel="noopener">
+        <span class="row-glyph" aria-hidden="true">▶</span>
+        <span class="row-main"><span class="row-title">${mixed(v.title)}</span><span class="row-sub">${mixed(v.sub || "")}</span></span>
+        <span class="row-end" aria-hidden="true">↗</span></a></li>`).join("")}</ul>
+      <p class="muted">Optional. They open YouTube; come back here when you're ready.</p>
     </div>`;
 }
 
@@ -405,6 +428,16 @@ export const lesson = {
         }
       }
       box.innerHTML = intro + again + html;
+      // the last card of Hear and see: videos that go with this lesson (any the lesson already shows are left out)
+      const nextItem = seq[p.pos + 1];
+      if (item.step === "hear" && !item.retry && (!nextItem || nextItem.step !== "hear")) {
+        const own = new Set(L.steps.filter((s) => s.step === "hear").reduce((a, s) => a.concat(s.cards), [])
+          .filter((x) => x.type === "video").map((x) => String(x.href).split("&")[0]));
+        lessonVideos(id).then((vids) => {
+          const extra = vids.filter((v) => !own.has(String(v.href).split("&")[0]));
+          if (extra.length && seq[p.pos] === item && !box.querySelector(".ls-alongside")) box.insertAdjacentHTML("beforeend", alongsideHTML(extra));
+        });
+      }
       const title = box.querySelector(".ls-title, .ls-big");
       if (title && document.activeElement && document.activeElement !== document.body && main.contains(document.activeElement)) {
         if (!title.hasAttribute("tabindex")) title.setAttribute("tabindex", "-1");
@@ -517,6 +550,7 @@ export const lesson = {
       if (p.pos < seq.length - 1) {
         p.pos += 1;
         saveProgress(id, p);
+        logActivity("l"); // a step done counts towards today's study
         draw().then(() => { const t = box.querySelector(".ls-title, .ls-big"); if (t) { t.setAttribute("tabindex", "-1"); t.focus({ preventScroll: true }); } });
         window.scrollTo(0, 0);
         return;
@@ -545,6 +579,7 @@ export const lesson = {
         added++;
       })));
       store.set("reviewQueue", queue);
+      logActivity("l");
       const best = Math.max(p.best || 0, drills.length ? Math.round((right / drills.length) * 100) : 100);
       saveProgress(id, { v: 1, sig, done: true, best, completed: new Date().toISOString().slice(0, 10), pos: 0, retries: [], first: {} });
       const next = (index[lang] || []).slice(entries.indexOf(entry) + 1).find((e) => e.file);

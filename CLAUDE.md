@@ -44,6 +44,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - `js/hebrew.js` Hebrew helpers: word parts, pronunciation, punctuation, short/full grammar labels
 - `js/dictionary.js` Words tab: search + entries (routes `#/words`, `#/words/KEY`) · `js/nav.js` back/return memory
 - `js/esv.js` ESV key + API + small offline store · Septuagint screen (`#/lxx/ID/CH[/V]`) lives in `js/reader.js`
+- `js/activity.js` study days + streak · `js/progress.js` Progress screen + saveBackup · `js/media.js` Videos screen
 - `js/alphabet.js` Alphabet and sounds (`#/alphabet/grc|he`, content in `lessons/alphabet/<lang>.json`)
 - `js/lessons.js` lesson engine (route `#/lesson/LANG/ID`) · `lessons/` index + one JSON file per lesson (format: lessons/README.md)
 - `js/review.js` Review trainer (#/review) · `js/sound.js` respelling + voice text (no DOM; Node can import it) ·
@@ -92,7 +93,10 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   כָּעַס, חָמָס) because the paragraph-letter rule wasn't anchored; brackets dropped from voice text; Greek elision δ᾽
   said with the next word (δ᾽ ἂν → ντάν) or as ντέ alone; no Listen button when nothing is sayable.
   tools/check_speech.mjs checks every word (1.07 million) offline. Real voices (Carmit/Melina) still need the devices.
-- [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
+- [x] 11 (28 Oct 2026): Today as a daily plan (streak, next lesson, reviews, the next lesson's video, backup reminder,
+  progress), Progress screen (#/progress), Videos rebuilt from lessons/media.json (videos per lesson, readings, songs,
+  lectures), videos at the end of each lesson's Hear step, shared backup with "last saved" date.
+- [ ] 12 Device testing + guide
 
 ## Data (Session 2)
 - Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (46 checks).
@@ -345,8 +349,35 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   cards refresh from the guide (like deck cards); answer shows the example and "Alphabet guide".
 - Example rows everywhere use `.ls-ex-head` (word + small Listen on one line).
 
+## Today, Progress and Videos (Session 11)
+- Study days: store "activity" {day: {r, l}} (400 days), day = review day (starts 4am). activity() merges reviewLog's r
+  (max), so review.rate's logActivity("r") doesn't add again (it once double-counted). Lessons log "l" on Continue and
+  on finishing. streak() = days in a row up to today (or yesterday until today has study); bestStreak kept in store.
+- Progress: streak panel (navy), 12-week calendar (Mon–Sun rows, --heat-0…4 sage ramp, light and dark), per language:
+  lessons finished/under way, words in Review by strength (state 2 & stability ≥ 21 = known well; state 2 = getting
+  there; else still new), share of the text = sum of counts of known words (card n, else deck count via alias) / deck
+  "total" (sum of index counts; Hebrew main parts only; written by build_decks.py), letters known; week ahead = cards
+  due per day (today includes overdue); backup with "last saved". Hebrew/Greek not started → button sets learnLang.
+- Backup: progress.saveBackup() (share sheet in iOS home-screen app, else download) sets store lastBackup; Settings and
+  Today use it. Restore sets lastBackup to the backup's "exported". backupDue(): ≥20 cards or ≥2 lessons done and no
+  backup for 30 days → Today shows a "Save a backup" row.
+- lessons/media.json {checked, grc|he: {course, lessons: {lessonId: [{title, sub, href}]}, sections: [{title, sub,
+  items}]}}. Per-lesson videos are Alpha with Angela (playlist read on the user's Mac, 28 Oct: L9 alphabet 1, 9a
+  breathings, 16/16a/16b/18 alphabet, 1/2/3/6 nouns, 17/20/21/22 genitive, 24 prepositions, 27/29/30 verbs, 5 εἰμί,
+  8 adjectives) and Aleph with Beth alphabet parts 1–5 = lessons 7, 10, 13, 16, 19 (IDs from search results).
+  Section links come from the courses' own resource pages (freegreek.online/resources, freehebrew.online/resources).
+  No modern Israeli children's TV: Modern Hebrew vocabulary differs; songs are Psalms (Miqedem), Andrew Case, Sing
+  Greek and Hebrew. check_lessons checks media.json (lesson ids, plain YouTube URLs, https, in SHELL_FILES).
+- Lesson Hear step: after its last card, "Videos to watch alongside" from media.json, leaving out any video the lesson
+  already shows (compared without the &list part). grc-1/he-1 video cards now point at the alphabet videos.
+- Today: streak line → Progress; "Your plan for today": next lesson, reviews, the next lesson's first video, backup
+  reminder, progress (with the share of the text). Rail (≥900px) has Progress above Videos; phones reach it from
+  Today and Learn.
+
 ## Checks
-- `python3 tools/test_app.py` (server on :8765 first) — 106 end-to-end checks; run before every push.
+- `python3 tools/test_progress.py` — 41 checks: streak and the 4am day, activity logging, Progress numbers, backup save/
+  reminder/restore, Today's plan, Videos, lesson videos not repeated, iPad rail, 320px largest dark, offline.
+- `python3 tools/test_app.py` (server on :8765 first) — 111 end-to-end checks; run before every push.
 - `python3 tools/test_reader_edges.py` — 28 Reader edge cases (odd links, fast switching incl. OT↔NT, offline Hebrew, focus, back button, 320px).
 - `python3 tools/sweep_reader.py [nt|ot|all]` — opens every chapter at 360px (NT ~10 min, OT ~35 min); expect
   0 issues and only 3JN 15 / REV 12:18 notes.

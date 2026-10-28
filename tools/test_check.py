@@ -133,6 +133,49 @@ async def main():
         check("320px, largest text, dark: everything fits", not over and not await pg.evaluate("document.documentElement.scrollWidth > innerWidth"), str(over))
         await ctx.close()
 
+        # 7. Offline saving: the lessons' books are saved by themselves; Settings saves the rest
+        ctx = await b.new_context(viewport={"width": 390, "height": 844})
+        pg = await ctx.new_page()
+        pg.on("pageerror", lambda e: errs.append(str(e)))
+        await pg.goto(f"{BASE}#/today")
+        await pg.evaluate("navigator.serviceWorker.ready")
+        await pg.reload()
+        need = await pg.evaluate("import('./js/offline.js').then((m) => m.essentialFiles()).then((f) => f.length)")
+        for _ in range(60):  # up to a minute
+            if await pg.evaluate("""import('./js/offline.js').then((m) => m.essentialFiles()).then(async (f) => {
+                const c = await caches.open('data-v1');
+                for (const u of f) if (!(await c.match(new URL(u, location.href).href))) return false;
+                return true; })"""):
+                break
+            await pg.wait_for_timeout(1000)
+        check(f"Within seconds of opening: the {need} files lessons and the Letters tab need are saved", True)
+        await ctx.set_offline(True)
+        await pg.goto(f"{BASE}#/settings")
+        await pg.goto(f"{BASE}#/alphabet/he")
+        await pg.wait_for_selector(".ab-verse-t", timeout=10000)
+        check("Offline, never opened before: the Letters tab's read-aloud verses (books saved by themselves)", True)
+        await pg.goto(f"{BASE}#/words")
+        await pg.fill(".dict-search input, input[type=search]", "shepherd")
+        await pg.wait_for_selector(".dict-row", timeout=10000)
+        check("Offline: dictionary search works (its lists saved by themselves)", True)
+        await ctx.set_offline(False)
+        await pg.goto(f"{BASE}#/settings")
+        await pg.wait_for_selector("[data-save-all]:not([hidden])", timeout=15000)
+        st = await pg.locator(".offline-state").inner_text()
+        check("Settings › Offline: says how much is saved and what the rest needs", "files saved so far" in st and "MB" in st, st)
+        await pg.click("[data-save-all]")
+        await pg.wait_for_function("document.querySelector('.offline-state').textContent.startsWith('Everything')", timeout=300000, polling=1000)
+        check("Save it all: everything saved, the button goes", await pg.locator("[data-save-all]").is_hidden())
+        await ctx.set_offline(True)
+        for r, sel in (("read/GEN/50", ".chapter .v"), ("lxx/ISA/53", ".lxx-text"), ("words/H7462", ".entry-lemma")):
+            await pg.goto(f"{BASE}#/settings")
+            await pg.goto(f"{BASE}#/{r}")
+            await pg.wait_for_selector(sel, timeout=10000)
+        check("Offline after saving it all: Genesis 50, Septuagint Isaiah 53, a dictionary entry", True)
+        lemma = await pg.locator(".entry-lemma").inner_text()
+        check("A bare Strong's number (H7462) opens its most common sense (רָעָה, to shepherd)", lemma.strip() == "רָעָה", lemma)
+        await ctx.close()
+
         check("No console errors", not errs, str(errs[:4]))
         await b.close()
     print(f"\n{sum(res)}/{len(res)} passed")

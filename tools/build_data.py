@@ -555,6 +555,10 @@ def main():
         import build_lxx
         build_lxx.build(SRC)
 
+    # Session 12: the list of data files for Settings › "Save it all for offline use"
+    import list_data
+    list_data.main()
+
 
 if __name__ == "__main__":
     main()

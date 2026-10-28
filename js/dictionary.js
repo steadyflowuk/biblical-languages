@@ -309,7 +309,7 @@ export function setQuery(q) { lastQuery = String(q || ""); }
 export { rowHTML as entryRowHTML };
 
 const keyMaps = {};
-/** The lexicon key an outside key belongs to: exact, else the bare number, else its first lettered sense. */
+/** The lexicon key an outside key belongs to: exact, else the bare number, else its most common lettered sense. */
 export async function resolveKey(key) {
   const letter = String(key).charAt(0).toUpperCase();
   if (!LANGS[letter]) return null;
@@ -321,8 +321,13 @@ export async function resolveKey(key) {
   if (byKey.has(key)) return byKey.get(key);
   const num = String(key).replace(/^([GH])0*(\d+).*$/i, (m, l, n) => l.toUpperCase() + n.padStart(4, "0"));
   if (byKey.has(num)) return byKey.get(num);
-  for (const c of "GHIJKLMNOPQRSTUVWXYZABCDEF") if (byKey.has(num + c)) return byKey.get(num + c);
-  return null;
+  // a bare number with lettered senses only (H7462A…D): the most common sense, not the first letter
+  let best = null;
+  for (const c of "ABCDEFGHIJKLMNOPQRSTUVWXYZ") {
+    const e = byKey.get(num + c);
+    if (e && (!best || (e.count || 0) > (best.count || 0))) best = e;
+  }
+  return best;
 }
 
 // ---------------------------------------------------------------- shared bits

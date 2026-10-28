@@ -34,6 +34,10 @@ const DEFAULTS = {
   // Dictionary
   dictLang: "both",        // both | G | H
   recentWords: [],         // lexicon keys, most recent first
+  // Today and Progress (js/activity.js, js/progress.js)
+  activity: {},            // "2026-10-28" → { r: cards reviewed, l: lesson steps, v: chapters read }
+  bestStreak: 0,           // the longest run of study days
+  lastBackup: "",          // when a backup was last saved (ISO date and time)
 };
 
 // A fresh copy each time: a caller that changes a default object ({} or []) must not change the default itself.
@@ -89,10 +93,30 @@ export function exportBackup() {
   };
 }
 
-export function importBackup(backup) {
-  if (!backup || backup.app !== "aleph-to-omega" || typeof backup.data !== "object") {
+/** What a backup holds, for the "Restore this backup?" question. Throws if it isn't one of ours. */
+export function backupSummary(backup) {
+  if (!backup || backup.app !== "aleph-to-omega" || typeof backup.data !== "object" || !backup.data) {
     throw new Error("This file isn't an Aleph to Omega backup.");
   }
+  const parse = (k, d) => { try { return JSON.parse(backup.data[PREFIX + k]) || d; } catch (e) { return d; } };
+  const lessons = Object.values(parse("lessons", {})).filter((p) => p && p.done).length;
+  const cards = Object.keys(parse("cards", {})).length;
+  const at = backup.exported ? new Date(backup.exported) : null;
+  const when = at && !isNaN(at) ? `on ${at.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })} at ${at.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}` : "at an unknown time";
+  return { lessons, cards, when };
+}
+
+/** Make this device's progress and settings the backup's: everything of ours is replaced (the ESV key stays). */
+export function importBackup(backup) {
+  backupSummary(backup); // throws if it isn't a backup
+  try {
+    const ours = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(PREFIX)) ours.push(k);
+    }
+    ours.forEach((k) => localStorage.removeItem(k));
+  } catch (e) { /* storage unavailable: the writes below will say so */ }
   let count = 0;
   for (const [k, v] of Object.entries(backup.data)) {
     if (!k.startsWith(PREFIX) || typeof v !== "string") continue;

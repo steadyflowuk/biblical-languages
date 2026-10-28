@@ -44,7 +44,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - `js/hebrew.js` Hebrew helpers: word parts, pronunciation, punctuation, short/full grammar labels
 - `js/dictionary.js` Words tab: search + entries (routes `#/words`, `#/words/KEY`) · `js/nav.js` back/return memory
 - `js/esv.js` ESV key + API + small offline store · Septuagint screen (`#/lxx/ID/CH[/V]`) lives in `js/reader.js`
-- `js/check.js` Check this device (#/check) · `js/activity.js` study days + streak · `js/progress.js` Progress screen + saveBackup · `js/media.js` Videos screen
+- `js/offline.js` saving Bible data for offline use · `js/check.js` Check this device (#/check) · `js/activity.js` study days + streak · `js/progress.js` Progress screen + saveBackup · `js/media.js` Videos screen
 - `js/alphabet.js` Alphabet and sounds (`#/alphabet/grc|he`, content in `lessons/alphabet/<lang>.json`)
 - `js/lessons.js` lesson engine (route `#/lesson/LANG/ID`) · `lessons/` index + one JSON file per lesson (format: lessons/README.md)
 - `js/review.js` Review trainer (#/review) · `js/sound.js` respelling + voice text (no DOM; Node can import it) ·
@@ -108,6 +108,15 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   it?", copy/share a text report. Guide for the user (Claude Doc, https://claude.ai/artifact/FjUuM1KR3ijifBgC5qG7f8):
   before you start, the device check, a 16-row checklist per device (iPhone/iPad/Android dropdowns), fixes, adding
   lessons later. lessons/README.md got a new-lesson checklist. Part 2 (12b) = fixes from the user's device reports.
+- [x] 12-check (28 Oct 2026): full check before the user's device testing — every sweep (1,189 chapters, 929 OT + 1,259
+  Septuagint chapters, 21,234 entries: 0 issues), crawl of every screen/link at 4 sizes (tools/crawl_app.py, 0 issues),
+  a week-long new-learner journey on a fake clock with backup → second device (tools/test_journey.py), update path
+  (2 opens: first fetches, second shows; data and progress kept). Fixes: restore asks first, shows what the backup
+  holds and replaces this device's progress (old keys removed; FileReader for iOS 13; a real button, keyboard-usable);
+  reading a chapter for 30 s counts as a study day ("v" in activity); Today's minutes = Review's (minutesFor); bare
+  Strong's numbers open the most common sense (H7462 → רָעָה, not "House of Shepherds"); lessons' Bible books and the
+  dictionary's search lists saved automatically 8 s after opening (js/offline.js) so lesson verses, the Letters
+  read-aloud and Words search work offline; Settings › Offline › "Save it all" (data/files.json, ~70 MB).
 
 ## Data (Session 2)
 - Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (46 checks).
@@ -364,6 +373,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - Study days: store "activity" {day: {r, l}} (400 days), day = review day (starts 4am). activity() merges reviewLog's r
   (max), so review.rate's logActivity("r") doesn't add again (it once double-counted). Lessons log "l" on Continue and
   on finishing. streak() = days in a row up to today (or yesterday until today has study); bestStreak kept in store.
+  Reading counts: readingStarted() in the Reader/Septuagint logs "v" once a chapter has been open 30 s.
 - Progress: streak panel (navy), 12-week calendar (Mon–Sun rows, --heat-0…4 sage ramp, light and dark), per language:
   lessons finished/under way, words in Review by strength (state 2 & stability ≥ 21 = known well; state 2 = getting
   there; else still new), share of the text = sum of counts of known words (card n, else deck count via alias) / deck
@@ -396,13 +406,20 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   The test buttons call speak() inside the tap with onstart (new option in sound.js) → report "started"/"DID NOT START".
   Rows inside a voice item are divs (an li inside an li broke the list once). Settings tab stays current on #/check.
 - Device testing waits on the user: reports come back pasted into a chat ("session 12 results").
+- Offline data (12-check): warmEssentials() (app.js, 8 s after load; skipped offline or with Save-Data) fetches the
+  lesson/alphabet verse books (gnt|hot + bsb) and the two dictionary indexes not yet in data-v1 — about 30 files.
+  saveEverything() fetches data/files.json's list (430 files; tools/list_data.py, run by build_data.py). Pages fetch
+  through the service worker, which saves each file. Restore = store.importBackup() removes every ao: key first.
 
 ## Checks
-- `python3 tools/test_check.py` — 22 device-check checks (device descriptions, voices, no voice, no speech, report, copy,
-  offline, 320px largest dark).
+- `python3 tools/test_check.py` — 29 checks: device check (device descriptions, voices, no voice, no speech, report,
+  copy, offline, 320px largest dark) and offline saving (automatic essentials, Save it all, bare Strong's numbers).
+- `python3 tools/test_journey.py` — 35 checks: a new learner's week on a fake clock across every screen, backup restored
+  on a second device. Run with the others before every push.
+- `python3 tools/crawl_app.py [quick]` — every screen and in-app link at phone/iPad, light/dark, 320px largest (~10 min).
 - `python3 tools/test_progress.py` — 47 checks: streak and the 4am day, activity logging, Progress numbers, backup save/
   reminder/restore, Today's plan, Videos, lesson videos not repeated, iPad rail, 320px largest dark, offline.
-- `python3 tools/test_app.py` (server on :8765 first) — 111 end-to-end checks; run before every push.
+- `python3 tools/test_app.py` (server on :8765 first) — 115 end-to-end checks; run before every push.
 - `python3 tools/test_reader_edges.py` — 28 Reader edge cases (odd links, fast switching incl. OT↔NT, offline Hebrew, focus, back button, 320px).
 - `python3 tools/sweep_reader.py [nt|ot|all]` — opens every chapter at 360px (NT ~10 min, OT ~35 min); expect
   0 issues and only 3JN 15 / REV 12:18 notes.

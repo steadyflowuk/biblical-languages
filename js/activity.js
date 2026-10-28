@@ -1,5 +1,5 @@
 // Study days (Session 11): what was done on each day, for the streak and the Progress calendar.
-// Store "activity" = { "2026-10-28": { r: cards reviewed, l: lesson steps } }. Days follow the review day (it starts at
+// Store "activity" = { "2026-10-28": { r: cards reviewed, l: lesson steps, v: chapters read } }. Days follow the review day (it starts at
 // 4am, like Review), so a late-night session still counts for the day it belongs to. About 400 days are kept.
 import * as store from "./store.js";
 
@@ -46,7 +46,19 @@ export function logActivity(kind, now) {
   if (s.current > (Number(store.get("bestStreak")) || 0)) store.set("bestStreak", s.current);
 }
 
-const did = (a, d) => !!a[d] && ((a[d].r || 0) + (a[d].l || 0)) > 0;
+const did = (a, d) => !!a[d] && ((a[d].r || 0) + (a[d].l || 0) + (a[d].v || 0)) > 0;
+
+// Reading counts too: a chapter kept open in Read (or the Septuagint) for half a minute is a chapter read.
+const READ_MS = 30000;
+let readTimer = null;
+/** Call when a chapter is shown; route = "/read/JHN/1" or "/lxx/PSA/22". */
+export function readingStarted(route) {
+  clearTimeout(readTimer);
+  readTimer = setTimeout(() => {
+    const h = location.hash.slice(1);
+    if (h === route || h.indexOf(route + "/") === 0) logActivity("v");
+  }, READ_MS);
+}
 
 /** { current, best, today }: days in a row with study, counting today once something is done (else up to yesterday). */
 export function streak(now, given) {
@@ -67,5 +79,5 @@ export function streak(now, given) {
   return { current, best, today: studiedToday };
 }
 
-/** How much was done on a day (cards reviewed + lesson steps). */
-export const amount = (a, d) => (a[d] ? (a[d].r || 0) + (a[d].l || 0) : 0);
+/** How much was done on a day (cards reviewed + lesson steps + chapters read). */
+export const amount = (a, d) => (a[d] ? (a[d].r || 0) + (a[d].l || 0) + (a[d].v || 0) : 0);

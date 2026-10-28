@@ -9,6 +9,7 @@ import { sayButton } from "./audio.js";
 import { streak } from "./activity.js";
 import { saveBackup, backupDue, languageSummary } from "./progress.js";
 import { videoForToday } from "./media.js";
+import { savedState, saveEverything } from "./offline.js";
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
@@ -112,7 +113,7 @@ export const today = {
       const li = main.querySelector(".today-review");
       if (!li) return;
       const any = Object.keys(store.get("cards") || {}).length || (store.get("reviewQueue") || []).length;
-      const mins = Math.max(1, Math.round(w.total * 10 / 60));
+      const mins = review.minutesFor(w.due, w.fresh); // the same estimate as the Review screen
       li.innerHTML = `<a class="row" href="#/review">
           <span class="row-glyph" aria-hidden="true">${w.total || "✓"}</span>
           <span class="row-main"><span class="row-title">${w.total ? `${w.total} ${w.total === 1 ? "word" : "words"} to review` : any ? "Reviews done for today" : "No words to review yet"}</span><span class="row-sub">${w.total ? `About ${mins} ${mins === 1 ? "minute" : "minutes"}` : any ? "Your words come back when they're due" : "Words from your lessons will appear here"}</span></span>
@@ -321,12 +322,19 @@ export const settings = {
       <h2>English Standard Version (ESV)</h2>
       <div class="esv-settings">${esvSettingsHTML()}</div>
 
+      <h2>Offline</h2>
+      <p class="muted" style="margin-top:0">The app works without a connection once it's been opened. Bible chapters and dictionary entries are kept as you open them, and the books your lessons use are saved for you. To have everything ready, for travelling say, save it all now.</p>
+      <div class="offline-box"><p class="offline-state muted">Checking what's saved…</p>
+        <p class="btn-row"><button type="button" class="btn secondary" data-save-all hidden>Save it all for offline use</button></p></div>
+
       <h2>Backup</h2>
       <p class="muted" style="margin-top:0">Your progress is saved on this device only. Save a backup file now and then, and restore it on a new phone.</p>
       <div class="btn-row">
         <button type="button" class="btn" data-action="export">Save backup</button>
-        <label class="btn secondary">Restore backup<input type="file" accept="application/json,.json" data-action="import" hidden></label>
+        <button type="button" class="btn secondary" data-action="choose">Restore backup</button>
+        <input type="file" accept="application/json,.json" data-action="import" hidden>
       </div>
+      <div class="restore-confirm" hidden></div>
 
       <h2>Help</h2>
       <ul class="rows"><li><a class="row" href="#/check">
@@ -354,17 +362,65 @@ export const settings = {
       if (msg) toast(msg);
     });
 
-    main.querySelector('[data-action="import"]').addEventListener("change", async (e) => {
-      const file = e.target.files?.[0];
+    // Offline: how much is saved, and saving the rest
+    const offBox = main.querySelector(".offline-box");
+    const offState = offBox.querySelector(".offline-state");
+    const saveAll = offBox.querySelector("[data-save-all]");
+    const mb = (n) => `${Math.round(n / 1e6)} MB`;
+    savedState().then((s) => {
+      if (!main.contains(offBox)) return;
+      if (s.saved >= s.total) { offState.textContent = "Everything is saved on this device: the whole Bible, the English and the dictionary."; return; }
+      offState.textContent = `${s.saved} of ${s.total} files saved so far. Saving the rest needs about ${mb(s.missingBytes)} of space and a connection; Wi-Fi is best.`;
+      saveAll.hidden = false;
+    }).catch(() => { offState.textContent = navigator.onLine ? "Saving for offline use isn't available in this browser." : "Connect to the internet to see what's saved."; });
+    saveAll.addEventListener("click", () => {
+      saveAll.disabled = true;
+      saveEverything((done, total) => { offState.textContent = `Saving… ${done} of ${total} files`; })
+        .then(() => savedState())
+        .then((s) => {
+          offState.textContent = s.saved >= s.total ? "Everything is saved on this device: the whole Bible, the English and the dictionary." : `${s.saved} of ${s.total} files saved. The connection dropped; tap again to carry on.`;
+          saveAll.hidden = s.saved >= s.total;
+          saveAll.disabled = false;
+        })
+        .catch(() => { offState.textContent = "Saving stopped. Check the connection and tap again."; saveAll.disabled = false; });
+    });
+
+    const picker = main.querySelector('[data-action="import"]');
+    main.querySelector('[data-action="choose"]').addEventListener("click", () => picker.click());
+    // read the file (FileReader: Blob.text() needs iOS 14), say what's in it, and restore only when asked
+    const readFile = (file) => new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(String(r.result));
+      r.onerror = () => reject(new Error(""));
+      r.readAsText(file);
+    });
+    picker.addEventListener("change", async (e) => {
+      const file = e.target.files && e.target.files[0];
+      e.target.value = ""; // choosing the same file again still works
       if (!file) return;
+      const box = main.querySelector(".restore-confirm");
       try {
-        const backup = JSON.parse(await file.text());
-        const count = store.importBackup(backup);
-        if (backup.exported) store.set("lastBackup", backup.exported);
-        store.applyDisplaySettings();
-        toast(`Backup restored (${count} items)`);
-        settings.render(main);
+        const backup = JSON.parse(await readFile(file));
+        const s = store.backupSummary(backup);
+        box.innerHTML = `<div class="note">
+            <p><strong>Restore this backup?</strong></p>
+            <p>Saved ${esc(s.when)}. It holds ${s.lessons} finished ${s.lessons === 1 ? "lesson" : "lessons"} and ${s.cards} review ${s.cards === 1 ? "card" : "cards"}.</p>
+            <p>Restoring replaces the progress and settings on this ${/iPad/.test(navigator.userAgent) ? "iPad" : "device"} with the backup's.</p>
+            <p class="btn-row"><button type="button" class="btn" data-restore>Restore it</button>
+              <button type="button" class="btn secondary" data-cancel>Cancel</button></p>
+          </div>`;
+        box.hidden = false;
+        box.querySelector("[data-restore]").focus();
+        box.querySelector("[data-cancel]").addEventListener("click", () => { box.hidden = true; box.innerHTML = ""; });
+        box.querySelector("[data-restore]").addEventListener("click", () => {
+          const count = store.importBackup(backup);
+          if (backup.exported) store.set("lastBackup", backup.exported);
+          store.applyDisplaySettings();
+          toast(`Backup restored (${count} items)`);
+          settings.render(main);
+        });
       } catch (err) {
+        box.hidden = true;
         toast(err instanceof SyntaxError || !err.message ? "That file couldn't be read. Choose a backup saved from this app." : err.message);
       }
     });

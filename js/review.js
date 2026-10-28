@@ -162,6 +162,9 @@ export async function plan(lang, now) {
   return { due, fresh: fresh.slice(0, newLeft), freshTotal: fresh.length, newLeft, langs, decks };
 }
 
+/** About how long a session takes: a known word ~8 s, a new one ~15 s. */
+export const minutesFor = (due, fresh) => Math.max(1, Math.round((due * 8 + fresh * 15) / 60));
+
 /** How many words are waiting today (for Today's row). */
 export async function waitingCount(now) {
   const p = await plan("all", now);
@@ -230,7 +233,7 @@ function summaryHTML(p, lang) {
   const parts = [];
   if (p.due.length) parts.push(`${p.due.length} to review`);
   if (p.fresh.length) parts.push(`${p.fresh.length} new`);
-  const mins = Math.max(1, Math.round((p.due.length * 8 + p.fresh.length * 15) / 60));
+  const mins = minutesFor(p.due.length, p.fresh.length);
   if (total) {
     return `<section class="rv-summary">
       <p class="rv-big">${total} ${total === 1 ? "word" : "words"}</p>

@@ -179,6 +179,7 @@ async def main():
         await fresh(pg)
         await go(pg, "settings", "[data-action='export']")
         await pg.set_input_files("[data-action='import']", path)
+        await pg.click("[data-restore]")
         await pg.wait_for_selector(".toast")
         await go(pg, "progress", ".pg-lang h2")
         t = await pg.locator(".screen").inner_text()

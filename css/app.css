@@ -1042,3 +1042,4 @@ button.row:hover { background: var(--surface-soft); }
 .ck-heard [aria-pressed="true"] { border-color: var(--control); background: var(--surface-soft); }
 .ck-tip { margin: 6px 0 0; font-size: .92rem; }
 .ck-report { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .82rem; line-height: 1.45; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 12px 14px; margin: 0 0 12px; max-height: 22rem; overflow: auto; }
+.restore-confirm { margin-top: 14px; }

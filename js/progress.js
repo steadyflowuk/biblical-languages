@@ -127,14 +127,14 @@ export function forecast(now) {
 function streakHTML(s) {
   const sub = s.current
     ? (s.today ? "You've studied today. Well done." : "Study today to keep it going.")
-    : "Do a lesson or a few review cards to start a run of days.";
+    : "Do a lesson, a few review cards or read a chapter to start a run of days.";
   return `<section class="pg-streak" aria-label="Days in a row">
       <p class="pg-big">${s.current || s.best ? `<span class="pg-num">${s.current}</span> ${s.current === 1 ? "day" : "days"} in a row` : "No study days yet"}</p>
       <p class="pg-sub">${sub}${s.best > s.current ? ` Your best is ${plural(s.best, "day")}.` : ""}</p>
     </section>`;
 }
 
-const LEVELS = [0, 1, 10, 25, 50]; // cards + lesson steps in a day: none, a little … a lot
+const LEVELS = [0, 1, 10, 25, 50]; // cards + lesson steps + chapters in a day: none, a little … a lot
 const level = (n) => LEVELS.reduce((lv, min, i) => (n >= min ? i : lv), 0);
 
 function calendarHTML(now) {
@@ -153,7 +153,8 @@ function calendarHTML(now) {
     const date = new Date(k + "T12:00:00").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
     const r = (a[k] && a[k].r) || 0;
     const l = (a[k] && a[k].l) || 0;
-    const did = [r ? plural(r, "card") + " reviewed" : "", l ? plural(l, "lesson step") : ""].filter(Boolean).join(", ");
+    const v = (a[k] && a[k].v) || 0;
+    const did = [r ? plural(r, "card") + " reviewed" : "", l ? plural(l, "lesson step") : "", v ? plural(v, "chapter") + " read" : ""].filter(Boolean).join(", ");
     const label = future ? "" : `${k === today ? "Today" : date}: ${did || "no study"}`;
     cells += `<span class="pg-day l${level(n)}${k === today ? " today" : ""}${future ? " future" : ""}"${label ? ` title="${esc(label)}" data-label="${esc(label)}"` : ""}></span>`;
   }

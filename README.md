@@ -7,6 +7,10 @@ A personal app for learning Biblical Hebrew and Koine Greek for Bible study. It 
 - **iPhone or iPad:** open the link in Safari, tap Share, then *Add to Home Screen*.
 - **Android:** open the link in Chrome and tap *Install app*.
 
+## Working on it
+
+Project notes, decisions and the checks to run are in `CLAUDE.md`; how to write a lesson is in `lessons/README.md`.
+
 ## Credits
 
 - Fonts: Gentium Plus, Noto Serif Hebrew and Atkinson Hyperlegible, under the SIL Open Font Licence (`assets/fonts/LICENSES.txt`).
@@ -15,4 +19,5 @@ A personal app for learning Biblical Hebrew and Koine Greek for Bible study. It 
 - English: Berean Standard Bible, public domain, via communityofbrothers.github.io (a few footnotes there repeat the word "a"; the doubled cases are tidied).
 - Septuagint: H. B. Swete, *The Old Testament in Greek according to the Septuagint* (1909–1930), public domain; digital text [LXX-Swete-1930](https://github.com/eliranwong/LXX-Swete-1930) by Eliran Wong, GPL-3.0: the files in `data/lxx` stay under that licence (see `data/lxx/README.md` for the source and changes). Lined up with the Hebrew using STEPBible's versification data (TVTMS, CC BY 4.0) by `tools/build_lxx.py`.
 - ESV (optional, with your own free key from api.esv.org): Scripture quotations marked ESV are from the ESV® Bible (The Holy Bible, English Standard Version®), © 2001 by Crossway, a publishing ministry of Good News Publishers. Used by permission. All rights reserved. The ESV text is fetched on your device and is not part of this repository. [www.esv.org](https://www.esv.org)
+- Videos and audio are links to their makers' own pages (Alpha with Angela and Aleph with Beth by Angela Taylor and Andrew and Bethany Case, and others listed in `lessons/media.json`); nothing of theirs is bundled.
 - Checked against the SBL Greek New Testament (CC BY 4.0) and the Open Scriptures Hebrew Bible (CC BY 4.0).

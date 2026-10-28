@@ -3,6 +3,7 @@
 import * as store from "./store.js";
 import * as data from "./data.js";
 import * as nav from "./nav.js";
+import { readingStarted } from "./activity.js";
 import * as esv from "./esv.js";
 import { sayButton } from "./audio.js";
 import {
@@ -884,6 +885,7 @@ export const read = {
 
     document.title = `${title} · Aleph to Omega`;
     store.set("lastRead", `${book.id}/${ch}`);
+    readingStarted(`/read/${book.id}/${ch}`);
     const back = nav.takeReturn(location.hash); // opened from the dictionary: offer the way back
     main.innerHTML = `<div class="screen reader">
       ${back ? `<button type="button" class="return-chip" data-return>‹ Back to <span lang="${he ? "he" : "grc"}">&nbsp;${esc(back.label)}</span></button>` : ""}
@@ -1092,6 +1094,7 @@ export const lxx = {
     const hebBook = heb && books.find((b) => b.id === heb[0]);
     document.title = `${title} · Septuagint · Aleph to Omega`;
     store.set("lastLxx", `${book.id}/${ch}`);
+    readingStarted(`/lxx/${book.id}/${ch}`);
     main.innerHTML = `<div class="screen reader lxx-reader">
       <header class="reader-head">
         <h1 class="reader-h1"><button type="button" class="reader-title" data-pick aria-haspopup="dialog" aria-label="${esc(title)} in the Septuagint, choose another chapter">

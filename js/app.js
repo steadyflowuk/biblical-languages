@@ -8,6 +8,7 @@ import { alphabet } from "./alphabet.js";
 import { media } from "./media.js";
 import { progress } from "./progress.js";
 import { check } from "./check.js";
+import { warmEssentials } from "./offline.js";
 import { bindAudio } from "./audio.js";
 import * as nav from "./nav.js";
 
@@ -67,6 +68,8 @@ route();
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     // Check for a new version every time the app opens
+    // a little later, save the Bible books the lessons read from, so lessons work offline too
+    setTimeout(warmEssentials, 8000);
     navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then((reg) => reg.update()).catch(() => {
       /* offline support unavailable here (e.g. private browsing); the app still works online */
     });

@@ -2,7 +2,7 @@
 
 The phone's voices are replaced by a stand-in that records what it was asked to say (no real voices here).
 """
-import asyncio, json, faulthandler
+import asyncio, json, re, faulthandler
 from playwright.async_api import async_playwright
 
 faulthandler.dump_traceback_later(900, exit=True)
@@ -231,6 +231,20 @@ async def main():
         check("No Hebrew voice: explains how to add one", "Hebrew voice" in tip and "Listen again" in tip, tip)
         await pg.evaluate("window.__voices = [{name: 'Melina', lang: 'el-GR', localService: true}, {name: 'Carmit', lang: 'he-IL', localService: true}]")
 
+        # 9b. (10b) Speech starts inside the tap: no waiting, even before the phone has listed its voices
+        await pg.evaluate("window.__voices = []; window.__spoken = []")
+        await pg.click(".say-test [data-say-lang='he']")
+        sp = await spoken(pg)  # read straight away: nothing async may come before speak()
+        check("Voices not listed yet: speaks at once, asking for Hebrew (he-IL) by language", sp and sp[-1]["lang"] == "he-IL", str(sp))
+        await pg.evaluate("""() => { window.__silent = true; const s = window.speechSynthesis; s.speak = (u) => { window.__spoken.push({ text: u.text, lang: u.lang }); }; }""")
+        await pg.evaluate("document.querySelectorAll('.toast').forEach((t) => t.remove())")
+        await pg.click(".say-test [data-say-lang='grc']")
+        await pg.wait_for_function("document.querySelector('.toast') && document.querySelector('.toast').textContent.includes('Greek voice')", timeout=6000)
+        tip = await pg.locator(".toast").inner_text()
+        check("Nothing starts within a few seconds (no voice installed): the help appears", "Greek voice" in tip, tip)
+        await pg.reload()
+        await pg.evaluate("window.__voices = [{name: 'Melina', lang: 'el-GR', localService: true}, {name: 'Carmit', lang: 'he-IL', localService: true}]")
+
         # 10. Listen buttons around the app (a button inside a link doesn't follow the link)
         L1 = json.load(open(f"{ROOT}lessons/grc/1.json"))
         sig = ",".join(f"{s['step']}:{len(s['cards'])}" for s in L1["steps"])
@@ -297,7 +311,7 @@ async def main():
         await pg.goto(f"{BASE}#/review")
         await pg.wait_for_selector(".rv-summary")
         t = await pg.locator(".screen").inner_text()
-        check("Offline: both word lists still load (saved with the app)", "need a connection" not in t and "316 most common" in t and "745 most common" in t, t[:200])
+        check("Offline: both word lists still load (saved with the app)", "need a connection" not in t and "316 most common" in t and bool(re.search(r"7\d\d most common Hebrew", t)), t[:200])
         await ctx.set_offline(False)
 
         # 12. Lists can't load (offline, first time): the page still works
@@ -316,7 +330,46 @@ async def main():
         check("Lists unavailable: lesson words still reviewable, with a note about the connection", "8 new" in t and "need a connection" in t, t[:300])
         await ctx2.close()
 
+        # 12b. (10b) A list card follows corrections to the list; a week on a fake clock keeps to 10 new words a day
+        await fresh(pg, None, {"reviewDecks": {"grc": True, "he": False}})
+        await pg.evaluate("""() => localStorage.setItem('ao:cards', JSON.stringify({ 'grc:G0846': { id: 'grc:G0846', lang: 'grc', k: 'G0846', t: 'αὐτός', say: '', en: 'it/s/he', n: 1, src: 'deck',
+            f: { due: new Date(Date.now() + 5 * 86400000).toISOString(), stability: 5, difficulty: 5, elapsed_days: 0, scheduled_days: 5, reps: 1, lapses: 0, learning_steps: 0, state: 2 } } }))""")
+        await open_review(pg)
+        c = await pg.evaluate("JSON.parse(localStorage.getItem('ao:cards'))['grc:G0846']")
+        check("A list card picks up the list's corrected meaning and count", c["en"] == "he, she, it; self, same" and c["n"] > 1000, str(c))
+        import datetime
+        ctx3 = await b.new_context(viewport={"width": 390, "height": 844}, service_workers="block")
+        pg3 = await ctx3.new_page()
+        t0 = datetime.datetime(2026, 11, 2, 19, 0)
+        await pg3.clock.install(time=t0)
+        await pg3.goto(f"{BASE}#/settings")
+        await pg3.evaluate("localStorage.clear(); localStorage.setItem('ao:reviewDecks', JSON.stringify({grc: true, he: false}))")
+        per_day, ok_days = [], True
+        for day, hour in enumerate([0, 1, 2, 8.5, 2, 3, 0]):  # day 3 at 03:30 the next morning still counts as day 3
+            await pg3.clock.set_system_time(t0 + datetime.timedelta(days=day, hours=hour))
+            await pg3.goto(f"{BASE}#/today")
+            await pg3.goto(f"{BASE}#/review")
+            await pg3.wait_for_selector(".rv-summary")
+            n = 0
+            if await pg3.locator("[data-start]").count():
+                await pg3.click("[data-start]")
+                while await pg3.locator(".rv-card").count() and n < 300:
+                    if await pg3.locator("[data-show]").count():
+                        await pg3.click("[data-show]")
+                    await pg3.click("[data-rate='3']")
+                    await pg3.clock.run_for(5000)
+                    n += 1
+            ok_days = ok_days and await pg3.locator(".rv-done").count() == 1
+        log = await pg3.evaluate("JSON.parse(localStorage.getItem('ao:reviewLog'))")
+        cards = await pg3.evaluate("JSON.parse(localStorage.getItem('ao:cards'))")
+        check("A week of reviews on a fake clock: 10 new words a day (03:30 counts as the day before), every session finishes",
+              ok_days and [v["n"] for _, v in sorted(log.items())] == [10] * 7 and len(cards) == 70 and "2026-11-05" in log and "2026-11-09" not in log, f"{log} {len(cards)}")
+        await ctx3.close()
+
         # 13. Backup includes the cards
+        await pg.click("[data-start]")
+        await pg.click("[data-show]")
+        await pg.click("[data-rate='3']")
         await pg.goto(f"{BASE}#/settings")
         keys = await pg.evaluate("""async () => { const s = await import('./js/store.js'); return Object.keys(s.exportBackup().data); }""")
         check("Backup includes cards and the review log", "ao:cards" in keys and "ao:reviewLog" in keys, str(keys))

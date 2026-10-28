@@ -71,9 +71,25 @@ export function nextLesson(index, lang) {
 export const reviewWords = () => store.get("reviewQueue") || [];
 
 /** Lexicon keys the learner has met: their review words, plus a lesson's own words while doing it. */
-function knownNumbers(extra) {
+function knownNumbers(extra, extraWords) {
   const num = (k) => String(k || "").replace(/^([GH])0*(\d+).*$/, "$1$2");
-  return new Set(reviewWords().map((w) => num(w.k)).concat((extra || []).map(num)));
+  const set = new Set(reviewWords().map((w) => num(w.k)).concat((extra || []).map(num)));
+  // also the dictionary forms themselves: the source sometimes tags one word under another number (טוֹב in
+  // Genesis 1 is tagged as the verb "be good"), and the learner still knows it
+  set.forms = new Set(reviewWords().concat(extraWords || []).map((w) => lemmaKey(w.t)));
+  return set;
+}
+/** A dictionary form for comparing: no accents or maqaf; Hebrew marks sorted per letter (never Unicode-normalised). */
+function lemmaKey(t) {
+  const s = String(t || "").split(",")[0].trim().replace(/[\u0591-\u05af\u05bd\u05be]/g, "");
+  if (!/[\u05d0-\u05ea]/.test(s)) return s.normalize("NFC");
+  let out = "";
+  let marks = [];
+  for (const ch of s) {
+    if (ch >= "\u05b0" && ch <= "\u05c7") marks.push(ch);
+    else { out += marks.sort().join("") + ch; marks = []; }
+  }
+  return out + marks.sort().join("");
 }
 const keyNumber = (k) => String(k || "").replace(/^([GH])0*(\d+).*$/, "$1$2");
 
@@ -224,7 +240,7 @@ async function verseView(card, lang, known) {
   let knownCount = 0;
   const html = words.map((w, i) => {
     const key = he ? heMainKey(w) : w[3];
-    const isKnown = known.has(keyNumber(key));
+    const isKnown = known.has(keyNumber(key)) || !!(known.forms && original.lex[key] && known.forms.has(lemmaKey(original.lex[key][0])));
     if (isKnown) knownCount++;
     const text = he ? heText(w) : w[0];
     const en = englishHTML(he ? heEnglish(w[2]) : w[2]); // safe HTML: "<the>" greyed, "[the]" in italics, as in the Reader
@@ -292,8 +308,9 @@ export const lesson = {
       return;
     }
     document.title = `${entry.title} · Aleph to Omega`;
-    const lessonWords = [];
-    L.steps.filter((s) => s.step === "review").forEach((s) => s.cards.forEach((c) => (c.items || []).forEach((w) => lessonWords.push(w.k))));
+    const lessonItems = [];
+    L.steps.filter((s) => s.step === "review").forEach((s) => s.cards.forEach((c) => (c.items || []).forEach((w) => lessonItems.push(w))));
+    const lessonWords = lessonItems.map((w) => w.k);
 
     // progress: start again if the lesson was finished, else carry on where it was left
     let p = progressOf(id);
@@ -379,7 +396,7 @@ export const lesson = {
       else if (c.type === "verse") {
         box.innerHTML = `${intro}<p class="muted">Loading the verse…</p>`;
         try {
-          const view = await verseView(c, lang, knownNumbers(lessonWords));
+          const view = await verseView(c, lang, knownNumbers(lessonWords, lessonItems));
           if (seq[p.pos] !== item) return; // moved on
           html = view.html;
           gloss = view.gloss;

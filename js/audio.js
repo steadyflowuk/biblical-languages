@@ -1,7 +1,7 @@
 // Listen buttons (Session 9): <button data-say="λόγος" data-say-lang="grc">. One click handler for the whole app
 // (bound in app.js), so any screen can drop in sayButton() without wiring. Speech itself lives in sound.js.
 import * as store from "./store.js";
-import { speak, canSpeak, stopSpeaking } from "./sound.js";
+import { speak, canSpeak, stopSpeaking, warmUpVoices } from "./sound.js";
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
@@ -47,13 +47,17 @@ function notice(message) {
 let playing = null;
 
 /** Say what a [data-say] button holds; the button shows it's playing until the voice finishes. */
-export async function play(button) {
+export function play(button) {
   if (playing) playing.classList.remove("playing");
   playing = button;
   button.classList.add("playing");
   const lang = button.dataset.sayLang;
   const done = () => { button.classList.remove("playing"); if (playing === button) playing = null; };
-  const r = await speak(button.dataset.say, { lang, greekVoice: store.get("greekVoice"), rate: store.get("speechRate"), onend: done });
+  // no waiting before speak(): phones only allow speech that starts inside the tap
+  const r = speak(button.dataset.say, {
+    lang, greekVoice: store.get("greekVoice"), rate: store.get("speechRate"), onend: done,
+    onfail: () => { done(); notice(voiceHelp(lang)); },
+  });
   if (!r.ok) {
     done();
     notice(r.why === "no-voice" ? voiceHelp(lang) : "This browser can't speak words aloud. Try the app in Safari on an iPhone or iPad, or Chrome on Android.");
@@ -71,6 +75,7 @@ export function bindAudio(root) {
     play(b);
   }, true);
   window.addEventListener("hashchange", () => stopSpeaking());
+  warmUpVoices();
 }
 
 export { canSpeak };

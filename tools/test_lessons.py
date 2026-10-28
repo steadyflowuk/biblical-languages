@@ -404,6 +404,20 @@ async def main():
         n = await pg.locator(".field-help .t-grc").count()
         check("Settings: pronunciation help shows Greek letters in the Greek font", n >= 4, str(n))
 
+        # 16. (10b) A known word is underlined even when the source tags it under another number (טוֹב in Genesis 1:4)
+        H1 = json.load(open("/home/claude/biblical-languages/lessons/he/1.json"))
+        q = [dict(it, lang="he", lesson="he-1") for st in H1["steps"] for c in st["cards"] if c["type"] == "words" for it in c["items"]]
+        H7 = json.load(open("/home/claude/biblical-languages/lessons/he/7.json"))
+        sig7 = ",".join(f"{st['step']}:{len(st['cards'])}" for st in H7["steps"])
+        pos7 = [i for i, c in enumerate([c for st in H7["steps"] for c in st["cards"]]) if c.get("ref") == "GEN 1:4"][0]
+        await pg.evaluate(f"localStorage.setItem('ao:reviewQueue', JSON.stringify({json.dumps(q, ensure_ascii=False)})); localStorage.setItem('ao:lessons', JSON.stringify({{'he-7': {{v: 1, sig: '{sig7}', pos: {pos7}, retries: [], first: {{}}}}}}))")
+        await pg.goto(f"{BASE}#/learn")
+        await pg.goto(f"{BASE}#/lesson/he/he-7")
+        await pg.wait_for_selector(".ls-vw")
+        tov = await pg.evaluate("[...document.querySelectorAll('.ls-vw')].find((b) => b.textContent.includes('\u05d8\u05d5\u05b9\u05d1') || /ט.?וֹב/.test(b.querySelector('.ls-vw-t').textContent))?.classList.contains('known')")
+        check("Hebrew read step: טוֹב is underlined in Genesis 1:4 though the source tags it as the verb", tov is True, str(tov))
+        await pg.evaluate("localStorage.setItem('ao:lessons', '{}'); localStorage.setItem('ao:reviewQueue', '[]')")
+
         check("no console errors", not errs, "; ".join(errs[:4]))
         await b.close()
     print(f"\n{sum(res)}/{len(res)} passed")

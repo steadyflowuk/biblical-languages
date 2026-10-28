@@ -78,6 +78,10 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   buttons everywhere with the phone's voices (Erasmian respelt for the Greek voice, Koine, Israeli Hebrew).
 - [x] 10 (28 Oct 2026): Hebrew course he-1…10 (Wegner 1–12): letters, vowels, shewa/gutturals, syllables/dagesh,
   nouns, article, prepositions, וְ, adjectives and verbless sentences.
+- [x] 9b/10b (28 Oct 2026): deep check — speech starts inside the tap (iOS needs it; no waiting for the voice list,
+  help if nothing starts in 3 s), 60 simulated days of FSRS on a fake clock, list cards follow list corrections,
+  clearer/British list meanings ("to be able", Sheol, honour), phrase entries dropped (743 Hebrew), Hebrew read-step
+  underline also by dictionary form (טוֹב in Gen 1 is tagged as the verb), three Hebrew explanations tightened.
 - [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
 
 ## Data (Session 2)
@@ -291,9 +295,10 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - New words: lesson words first (reviewQueue order), then switched-on lists, most common first, up to newPerDay
   minus today's new. Card id = deck's main sense (deck alias maps split senses: lesson key G2962H → G2962G); a list
   card later met in a lesson takes the lesson's wording.
+- plan() refreshes list cards (src deck) from the current deck: wording, say and count follow corrections.
 - store.get() returns a fresh copy of object defaults (a mutated default {} once leaked cards across a reset).
 - Decks: tools/build_decks.py (also run by build_data.py) → data/decks/greek.json (316: Mounce's 319 minus split
-  senses) and hebrew.json (745; Aramaic-only and H9001+ left out). [key, lemma, gloss, count, say]; Greek say empty
+  senses) and hebrew.json (743; Aramaic-only, H9001+ and the two "[כִּי] אם" phrase entries left out; "be X" → "to be X"). [key, lemma, gloss, count, say]; Greek say empty
   (the app respells), Hebrew say from the commonest standalone TAHOT translit (last capitalised syllable = stress;
   'E at the start can be hataf) → "ME-lekh"; ph → f; YHWH say "a-do-NAI". OVERRIDES = our wording where the brief
   gloss misleads on a card (keyed by lemma; Hebrew compared with marks sorted). In SHELL_FILES (offline from install).
@@ -305,6 +310,8 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   υ ου, αι άι|αϊ, οι όι|οϊ, αυ άου, ευ έου, no h); one-syllable words keep the mark so έι stays one sound. Koine =
   monotonic text. Hebrew: no cantillation/meteg/sof pasuq, maqaf → space, יהוה (also after one-letter prefixes) →
   Adonai, with hiriq → Elohim. Rate 0.75 (slow) or 1. No voice → toast explaining how to add one (iOS / Android).
+  speak() is synchronous (phones only allow speech started inside the tap): voices not listed yet → set lang only
+  (el-GR / he-IL) and let the phone choose; onfail toast if nothing starts within 3 s. warmUpVoices() at start.
 - Listen buttons: lesson scenes, examples (not letter cards), word lists, verse ("Listen to the verse") and its
   word gloss, review cards, dictionary entries, Reader word sheets (Greek, Hebrew, Septuagint), Today's verse gloss,
   Settings "Try Greek/Hebrew". Real voices can only be judged on the devices (Session 12).
@@ -314,11 +321,11 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - `python3 tools/test_reader_edges.py` — 28 Reader edge cases (odd links, fast switching incl. OT↔NT, offline Hebrew, focus, back button, 320px).
 - `python3 tools/sweep_reader.py [nt|ot|all]` — opens every chapter at 360px (NT ~10 min, OT ~35 min); expect
   0 issues and only 3JN 15 / REV 12:18 notes.
-- `python3 tools/test_review.py` — 42 review/audio checks (voices replaced by a recorder; FSRS sessions, limits,
+- `python3 tools/test_review.py` — 46 review/audio checks (incl. a week on a fake clock, speech before voices load) (voices replaced by a recorder; FSRS sessions, limits,
   lists, aliases, both languages, offline, 320px largest dark).
 - `tools/check_data.py` now has 46 checks (5 for the dictionary, 5 for the Septuagint, 4 for the decks) (incl. OT BSB alignment both ways, psalm titles, Today's verses).
 - `python3 tools/check_lessons.py` — validates every lesson (run after any lesson change).
-- `python3 tools/test_lessons.py` — 76 lesson engine checks (drills, retries, resume, scores, review list, Hebrew RTL,
+- `python3 tools/test_lessons.py` — 77 lesson engine checks (drills, retries, resume, scores, review list, Hebrew RTL,
   keyboard, offline, 320px; every written lesson, Greek and Hebrew, finished with right answers at 320px; largest text at 320px).
 - `python3 tools/test_dictionary.py` — 51 Dictionary checks (search, entries, links both ways, offline, 320px).
 - `python3 tools/test_translations.py` — 70 ESV/Septuagint/side-by-side checks (ESV API mocked with real verse counts;

@@ -197,39 +197,40 @@ export function voiceFor(lang) {
 
 export const canSpeak = () => typeof speechSynthesis !== "undefined" && typeof SpeechSynthesisUtterance !== "undefined";
 
-let voicesReady = null;
-/** Resolves once the phone has listed its voices (or after a short wait: some never fire the event). */
-export function voicesLoaded() {
-  if (!canSpeak()) return Promise.resolve();
-  if ((speechSynthesis.getVoices() || []).length) return Promise.resolve();
-  if (!voicesReady) {
-    voicesReady = new Promise((resolve) => {
-      const done = () => resolve();
-      try { speechSynthesis.addEventListener("voiceschanged", done, { once: true }); } catch (e) { /* older engines */ }
-      setTimeout(done, 1200);
-    });
-  }
-  return voicesReady;
-}
+let current = null; // keep the utterance referenced until it ends (Chrome can drop it otherwise)
 
 /**
- * Say text aloud. Returns { ok: true } or { ok: false, why: "unsupported" | "no-voice" }.
- * options: { lang: "grc"|"he", greekVoice, rate: "slow"|"normal", onend }
+ * Say text aloud, at once: phones only allow speech that starts inside the tap itself, so nothing here waits.
+ * Returns { ok: true, text } or { ok: false, why: "unsupported" | "no-voice" }.
+ * options: { lang: "grc"|"he", greekVoice, rate: "slow"|"normal", onend, onfail }
+ * If the phone hasn't listed its voices yet, the language alone is set and the phone picks a voice; onfail runs if
+ * nothing has started after a few seconds (no voice for that language, in practice).
  */
-export async function speak(text, options) {
+export function speak(text, options) {
   const o = options || {};
   if (!canSpeak()) return { ok: false, why: "unsupported" };
-  await voicesLoaded();
+  const listed = speechSynthesis.getVoices() || [];
   const voice = voiceFor(o.lang);
-  if (!voice) return { ok: false, why: "no-voice" };
-  speechSynthesis.cancel();
+  if (!voice && listed.length) return { ok: false, why: "no-voice" };
+  if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(speechText(text, o.lang, o.greekVoice));
-  u.voice = voice;
-  u.lang = voice.lang;
+  if (voice) u.voice = voice;
+  u.lang = voice ? voice.lang : o.lang === "he" ? "he-IL" : "el-GR";
   u.rate = o.rate === "normal" ? 1 : 0.75;
-  if (o.onend) { u.onend = o.onend; u.onerror = o.onend; }
+  let started = false;
+  let finished = false;
+  u.onstart = () => { started = true; };
+  u.onend = u.onerror = () => { finished = true; if (current === u) current = null; if (o.onend) o.onend(); };
+  current = u;
   speechSynthesis.speak(u);
+  if (!voice && o.onfail) setTimeout(() => { if (!started && !finished && current === u) { speechSynthesis.cancel(); o.onfail(); } }, 3000);
   return { ok: true, text: u.text };
+}
+
+/** Ask the phone for its voices early, so the first tap can pick the right one. */
+export function warmUpVoices() {
+  if (!canSpeak()) return;
+  try { speechSynthesis.getVoices(); speechSynthesis.addEventListener("voiceschanged", () => speechSynthesis.getVoices()); } catch (e) { /* older engines */ }
 }
 
 export const stopSpeaking = () => { if (canSpeak()) speechSynthesis.cancel(); };

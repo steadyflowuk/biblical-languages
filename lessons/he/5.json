@@ -22,7 +22,7 @@
           "type": "explain",
           "title": "Syllables",
           "body": [
-            "Every Hebrew syllable starts with a consonant and has one vowel. An open syllable ends with its vowel (דָּ in דָּבָר); a closed one ends with a consonant (מִשְׁ in מִשְׁפָּט).",
+            "Every Hebrew syllable starts with a consonant and has one vowel (the one exception is וּ, “and”, which can stand alone as u). An open syllable ends with its vowel (דָּ in דָּבָר); a closed one ends with a consonant (מִשְׁ in מִשְׁפָּט).",
             "To split a long word, work from the end: each vowel takes the consonant before it, and a silent shewa closes the syllable it sits in."
           ],
           "examples": [

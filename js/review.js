@@ -116,6 +116,15 @@ export async function plan(lang, now) {
     }
     if (want(l)) offer({ id, lang: l, k: w.k, t: w.t, say: w.say, en: w.en, src: "lesson", lesson: w.lesson });
   });
+  // list cards follow corrections to the lists (wording, pronunciation, counts)
+  Object.values(all).forEach((c) => {
+    if (c.src !== "deck" || !decks[c.lang]) return;
+    const w = (decks[c.lang].byKey || (decks[c.lang].byKey = new Map(decks[c.lang].words.map((x) => [x[0], x])))).get(c.k);
+    if (w && (c.en !== w[2] || (c.say || "") !== (w[4] || "") || c.n !== w[3])) {
+      Object.assign(c, { t: w[1], en: w[2], say: w[4] || "", n: w[3] });
+      upgraded = true;
+    }
+  });
   if (upgraded) saveCards(all);
   ["grc", "he"].forEach((l) => {
     if (!want(l) || !settings[l] || !decks[l]) return;

@@ -76,7 +76,17 @@ OVERRIDES = {
         "תַּחַת": "under; instead of", "נָכָה": "to strike", "צָבָא": "army, host", "פֶּה": "mouth",
         "רָעָה": "to shepherd", "עוֹלָם": "forever; long ago", "אַף": "nose; anger", "בַּיִן": "between",
         "נְאֻם": "declares (the LORD)", "רַע": "bad, evil", "עֶבֶד": "servant, slave", "פָּנֶה": "face",
-        "בּוֹא": "to come, go in", "מִן־": "from", "דָבַר": "to speak", "עַיִן": "eye; spring", "אֱנוֹשׁ": "human, mankind",
+        "בּוֹא": "to come, go in",
+        "אַתֶּם": "you (to more than one)", "אַתְּ": "you (to a woman)", "נָצַח": "to oversee; (in psalm titles) choirmaster",
+        "שְׁאוֹל": "Sheol, the grave", "זָנָה": "to be unfaithful (as a prostitute)", "קָטַר": "to burn (incense, offerings)",
+        "קָלַל": "to be slight; to curse", "חוּל": "to writhe, tremble", "קָרַב": "to come near; to offer",
+        "פָּקַד": "to attend to, count, appoint", "חָזַק": "to be strong; to strengthen", "כָּלָה": "to finish, be finished",
+        "רָבָה": "to be many, increase", "גָּדַל": "to grow up, be great", "כָּבֵד": "to be heavy; to honour",
+        "טָמֵא": "to be unclean; to defile", "שָׂבֵעַ": "to be satisfied, full", "לָבֵשׁ": "to put on, wear",
+        "פָּלָא": "to be wonderful, too hard", "רָצָה": "to be pleased with, accept", "רָחַק": "to be far, go far away",
+        "שָׁכַם": "to rise early", "מָלֵא": "to be full, fill", "שָׁלֵם": "to be complete; to repay",
+        "חָשַׁב": "to think, plan, count", "הָלַל": "to praise; to boast", "דָּבַק": "to cling, stick to",
+        "לוּן": "to spend the night", "רֵעַ": "neighbour, friend", "חֵן": "favour, grace", "עָשָׂה": "to do, make", "מִן־": "from", "דָבַר": "to speak", "עַיִן": "eye; spring", "אֱנוֹשׁ": "human, mankind",
         "אָדָם": "man, mankind", "גּוֹי": "nation", "שַׂר": "official, ruler", "תָּוֶךְ": "middle",
     },
 }
@@ -168,6 +178,8 @@ def build(lang):
         if morph.startswith("A:"):
             continue  # Aramaic
         first = lemma.split(",")[0].strip()
+        if "[" in first:
+            continue  # two lexicon entries for phrases ("[כִּי] אם"), not words
         norm = he_plain(first) if lang == "he" else first
         groups[norm].append((count, key, first, translit, gloss))
     says = hebrew_says() if lang == "he" else {}
@@ -193,6 +205,9 @@ def build(lang):
         over = {look(k): v for k, v in OVERRIDES[lang].items()}
         sayfix = {look(k): v for k, v in SAY_FIX.get(lang, {}).items()}
         g = over.get(look(lemma), g).replace("/", ", ")
+        if g.startswith("be "):
+            g = "to " + g  # "be able" → "to be able", like the other verbs
+        g = re.sub(r"\bbaptize\b", "baptise", g)  # British spelling (the rest are in OVERRIDES)
         say = sayfix.get(look(lemma), say)
         words.append([key, lemma, g, total, say])
         for s in senses[1:]:

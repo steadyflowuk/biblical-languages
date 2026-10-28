@@ -208,7 +208,7 @@ let current = null; // keep the utterance referenced until it ends (Chrome can d
 /**
  * Say text aloud, at once: phones only allow speech that starts inside the tap itself, so nothing here waits.
  * Returns { ok: true, text } or { ok: false, why: "unsupported" | "no-voice" }.
- * options: { lang: "grc"|"he", greekVoice, rate: "slow"|"normal", onend, onfail }
+ * options: { lang: "grc"|"he", greekVoice, rate: "slow"|"normal", onstart, onend, onfail }
  * If the phone hasn't listed its voices yet, the language alone is set and the phone picks a voice; onfail runs if
  * nothing has started after a few seconds (no voice for that language, in practice).
  */
@@ -225,7 +225,7 @@ export function speak(text, options) {
   u.rate = o.rate === "normal" ? 1 : 0.75;
   let started = false;
   let finished = false;
-  u.onstart = () => { started = true; };
+  u.onstart = () => { started = true; if (o.onstart) o.onstart(); };
   u.onend = u.onerror = () => { finished = true; if (current === u) current = null; if (o.onend) o.onend(); };
   current = u;
   speechSynthesis.speak(u);

@@ -44,7 +44,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - `js/hebrew.js` Hebrew helpers: word parts, pronunciation, punctuation, short/full grammar labels
 - `js/dictionary.js` Words tab: search + entries (routes `#/words`, `#/words/KEY`) · `js/nav.js` back/return memory
 - `js/esv.js` ESV key + API + small offline store · Septuagint screen (`#/lxx/ID/CH[/V]`) lives in `js/reader.js`
-- `js/activity.js` study days + streak · `js/progress.js` Progress screen + saveBackup · `js/media.js` Videos screen
+- `js/check.js` Check this device (#/check) · `js/activity.js` study days + streak · `js/progress.js` Progress screen + saveBackup · `js/media.js` Videos screen
 - `js/alphabet.js` Alphabet and sounds (`#/alphabet/grc|he`, content in `lessons/alphabet/<lang>.json`)
 - `js/lessons.js` lesson engine (route `#/lesson/LANG/ID`) · `lessons/` index + one JSON file per lesson (format: lessons/README.md)
 - `js/review.js` Review trainer (#/review) · `js/sound.js` respelling + voice text (no DOM; Node can import it) ·
@@ -101,7 +101,13 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   Case → /music/; all links https), Today falls back to the course video when the next lesson has none, calendar
   day tap shows what was done, iPad calendar capped (28px days), iOS 14 square-day fallback, Hebrew share note uses
   אֵת (prefixes like וְ aren't counted), "No study days yet", fake-clock checks of the 4am study day.
-- [ ] 12 Device testing + guide
+- [~] 12 (28 Oct 2026, part 1): compatibility audit (esbuild: no syntax beyond Safari 13.4/Chrome 80; .sheet got
+  top/right/bottom/left before inset for iOS < 14.5; theme listener falls back to addListener for iOS 13), "Check this
+  device" (#/check, Settings › Help): device/system/browser, home-screen or browser, offline files + version, Bible
+  books saved, storage, fonts, layout features missing on older iOS, voices + a test per language with "Did you hear
+  it?", copy/share a text report. Guide for the user (Claude Doc, https://claude.ai/artifact/FjUuM1KR3ijifBgC5qG7f8):
+  before you start, the device check, a 16-row checklist per device (iPhone/iPad/Android dropdowns), fixes, adding
+  lessons later. lessons/README.md got a new-lesson checklist. Part 2 (12b) = fixes from the user's device reports.
 
 ## Data (Session 2)
 - Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (46 checks).
@@ -383,7 +389,17 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   reminder, progress (with the share of the text). Rail (≥900px) has Progress above Videos; phones reach it from
   Today and Learn.
 
+## Device check (Session 12)
+- js/check.js: describeDevice(ua, maxTouchPoints) → {device, system, browser}; iPad asking for desktop sites = Macintosh UA
+  with touch points. features(): flex gap measured, color-mix / :has / :focus-visible via CSS.supports, inert — all
+  cosmetic. Offline state from caches (shell-<VERSION>, data-v1). Voices waited for up to 2 s (voiceschanged).
+  The test buttons call speak() inside the tap with onstart (new option in sound.js) → report "started"/"DID NOT START".
+  Rows inside a voice item are divs (an li inside an li broke the list once). Settings tab stays current on #/check.
+- Device testing waits on the user: reports come back pasted into a chat ("session 12 results").
+
 ## Checks
+- `python3 tools/test_check.py` — 22 device-check checks (device descriptions, voices, no voice, no speech, report, copy,
+  offline, 320px largest dark).
 - `python3 tools/test_progress.py` — 47 checks: streak and the 4am day, activity logging, Progress numbers, backup save/
   reminder/restore, Today's plan, Videos, lesson videos not repeated, iPad rail, 320px largest dark, offline.
 - `python3 tools/test_app.py` (server on :8765 first) — 111 end-to-end checks; run before every push.

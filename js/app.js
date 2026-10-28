@@ -7,6 +7,7 @@ import { reviewScreen } from "./review.js";
 import { alphabet } from "./alphabet.js";
 import { media } from "./media.js";
 import { progress } from "./progress.js";
+import { check } from "./check.js";
 import { bindAudio } from "./audio.js";
 import * as nav from "./nav.js";
 
@@ -21,12 +22,15 @@ const ROUTES = {
   alphabet,
   media,
   progress,
+  check,
   settings: screens.settings,
 };
 
 store.applyDisplaySettings();
 bindAudio();
-matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", store.applyDisplaySettings);
+const darkQuery = matchMedia("(prefers-color-scheme: dark)");
+if (darkQuery.addEventListener) darkQuery.addEventListener("change", store.applyDisplaySettings);
+else if (darkQuery.addListener) darkQuery.addListener(store.applyDisplaySettings); // iOS 13
 
 const main = document.getElementById("main");
 let first = true;
@@ -42,7 +46,7 @@ function route() {
     return;
   }
   document.querySelectorAll(".tabs a[data-tab]").forEach((a) => {
-    if (a.dataset.tab === (name === "lxx" ? "read" : name === "lesson" ? "learn" : name)) a.setAttribute("aria-current", "page");
+    if (a.dataset.tab === (name === "lxx" ? "read" : name === "lesson" ? "learn" : name === "check" ? "settings" : name)) a.setAttribute("aria-current", "page");
     else a.removeAttribute("aria-current");
   });
   nav.visited();

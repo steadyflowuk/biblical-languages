@@ -10,6 +10,20 @@ The app (`js/lessons.js`) turns it into the five-step loop. After adding or chan
    that every answer is one of the options. For Greek it also checks that the capitalised syllable in each `say` is
    the accented one (one hyphenated part per vowel sound), and that Greek quoted in a verse `note` is in that verse.
 
+## Checklist for a new lesson
+
+1. Pick the topic from the next chapter of the grammar the course follows (Greek: Schwandt; Hebrew: Wegner — see
+   CLAUDE.md for the chapters already covered). Check the explanation against the grammar, then write it fresh.
+2. Write `lessons/<lang>/<n>.json` (format below). Choose high-frequency Bible words for the vocabulary, and find
+   verses with `tools/find_verses.py`.
+3. Add it to `lessons/index.json` (replacing its "Coming soon" entry), to `SHELL_FILES` in `sw.js`, and bump `VERSION`.
+4. Videos: add any that go with it to `lessons/media.json` under `lessons` (they appear at the end of Hear and see,
+   on the Videos screen and on Today). Plain YouTube links only (`watch?v=…&list=…`), no `index=` or tracking.
+5. Run `python3 tools/check_lessons.py`, then `node tools/check_speech.mjs`, then with the local server running
+   `python3 tools/test_lessons.py` (it finishes every written lesson with right answers at 320px).
+6. Changing a lesson that people may be part-way through: if the number of steps or cards changes, its signature
+   changes and anyone in the middle of it starts it again from the beginning (their best score is kept).
+
 ## The index
 
 ```json

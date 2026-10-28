@@ -398,8 +398,8 @@ legend { font-weight: 700; margin-bottom: 8px; padding: 0; }
 /* ======================================================================= Sheets */
 
 body.sheet-open { overflow: hidden; }
-.sheet { position: fixed; inset: 0; z-index: 40; }
-.sheet-backdrop { position: absolute; inset: 0; background: rgba(10, 15, 30, .45); }
+.sheet { position: fixed; top: 0; right: 0; bottom: 0; left: 0; inset: 0; z-index: 40; } /* top…left: iOS before 14.5 */
+.sheet-backdrop { position: absolute; top: 0; right: 0; bottom: 0; left: 0; inset: 0; background: rgba(10, 15, 30, .45); }
 .sheet-panel {
   position: absolute; left: 0; right: 0; bottom: 0; max-height: 82vh; overflow: auto;
   background: var(--surface); color: var(--ink);
@@ -1021,3 +1021,24 @@ button.row:hover { background: var(--surface-soft); }
 .md-foot { margin-top: 20px; }
 .ls-alongside { margin-top: 22px; }
 .ls-alongside h3 { margin: 0 0 8px; font-size: 1rem; }
+
+/* ---------- Check this device (Session 12) ---------- */
+.ck section { margin-top: 22px; }
+.ck-list { list-style: none; margin: 0; padding: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.ck-list > li + li { border-top: 1px solid var(--line); }
+.ck-row { display: flex; gap: 12px; align-items: flex-start; padding: 12px 16px; list-style: none; }
+.ck-voice { padding-bottom: 12px; }
+.ck-voice .ck-row { padding-bottom: 6px; }
+.ck-mark { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; background: var(--surface-soft); color: var(--muted); }
+.ck-row.ok .ck-mark { background: var(--sage-deep); color: #fff; }
+.ck-row.bad .ck-mark { background: var(--gold); color: #1A2233; }
+.ck-text { flex: 1; min-width: 0; }
+.ck-text strong { display: block; }
+.ck-text > span { display: block; color: var(--muted); font-size: .92rem; overflow-wrap: anywhere; }
+.ck-test, .ck-heard { padding: 0 16px 0 56px; }
+.ck-test { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.ck-said { font-size: 1.1rem; }
+.ck-q { margin: 10px 0 6px; font-weight: 700; }
+.ck-heard [aria-pressed="true"] { border-color: var(--control); background: var(--surface-soft); }
+.ck-tip { margin: 6px 0 0; font-size: .92rem; }
+.ck-report { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .82rem; line-height: 1.45; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 12px 14px; margin: 0 0 12px; max-height: 22rem; overflow: auto; }

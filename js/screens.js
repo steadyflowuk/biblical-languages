@@ -328,6 +328,12 @@ export const settings = {
         <label class="btn secondary">Restore backup<input type="file" accept="application/json,.json" data-action="import" hidden></label>
       </div>
 
+      <h2>Help</h2>
+      <ul class="rows"><li><a class="row" href="#/check">
+        <span class="row-glyph" aria-hidden="true">✓</span>
+        <span class="row-main"><span class="row-title">Check this device</span><span class="row-sub">Voices, offline use and display, with a report you can send</span></span>
+      </a></li></ul>
+
       <h2>About</h2>
       <p class="muted" style="margin-top:0">Aleph to Omega is a personal study app.</p>
       <p class="muted">Greek New Testament (NA28 text), Hebrew and Aramaic Old Testament (Leningrad Codex), word-by-word translations, grammar and lexicons: STEPBible Data, created by STEPBible.org based on work at Tyndale House Cambridge, licensed CC BY 4.0, reformatted for this app. Dictionary definitions draw on Abbott-Smith's Manual Greek Lexicon of the New Testament, the Liddell–Scott lexicon and Brown–Driver–Briggs, as included in STEPBible's lexicons. English: Berean Standard Bible, public domain. Septuagint: H. B. Swete's edition (1909–1930), public domain, from the LXX-Swete-1930 database by Eliran Wong (GPL-3.0); lined up with the Hebrew verses using STEPBible's versification data (CC BY 4.0). Fonts: Gentium Plus, Noto Serif Hebrew and Atkinson Hyperlegible, SIL Open Font Licence. Review scheduling: ts-fsrs by Open Spaced Repetition, MIT licence. Listen buttons use your device's own voices.</p>

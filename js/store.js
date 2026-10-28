@@ -20,6 +20,7 @@ const DEFAULTS = {
   showLXX: false,          // Septuagint under each Old Testament verse
   // Lessons (js/lessons.js)
   learnLang: "grc",        // grc | he: the path shown on Learn and Today
+  abcLang: "",             // grc | he: the last alphabet guide opened (Letters tab); "" = follow learnLang
   lessons: {},             // id → { pos, retries, first, done, best, completed }
   reviewQueue: [],         // words from finished lessons: { k, lang, t, say, en, lesson, added }
   // Review (js/review.js): FSRS flashcards

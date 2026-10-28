@@ -32,7 +32,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - Palette: navy #1E2B45, sage #8FA08A (deep #56705A), gold #C4A052 (deep #8C6D24), beige #EDE6D8, white.
 - Fonts (self-hosted WOFF, subset, OFL): Atkinson Hyperlegible (UI/English), Gentium Plus (Greek, scripture English),
   Noto Serif Hebrew (Hebrew with full points and cantillation). Ezra SIL was not downloadable here.
-- Phones: bottom tab bar (Today, Learn, Read, Words, Review); ≥900px: navy side rail plus Videos and Settings.
+- Phones: bottom tab bar (Today, Learn, Letters, Read, Words, Review — Letters added in 10d at the user's request); ≥900px: navy side rail plus Videos and Settings.
 - The one bold element: the verse panel on Today (navy, large original text, tap a word for its gloss).
 
 ## Structure
@@ -86,6 +86,8 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - [x] 10c (28 Oct 2026): Alphabet and sounds guide (from the user's Greek alphabet PDF, corrected) — every letter,
   marks, letter pairs, Erasmian beside Restored Koine, vowels, signs in the text, verses to read aloud; alphabet
   flashcards in Review. iPhone ringer switch silences the voices (user: nothing to change; Settings says so).
+- [x] 10d (28 Oct 2026): Letters tab (6th tab, `#/alphabet` opens the last guide used: store abcLang, else learnLang);
+  tab labels capped at 3.9vw so six fit at 320px, largest text.
 - [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
 
 ## Data (Session 2)
@@ -337,11 +339,11 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - Example rows everywhere use `.ls-ex-head` (word + small Listen on one line).
 
 ## Checks
-- `python3 tools/test_app.py` (server on :8765 first) — 101 end-to-end checks; run before every push.
+- `python3 tools/test_app.py` (server on :8765 first) — 106 end-to-end checks; run before every push.
 - `python3 tools/test_reader_edges.py` — 28 Reader edge cases (odd links, fast switching incl. OT↔NT, offline Hebrew, focus, back button, 320px).
 - `python3 tools/sweep_reader.py [nt|ot|all]` — opens every chapter at 360px (NT ~10 min, OT ~35 min); expect
   0 issues and only 3JN 15 / REV 12:18 notes.
-- `python3 tools/test_alphabet.py` — 39 alphabet checks (both guides, sheets, voices, Read aloud, letter flashcards,
+- `python3 tools/test_alphabet.py` — 40 alphabet checks (both guides, sheets, voices, Read aloud, letter flashcards,
   320px largest dark, offline).
 - `python3 tools/test_review.py` — 46 review/audio checks (incl. a week on a fake clock, speech before voices load) (voices replaced by a recorder; FSRS sessions, limits,
   lists, aliases, both languages, offline, 320px largest dark).

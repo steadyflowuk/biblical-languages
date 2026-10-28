@@ -99,7 +99,9 @@ async function practiceHTML(A, lang) {
 export const alphabet = {
   title: "Alphabet and sounds",
   async render(main, params) {
-    const lang = params[0] === "he" ? "he" : "grc";
+    const want = params[0] || store.get("abcLang") || store.get("learnLang");
+    const lang = want === "he" ? "he" : "grc";
+    if (params[0]) store.set("abcLang", lang);
     main.innerHTML = `<div class="screen ab">${head("Alphabet and sounds", `${NAME[lang]}: letters, marks and how to say them`)}<p class="muted">Loading…</p></div>`;
     let A;
     try {
@@ -119,7 +121,7 @@ export const alphabet = {
         <a class="switch-link" href="#/alphabet/he" aria-current="${lang === "he" ? "page" : "false"}">Hebrew</a>
       </div>
       <p>${mixed(A.intro)}</p>
-      <p class="muted ab-tip">${lang === "he" ? "Hebrew reads from right to left, so the letters run that way too." : "Capital and small forms side by side; the Bible text is mostly small letters."} Tap a letter for its sound and an example.</p>
+      ${lang === "grc" ? `<p class="muted ab-tip">Capital and small forms side by side; the Bible text is mostly small letters.</p>` : ""}
       <h2>The ${A.letters.length} letters</h2>
       <ul class="ab-grid"${lang === "he" ? ' dir="rtl"' : ""}>${A.letters.map((L, i) => tileHTML(L, i, lang)).join("")}</ul>
       ${A.sections.map((sec) => sectionHTML(sec, lang)).join("")}

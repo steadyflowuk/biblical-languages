@@ -66,8 +66,8 @@ async def main():
         await pg.wait_for_function("document.querySelector('.learn-abc a').getAttribute('href') === '#/alphabet/grc'", timeout=3000)
         await pg.click(".learn-abc a")
         await pg.wait_for_selector(".ab-grid")
-        check("Learn row opens the guide; Learn tab stays current",
-              await pg.evaluate("!!document.querySelector('[href=\"#/learn\"][aria-current=\"page\"]')"))
+        check("Learn row opens the guide; the Letters tab is current",
+              await pg.evaluate("!!document.querySelector('.tabs [data-tab=\"alphabet\"][aria-current=\"page\"]')"))
 
         # 2. Greek page
         await open_guide(pg, "grc")
@@ -121,6 +121,12 @@ async def main():
         await pg.wait_for_selector(".ab-verse", timeout=15000)
         check("Hebrew: 22 tiles, the grid right to left", await pg.get_attribute(".ab-grid", "dir") == "rtl")
         check("Switch: Hebrew current", await pg.get_attribute(".switch-link[href='#/alphabet/he']", "aria-current") == "page")
+        await pg.click('.tabs a[data-tab="today"]')
+        await pg.click('.tabs a[data-tab="alphabet"]')
+        await pg.wait_for_function("document.querySelectorAll('.ab-tile').length === 22")
+        check("Letters tab: opens the guide last used (Hebrew), tab current",
+              await pg.get_attribute('.tabs a[data-tab="alphabet"]', "aria-current") == "page")
+        await pg.wait_for_selector(".ab-verse", timeout=15000)
         vt = await pg.locator(".ab-section").first.inner_text()
         check("Vowel table: qamets, patah, shewa, holam", all(w in vt for w in ("qamets", "patah", "shewa", "holam")), vt[:200])
         rt = await pg.locator(".ab-section").last.inner_text()

@@ -124,7 +124,7 @@ a { color: inherit; }
 
 .tabs {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
-  display: grid; grid-template-columns: repeat(5, 1fr);
+  display: grid; grid-template-columns: repeat(6, 1fr);
   height: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
   padding: 0 max(env(safe-area-inset-left), 4px) env(safe-area-inset-bottom) max(env(safe-area-inset-right), 4px);
   background: var(--navy);
@@ -134,7 +134,7 @@ a { color: inherit; }
   position: relative;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
   color: #C9D2C6; text-decoration: none;
-  font-size: .75rem; letter-spacing: .01em;
+  font-size: .75rem; font-size: min(.75rem, 3.9vw); letter-spacing: .01em; /* six labels fit at 320px, largest text */
   -webkit-tap-highlight-color: transparent;
 }
 .tabs svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }

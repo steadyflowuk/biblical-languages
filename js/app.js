@@ -39,7 +39,7 @@ function route() {
     return;
   }
   document.querySelectorAll(".tabs a[data-tab]").forEach((a) => {
-    if (a.dataset.tab === (name === "lxx" ? "read" : name === "lesson" || name === "alphabet" ? "learn" : name)) a.setAttribute("aria-current", "page");
+    if (a.dataset.tab === (name === "lxx" ? "read" : name === "lesson" ? "learn" : name)) a.setAttribute("aria-current", "page");
     else a.removeAttribute("aria-current");
   });
   nav.visited();

@@ -1,7 +1,7 @@
 {
   "checked": "2026-10-28",
   "grc": {
-    "course": { "title": "Alpha with Angela", "href": "https://www.youtube.com/playlist?list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" },
+    "course": { "title": "Alpha with Angela", "sub": "Short lessons taught in Greek with pictures", "href": "https://www.youtube.com/playlist?list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" },
     "lessons": {
       "grc-0": [
         { "title": "Alpha with Angela, lesson 1", "sub": "Nouns and adjectives, taught in Greek with pictures · 12 min", "href": "https://www.youtube.com/watch?v=gLe1GhR5l0E&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" }
@@ -58,7 +58,7 @@
         "items": [
           { "title": "Alpha with Angela: every lesson in order", "sub": "79 videos: lessons, quizzes and easy stories", "href": "https://www.youtube.com/playlist?list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" },
           { "title": "Alpha with Angela: easy story 1, the little sheep", "sub": "A four-minute story once you've done lessons 1–5", "href": "https://www.youtube.com/watch?v=OCFSKz3tKXA&list=PLO3VwXPRtV3yHbCsWoGCxEkBsDoXNkpMq" },
-          { "title": "Alpha with Angela as a podcast", "sub": "The same lessons, sound only, for the car or a walk", "href": "https://creators.spotify.com/pod/profile/alphawithangela/" },
+          { "title": "Alpha with Angela as a podcast", "sub": "The lessons as sound only, for listening again after the videos", "href": "https://creators.spotify.com/pod/profile/alphawithangela/" },
           { "title": "Alpha with Angela: course website", "sub": "Transcripts, grammar notes and worksheets", "href": "https://freegreek.online/resources/" }
         ]
       },
@@ -68,7 +68,7 @@
         "items": [
           { "title": "Readings in Erasmian pronunciation", "sub": "Recommended by the Alpha with Angela team", "href": "https://www.youtube.com/playlist?list=PL92xKgmKTQBIZTse1Q-T9mj_AuXW9LlcV" },
           { "title": "Polis Institute readings", "sub": "John, Galatians, James, 1 John and Revelation", "href": "https://www.youtube.com/playlist?list=PLXI4Nw5PDR6Rm8i7Z3l8uO5gvhVcuuKci" },
-          { "title": "Restored Koine audio (Biblical Language Center)", "sub": "Randall Buth's first-century pronunciation", "href": "https://www.koinegreek.com/audio" },
+          { "title": "Restored Koine audio (Biblical Language Center)", "sub": "The Gospels, Acts and several letters in a first-century pronunciation; free to listen", "href": "https://www.koinegreek.com/audio" },
           { "title": "Koine Greek channel (Ben Kantor)", "sub": "Readings and short talks in reconstructed Koine", "href": "https://www.youtube.com/@KoineGreek" }
         ]
       },
@@ -91,7 +91,7 @@
     ]
   },
   "he": {
-    "course": { "title": "Aleph with Beth", "href": "https://www.youtube.com/watch?v=y640-FIpxQs&list=PLq1vmb-z7PpQt2PDNUr7XOzBjWAOWf0Rt" },
+    "course": { "title": "Aleph with Beth", "sub": "Short lessons taught in Biblical Hebrew with pictures", "href": "https://www.youtube.com/watch?v=y640-FIpxQs&list=PLq1vmb-z7PpQt2PDNUr7XOzBjWAOWf0Rt" },
     "lessons": {
       "he-0": [
         { "title": "Aleph with Beth: the first lessons", "sub": "Taught in Biblical Hebrew with pictures", "href": "https://www.youtube.com/watch?v=y640-FIpxQs&list=PLq1vmb-z7PpQt2PDNUr7XOzBjWAOWf0Rt" }
@@ -114,7 +114,7 @@
         "items": [
           { "title": "Aleph with Beth: introduction", "sub": "A four-minute English welcome explaining the method", "href": "https://www.youtube.com/watch?v=_rg-Dcfj-fc" },
           { "title": "Aleph with Beth: the lessons in order", "sub": "Taught in Biblical Hebrew", "href": "https://www.youtube.com/watch?v=y640-FIpxQs&list=PLq1vmb-z7PpQt2PDNUr7XOzBjWAOWf0Rt" },
-          { "title": "Aleph with Beth channel", "sub": "Every lesson, plus songs and stories", "href": "https://www.youtube.com/c/alephwithbeth" },
+          { "title": "Aleph with Beth channel", "sub": "Every lesson, plus songs and stories", "href": "https://www.youtube.com/c/AlephwithBeth" },
           { "title": "Aleph with Beth: course website", "sub": "Transcripts, grammar notes and a progress tracker", "href": "https://freehebrew.online/resources/" }
         ]
       },
@@ -122,23 +122,23 @@
         "title": "Hear the Hebrew Bible read",
         "sub": "Listen while you follow the text in the Reader.",
         "items": [
-          { "title": "The Hebrew Bible read by Abraham Shmuelof", "sub": "Every chapter, in Israeli pronunciation (Mechon Mamre)", "href": "http://mechon-mamre.org/p/pt/ptmp3prq.htm" },
-          { "title": "Genesis read by Dan Be'eri", "sub": "A clear, unhurried reading (Internet Archive)", "href": "https://archive.org/details/TanakhAudioRecordingByRabbiDanBeeri-BookByBook/01_genesis.mp3" }
+          { "title": "The Hebrew Bible read aloud", "sub": "Every chapter, read clearly without chanting (Mechon Mamre)", "href": "https://mechon-mamre.org/p/pt/ptmp3prq.htm" },
+          { "title": "Most of the Hebrew Bible read by Dan Be'eri", "sub": "30 books in a clear reading (Internet Archive)", "href": "https://archive.org/details/TanakhAudioRecordingByRabbiDanBeeri-BookByBook" }
         ]
       },
       {
         "title": "How it sounded long ago",
         "sub": "The app teaches the pronunciation used in colleges. The Masoretes, who added the vowel points, said it differently.",
         "items": [
-          { "title": "The Tiberian Pronunciation Tradition (Geoffrey Khan)", "sub": "A free book on the Masoretes' own pronunciation", "href": "https://books.openedition.org/obp/16762" }
+          { "title": "The Tiberian Pronunciation Tradition (Geoffrey Khan)", "sub": "A free book, with recordings of Genesis 1 and Psalm 1 as the Masoretes said them", "href": "https://www.openbookpublishers.com/product/951" }
         ]
       },
       {
         "title": "Sing it",
         "sub": "Psalms and other passages sung in Hebrew.",
         "items": [
-          { "title": "Miqedem: the Psalms in Hebrew", "sub": "Psalms sung in the original words", "href": "https://www.youtube.com/playlist?list=PLLipv65jqzhQ_x5KAQAfKX24bQk22Y9JK" },
-          { "title": "Songs in Biblical Hebrew (Andrew Case)", "sub": "From the creator of Aleph with Beth", "href": "https://hismagnificence.com/sing-hebrew/" },
+          { "title": "Miqedem: the Psalms in Hebrew", "sub": "An Israeli band singing the Psalms (Bandcamp)", "href": "https://miqedem.bandcamp.com" },
+          { "title": "Andrew Case's music", "sub": "Psalms and other songs from the creator of Aleph with Beth", "href": "https://hismagnificence.com/music/" },
           { "title": "Sing Greek and Hebrew", "sub": "Playlists of songs in both languages", "href": "https://www.youtube.com/@singgreekandhebrew/playlists" }
         ]
       },

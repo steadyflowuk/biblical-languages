@@ -8,7 +8,7 @@ import * as review from "./review.js";
 import { sayButton } from "./audio.js";
 import { streak } from "./activity.js";
 import { saveBackup, backupDue, languageSummary } from "./progress.js";
-import { firstVideoFor } from "./media.js";
+import { videoForToday } from "./media.js";
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
@@ -133,19 +133,20 @@ export const today = {
           <span class="row-main"><span class="row-title">You've done every ${lang === "he" ? "Hebrew" : "Greek"} lesson so far</span><span class="row-sub">More lessons are on their way</span></span>
         </a>`;
       // the video that goes with that lesson
-      if (next) firstVideoFor(next.id).then((v) => {
+      videoForToday(next && next.id, lang).then((pick) => {
         const row = main.querySelector(".today-video");
-        if (!v || !row) return;
+        if (!pick || !row) return;
+        const v = pick.v;
         row.innerHTML = `<a class="row" href="${esc(v.href)}" target="_blank" rel="noopener">
           <span class="row-glyph" aria-hidden="true">▶</span>
-          <span class="row-main"><span class="row-title">Watch: ${lessons.mixed(v.title)}</span><span class="row-sub">Goes with your next lesson · ${lessons.mixed(v.sub || "")}</span></span>
+          <span class="row-main"><span class="row-title">Watch: ${lessons.mixed(v.title)}</span><span class="row-sub">${pick.lesson ? "Goes with your next lesson · " : ""}${lessons.mixed(v.sub || "")}</span></span>
           <span class="row-end" aria-hidden="true">↗</span>
         </a>`;
       }).catch(() => { /* offline: keep the link to Videos */ });
       // how much of the text the known words make up
       languageSummary(lang).then((s) => {
         const sub = main.querySelector(".today-progress .row-sub");
-        if (sub && s.share) sub.textContent = `Your words make up ${s.share < 10 ? s.share.toFixed(1) : Math.round(s.share)}% of the ${lang === "he" ? "Hebrew Old Testament" : "Greek New Testament"}`;
+        if (sub && s.share) sub.textContent = `Words you know make up ${s.share < 10 ? s.share.toFixed(1) : Math.round(s.share)}% of the ${lang === "he" ? "Hebrew Old Testament" : "Greek New Testament"}`;
       }).catch(() => {});
     }).catch(() => { /* offline before the lessons were ever loaded: keep the link to Learn */ });
     const backupBtn = main.querySelector(".today-backup [data-backup]");

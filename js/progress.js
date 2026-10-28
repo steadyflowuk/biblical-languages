@@ -129,7 +129,7 @@ function streakHTML(s) {
     ? (s.today ? "You've studied today. Well done." : "Study today to keep it going.")
     : "Do a lesson or a few review cards to start a run of days.";
   return `<section class="pg-streak" aria-label="Days in a row">
-      <p class="pg-big"><span class="pg-num">${s.current}</span> ${s.current === 1 ? "day" : "days"} in a row</p>
+      <p class="pg-big">${s.current || s.best ? `<span class="pg-num">${s.current}</span> ${s.current === 1 ? "day" : "days"} in a row` : "No study days yet"}</p>
       <p class="pg-sub">${sub}${s.best > s.current ? ` Your best is ${plural(s.best, "day")}.` : ""}</p>
     </section>`;
 }
@@ -150,9 +150,12 @@ function calendarHTML(now) {
     const future = k > today;
     const n = future ? 0 : amount(a, k);
     if (n) studied++;
-    const date = new Date(k + "T12:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
-    const label = future ? "" : `${date}: ${n ? `${plural(n, "thing")} done` : "no study"}`;
-    cells += `<span class="pg-day l${level(n)}${k === today ? " today" : ""}${future ? " future" : ""}"${label ? ` title="${esc(label)}"` : ""}></span>`;
+    const date = new Date(k + "T12:00:00").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+    const r = (a[k] && a[k].r) || 0;
+    const l = (a[k] && a[k].l) || 0;
+    const did = [r ? plural(r, "card") + " reviewed" : "", l ? plural(l, "lesson step") : ""].filter(Boolean).join(", ");
+    const label = future ? "" : `${k === today ? "Today" : date}: ${did || "no study"}`;
+    cells += `<span class="pg-day l${level(n)}${k === today ? " today" : ""}${future ? " future" : ""}"${label ? ` title="${esc(label)}" data-label="${esc(label)}"` : ""}></span>`;
   }
   const days = Math.min(WEEKS * 7, weekday + 1 + (WEEKS - 1) * 7);
   return `<section class="pg-cal-wrap">
@@ -161,6 +164,7 @@ function calendarHTML(now) {
         <div class="pg-cal-days" aria-hidden="true"><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span><span>Sun</span></div>
         <div class="pg-cal-grid" aria-hidden="true">${cells}</div>
       </div>
+      <p class="pg-cal-pick muted" aria-hidden="true">Tap a day to see what you did.</p>
       <p class="pg-cal-foot"><span>Studied on <strong>${studied}</strong> of the last ${days} days</span>
         <span class="pg-key" aria-hidden="true">Less <span class="pg-day l0"></span><span class="pg-day l1"></span><span class="pg-day l2"></span><span class="pg-day l3"></span><span class="pg-day l4"></span> More</span></p>
     </section>`;
@@ -189,7 +193,7 @@ function languageHTML(s) {
       <div class="pg-share">
         <p class="pg-line">The words you know make up <strong>${s.share < 10 ? s.share.toFixed(1) : Math.round(s.share)}%</strong> of the ${TEXT[l]}.</p>
         ${barHTML([{ n: s.share, cls: "s3" }, { n: 100 - s.share, cls: "s0" }], `${Math.round(s.share)}% of the ${TEXT[l]}`)}
-        <p class="muted pg-note">Every time a word you know appears counts, so common words like ${l === "he" ? "<span lang=\"he\">וְ</span> and <span lang=\"he\">אֱלֹהִים</span>" : "<span lang=\"grc\">ὁ</span> and <span lang=\"grc\">καί</span>"} soon add up. A word counts as known once you've remembered it in Review.</p>
+        <p class="muted pg-note">Every time a word you know appears counts, so common words like ${l === "he" ? "<span lang=\"he\">אֵת</span> and <span lang=\"he\">אֱלֹהִים</span>" : "<span lang=\"grc\">ὁ</span> and <span lang=\"grc\">καί</span>"} soon add up. A word counts as known once you've remembered it in Review.</p>
       </div>`;
   const letters = s.letters.met
     ? `<p class="pg-line"><strong>${s.letters.known} of ${s.letters.total}</strong> letters known <a class="pg-link" href="#/alphabet/${l}">Alphabet guide</a></p>`
@@ -253,6 +257,14 @@ export const progress = {
       ${forecastHTML(forecast(now))}
       ${backupHTML(now)}
     </div>`;
+    // tap a day in the calendar: what was done that day
+    main.querySelector(".pg-cal-grid").addEventListener("click", (e) => {
+      const cell = e.target.closest("[data-label]");
+      if (!cell) return;
+      main.querySelectorAll(".pg-day.picked").forEach((x) => x.classList.remove("picked"));
+      cell.classList.add("picked");
+      main.querySelector(".pg-cal-pick").textContent = cell.dataset.label;
+    });
     main.querySelector("[data-backup]").addEventListener("click", async () => {
       const msg = await saveBackup();
       if (msg) toast(msg);

@@ -96,6 +96,11 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - [x] 11 (28 Oct 2026): Today as a daily plan (streak, next lesson, reviews, the next lesson's video, backup reminder,
   progress), Progress screen (#/progress), Videos rebuilt from lessons/media.json (videos per lesson, readings, songs,
   lectures), videos at the end of each lesson's Hear step, shared backup with "last saved" date.
+- [x] 11b (28 Oct 2026): deep check — links re-verified (Mechon Mamre reader isn't named, Sephardi-style: wording fixed;
+  Be'eri item page, 30 books; Khan → openbookpublishers.com/product/951 with recordings; Miqedem → Bandcamp; Andrew
+  Case → /music/; all links https), Today falls back to the course video when the next lesson has none, calendar
+  day tap shows what was done, iPad calendar capped (28px days), iOS 14 square-day fallback, Hebrew share note uses
+  אֵת (prefixes like וְ aren't counted), "No study days yet", fake-clock checks of the 4am study day.
 - [ ] 12 Device testing + guide
 
 ## Data (Session 2)
@@ -366,6 +371,10 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   breathings, 16/16a/16b/18 alphabet, 1/2/3/6 nouns, 17/20/21/22 genitive, 24 prepositions, 27/29/30 verbs, 5 εἰμί,
   8 adjectives) and Aleph with Beth alphabet parts 1–5 = lessons 7, 10, 13, 16, 19 (IDs from search results).
   Section links come from the courses' own resource pages (freegreek.online/resources, freehebrew.online/resources).
+  Opened and confirmed (11b): koinegreek.com/audio, Mechon Mamre, Be'eri, Khan, Miqedem Bandcamp, Andrew Case music,
+  Angela podcast, Duff and Black playlists, Barrick lecture 1, Aleph with Beth channel. Not opened (only listed by the
+  course pages; check on a device): Erasmian and Polis reading playlists, @KoineGreek, ΕΦΟΔΙΑ, Sing Greek and Hebrew,
+  Picture Hebrew. The footer says "List updated", not "checked".
   No modern Israeli children's TV: Modern Hebrew vocabulary differs; songs are Psalms (Miqedem), Andrew Case, Sing
   Greek and Hebrew. check_lessons checks media.json (lesson ids, plain YouTube URLs, https, in SHELL_FILES).
 - Lesson Hear step: after its last card, "Videos to watch alongside" from media.json, leaving out any video the lesson
@@ -375,7 +384,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   Today and Learn.
 
 ## Checks
-- `python3 tools/test_progress.py` — 41 checks: streak and the 4am day, activity logging, Progress numbers, backup save/
+- `python3 tools/test_progress.py` — 47 checks: streak and the 4am day, activity logging, Progress numbers, backup save/
   reminder/restore, Today's plan, Videos, lesson videos not repeated, iPad rail, 320px largest dark, offline.
 - `python3 tools/test_app.py` (server on :8765 first) — 111 end-to-end checks; run before every push.
 - `python3 tools/test_reader_edges.py` — 28 Reader edge cases (odd links, fast switching incl. OT↔NT, offline Hebrew, focus, back button, 320px).

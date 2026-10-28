@@ -69,7 +69,7 @@ export const media = {
           ${s.sub ? `<p class="muted">${mixed(s.sub)}</p>` : ""}
           <ul class="rows">${s.items.map((v) => linkRow(v, GLYPH[lang], lang)).join("")}</ul>
         </section>`).join("")}
-        <p class="muted md-foot">Links open YouTube or the website in a new page; this app stays where you left it. Links checked ${new Date(M.checked + "T12:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}.</p>`;
+        <p class="muted md-foot">Links open YouTube or the website in a new page; this app stays where you left it. List updated ${new Date(M.checked + "T12:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}.</p>`;
     };
     draw();
     main.querySelectorAll("[data-lang]").forEach((b) => b.addEventListener("click", () => {
@@ -80,10 +80,14 @@ export const media = {
   },
 };
 
-/** The first video for a lesson, for Today's plan (or null). */
-export async function firstVideoFor(id) {
+/**
+ * A video for Today's plan: the first one for the next lesson ({ v, lesson: true }), or the language's course when
+ * that lesson has none or every lesson is done ({ v, lesson: false }).
+ */
+export async function videoForToday(id, lang) {
   const M = await mediaList();
-  const lang = id.indexOf("he-") === 0 ? "he" : "grc";
-  return ((M[lang] && M[lang].lessons[id]) || [])[0] || null;
+  const m = M[lang] || {};
+  const v = id ? ((m.lessons || {})[id] || [])[0] : null;
+  return v ? { v, lesson: true } : m.course ? { v: m.course, lesson: false } : null;
 }
 

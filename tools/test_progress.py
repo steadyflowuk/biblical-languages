@@ -71,6 +71,33 @@ async def main():
         s = await pg.evaluate("async () => (await import('./js/activity.js')).streak()")
         check("Reviews from before Session 11 (review log) count for the streak", s["current"] == 1, str(s))
 
+        # 1b. On a fake clock: a review at 11.30pm and another at 3am are the same study day; next morning asks for today
+        await fresh(pg, {"reviewQueue": [{"k": "G3056", "lang": "grc", "t": "λόγος", "say": "LO-gos", "en": "word", "lesson": "grc-0", "added": "2026-10-27"},
+                                          {"k": "G2316", "lang": "grc", "t": "θεός", "say": "the-OS", "en": "God", "lesson": "grc-0", "added": "2026-10-27"}]})
+        clock_ctx = await b.new_context(viewport={"width": 390, "height": 844})
+        cp = await clock_ctx.new_page()
+        cp.on("pageerror", lambda e: errs.append(str(e)))
+        await cp.clock.install(time=datetime(2026, 11, 2, 23, 30))
+        await cp.goto(f"{BASE}#/settings")
+        await cp.evaluate("""localStorage.clear(); localStorage.setItem('ao:reviewQueue', JSON.stringify([{k: 'G3056', lang: 'grc', t: 'λόγος', say: 'LO-gos', en: 'word', lesson: 'grc-0'}, {k: 'G2316', lang: 'grc', t: 'θεός', say: 'the-OS', en: 'God', lesson: 'grc-0'}]))""")
+        await go(cp, "review", "[data-start]")
+        await cp.click("[data-start]")
+        await cp.click("[data-show]")
+        await cp.click("[data-rate='4']")
+        await cp.clock.set_system_time(datetime(2026, 11, 3, 3, 0))
+        await cp.click("[data-show]")
+        await cp.click("[data-rate='4']")
+        a = await cp.evaluate("JSON.parse(localStorage.getItem('ao:activity'))")
+        check("Clock: 11.30pm and 3am reviews count for the same study day (2 Nov)", list(a) == ["2026-11-02"] and a["2026-11-02"]["r"] == 2, str(a))
+        await cp.clock.set_system_time(datetime(2026, 11, 3, 10, 0))
+        await go(cp, "today", ".today-plan")
+        check("Clock: next morning, Today says 1 day in a row and asks for today", "1 day in a row · keep it going today" in await cp.locator(".today-streak").inner_text())
+        await cp.clock.set_system_time(datetime(2026, 11, 5, 10, 0))
+        await go(cp, "progress", ".pg-streak")
+        st = await cp.locator(".pg-streak").inner_text()
+        check("Clock: a missed day ends the run (0 days, best 1)", st.startswith("0") and "Your best is 1 day" in st, st)
+        await clock_ctx.close()
+
         # 2. Reviewing and lessons write the activity log
         q = [{"k": "G3056", "lang": "grc", "t": "λόγος", "say": "LO-gos", "en": "word", "lesson": "grc-0", "added": "2026-10-27"}]
         await fresh(pg, {"reviewQueue": q})
@@ -118,6 +145,9 @@ async def main():
         check("Hebrew not started: a button to start", "Not started yet" in he)
         fc = await pg.locator(".pg-fc-n").all_inner_texts()
         check("Week ahead: today 1 (ἐν), tomorrow 1, day after 1, then the letter on day 3", fc[:4] == ["1", "1", "1", "1"] and len(fc) == 7, str(fc))
+        await pg.click(".pg-day.today")
+        pick = await pg.locator(".pg-cal-pick").inner_text()
+        check("Tap a day in the calendar: what was done (cards reviewed, lesson steps)", pick == "Today: 30 cards reviewed, 2 lesson steps", pick)
         await pg.click(".pg-lang [data-learn='he']")
         await pg.wait_for_selector(".path")
         check("Start the Hebrew lessons: Learn opens on Hebrew", await pg.evaluate("JSON.parse(localStorage.getItem('ao:learnLang'))") == "he")
@@ -164,6 +194,13 @@ async def main():
         check("Today: the video for the next lesson (grc-1: Angela's alphabet lesson)", href == MEDIA["grc"]["lessons"]["grc-1"][0]["href"], href)
         check("…opens outside the app", await pg.get_attribute(".today-video a", "target") == "_blank")
         check("Today: link to Progress", await pg.locator(".today-progress a[href='#/progress']").count() == 1)
+        # a next lesson with no video of its own: the course instead
+        await fresh(pg, {"learnLang": "he", "lessons": {f"he-{i}": {"v": 1, "done": True, "pos": 0} for i in range(3)}})
+        await go(pg, "today", ".today-plan")
+        await pg.wait_for_function("document.querySelector('.today-video a').getAttribute('href').startsWith('https://')", timeout=8000)
+        t = await pg.locator(".today-video").inner_text()
+        check("Today: next lesson without its own video (Hebrew 3) → the Aleph with Beth course", "Watch: Aleph with Beth" in t and "Goes with" not in t
+              and await pg.get_attribute(".today-video a", "href") == MEDIA["he"]["course"]["href"], t)
 
         # 6. Videos screen
         await fresh(pg, {"lessons": {"grc-0": {"v": 1, "done": True, "pos": 0}}})
@@ -177,6 +214,7 @@ async def main():
         await pg.wait_for_function("document.querySelector('.md-body').textContent.includes('Aleph with Beth')")
         hlinks = await pg.evaluate("[...document.querySelectorAll('.md-body a.row')].map((a) => a.href)")
         expect = [v["href"] for v in MEDIA["he"]["lessons"]["he-1"]]
+        check("Every link in the video list is https", all(h.startswith("https://") for h in hlinks + [l[0] for l in links]), str([h for h in hlinks if not h.startswith("https://")]))
         check("Hebrew: alphabet videos for lessons 1 and 2, plus readings and songs", all(h in hlinks for h in expect) and any("mechon-mamre" in h for h in hlinks), str(len(hlinks)))
         # the lesson's own video isn't listed twice in its Hear step
         await go(pg, "learn", ".path-item")

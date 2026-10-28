@@ -73,6 +73,13 @@ async def main():
         check("Erasmian for the Greek voice: λόγκος, αγκάπεϊ, άγγελος, μπασιλέια, ντόκσα",
               r["eras"] == ["λόγκος", "αγκάπεϊ", "άγγελος", "μπασιλέια", "ντόκσα"], str(r["eras"]))
         check("Restored Koine: modern accents, no breathings, raised dot read as a comma", r["koine"] == "ο λόγος τού θεού,", r["koine"])
+        r2 = await pg.evaluate("""async () => { const s = await import('./js/sound.js'); return {
+          he: ['סוּס', 'כָּעַס', 'וַיְהִי פ', 'כִּי [אם]'].map((w) => s.hebrewSpeech(w)),
+          el: [s.erasmianSpeech('δ᾽ ἂν'), s.erasmianSpeech('δ᾽'), s.greekSay('δ᾽ ἂν'), s.koineSpeech('ἁμάρτανε.]]')] }; }""")
+        check("Hebrew voice: a word's last ס stays (סוּס, כָּעַס); a lone paragraph ס/פ and brackets go",
+              r2["he"] == ["סוּס", "כָּעַס", "וַיְהִי", "כִּי אם"], str(r2["he"]))
+        check("Greek elision: δ᾽ ἂν said as one word (ντάν, dan); δ᾽ alone said ντέ; Koine drops ]]",
+              r2["el"] == ["ντάν", "ντέ", "dan", "αμάρτανε."], str(r2["el"]))
         check("Hebrew voice: the divine name read Adonai (with prefixes) or Elohim after Adonai; no accents or sof pasuq",
               r["he"] == ["אֲדֹנָי", "לַאֲדֹנָי", "אֲדֹנָי אֱלֹהִים", "בְּרֵאשִׁית", "כָּל הָאָרֶץ"], str(r["he"]))
 

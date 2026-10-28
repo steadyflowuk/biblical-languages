@@ -132,6 +132,23 @@ async def main():
         rt = await pg.locator(".ab-section").last.inner_text()
         check("Read aloud: Genesis 1:1 and Deuteronomy 6:4 in Hebrew", "בראשית" in cons(rt) and "שמע" in cons(rt) and "Deuteronomy 6:4" in rt, rt[:200])
         check("Hebrew verse text has no cantillation", await pg.evaluate(r"![...document.querySelectorAll('.ab-verse-t')].some((p) => /[֑-֯]/.test(p.textContent))"))
+        # Every Hebrew word on the page and in the letter sheets reaches the voice with all its letters (סוּס once lost its last ס)
+        lost = await pg.evaluate(r"""async () => { const s = await import('./js/sound.js');
+          const A = await (await fetch('lessons/alphabet/he.json')).json();
+          const all = [...document.querySelectorAll('[data-say-lang="he"]')].map((b) => b.dataset.say);
+          A.letters.forEach((L) => all.push(L.nameT, L.example.t, ...(L.example2 ? [L.example2.t] : [])));
+          const cons = (t) => t.replace(/[^\u05D0-\u05EA]/g, '');
+          return all.filter((t) => { const o = s.hebrewSpeech(t); return !o || (cons(o) !== cons(t) && !/אֲדֹנָי|אֱלֹהִים/.test(o)); }); }""")
+        check("Every Hebrew Listen on the Letters tab keeps all its letters (samekh's סוּס included)", not lost, str(lost))
+        await pg.evaluate("window.__spoken = []")
+        await pg.click("[data-letter='14']")
+        await pg.wait_for_selector(".sheet .ab-big")
+        await pg.click(".sheet .ls-examples [data-say]")
+        await pg.wait_for_timeout(120)
+        sp = await pg.evaluate("window.__spoken")
+        check("Samekh example: the voice is given the whole word סוּס", sp and sp[-1]["text"] == "סוּס", str(sp))
+        await pg.keyboard.press("Escape")
+
         await pg.click("[data-letter='10']")  # kaf: three forms
         await pg.wait_for_selector(".sheet .ab-big")
         kb = await pg.locator(".ab-big").inner_text()

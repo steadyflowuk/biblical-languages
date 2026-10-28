@@ -73,9 +73,15 @@ export function greekSyllables(word) {
 
 const latinConsonants = (cs) => cs.map((c, i) => (c === "γ" && /[γκχξ]/.test(cs[i + 1] || "") ? "n" : CONSONANT[c])).join("");
 
+// Elision: a word cut to a lone consonant (δ᾽ = δέ) is said with the word after it (δ᾽ ἂν → "dan"); on its own it
+// gets its ε back so there is something to say. Longer cut words (ἀλλ᾽, κατ᾽) keep their own syllable.
+const ELIDED = /(^|\s)([βγδθκλμνπρστφχ])[’'᾽ʼ]\s+(?=[Ͱ-Ͽἀ-῿])/g;
+const ELIDED_ALONE = /(^|\s)([δτμγ])[’'᾽ʼ](?=[\s,.;:·]|$)/g;
+const unElide = (text) => String(text || "").replace(ELIDED, "$1$2").replace(ELIDED_ALONE, "$1$2ε");
+
 /** Erasmian respelling of Greek text, word by word: "ἐν ἀρχῇ" → "en ar-KHAY". */
 export function greekSay(text) {
-  return String(text || "").replace(/[’'᾽ʼ]/g, "").split(/[\s,.;:·!?()“”]+/).filter((w) => /[Ͱ-Ͽἀ-῿]/.test(w)).map((w) => {
+  return unElide(text).replace(/[’'᾽ʼ]/g, "").split(/[\s,.;:·!?()“”]+/).filter((w) => /[Ͱ-Ͽἀ-῿]/.test(w)).map((w) => {
     const syl = greekSyllables(w);
     const parts = syl.map((s, i) => {
       // γ before γ κ χ ξ in the next syllable is "n" (ἄγγελος ANG-ge-los)
@@ -123,7 +129,7 @@ function speechVowel(nucleus, stressed, afterVowel) {
 
 /** Greek respelt so a Modern Greek voice says it the Erasmian way: "λόγος" → "λόγκος", "ἀγάπη" → "αγκάπεϊ". */
 export function erasmianSpeech(text) {
-  return String(text || "").replace(/[’'᾽ʼ]/g, "").split(/\s+/).map((w) => {
+  return unElide(text).replace(/[’'᾽ʼ]/g, "").split(/\s+/).map((w) => {
     const punct = (w.match(/[,.;:·!?]+$/) || [""])[0].replace(/·/g, ",").replace(/;/g, "?");
     const syl = greekSyllables(w);
     if (!syl.length) return "";
@@ -153,7 +159,7 @@ export function erasmianSpeech(text) {
 
 /** Greek in modern accents, read as written (Restored Koine is close to Modern Greek): no breathings, one accent mark. */
 export function koineSpeech(text) {
-  return String(text || "").normalize("NFD")
+  return unElide(text).replace(/[[\]()]/g, "").replace(/=/g, " ").normalize("NFD")
     .replace(/[̓̔ͅ]/g, "") // breathings, iota subscript
     .replace(/[̀͂]/g, "́") // grave and circumflex become acute (tonos)
     .replace(/·/g, ",").replace(/;/g, "?").replace(/[’᾽ʼ]/g, "")
@@ -169,9 +175,9 @@ const ELOHIM = "אֱלֹהִים";
 
 /** Hebrew for the Israeli voice: no cantillation or meteg, and the divine name read as Adonai, as is customary. */
 export function hebrewSpeech(text) {
-  return String(text || "").replace(/\//g, "")
+  return String(text || "").replace(/[/[\]]/g, "") // word-part slashes; brackets round optional words
     .replace(/[֑-ֽ֯׀׃׆]/g, "") // accents, meteg, paseq, sof pasuq, inverted nun
-    .replace(/[פס](?=\s|$)/g, "")
+    .replace(/(^|\s)[פס](?=\s|$)/g, "$1") // paragraph letters standing alone (not a word's last letter: סוּס)
     .replace(DIVINE_NAME, (m, start, prefix) => start + prefix + (/ִ/.test(m.slice(prefix.length)) ? ELOHIM : ADONAI))
     .replace(/־/g, " ").replace(/\s+/g, " ").trim();
 }

@@ -88,6 +88,10 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   flashcards in Review. iPhone ringer switch silences the voices (user: nothing to change; Settings says so).
 - [x] 10d (28 Oct 2026): Letters tab (6th tab, `#/alphabet` opens the last guide used: store abcLang, else learnLang);
   tab labels capped at 3.9vw so six fit at 320px, largest text.
+- [x] 10e (28 Oct 2026): sound check — Hebrew voice text dropped a word's last ס (סוּס said "su"; 710 OT words, e.g.
+  כָּעַס, חָמָס) because the paragraph-letter rule wasn't anchored; brackets dropped from voice text; Greek elision δ᾽
+  said with the next word (δ᾽ ἂν → ντάν) or as ντέ alone; no Listen button when nothing is sayable.
+  tools/check_speech.mjs checks every word (1.07 million) offline. Real voices (Carmit/Melina) still need the devices.
 - [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
 
 ## Data (Session 2)
@@ -312,6 +316,9 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   closes the syllable, except π β κ γ τ δ + λ/ρ and φ θ χ + ρ stay together; ξ splits k|s), ι = "ee" when open
   and stressed or before a vowel, γγ = ng|g. Matches all 176 hand-written lesson respellings; check_lessons runs
   tools/greek_say.mjs (Node) so lessons and app stay in step.
+- Hebrew voice text: paragraph letters פ ס removed only when standing alone (`(^|\s)[פס](?=\s|$)`); [ ] and / removed.
+  Greek: unElide() joins a lone elided consonant to the next word (δ᾽ ἂν) or restores ε (δ᾽ → δε); Koine drops [ ] ( ).
+  sayButton() returns "" when the voice text has no Greek/Hebrew letter (paragraph marks, Septuagint numerals).
 - Voices: Greek el-GR, Hebrew he/iw. Erasmian = respelt in Modern Greek letters (β μπ, δ ντ, γ γκ, ζ τζ, η/ει έι|εϊ,
   υ ου, αι άι|αϊ, οι όι|οϊ, αυ άου, ευ έου, no h); one-syllable words keep the mark so έι stays one sound. Koine =
   monotonic text. Hebrew: no cantillation/meteg/sof pasuq, maqaf → space, יהוה (also after one-letter prefixes) →
@@ -343,9 +350,11 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - `python3 tools/test_reader_edges.py` — 28 Reader edge cases (odd links, fast switching incl. OT↔NT, offline Hebrew, focus, back button, 320px).
 - `python3 tools/sweep_reader.py [nt|ot|all]` — opens every chapter at 360px (NT ~10 min, OT ~35 min); expect
   0 issues and only 3JN 15 / REV 12:18 notes.
-- `python3 tools/test_alphabet.py` — 40 alphabet checks (both guides, sheets, voices, Read aloud, letter flashcards,
+- `node tools/check_speech.mjs` — every OT/NT/Septuagint word, headword, lesson and Letters word through the voice
+  text (Hebrew keeps every letter; Greek sayable, no brackets/Latin); run after any change to js/sound.js.
+- `python3 tools/test_alphabet.py` — 42 alphabet checks (both guides, sheets, voices, Read aloud, letter flashcards,
   320px largest dark, offline).
-- `python3 tools/test_review.py` — 46 review/audio checks (incl. a week on a fake clock, speech before voices load) (voices replaced by a recorder; FSRS sessions, limits,
+- `python3 tools/test_review.py` — 48 review/audio checks (incl. a week on a fake clock, speech before voices load) (voices replaced by a recorder; FSRS sessions, limits,
   lists, aliases, both languages, offline, 320px largest dark).
 - `tools/check_data.py` now has 46 checks (5 for the dictionary, 5 for the Septuagint, 4 for the decks) (incl. OT BSB alignment both ways, psalm titles, Today's verses).
 - `python3 tools/check_lessons.py` — validates every lesson (run after any lesson change).

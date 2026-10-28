@@ -1,7 +1,7 @@
 // Listen buttons (Session 9): <button data-say="λόγος" data-say-lang="grc">. One click handler for the whole app
 // (bound in app.js), so any screen can drop in sayButton() without wiring. Speech itself lives in sound.js.
 import * as store from "./store.js";
-import { speak, canSpeak, stopSpeaking, warmUpVoices } from "./sound.js";
+import { speak, speechText, canSpeak, stopSpeaking, warmUpVoices } from "./sound.js";
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
@@ -13,7 +13,8 @@ const ICON = `<svg class="say-icon" viewBox="0 0 24 24" aria-hidden="true"><path
  */
 export function sayButton(text, lang, options) {
   const o = options || {};
-  if (!text) return "";
+  // nothing a voice could say (a lone paragraph mark, a dash): no button
+  if (!text || !/[\u05D0-\u05EA\u0370-\u03FF\u1F00-\u1FFF]/.test(speechText(text, lang === "he" ? "he" : "grc"))) return "";
   const name = o.label || "Listen";
   return `<button type="button" class="say-btn${o.label ? " with-label" : ""}${o.className ? " " + o.className : ""}" data-say="${esc(text)}" data-say-lang="${lang === "he" ? "he" : "grc"}" aria-label="${esc(o.label ? name : `${name}: ${text}`)}">${ICON}${o.label ? `<span>${esc(o.label)}</span>` : ""}</button>`;
 }

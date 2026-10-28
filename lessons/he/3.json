@@ -1,0 +1,153 @@
+{
+  "id": "he-3",
+  "lang": "he",
+  "title": "The vowels",
+  "steps": [
+    {
+      "step": "hear",
+      "intro": "The letters were written first; the vowel marks came much later, added by scribes called the Masoretes. Listen for a, e, i, o, u.",
+      "cards": [
+        { "type": "scene", "picture": "🗣️", "text": "דָּבָר", "say": "da-VAR", "en": "word, thing" },
+        { "type": "scene", "picture": "☀️", "text": "יוֹם", "say": "yom", "en": "day" },
+        { "type": "scene", "picture": "🧔", "text": "אִישׁ", "say": "ish", "en": "man" },
+        { "type": "scene", "picture": "🚫", "text": "לֹא", "say": "lo", "en": "not, no" },
+        { "type": "scene", "picture": "👦", "text": "בֵּן", "say": "ben", "en": "son" },
+        { "type": "scene", "picture": "❤️", "text": "לֵב", "say": "lev", "en": "heart" },
+        { "type": "scene", "picture": "🐎", "text": "סוּס", "say": "sus", "en": "horse" }
+      ]
+    },
+    {
+      "step": "notice",
+      "cards": [
+        {
+          "type": "explain",
+          "letters": true,
+          "title": "Vowels sit under, over and beside the letters",
+          "body": [
+            "A vowel mark belongs to the letter it sits with, and is said after that letter: בָ is ba, בֵ is be.",
+            "Here they are on the letter ב. The sound in brackets is how to say it."
+          ],
+          "table": {
+            "head": ["mark", "name", "sound"],
+            "rows": [
+              ["בָ", "qamets", "a (father)"],
+              ["בַ", "patah", "a"],
+              ["בֵ", "tsere", "e (they)"],
+              ["בֶ", "segol", "e (bed)"],
+              ["בִ", "hireq", "i (machine)"],
+              ["בֹ", "holam", "o (go)"],
+              ["בֻ", "qibbuts", "u (flute)"]
+            ]
+          }
+        },
+        {
+          "type": "explain",
+          "letters": true,
+          "title": "Vowels helped by a letter",
+          "body": [
+            "Some vowels are spelt with a letter as well: י after hireq or tsere, ו with a dot for o or u. These letters are silent; they only show the vowel.",
+            "So וֹ (vav with a dot on top) is o, as in יוֹם, and וּ (vav with a dot in the middle) is u, as in סוּס. Grammar books call וּ shureq."
+          ],
+          "examples": [
+            { "t": "אִישׁ", "say": "ish", "en": "hireq with yod: i" },
+            { "t": "בֵּית", "say": "beit", "en": "tsere with yod: e (house of)" },
+            { "t": "יוֹם", "say": "yom", "en": "holam with vav: o" },
+            { "t": "סוּס", "say": "sus", "en": "shureq: u" }
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "Three families, and one mark with two sounds",
+          "body": [
+            "The vowels fall into three families: a (qamets, patah), e and i (tsere, segol, hireq) and o and u (holam, qibbuts, shureq). When a word changes its ending, a vowel usually swaps for another in the same family.",
+            "One mark can be read two ways. ָ is usually a, but in a closed, unstressed syllable it is a short o: כָּל־ is kol, “all”, and חָכְמָה is chokh-MAH, “wisdom”. Grammar books call this qamets hatuf."
+          ],
+          "examples": [
+            { "t": "כָּל", "say": "kol", "en": "all (qamets read as o)" },
+            { "t": "חָכְמָה", "say": "chokh-MAH", "en": "wisdom" }
+          ]
+        }
+      ]
+    },
+    {
+      "step": "practise",
+      "cards": [
+        {
+          "type": "match",
+          "letters": true,
+          "prompt": "Match each vowel to its sound.",
+          "pairs": [["בָ", "a"], ["בֵ", "e"], ["בִ", "i"], ["בֹ", "o"], ["בֻ", "u"]]
+        },
+        {
+          "type": "choose",
+          "prompt": "How do you say לֵב (heart)?",
+          "options": ["lev", "lav", "lov", "liv"],
+          "answer": 0,
+          "explain": "ל is l, the two dots side by side (tsere) are e, and ב without a dot is v: lev."
+        },
+        {
+          "type": "choose",
+          "letters": true,
+          "prompt": "Which of these is u?",
+          "options": ["וּ", "וֹ", "בֹ", "בִ"],
+          "answer": 0,
+          "explain": "וּ, vav with a dot in its middle, is u (shureq). וֹ, with the dot on top, is o."
+        },
+        {
+          "type": "parse",
+          "prompt": "Describe the vowel in יוֹם (day).",
+          "word": "יוֹם",
+          "fields": [
+            { "label": "Sound", "options": ["a", "e", "i", "o", "u"], "answer": "o" },
+            { "label": "Spelt with a letter too?", "options": ["yes: וֹ", "no"], "answer": "yes: וֹ" }
+          ],
+          "explain": "יוֹם is yom: the dot on top of the vav makes it holam, o."
+        },
+        {
+          "type": "choose",
+          "prompt": "כָּל־ (all) is said…",
+          "options": ["kol", "kal", "kul", "kel"],
+          "answer": 0,
+          "explain": "This qamets stands in a short, unstressed syllable, so it is read as o: kol."
+        },
+        {
+          "type": "build",
+          "letters": true,
+          "prompt": "Spell דָּבָר (word), starting on the right.",
+          "tiles": ["דָּ", "בָ", "ר"],
+          "join": "",
+          "explain": "דָּ (da), בָ (va), ר (r): da-VAR."
+        }
+      ]
+    },
+    {
+      "step": "read",
+      "intro": "Read each word slowly: letter, then its vowel. Tap a word for help.",
+      "cards": [
+        { "type": "verse", "ref": "GEN 1:3", "note": "אוֹר, light, comes twice, spelt with holam-vav: “And God said, ‘Let there be light,’ and there was light.”" },
+        { "type": "verse", "ref": "PSA 118:24", "note": "הַיּוֹם is “the day”: יוֹם with “the” in front. “This is the day that the LORD has made.”" }
+      ]
+    },
+    {
+      "step": "review",
+      "cards": [
+        {
+          "type": "words",
+          "items": [
+            { "k": "H1697G", "t": "דָּבָר", "say": "da-VAR", "en": "word, thing" },
+            { "k": "H3117G", "t": "יוֹם", "say": "yom", "en": "day" },
+            { "k": "H0376G", "t": "אִישׁ", "say": "ish", "en": "man" },
+            { "k": "H3808", "t": "לֹא", "say": "lo", "en": "not, no" },
+            { "k": "H4310", "t": "מִי", "say": "mi", "en": "who?" },
+            { "k": "H1121A", "t": "בֵּן", "say": "ben", "en": "son" },
+            { "k": "H3820A", "t": "לֵב", "say": "lev", "en": "heart" },
+            { "k": "H5483M", "t": "סוּס", "say": "sus", "en": "horse" },
+            { "k": "H3605", "t": "כֹּל", "say": "kol", "en": "all, every" },
+            { "k": "H5921A", "t": "עַל", "say": "al", "en": "on, over, against" },
+            { "k": "H0216", "t": "אוֹר", "say": "or", "en": "light" }
+          ]
+        }
+      ]
+    }
+  ]
+}

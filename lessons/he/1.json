@@ -1,0 +1,161 @@
+{
+  "id": "he-1",
+  "lang": "he",
+  "title": "The letters, part 1: א to כ",
+  "steps": [
+    {
+      "step": "hear",
+      "intro": "Hebrew has 22 letters, all consonants. Here are words made only from the first eleven. Remember: start on the right.",
+      "cards": [
+        { "type": "video", "title": "Aleph with Beth", "href": "https://www.youtube.com/watch?v=y640-FIpxQs&list=PLq1vmb-z7PpQt2PDNUr7XOzBjWAOWf0Rt", "note": "Optional: lessons taught entirely in Biblical Hebrew, with pictures. Watching one or two now helps the sounds settle." },
+        { "type": "scene", "picture": "👨", "text": "אָב", "say": "av", "en": "father" },
+        { "type": "scene", "picture": "✋", "text": "יָד", "say": "yad", "en": "hand" },
+        { "type": "scene", "picture": "👍", "text": "טוֹב", "say": "tov", "en": "good" },
+        { "type": "scene", "picture": "👑", "text": "דָּוִד", "say": "da-VID", "en": "David" },
+        { "type": "scene", "picture": "☝️", "text": "אֶחָד", "say": "e-CHAD", "en": "one" },
+        { "type": "scene", "picture": "👉", "text": "זֶה", "say": "zeh", "en": "this" }
+      ]
+    },
+    {
+      "step": "notice",
+      "cards": [
+        {
+          "type": "explain",
+          "letters": true,
+          "title": "The first eleven letters",
+          "body": [
+            "Each letter is a consonant. The vowels are the small marks added above and below, which the next lessons cover; for now, read the pronunciation under each word.",
+            "Learn each letter's sound with its name. Most names begin with the letter's own sound: bet starts with b, dalet with d."
+          ],
+          "table": {
+            "head": ["letter", "name", "sound"],
+            "rows": [
+              ["א", "alef", "silent: it carries a vowel"],
+              ["בּ ב", "bet", "b, or v without the dot"],
+              ["ג", "gimel", "g as in go"],
+              ["ד", "dalet", "d"],
+              ["ה", "he", "h"],
+              ["ו", "vav", "v"],
+              ["ז", "zayin", "z"],
+              ["ח", "chet", "ch as in Scottish loch"],
+              ["ט", "tet", "t"],
+              ["י", "yod", "y as in yes"],
+              ["כּ כ", "kaf", "k, or kh without the dot"]
+            ]
+          }
+        },
+        {
+          "type": "explain",
+          "letters": true,
+          "title": "Letters that look alike",
+          "body": [
+            "ב (bet) has a little foot at the bottom right; כ (kaf) is rounded with no foot.",
+            "ה (he) has a gap at the top left; ח (chet) is closed all round.",
+            "ו (vav) is a plain upright stroke; ז (zayin) has a little cap on top. י (yod) is the smallest letter, hanging high."
+          ],
+          "examples": [
+            { "t": "ב  כ", "en": "bet has a foot; kaf doesn't" },
+            { "t": "ה  ח", "en": "he has a gap; chet is closed" },
+            { "t": "ו  ז", "en": "vav is plain; zayin has a cap" }
+          ]
+        },
+        {
+          "type": "explain",
+          "letters": true,
+          "title": "A dot that changes the sound",
+          "body": [
+            "A dot inside ב or כ makes the sound hard: בּ is b, ב is v; כּ is k, כ is kh. Grammar books call this dot a dagesh.",
+            "So אָב (father) ends in v, but בָּא (he came) starts with b. Four more letters take this dot; lesson 2 gives the full list."
+          ],
+          "examples": [
+            { "t": "בָּא", "say": "ba", "en": "he came: b, with the dot" },
+            { "t": "אָב", "say": "av", "en": "father: v, without it" }
+          ]
+        }
+      ]
+    },
+    {
+      "step": "practise",
+      "cards": [
+        {
+          "type": "choose",
+          "letters": true,
+          "prompt": "Which letter is bet?",
+          "options": ["ב", "כ", "ד", "ה"],
+          "answer": 0,
+          "explain": "ב is bet: notice the little foot. כ, kaf, is rounded with no foot."
+        },
+        {
+          "type": "choose",
+          "prompt": "What sound does ח (chet) make?",
+          "options": ["ch, as in Scottish loch", "h, as in hat", "k", "v"],
+          "answer": 0,
+          "explain": "ח is a rough ch from the throat, as in loch. ה is the soft h."
+        },
+        {
+          "type": "match",
+          "letters": true,
+          "prompt": "Match each letter to its sound.",
+          "pairs": [["ג", "g"], ["ד", "d"], ["ז", "z"], ["ט", "t"], ["י", "y"], ["ה", "h"]]
+        },
+        {
+          "type": "match",
+          "letters": true,
+          "prompt": "With or without the dot.",
+          "pairs": [["בּ", "b"], ["ב", "v"], ["כּ", "k"], ["כ", "kh"]]
+        },
+        {
+          "type": "choose",
+          "prompt": "How do you say יָד (hand)?",
+          "options": ["yad", "vad", "zad", "dai"],
+          "answer": 0,
+          "explain": "Start on the right: י is y, then the vowel a, then ד is d: yad."
+        },
+        {
+          "type": "build",
+          "letters": true,
+          "prompt": "Spell טוֹב (good), starting on the right.",
+          "tiles": ["ט", "וֹ", "ב"],
+          "join": "",
+          "explain": "ט (t), then וֹ (o), then ב (v): tov."
+        },
+        {
+          "type": "build",
+          "letters": true,
+          "prompt": "Spell דָּוִד (David).",
+          "tiles": ["דָּ", "וִ", "ד"],
+          "join": "",
+          "explain": "ד, ו, ד: da-VID. The name begins and ends with the same letter."
+        }
+      ]
+    },
+    {
+      "step": "read",
+      "intro": "Real verses use all 22 letters, so don't expect to read every word yet. Look for the words you know.",
+      "cards": [
+        { "type": "verse", "ref": "DEU 6:4", "note": "The last word, on the far left, is אֶחָד, one: “Hear, O Israel: the LORD our God, the LORD is one.”" },
+        { "type": "verse", "ref": "RUT 4:22", "note": "The verse ends with דָּוִד, David, the last of this family line." }
+      ]
+    },
+    {
+      "step": "review",
+      "cards": [
+        {
+          "type": "words",
+          "items": [
+            { "k": "H0001G", "t": "אָב", "say": "av", "en": "father" },
+            { "k": "H0251G", "t": "אָח", "say": "ach", "en": "brother" },
+            { "k": "H3027G", "t": "יָד", "say": "yad", "en": "hand" },
+            { "k": "H2896A", "t": "טוֹב", "say": "tov", "en": "good" },
+            { "k": "H1732", "t": "דָּוִד", "say": "da-VID", "en": "David" },
+            { "k": "H0259", "t": "אֶחָד", "say": "e-CHAD", "en": "one" },
+            { "k": "H2088", "t": "זֶה", "say": "zeh", "en": "this" },
+            { "k": "H1931", "t": "הוּא", "say": "hu", "en": "he, it" },
+            { "k": "H3588A", "t": "כִּי", "say": "ki", "en": "for, because, that" },
+            { "k": "H1961", "t": "הָיָה", "say": "ha-YAH", "en": "to be (he was)" }
+          ]
+        }
+      ]
+    }
+  ]
+}

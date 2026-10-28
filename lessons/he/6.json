@@ -1,0 +1,134 @@
+{
+  "id": "he-6",
+  "lang": "he",
+  "title": "Nouns: masculine, feminine, plural",
+  "steps": [
+    {
+      "step": "hear",
+      "intro": "Every Hebrew noun is masculine or feminine, and its ending changes when there is more than one. Listen for -im, -ot and -ayim.",
+      "cards": [
+        { "type": "scene", "picture": "🐎", "text": "סוּס", "say": "sus", "en": "a horse" },
+        { "type": "scene", "picture": "🐎🐎🐎", "text": "סוּסִים", "say": "su-SIM", "en": "horses" },
+        { "type": "scene", "picture": "👩", "text": "אִשָּׁה", "say": "i-SHAH", "en": "a woman" },
+        { "type": "scene", "picture": "👩‍👩‍👧", "text": "נָשִׁים", "say": "na-SHIM", "en": "women: an irregular plural" },
+        { "type": "scene", "picture": "👀", "text": "עֵינַיִם", "say": "ei-NA-yim", "en": "(a pair of) eyes" },
+        { "type": "scene", "picture": "📅", "text": "יָמִים", "say": "ya-MIM", "en": "days" }
+      ]
+    },
+    {
+      "step": "notice",
+      "cards": [
+        {
+          "type": "explain",
+          "title": "Masculine and feminine",
+          "body": [
+            "Masculine nouns have no special ending: סוּס, דָּבָר. Feminine nouns usually end in ָה or ת: מִצְוָה (commandment), בַּת (daughter).",
+            "Gender is part of the word, not always its meaning. אֶרֶץ (land) and עִיר (city) are feminine without the ending, so learn each noun's gender as you go."
+          ],
+          "table": {
+            "head": ["", "one", "more than one"],
+            "rows": [
+              ["masculine", "דָּבָר", "דְּבָרִים"],
+              ["feminine", "מִצְוָה", "מִצְוֹת"],
+              ["a pair", "עַיִן", "עֵינַיִם"]
+            ]
+          }
+        },
+        {
+          "type": "explain",
+          "title": "The plural endings",
+          "body": [
+            "Masculine plural: -ִים (-im). Feminine plural: -וֹת (-ot), replacing the ָה. Things that come in pairs, like eyes, hands and feet, use -ַיִם (-ayim), the dual.",
+            "Adding an ending often changes the vowels near the front, because the stress moves to the end: דָּבָר becomes דְּבָרִים, מֶלֶךְ becomes מְלָכִים.",
+            "A few common nouns are irregular, and some take the “wrong” ending: אִישׁ, men, is אֲנָשִׁים; אָב, father, is אָבוֹת; שָׁנָה, year, is שָׁנִים."
+          ],
+          "examples": [
+            { "t": "מְלָכִים", "say": "me-la-KHIM", "en": "kings" },
+            { "t": "אֲנָשִׁים", "say": "a-na-SHIM", "en": "men" },
+            { "t": "אָבוֹת", "say": "a-VOT", "en": "fathers" }
+          ]
+        }
+      ]
+    },
+    {
+      "step": "practise",
+      "cards": [
+        {
+          "type": "choose",
+          "prompt": "What does סוּסִים mean?",
+          "options": ["horses", "a horse", "a mare", "two horses"],
+          "answer": 0,
+          "explain": "-ִים is the masculine plural ending: horses."
+        },
+        {
+          "type": "choose",
+          "prompt": "Which of these is feminine?",
+          "options": ["מִצְוָה", "סוּס", "דָּבָר", "יוֹם"],
+          "answer": 0,
+          "explain": "מִצְוָה, commandment, ends in ָה, the usual feminine ending."
+        },
+        {
+          "type": "match",
+          "letters": true,
+          "prompt": "Match each ending to what it means.",
+          "pairs": [["-ִים", "more than one (masculine)"], ["-וֹת", "more than one (feminine)"], ["-ַיִם", "a pair"], ["-ָה", "one (feminine)"]]
+        },
+        {
+          "type": "parse",
+          "prompt": "Describe מְלָכִים.",
+          "word": "מְלָכִים",
+          "fields": [
+            { "label": "Gender", "options": ["masculine", "feminine"], "answer": "masculine" },
+            { "label": "How many?", "options": ["one", "more than one", "a pair"], "answer": "more than one" }
+          ],
+          "explain": "מְלָכִים, kings: the plural of מֶלֶךְ, with the vowels changed and -ִים added."
+        },
+        {
+          "type": "parse",
+          "prompt": "Describe בָּנוֹת.",
+          "word": "בָּנוֹת",
+          "fields": [
+            { "label": "Gender", "options": ["masculine", "feminine"], "answer": "feminine" },
+            { "label": "How many?", "options": ["one", "more than one", "a pair"], "answer": "more than one" }
+          ],
+          "explain": "בָּנוֹת, daughters: the feminine plural ending -וֹת."
+        },
+        {
+          "type": "choose",
+          "prompt": "שָׁנָה (year) is feminine. What is its plural?",
+          "fragments": true,
+          "options": ["שָׁנִים", "שָׁנוֹת", "שָׁנָה"],
+          "answer": 0,
+          "explain": "שָׁנִים: one of the feminine nouns that takes the masculine ending."
+        }
+      ]
+    },
+    {
+      "step": "read",
+      "intro": "Find the plural endings.",
+      "cards": [
+        { "type": "verse", "ref": "GEN 1:14", "note": "At the end, וּלְיָמִים וְשָׁנִים: “and for days and years”, two -ִים plurals." },
+        { "type": "verse", "ref": "GEN 1:10", "note": "יַמִּים, “seas”, is the plural of יָם; and הַמַּיִם, “the waters”, ends in -ַיִם." }
+      ]
+    },
+    {
+      "step": "review",
+      "cards": [
+        {
+          "type": "words",
+          "items": [
+            { "k": "H0802H", "t": "אִשָּׁה", "say": "i-SHAH", "en": "woman, wife" },
+            { "k": "H1323G", "t": "בַּת", "say": "bat", "en": "daughter" },
+            { "k": "H5869A", "t": "עַיִן", "say": "A-yin", "en": "eye; spring" },
+            { "k": "H3548", "t": "כֹּהֵן", "say": "ko-HEN", "en": "priest" },
+            { "k": "H5030", "t": "נָבִיא", "say": "na-VI", "en": "prophet" },
+            { "k": "H1004B", "t": "בַּיִת", "say": "BA-yit", "en": "house" },
+            { "k": "H0127G", "t": "אֲדָמָה", "say": "a-da-MAH", "en": "ground, land" },
+            { "k": "H0120G", "t": "אָדָם", "say": "a-DAM", "en": "man, mankind; Adam" },
+            { "k": "H4687", "t": "מִצְוָה", "say": "mits-VAH", "en": "commandment" }
+          ]
+        }
+      ]
+    }
+  ]
+}

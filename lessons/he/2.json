@@ -1,0 +1,167 @@
+{
+  "id": "he-2",
+  "lang": "he",
+  "title": "The letters, part 2: ל to ת",
+  "steps": [
+    {
+      "step": "hear",
+      "intro": "The other eleven letters, and five that change shape at the end of a word. Read each word from the right.",
+      "cards": [
+        { "type": "scene", "picture": "👑", "text": "מֶלֶךְ", "say": "ME-lekh", "en": "king" },
+        { "type": "scene", "picture": "🕊️", "text": "שָׁלוֹם", "say": "sha-LOM", "en": "peace" },
+        { "type": "scene", "picture": "🗣️", "text": "קוֹל", "say": "kol", "en": "voice, sound" },
+        { "type": "scene", "picture": "🌍", "text": "אֶרֶץ", "say": "E-rets", "en": "land, earth" },
+        { "type": "scene", "picture": "🌳", "text": "עֵץ", "say": "ets", "en": "tree" },
+        { "type": "scene", "picture": "📜", "text": "תּוֹרָה", "say": "to-RAH", "en": "law, instruction (the Torah)" }
+      ]
+    },
+    {
+      "step": "notice",
+      "cards": [
+        {
+          "type": "explain",
+          "letters": true,
+          "title": "The last eleven letters",
+          "body": [
+            "Two of these are silent like alef: ע (ayin) carries a vowel but, as most people read today, makes no sound of its own.",
+            "ש is two letters with one shape: a dot on the right (שׁ) is sh, a dot on the left (שׂ) is s."
+          ],
+          "table": {
+            "head": ["letter", "name", "sound"],
+            "rows": [
+              ["ל", "lamed", "l"],
+              ["מ", "mem", "m"],
+              ["נ", "nun", "n"],
+              ["ס", "samekh", "s"],
+              ["ע", "ayin", "silent: it carries a vowel"],
+              ["פּ פ", "pe", "p, or f without the dot"],
+              ["צ", "tsade", "ts as in cats"],
+              ["ק", "qof", "k"],
+              ["ר", "resh", "r"],
+              ["שׁ שׂ", "shin, sin", "sh, s"],
+              ["ת", "tav", "t"]
+            ]
+          }
+        },
+        {
+          "type": "explain",
+          "letters": true,
+          "title": "Five letters with an end-of-word shape",
+          "body": [
+            "At the very end of a word, five letters are written differently, most with a long tail down: כ becomes ך, מ becomes ם, נ becomes ן, פ becomes ף, צ becomes ץ.",
+            "They are the same letters with the same sounds. A final ך usually has no dot, so it sounds kh."
+          ],
+          "table": {
+            "head": ["letter", "at the end", "example"],
+            "rows": [
+              ["כ", "ך", "מֶלֶךְ"],
+              ["מ", "ם", "שָׁלוֹם"],
+              ["נ", "ן", "בֵּן"],
+              ["פ", "ף", "כֶּסֶף"],
+              ["צ", "ץ", "אֶרֶץ"]
+            ]
+          }
+        },
+        {
+          "type": "explain",
+          "letters": true,
+          "title": "Six letters that take the dot",
+          "body": [
+            "Six letters can have the hard-sound dot: ב ג ד כ פ ת. Teachers remember them as “begad kefat”.",
+            "In the pronunciation used here only three of them change: בּ b and ב v, כּ k and כ kh, פּ p and פ f. With ג ד ת the dot makes no difference to the sound.",
+            "Five letters never take a dot to double them, because they are made in the throat: א ה ח ע and usually ר. Lesson 4 shows what that means for the vowels around them."
+          ],
+          "examples": [
+            { "t": "כֶּסֶף", "say": "KE-sef", "en": "silver: כּ is k, and the final ף is f" },
+            { "t": "תּוֹרָה", "say": "to-RAH", "en": "the dot in ת changes nothing" }
+          ]
+        }
+      ]
+    },
+    {
+      "step": "practise",
+      "cards": [
+        {
+          "type": "choose",
+          "letters": true,
+          "prompt": "Which is mem at the end of a word?",
+          "options": ["ם", "מ", "ן", "ס"],
+          "answer": 0,
+          "explain": "ם is final mem, as in שָׁלוֹם. ן is final nun, and ס is samekh."
+        },
+        {
+          "type": "choose",
+          "letters": true,
+          "prompt": "Which letter says sh?",
+          "options": ["שׁ", "שׂ", "ס", "צ"],
+          "answer": 0,
+          "explain": "With the dot on the right it is shin, sh. With the dot on the left (שׂ) it is sin, s."
+        },
+        {
+          "type": "match",
+          "letters": true,
+          "prompt": "Match each letter to its sound.",
+          "pairs": [["ל", "l"], ["נ", "n"], ["צ", "ts"], ["ק", "k"], ["ר", "r"], ["ת", "t"]]
+        },
+        {
+          "type": "match",
+          "letters": true,
+          "prompt": "Match each letter to its end-of-word shape.",
+          "pairs": [["כ", "ך"], ["מ", "ם"], ["נ", "ן"], ["פ", "ף"], ["צ", "ץ"]]
+        },
+        {
+          "type": "choose",
+          "prompt": "How do you say קוֹל (voice)?",
+          "options": ["kol", "vol", "kov", "lok"],
+          "answer": 0,
+          "explain": "From the right: ק (k), וֹ (o), ל (l): kol."
+        },
+        {
+          "type": "build",
+          "letters": true,
+          "prompt": "Spell שָׁלוֹם (peace).",
+          "tiles": ["שָׁ", "לוֹ", "ם"],
+          "join": "",
+          "explain": "שָׁ (sha), לוֹ (lo), and final ם: sha-LOM."
+        },
+        {
+          "type": "build",
+          "letters": true,
+          "prompt": "Spell מֶלֶךְ (king).",
+          "tiles": ["מֶ", "לֶ", "ךְ"],
+          "join": "",
+          "explain": "מֶ (me), לֶ (le), and final ךְ (kh): ME-lekh."
+        }
+      ]
+    },
+    {
+      "step": "read",
+      "intro": "Look for letters you know, and the end-of-word shapes.",
+      "cards": [
+        { "type": "verse", "ref": "PSA 23:1", "note": "Four words: “The LORD is my shepherd; I shall not want.” The first is יְהוָה, the LORD; the last ends in ר." },
+        { "type": "verse", "ref": "NUM 6:26", "note": "The blessing ends with שָׁלוֹם, peace, and its final ם." }
+      ]
+    },
+    {
+      "step": "review",
+      "cards": [
+        {
+          "type": "words",
+          "items": [
+            { "k": "H4428G", "t": "מֶלֶךְ", "say": "ME-lekh", "en": "king" },
+            { "k": "H5971A", "t": "עַם", "say": "am", "en": "people" },
+            { "k": "H8034", "t": "שֵׁם", "say": "shem", "en": "name" },
+            { "k": "H6963A", "t": "קוֹל", "say": "kol", "en": "voice, sound" },
+            { "k": "H0776G", "t": "אֶרֶץ", "say": "E-rets", "en": "land, earth" },
+            { "k": "H7965G", "t": "שָׁלוֹם", "say": "sha-LOM", "en": "peace, well-being" },
+            { "k": "H8451", "t": "תּוֹרָה", "say": "to-RAH", "en": "law, instruction" },
+            { "k": "H6086G", "t": "עֵץ", "say": "ets", "en": "tree, wood" },
+            { "k": "H3701G", "t": "כֶּסֶף", "say": "KE-sef", "en": "silver, money" },
+            { "k": "H5315G", "t": "נֶפֶשׁ", "say": "NE-fesh", "en": "soul, life, person" },
+            { "k": "H3068G", "t": "יְהֹוָה", "say": "a-do-NAI", "en": "the LORD (God's name, YHWH, read Adonai)" }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -47,8 +47,10 @@ Explain cards can also carry a `table`: `{ "head": ["who", "ending", "λύω"], 
 - `"letters": true` on a card: it is about single letters, letter pairs or sounds, so its Greek/Hebrew isn't spell-checked.
 - `"unattested": ["λύεις", "λύομεν"]` at the top of a lesson: textbook forms that happen not to occur in the Bible. The
   checker complains if a listed form does occur, so the list stays honest.
-- Find verses for the Read step with `python3 tools/find_verses.py <lesson id> [extra keys…]`: it ranks New Testament
-  verses by how many of their words the learner knows by the end of that lesson.
+- Find verses for the Read step with `python3 tools/find_verses.py <lesson id> [extra keys…]`: it ranks verses (New
+  Testament for grc-…, Old Testament for he-…) by how many of their words the learner knows by the end of that lesson.
+- Hebrew: a review word's `say` must match its flashcard (`data/decks/hebrew.json`), and Hebrew quoted in a verse
+  `note` must appear in that verse (a word with its prefixes, like וְהָאָרֶץ, also counts for הָאָרֶץ).
 
 ### Practise (`practise`), at least three drills
 

@@ -800,7 +800,7 @@ ol.rows { list-style: none; padding: 0; }
 .ls-table th, .ls-table td { padding: 8px 12px; border-top: 1px solid var(--line); text-align: left; vertical-align: baseline; }
 .ls-table thead th { border-top: 0; font-size: .85rem; color: var(--muted); font-weight: 700; }
 .ls-table td:lang(grc), .ls-table th:lang(grc) { font-family: var(--font-greek); font-size: 1.2rem; }
-.ls-table td:lang(he), .ls-table th:lang(he) { font-family: var(--font-hebrew); font-size: 1.35rem; text-align: right; }
+.ls-table td:lang(he), .ls-table th:lang(he) { font-family: var(--font-hebrew); font-size: 1.35rem; text-align: left; } /* columns line up; the word itself still runs right to left */
 .ls-table .t-grc { font-size: 1.15em; }
 @media (max-width: 460px) { /* narrow phones and large text: every column stays in view */
   .ls-table th, .ls-table td { padding: 7px 7px; }

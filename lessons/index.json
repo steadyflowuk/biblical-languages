@@ -91,33 +91,83 @@
     },
     {
       "id": "he-1",
-      "title": "The consonants",
-      "sub": "22 letters, their sounds and final forms"
+      "title": "The letters, part 1: א to כ",
+      "sub": "Eleven letters, their sounds, and the dot that changes ב and כ",
+      "minutes": 20,
+      "file": "lessons/he/1.json"
     },
     {
       "id": "he-2",
-      "title": "The vowels",
-      "sub": "The dots and dashes added by the Masoretes"
+      "title": "The letters, part 2: ל to ת",
+      "sub": "The other eleven, end-of-word shapes, and בגדכפת",
+      "minutes": 20,
+      "file": "lessons/he/2.json"
     },
     {
       "id": "he-3",
-      "title": "Syllables and the shewa",
-      "sub": "How words break up when read aloud"
+      "title": "The vowels",
+      "sub": "The dots and dashes the Masoretes added, in three families",
+      "minutes": 20,
+      "file": "lessons/he/3.json"
     },
     {
       "id": "he-4",
-      "title": "Dagesh and other marks",
-      "sub": "The dot that changes a letter's sound"
+      "title": "Shewa and the throat letters",
+      "sub": "The two-dot ְ, and why א ה ח ע behave differently",
+      "minutes": 20,
+      "file": "lessons/he/4.json"
     },
     {
       "id": "he-5",
-      "title": "Nouns and the article",
-      "sub": "הַ, the: making a noun definite"
+      "title": "Syllables, stress and the dagesh",
+      "sub": "Reading a word aloud, and the dot that doubles a letter",
+      "minutes": 20,
+      "file": "lessons/he/5.json"
     },
     {
       "id": "he-6",
-      "title": "Prepositions and “and”",
-      "sub": "בְּ, לְ, כְּ and וְ joined to the next word"
+      "title": "Nouns: masculine, feminine, plural",
+      "sub": "The endings ים, ות and ַיִם",
+      "minutes": 20,
+      "file": "lessons/he/6.json"
+    },
+    {
+      "id": "he-7",
+      "title": "The article: “the”",
+      "sub": "הַ joined to the front, and what throat letters do to it",
+      "minutes": 20,
+      "file": "lessons/he/7.json"
+    },
+    {
+      "id": "he-8",
+      "title": "Prepositions",
+      "sub": "בְּ, כְּ, לְ and מִן joined to the next word",
+      "minutes": 25,
+      "file": "lessons/he/8.json"
+    },
+    {
+      "id": "he-9",
+      "title": "“And”: the conjunction וְ",
+      "sub": "One letter with five spellings",
+      "minutes": 20,
+      "file": "lessons/he/9.json"
+    },
+    {
+      "id": "he-10",
+      "title": "Adjectives and simple sentences",
+      "sub": "“The good king” and “the king is good”",
+      "minutes": 25,
+      "file": "lessons/he/10.json"
+    },
+    {
+      "id": "he-11",
+      "title": "Construct nouns: “the word of”",
+      "sub": "How Hebrew says “of” by joining two nouns"
+    },
+    {
+      "id": "he-12",
+      "title": "Verbs: the Qal perfect",
+      "sub": "קָטַל, he killed: endings that show who acted"
     }
   ]
 }

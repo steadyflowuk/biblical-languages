@@ -76,7 +76,9 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   fixes (step labels, Continue, tables), joined builds say "pieces", Settings explains Restored Koine.
 - [x] 9 (28 Oct 2026): review trainer (FSRS, lesson words + frequency lists of 316 Greek / 745 Hebrew words), Listen
   buttons everywhere with the phone's voices (Erasmian respelt for the Greek voice, Koine, Israeli Hebrew).
-- [ ] 10 Hebrew lessons · [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
+- [x] 10 (28 Oct 2026): Hebrew course he-1…10 (Wegner 1–12): letters, vowels, shewa/gutturals, syllables/dagesh,
+  nouns, article, prepositions, וְ, adjectives and verbless sentences.
+- [ ] 11 Today/media/progress · [ ] 12 Device testing + guide
 
 ## Data (Session 2)
 - Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (46 checks).
@@ -262,6 +264,23 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - Explain cards can carry `table`; `"letters": true` skips spelling; lesson `"unattested"` lists paradigm forms
   absent from the NT (λύεις, λύομεν); build `"join": ""` joins tiles into one word. Endings written "-ομεν" skip spelling.
 
+## Hebrew course (Session 10)
+- Order follows Wegner, A Simplified Grammar of Biblical Hebrew (Logos LLS:HBRWWRKBKLSS165; contents at
+  app.logos.com/books/LLS%3AHBRWWRKBKLSS165/references/page.v — click the "Lesson n" links, they go to page.N; typing
+  art= URLs doesn't work). he-1/2 letters (Wegner 1, split א–כ / ל–ת + finals + בגדכפת), he-3 vowels (2), he-4 shewa
+  and throat letters (3, 5), he-5 syllables, stress, dagesh, maqqef (4, 6), he-6 nouns (7, 8), he-7 article (9),
+  he-8 prepositions (10), he-9 וְ (11), he-10 adjectives + verbless sentences (12). Coming soon: he-11 construct (13),
+  he-12 Qal perfect (14).
+- Pronunciation (Israeli-based academic, like the decks): ch = ח, kh = spirant כ, v/f for spirant ב/פ, ts = צ,
+  k = ק, vocal shewa e, qamets hatuf o, א/ע silent, stressed syllable in capitals, יהוה said a-do-NAI. Review words'
+  say must equal the flashcard's (data/decks/hebrew.json) — check_lessons enforces it.
+- Spelling: copy pointed forms from the data (TAHOT, without accents) rather than typing them; check_lessons compares
+  consonants + vowels with marks sorted. Dictionary lemmas sometimes differ from the text: בֵּין is listed as בַּיִן,
+  חָכְמָה as חׇכְמָה (qamets hatuf sign) — such words stay out of review lists. Psalm titles are verse 0.
+- check_lessons also checks Hebrew quoted in verse notes (prefix/suffix parts count: הָאָרֶץ inside וְהָאָרֶץ;
+  maqqef splits; endings written after "-" skipped). "letters": true on explain/choose/match/build cards with bare
+  letters or vowel marks. find_verses.py works for he-… lessons (OT, main part of each word).
+
 ## Review and audio (Session 9)
 - FSRS: ts-fsrs 5.4.2 (MIT) bundled to one ES2019 module by tools/vendor_fsrs.sh (git clone + esbuild from
   /opt/npm-tools; npm itself is blocked here). Defaults: FSRS-6 weights, retention 0.9, fuzz on, max 10 years.
@@ -299,8 +318,8 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   lists, aliases, both languages, offline, 320px largest dark).
 - `tools/check_data.py` now has 46 checks (5 for the dictionary, 5 for the Septuagint, 4 for the decks) (incl. OT BSB alignment both ways, psalm titles, Today's verses).
 - `python3 tools/check_lessons.py` — validates every lesson (run after any lesson change).
-- `python3 tools/test_lessons.py` — 66 lesson engine checks (drills, retries, resume, scores, review list, Hebrew RTL,
-  keyboard, offline, 320px; every written lesson finished with right answers at 320px; largest text at 320px).
+- `python3 tools/test_lessons.py` — 76 lesson engine checks (drills, retries, resume, scores, review list, Hebrew RTL,
+  keyboard, offline, 320px; every written lesson, Greek and Hebrew, finished with right answers at 320px; largest text at 320px).
 - `python3 tools/test_dictionary.py` — 51 Dictionary checks (search, entries, links both ways, offline, 320px).
 - `python3 tools/test_translations.py` — 70 ESV/Septuagint/side-by-side checks (ESV API mocked with real verse counts;
   ~12 min).

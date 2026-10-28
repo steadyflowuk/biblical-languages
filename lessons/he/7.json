@@ -1,0 +1,132 @@
+{
+  "id": "he-7",
+  "lang": "he",
+  "title": "The article: “the”",
+  "steps": [
+    {
+      "step": "hear",
+      "intro": "“The” isn't a separate word in Hebrew: it is הַ, fixed to the front of the noun. Listen for ha- (and sometimes he-).",
+      "cards": [
+        { "type": "scene", "picture": "👑", "text": "הַמֶּלֶךְ", "say": "ha-ME-lekh", "en": "the king" },
+        { "type": "scene", "picture": "🏠", "text": "הַבַּיִת", "say": "ha-BA-yit", "en": "the house" },
+        { "type": "scene", "picture": "☀️", "text": "הַיּוֹם", "say": "ha-YOM", "en": "the day; today" },
+        { "type": "scene", "picture": "🌍", "text": "הָאָרֶץ", "say": "ha-A-rets", "en": "the earth, the land" },
+        { "type": "scene", "picture": "🏙️", "text": "הָעִיר", "say": "ha-IR", "en": "the city" },
+        { "type": "scene", "picture": "🌑", "text": "הַחֹשֶׁךְ", "say": "ha-CHO-shekh", "en": "the darkness" },
+        { "type": "scene", "picture": "⛰️", "text": "הֶהָרִים", "say": "he-ha-RIM", "en": "the mountains" }
+      ]
+    },
+    {
+      "step": "notice",
+      "cards": [
+        {
+          "type": "explain",
+          "title": "הַ and a doubled letter",
+          "body": [
+            "The article is ה with patah, and it doubles the first letter of its noun with a dot: מֶלֶךְ → הַמֶּלֶךְ, the king. Look for both: הַ, and the dot just after it.",
+            "Hebrew has no word for “a”: מֶלֶךְ alone is “a king” or just “king”. With הַ it is “the king”."
+          ],
+          "examples": [
+            { "t": "מֶלֶךְ", "say": "ME-lekh", "en": "a king" },
+            { "t": "הַמֶּלֶךְ", "say": "ha-ME-lekh", "en": "the king: הַ plus a doubled מּ" }
+          ]
+        },
+        {
+          "type": "explain",
+          "letters": true,
+          "title": "When the first letter can't be doubled",
+          "body": [
+            "The throat letters (lesson 4) can't be doubled, so the article changes instead:",
+            "Before א ע ר, the patah stretches to qamets: הָאָרֶץ, הָעִיר. Before ה ח, it stays הַ, and the doubling is just understood: הַחֹשֶׁךְ. Before an unstressed הָ, חָ or עָ, it becomes הֶ: הֶהָרִים.",
+            "So “the” can look like הַ, הָ or הֶ. A ה fixed to the front of a noun is your clue."
+          ],
+          "table": {
+            "head": ["first letter", "article", "example"],
+            "rows": [
+              ["most letters", "הַ + dot", "הַמֶּלֶךְ"],
+              ["א ע ר", "הָ", "הָעִיר"],
+              ["ה ח", "הַ", "הַחֹשֶׁךְ"],
+              ["unstressed הָ חָ עָ", "הֶ", "הֶחָכָם"]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "step": "practise",
+      "cards": [
+        {
+          "type": "choose",
+          "prompt": "What does הַבַּיִת mean?",
+          "options": ["the house", "a house", "houses", "in the house"],
+          "answer": 0,
+          "explain": "הַ is “the”, and the dot in בּ is the doubling that comes with it: the house."
+        },
+        {
+          "type": "choose",
+          "prompt": "Which is “the man”? (man is אִישׁ)",
+          "options": ["הָאִישׁ", "הַאִישׁ", "הֶאִישׁ"],
+          "answer": 0,
+          "fragments": true,
+          "explain": "א can't be doubled, so the patah lengthens to qamets: הָאִישׁ."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each word to its meaning.",
+          "pairs": [["הָעָם", "the people"], ["הַגּוֹיִם", "the nations"], ["הַיָּם", "the sea"], ["הַשַּׁעַר", "the gate"]]
+        },
+        {
+          "type": "parse",
+          "prompt": "Describe הָעִיר.",
+          "word": "הָעִיר",
+          "fields": [
+            { "label": "Has “the”?", "options": ["yes", "no"], "answer": "yes" },
+            { "label": "Why הָ and not הַ?", "options": ["ע can't be doubled", "the noun is plural", "the noun is feminine"], "answer": "ע can't be doubled" }
+          ],
+          "explain": "הָעִיר, the city: the article's vowel lengthens because ע, a throat letter, can't take the doubling dot."
+        },
+        {
+          "type": "build",
+          "prompt": "Make “the king”: put הַ in front of מֶּלֶךְ.",
+          "tiles": ["הַ", "מֶּלֶךְ"],
+          "join": "",
+          "explain": "הַ + מֶּלֶךְ = הַמֶּלֶךְ. The dot in מּ is the article's doubling."
+        },
+        {
+          "type": "choose",
+          "prompt": "How would you say “a city”?",
+          "options": ["עִיר", "הָעִיר", "הַעִיר"],
+          "answer": 0,
+          "fragments": true,
+          "explain": "Hebrew has no word for “a”: עִיר on its own is “a city”."
+        }
+      ]
+    },
+    {
+      "step": "read",
+      "intro": "Find every “the”: ה at the front, with a dot or a long vowel after it.",
+      "cards": [
+        { "type": "verse", "ref": "GEN 1:4", "note": "הָאוֹר (the light) takes הָ before א; הַחֹשֶׁךְ (the darkness) keeps הַ before ח." },
+        { "type": "verse", "ref": "GEN 1:1", "note": "הַשָּׁמַיִם (the heavens, with a doubled שּׁ) and הָאָרֶץ (the earth, with הָ before א)." }
+      ]
+    },
+    {
+      "step": "review",
+      "cards": [
+        {
+          "type": "words",
+          "items": [
+            { "k": "H2022G", "t": "הַר", "say": "har", "en": "mountain, hill" },
+            { "k": "H1471A", "t": "גּוֹי", "say": "goy", "en": "nation" },
+            { "k": "H5892B", "t": "עִיר", "say": "ir", "en": "city, town" },
+            { "k": "H2822", "t": "חֹשֶׁךְ", "say": "CHO-shekh", "en": "darkness" },
+            { "k": "H1964G", "t": "הֵיכָל", "say": "hei-KHAL", "en": "temple, palace" },
+            { "k": "H8179G", "t": "שַׁעַר", "say": "SHA-ar", "en": "gate" },
+            { "k": "H3220G", "t": "יָם", "say": "yam", "en": "sea" },
+            { "k": "H3915", "t": "לַיְלָה", "say": "LAY-lah", "en": "night" }
+          ]
+        }
+      ]
+    }
+  ]
+}

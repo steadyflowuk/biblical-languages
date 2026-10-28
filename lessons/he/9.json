@@ -1,0 +1,124 @@
+{
+  "id": "he-9",
+  "lang": "he",
+  "title": "“And”: the conjunction וְ",
+  "steps": [
+    {
+      "step": "hear",
+      "intro": "“And” is ו fixed to the front of the next word. Its vowel changes with what follows: listen for ve-, u-, va-, vi-.",
+      "cards": [
+        { "type": "scene", "picture": "🌍", "text": "וְהָאָרֶץ", "say": "ve-ha-A-rets", "en": "and the earth" },
+        { "type": "scene", "picture": "👨‍👩‍👧‍👦", "text": "וּבָנִים", "say": "u-va-NIM", "en": "and sons" },
+        { "type": "scene", "picture": "🧔", "text": "וּמֹשֶׁה", "say": "u-mo-SHEH", "en": "and Moses" },
+        { "type": "scene", "picture": "🙋", "text": "וַאֲנִי", "say": "va-a-NI", "en": "and I, but I" },
+        { "type": "scene", "picture": "✅", "text": "וֶאֱמֶת", "say": "ve-e-MET", "en": "and truth, and faithfulness" },
+        { "type": "scene", "picture": "🦁", "text": "וִיהוּדָה", "say": "vi-hu-DAH", "en": "and Judah" },
+        { "type": "scene", "picture": "🌗", "text": "יוֹמָם וָלָיְלָה", "say": "yo-MAM va-LAY-lah", "en": "by day and by night" }
+      ]
+    },
+    {
+      "step": "notice",
+      "cards": [
+        {
+          "type": "explain",
+          "title": "One letter, many jobs",
+          "body": [
+            "וְ joins words and sentences. Translate it “and”, or “but”, “then” or “so” as the sense needs. Hebrew stories string sentence after sentence together with it.",
+            "It is never a word on its own: it fixes to the front of the next word, even in front of “the” or a preposition: וְהָאָרֶץ, and the earth; וּבְכָל, and with all."
+          ],
+          "examples": [
+            { "t": "וְהָאָרֶץ", "say": "ve-ha-A-rets", "en": "and + the + earth" },
+            { "t": "וְאֵת", "say": "ve-ET", "en": "and + (object marker), from Genesis 1:1" }
+          ]
+        },
+        {
+          "type": "explain",
+          "letters": true,
+          "title": "Its five spellings",
+          "body": [
+            "Usually וְ. Before ב מ פ, and before a said shewa, it becomes וּ, a plain u. Before a hateph vowel it borrows that vowel. Before יְ the two run together as וִי. And sometimes, just before a stressed syllable, it is וָ, as in pairs like “day and night”.",
+            "Learn to spot them all as “and”; you don't need to produce them."
+          ],
+          "table": {
+            "head": ["before", "and", "example"],
+            "rows": [
+              ["most letters", "וְ", "וְהָאָרֶץ"],
+              ["ב מ פ, or a shewa", "וּ", "וּמֹשֶׁה"],
+              ["a hateph vowel", "וַ / וֶ", "וַאֲנִי"],
+              ["יְ", "וִי", "וִיהוּדָה"],
+              ["a stressed syllable", "וָ", "וָלָיְלָה"]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "step": "practise",
+      "cards": [
+        {
+          "type": "choose",
+          "prompt": "What does וּבָנוֹת mean?",
+          "options": ["and daughters", "daughters", "in daughters", "the daughters"],
+          "answer": 0,
+          "explain": "וּ is “and” (before ב it is said u), and בָּנוֹת is daughters."
+        },
+        {
+          "type": "choose",
+          "prompt": "Why is it וּמֹשֶׁה (and Moses), with וּ?",
+          "fragments": true,
+          "options": ["before מ, “and” becomes וּ", "Moses is a name", "מֹשֶׁה has the article"],
+          "answer": 0,
+          "explain": "Before ב מ פ (the lip letters) and before a said shewa, וְ becomes וּ."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each word to its meaning.",
+          "pairs": [["וַאֲנִי", "and I"], ["וִיהוּדָה", "and Judah"], ["וְאֵת", "and (object)"], ["וּשְׁמוּאֵל", "and Samuel"]]
+        },
+        {
+          "type": "parse",
+          "prompt": "Describe וְהָאָרֶץ.",
+          "word": "וְהָאָרֶץ",
+          "fields": [
+            { "label": "First letter", "options": ["“and”", "“in”", "“the”"], "answer": "“and”" },
+            { "label": "Then", "options": ["“the”", "“to”", "nothing"], "answer": "“the”" }
+          ],
+          "explain": "וְ (and) + הָ (the) + אָרֶץ (earth): “and the earth”."
+        },
+        {
+          "type": "build",
+          "prompt": "Write “the heavens and the earth”, as in Genesis 1:1, starting on the right.",
+          "tiles": ["אֵת", "הַשָּׁמַיִם", "וְאֵת", "הָאָרֶץ"],
+          "explain": "אֵת הַשָּׁמַיִם וְאֵת הָאָרֶץ: אֵת marks each object, and וְ joins the second."
+        }
+      ]
+    },
+    {
+      "step": "read",
+      "intro": "Count the “ands”: every word starting with ו.",
+      "cards": [
+        { "type": "verse", "ref": "DEU 6:5", "note": "וְאָהַבְתָּ, “and you shall love”, then וּבְכָל twice: וּ before the shewa of בְּ." },
+        { "type": "verse", "ref": "PSA 1:2", "note": "וּבְתוֹרָתוֹ, “and on his law”, and at the end יוֹמָם וָלָיְלָה, “day and night”." }
+      ]
+    },
+    {
+      "step": "review",
+      "cards": [
+        {
+          "type": "words",
+          "items": [
+            { "k": "H1571", "t": "גַּם", "say": "gam", "en": "also, even" },
+            { "k": "H0176A", "t": "אוֹ", "say": "o", "en": "or" },
+            { "k": "H3651C", "t": "כֵּן", "say": "ken", "en": "so, thus" },
+            { "k": "H6258", "t": "עַתָּה", "say": "a-TAH", "en": "now" },
+            { "k": "H8033G", "t": "שָׁם", "say": "sham", "en": "there" },
+            { "k": "H2009", "t": "הִנֵּה", "say": "hi-NEH", "en": "look! (behold)" },
+            { "k": "H3478", "t": "יִשְׂרָאֵל", "say": "yis-ra-EL", "en": "Israel" },
+            { "k": "H3063G", "t": "יְהוּדָה", "say": "ye-hu-DAH", "en": "Judah" },
+            { "k": "H4872", "t": "מֹשֶׁה", "say": "mo-SHEH", "en": "Moses" }
+          ]
+        }
+      ]
+    }
+  ]
+}

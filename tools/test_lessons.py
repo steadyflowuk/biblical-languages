@@ -55,7 +55,7 @@ async def answer(pg, lesson, right=True):
     elif k == "parse":
         for fi, f in enumerate(c["fields"]):
             v = f["answer"] if right or fi else next(o for o in f["options"] if o != f["answer"])
-            await pg.click(f"[data-pick='{fi}'][data-value='{v}']")
+            await pg.click(f"[data-pick='{fi}'][data-value={json.dumps(v, ensure_ascii=False)}]")
         await pg.click("[data-check]")
     return k
 
@@ -359,16 +359,17 @@ async def main():
         await pg.set_viewport_size({"width": 320, "height": 640})
         await pg.evaluate("localStorage.setItem('ao:textSize', JSON.stringify('largest'))")
         cut, wide_at, scrolls = set(), [], []
-        for e in index["grc"]:
+        for e in [x for lng in ("grc", "he") for x in index[lng]]:
             if not e.get("file"):
                 continue
+            lng = e["id"].split("-")[0]
             L = json.load(open("/home/claude/biblical-languages/" + e["file"]))
             sig = ",".join(f"{st['step']}:{len(st['cards'])}" for st in L["steps"])
             cards = [c for st in L["steps"] for c in st["cards"]]
             for pos in sorted({0, 1} | {i for i, c in enumerate(cards) if c.get("table") or c["type"] in ("build", "verse", "words")}):
                 await pg.evaluate(f"localStorage.setItem('ao:lessons', JSON.stringify({{'{e['id']}': {{v: 1, sig: '{sig}', pos: {pos}, retries: [], first: {{}}}}}}))")
                 await pg.goto(f"{BASE}#/learn")
-                await pg.goto(f"{BASE}#/lesson/grc/{e['id']}")
+                await pg.goto(f"{BASE}#/lesson/{lng}/{e['id']}")
                 await pg.wait_for_selector(".ls-card .ls-title, .ls-card .ls-big")
                 r = await pg.evaluate("""() => ({
                   cut: [...document.querySelectorAll('.ls-steps li span')].filter((s) => getComputedStyle(s).display !== 'none' && getComputedStyle(s).position !== 'absolute' && s.scrollWidth > s.clientWidth).map((s) => s.textContent),

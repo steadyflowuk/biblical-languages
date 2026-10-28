@@ -146,12 +146,35 @@ def check_say(where, text, say):
             bad(where, f"{sy}: {word} has {n} syllables")
 
 
+_deck = load(os.path.join(DATA, "decks", "hebrew.json"))
+HE_DECK_SAY = {w[0]: w[4] for w in _deck["words"]}  # Hebrew review words say what the flashcard says
+HE_DECK_ALIAS = _deck["alias"]
 SAY_PAIRS = []  # (where, Greek, say): compared with the app's own respelling (js/sound.js greekSay) at the end
 
 
 def check_note(where, note, ref):
-    """Greek words quoted in a verse note must be in that verse (as written, or as the dictionary form of a word in it)."""
-    if ref not in verses or verses[ref][0] != "grc":
+    """Greek or Hebrew quoted in a verse note must be in that verse (as written, or as the dictionary form of a word in
+    it). Hebrew is compared without accents, with each letter's marks sorted, and maqaf-joined words split."""
+    if ref not in verses:
+        return
+    if verses[ref][0] == "he":
+        words = verses[ref][1]
+        ok = set()
+        for w in words:
+            for word in re.split("[־ ]", w[0]):
+                parts = word.split("/")  # prefixes/main/suffixes: "הָאָרֶץ" counts inside "וְ/הָ/אָרֶץ"
+                for i in range(len(parts)):
+                    for j in range(i + 1, len(parts) + 1):
+                        ok.add(hebrew_key("".join(parts[i:j])))
+            for k in re.findall(r"H\d+[A-Z]?", str(w[3])):
+                if k in index:
+                    ok.add(hebrew_key(index[k][1]))
+        for m in re.finditer(r"[\u05d0-\u05ea][\u0591-\u05bd\u05bf-\u05c7\u05d0-\u05ea]*", note or ""):
+            before, after = note[m.start() - 1:m.start()], note[m.end():m.end() + 1]
+            if len(re.sub("[^\u05d0-\u05ea]", "", m.group())) < 2 or "-" in (before, after) or re.match("[\u0591-\u05c7]", before):
+                continue
+            if hebrew_key(m.group()) not in ok:
+                bad(where, f"the note quotes {m.group()}, which isn't in {ref}")
         return
     words = verses[ref][1]
     ok = {greek_key(w[0]) for w in words} | {greek_key(index[w[3]][1]) for w in words if w[3] in index}
@@ -295,6 +318,10 @@ for lang, entries in lesson_index.items():
                             bad(w, f"{it.get('k')} needs say and en")
                         elif lang == "grc":
                             check_say(w, it.get("t"), it.get("say"))
+                        else:
+                            card = HE_DECK_SAY.get(HE_DECK_ALIAS.get(it.get("k"), it.get("k")))
+                            if card and card != it.get("say"):
+                                bad(w, f"{it.get('t')}: say is {it.get('say')}, but the review card says {card} (data/decks/hebrew.json): make them agree")
         if drills < 3:
             bad(lid, f"only {drills} drills; a lesson needs at least 3")
 

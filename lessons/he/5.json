@@ -1,0 +1,138 @@
+{
+  "id": "he-5",
+  "lang": "he",
+  "title": "Syllables, stress and the dagesh",
+  "steps": [
+    {
+      "step": "hear",
+      "intro": "Notice where each word is stressed (the capitals), and listen for the dot that doubles a letter.",
+      "cards": [
+        { "type": "scene", "picture": "⚖️", "text": "מִשְׁפָּט", "say": "mish-PAT", "en": "justice, judgement" },
+        { "type": "scene", "picture": "🍞", "text": "לֶחֶם", "say": "LE-chem", "en": "bread, food" },
+        { "type": "scene", "picture": "💧", "text": "מַיִם", "say": "MA-yim", "en": "water" },
+        { "type": "scene", "picture": "🫵", "text": "אַתָּה", "say": "a-TAH", "en": "you (to a man)" },
+        { "type": "scene", "picture": "🌌", "text": "הַשָּׁמַיִם", "say": "ha-sha-MA-yim", "en": "the heavens" },
+        { "type": "scene", "picture": "🔗", "text": "כָּל־הָאָרֶץ", "say": "kol ha-A-rets", "en": "all the earth" }
+      ]
+    },
+    {
+      "step": "notice",
+      "cards": [
+        {
+          "type": "explain",
+          "title": "Syllables",
+          "body": [
+            "Every Hebrew syllable starts with a consonant and has one vowel. An open syllable ends with its vowel (דָּ in דָּבָר); a closed one ends with a consonant (מִשְׁ in מִשְׁפָּט).",
+            "To split a long word, work from the end: each vowel takes the consonant before it, and a silent shewa closes the syllable it sits in."
+          ],
+          "examples": [
+            { "t": "מִשְׁפָּט", "say": "mish-PAT", "en": "two closed syllables: mish | pat" },
+            { "t": "דָּבָר", "say": "da-VAR", "en": "open, then closed: da | var" }
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "Where the stress falls",
+          "body": [
+            "Most words are stressed on the last syllable: da-VAR, mish-PAT, sha-LOM.",
+            "Some common nouns are stressed on the one before: words with two e-vowels like מֶלֶךְ (ME-lekh) and לֶחֶם (LE-chem), and the -ayim words like מַיִם (MA-yim) and שָׁמַיִם (sha-MA-yim).",
+            "In the Bible text most words also carry a small accent mark, which shows the stress and works like punctuation. The two strongest: ׃ ends a verse, and ֑ marks its middle."
+          ],
+          "examples": [
+            { "t": "לֶחֶם", "say": "LE-chem", "en": "stress on the first syllable" },
+            { "t": "שָׁמַיִם", "say": "sha-MA-yim", "en": "stress on the middle syllable" }
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "The dot that doubles, and the joining line",
+          "body": [
+            "You met the dot that makes ב כ פ hard. The same dot after a vowel means the letter is doubled: in הַשָּׁמַיִם the שּׁ counts twice, hash-sha-, though in everyday reading it sounds like one. Grammar books call this dagesh forte (doubling) and the other dagesh lene (hard sound).",
+            "How to tell them apart: in ב ג ד כ פ ת at the start of a word or after a silent shewa, the dot just makes the sound hard. After a vowel, it doubles.",
+            "A short line at the top, ־, joins two words to be said as one, the first losing its stress: כָּל־הָאָרֶץ, kol ha-A-rets. It's called maqqef."
+          ],
+          "examples": [
+            { "t": "אַתָּה", "say": "a-TAH", "en": "after a vowel: ת is doubled" },
+            { "t": "מִשְׁפָּט", "say": "mish-PAT", "en": "after a silent shewa: פּ is just hard (p)" }
+          ]
+        }
+      ]
+    },
+    {
+      "step": "practise",
+      "cards": [
+        {
+          "type": "choose",
+          "prompt": "How many syllables does מִשְׁפָּט (justice) have?",
+          "options": ["two", "one", "three"],
+          "answer": 0,
+          "explain": "Two vowels, two syllables: mish-PAT. The shewa under שׁ is silent."
+        },
+        {
+          "type": "choose",
+          "prompt": "Which syllable is stressed in מֶלֶךְ (king)?",
+          "options": ["ME-lekh", "me-LEKH"],
+          "answer": 0,
+          "explain": "Nouns with two e-vowels like מֶלֶךְ are stressed on the first syllable."
+        },
+        {
+          "type": "choose",
+          "prompt": "What does the dot in the שּׁ of הַשָּׁמַיִם show?",
+          "options": ["the letter is doubled", "the sound is hard", "the word is a name"],
+          "answer": 0,
+          "explain": "It follows a vowel (ַ), so it doubles the letter. ש isn't one of ב ג ד כ פ ת anyway."
+        },
+        {
+          "type": "match",
+          "letters": true,
+          "prompt": "Match each mark to its job.",
+          "pairs": [["־", "joins two words"], ["׃", "ends a verse"], ["ְ", "said e, or silent"], ["ּ", "hard sound, or doubled"]]
+        },
+        {
+          "type": "parse",
+          "prompt": "Describe the dot in the פּ of מִשְׁפָּט.",
+          "word": "מִשְׁפָּט",
+          "fields": [
+            { "label": "What comes before פּ?", "options": ["a silent shewa", "a vowel"], "answer": "a silent shewa" },
+            { "label": "So the dot…", "options": ["makes it hard: p", "doubles it"], "answer": "makes it hard: p" }
+          ],
+          "explain": "After a silent shewa, a dot in ב ג ד כ פ ת only makes the sound hard: mish-PAT."
+        },
+        {
+          "type": "build",
+          "letters": true,
+          "prompt": "Split מִשְׁפָּט into its two syllables, from the right.",
+          "tiles": ["מִשְׁ", "פָּט"],
+          "join": "",
+          "explain": "מִשְׁ | פָּט: mish-PAT."
+        }
+      ]
+    },
+    {
+      "step": "read",
+      "intro": "Read word by word: find each vowel, split the syllables, then put the stress where the capitals show.",
+      "cards": [
+        { "type": "verse", "ref": "AMO 5:24", "note": "כַּמַּיִם (like the waters) has a doubled מּ, and מִשְׁפָּט (justice) follows: “Let justice roll down like waters.”" },
+        { "type": "verse", "ref": "PSA 24:1", "note": "Find הָאָרֶץ, the earth, and the ׃ at the end of the verse." }
+      ]
+    },
+    {
+      "step": "review",
+      "cards": [
+        {
+          "type": "words",
+          "items": [
+            { "k": "H4941G", "t": "מִשְׁפָּט", "say": "mish-PAT", "en": "justice, judgement" },
+            { "k": "H3899H", "t": "לֶחֶם", "say": "LE-chem", "en": "bread, food" },
+            { "k": "H0859A", "t": "אַתָּה", "say": "a-TAH", "en": "you (to a man)" },
+            { "k": "H8141", "t": "שָׁנָה", "say": "sha-NAH", "en": "year" },
+            { "k": "H6944G", "t": "קֹדֶשׁ", "say": "KO-desh", "en": "holiness, holy thing" },
+            { "k": "H5769G", "t": "עוֹלָם", "say": "o-LAM", "en": "forever; long ago" },
+            { "k": "H1870G", "t": "דֶּרֶךְ", "say": "DE-rekh", "en": "way, road" },
+            { "k": "H8064", "t": "שָׁמַיִם", "say": "sha-MA-yim", "en": "heavens, sky" }
+          ]
+        }
+      ]
+    }
+  ]
+}

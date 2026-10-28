@@ -1,0 +1,143 @@
+{
+  "id": "he-8",
+  "lang": "he",
+  "title": "Prepositions",
+  "steps": [
+    {
+      "step": "hear",
+      "intro": "“In”, “like” and “to” are single letters fixed to the front of a word, just like “the”. Listen for b-, k- and l-.",
+      "cards": [
+        { "type": "scene", "picture": "🌍", "text": "בְּאֶרֶץ", "say": "be-E-rets", "en": "in the land of" },
+        { "type": "scene", "picture": "🏜️", "text": "בַּמִּדְבָּר", "say": "ba-mid-BAR", "en": "in the wilderness" },
+        { "type": "scene", "picture": "🎵", "text": "לְדָוִד", "say": "le-da-VID", "en": "to David, of David" },
+        { "type": "scene", "picture": "👑", "text": "לַמֶּלֶךְ", "say": "la-ME-lekh", "en": "to the king" },
+        { "type": "scene", "picture": "🧔", "text": "כְּאִישׁ", "say": "ke-ISH", "en": "like a man" },
+        { "type": "scene", "picture": "🇪🇬", "text": "מִמִּצְרַיִם", "say": "mi-mits-RA-yim", "en": "from Egypt" },
+        { "type": "scene", "picture": "🏙️", "text": "מֵהָעִיר", "say": "me-ha-IR", "en": "from the city" }
+      ]
+    },
+    {
+      "step": "notice",
+      "cards": [
+        {
+          "type": "explain",
+          "title": "Three one-letter prepositions",
+          "body": [
+            "בְּ means in, at, with or by. כְּ means like or as. לְ means to or for (and often “of”, as in the psalm titles: לְדָוִד, “of David”).",
+            "They take a shewa, בְּ כְּ לְ, but it changes when the next word makes it awkward: before another shewa it becomes i (בִּמְקוֹם, in a place), and before a hateph vowel it borrows that vowel (לַעֲשׂוֹת, to do)."
+          ],
+          "examples": [
+            { "t": "בְּאֶרֶץ", "say": "be-E-rets", "en": "in the land of" },
+            { "t": "בִּמְקוֹם", "say": "bim-KOM", "en": "in a place: shewa before shewa becomes i" },
+            { "t": "לַעֲשׂוֹת", "say": "la-a-SOT", "en": "to do: borrows the a" }
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "With “the”: the ה drops out",
+          "body": [
+            "When one of these comes before “the”, the article's ה disappears and the preposition takes its vowel. בְּ + הַמִּדְבָּר is בַּמִּדְבָּר, “in the wilderness”.",
+            "So בַּ, כַּ or לַ with a dot after, or בָּ, כָּ, לָ, means the preposition and “the” together."
+          ],
+          "table": {
+            "head": ["without “the”", "with “the”"],
+            "rows": [
+              ["בְּאֶרֶץ", "בָּאָרֶץ"],
+              ["לְדָוִד", "לַמֶּלֶךְ"],
+              ["כְּאִישׁ", "כַּיּוֹם"]
+            ]
+          }
+        },
+        {
+          "type": "explain",
+          "title": "מִן, from, and the separate prepositions",
+          "body": [
+            "מִן, from, can stand alone (often joined with ־) or be fixed to the front as מִ with a doubled next letter: מִמִּצְרַיִם. Before a throat letter, which can't be doubled, it is מֵ: מֵהָעִיר.",
+            "Other prepositions are ordinary words: אֶל to, עַל on or over, עִם with, עַד as far as or until, תַּחַת under, אַחַר after."
+          ],
+          "examples": [
+            { "t": "מִמִּצְרַיִם", "say": "mi-mits-RA-yim", "en": "from Egypt" },
+            { "t": "מֵאֶרֶץ", "say": "me-E-rets", "en": "from the land of" }
+          ]
+        }
+      ]
+    },
+    {
+      "step": "practise",
+      "cards": [
+        {
+          "type": "choose",
+          "prompt": "What does לַמֶּלֶךְ mean?",
+          "options": ["to the king", "to a king", "like the king", "the king"],
+          "answer": 0,
+          "explain": "לְ (to) has taken the article's patah, and the dot in מּ is the article's doubling: to the king."
+        },
+        {
+          "type": "choose",
+          "prompt": "Which means “in the wilderness”?",
+          "options": ["בַּמִּדְבָּר", "בְּמִדְבָּר", "לַמִּדְבָּר"],
+          "answer": 0,
+          "fragments": true,
+          "explain": "בַּ with a dot after it: בְּ (in) plus “the”."
+        },
+        {
+          "type": "match",
+          "letters": true,
+          "prompt": "Match each preposition to its meaning.",
+          "pairs": [["בְּ", "in"], ["כְּ", "like"], ["לְ", "to"], ["מִן", "from"], ["עִם", "with"], ["אֶל", "towards"]]
+        },
+        {
+          "type": "parse",
+          "prompt": "Describe בָּאָרֶץ.",
+          "word": "בָּאָרֶץ",
+          "fields": [
+            { "label": "Preposition", "options": ["in", "like", "to", "from"], "answer": "in" },
+            { "label": "Has “the”?", "options": ["yes", "no"], "answer": "yes" }
+          ],
+          "explain": "בָּאָרֶץ, in the land: בְּ has taken the article's vowel (qamets, because א can't be doubled)."
+        },
+        {
+          "type": "build",
+          "prompt": "Make “from Egypt”: מִ fixed to the front of מִּצְרַיִם.",
+          "tiles": ["מִ", "מִּצְרַיִם"],
+          "join": "",
+          "explain": "מִן shortens to מִ and doubles the next letter: מִמִּצְרַיִם."
+        },
+        {
+          "type": "choose",
+          "prompt": "Why is it מֵהָעִיר (from the city), not מִהָּעִיר?",
+          "fragments": true,
+          "options": ["ה is a throat letter and can't be doubled", "עִיר is feminine", "מִן is always מֵ"],
+          "answer": 0,
+          "explain": "מִן doubles the next letter, but ה can't be doubled, so the vowel lengthens to מֵ."
+        }
+      ]
+    },
+    {
+      "step": "read",
+      "intro": "Find each preposition fixed to the front of a word.",
+      "cards": [
+        { "type": "verse", "ref": "GEN 1:5", "note": "לָאוֹר (to the light) and וְלַחֹשֶׁךְ (and to the darkness): לְ with “the”. “God called the light Day, and the darkness he called Night.”" },
+        { "type": "verse", "ref": "EXO 20:2", "note": "מֵאֶרֶץ מִצְרַיִם, “from the land of Egypt”, and מִבֵּית עֲבָדִים, “from the house of slaves”: “from” fixed to the front twice." }
+      ]
+    },
+    {
+      "step": "review",
+      "cards": [
+        {
+          "type": "words",
+          "items": [
+            { "k": "H0413", "t": "אֶל", "say": "el", "en": "to, towards" },
+            { "k": "H5973A", "t": "עִם", "say": "im", "en": "with" },
+            { "k": "H5704", "t": "עַד", "say": "ad", "en": "until, as far as" },
+            { "k": "H4480A", "t": "מִן", "say": "min", "en": "from (also מִ, מֵ)" },
+            { "k": "H8478G", "t": "תַּחַת", "say": "TA-chat", "en": "under; instead of" },
+            { "k": "H0310A", "t": "אַחַר", "say": "a-CHAR", "en": "after, behind" },
+            { "k": "H4714G", "t": "מִצְרַיִם", "say": "mits-RA-yim", "en": "Egypt" },
+            { "k": "H0853", "t": "אֵת", "say": "et", "en": "(marks the object: not translated)" }
+          ]
+        }
+      ]
+    }
+  ]
+}

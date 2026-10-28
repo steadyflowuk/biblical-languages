@@ -80,7 +80,8 @@ OVERRIDES = {
         "אָדָם": "man, mankind", "גּוֹי": "nation", "שַׂר": "official, ruler", "תָּוֶךְ": "middle",
     },
 }
-SAY_FIX = {"he": {"יְהֹוָה": "a-do-NAI", "יְהֹוִה": "e-lo-HIM"}}  # read aloud as Adonai / Elohim, as is customary
+SAY_FIX = {"he": {"יְהֹוָה": "a-do-NAI", "יְהֹוִה": "e-lo-HIM",  # read aloud as Adonai / Elohim, as is customary
+                  "יַעֲקֹב": "ya-a-KOV", "בַּעַד": "BA-ad", "בָּקַע": "ba-KA", "בֵּיתְ־אֵל": "bet-EL"}}  # TAHOT slips
 
 
 def he_plain(s):
@@ -99,16 +100,29 @@ def mark_key(s):
     return "".join(out) + "".join(sorted(marks))
 
 
-def he_say(tr):
+def he_say(tr, lemma=""):
     """TAHOT "'E.lo.Him" → "e-lo-HIM": the last capitalised syllable carries the stress (a capital E at the start
-    can be a hataf vowel); aleph/ayin apostrophes and maqaf hyphens dropped."""
+    can be a hataf vowel); aleph/ayin apostrophes and maqaf hyphens dropped. Spelt the way the lessons write it:
+    ts for צ, k for ק; TAHOT's "Do.osh" (holem before shin) is one syllable, DOSH. No capital: guess (he_say_guess)."""
     tr = tr.strip().rstrip("-").replace("'", "").replace("’", "")
     syl = [x for x in tr.split(".") if x]
+    i = 0
+    while i < len(syl) - 1:  # "Do" + "osh" → "Dosh"
+        if syl[i].lower().endswith("o") and syl[i + 1].lower().startswith("o"):
+            syl[i] = syl[i] + syl[i + 1][1:] if not re.search("[A-Z]", syl[i + 1]) else syl[i][:-1].capitalize() + syl[i + 1]
+            del syl[i + 1]
+        i += 1
     caps = [i for i, x in enumerate(syl) if re.search("[A-Z]", x)]
+    if not caps and len(syl) > 1:
+        return fix_letters(he_say_guess(".".join(syl), lemma))
     out = [x.lower() for x in syl]
     if len(out) > 1 and caps:
         out[caps[-1]] = out[caps[-1]].upper()
-    return "-".join(out)
+    return fix_letters("-".join(out))
+
+
+def fix_letters(say):
+    return say.replace("tz", "ts").replace("TZ", "TS").replace("q", "k").replace("Q", "K").replace("ph", "f").replace("PH", "F")
 
 
 def he_say_guess(translit, lemma):
@@ -173,13 +187,13 @@ def build(lang):
                 for (form, tr), n in says.get(s[1], {}).items():
                     if form == plain:
                         cands[tr] += n
-            say = he_say(cands.most_common(1)[0][0]) if cands else he_say_guess(translit, lemma)
+            say = he_say(cands.most_common(1)[0][0], lemma) if cands else fix_letters(he_say_guess(translit, lemma))
             lemma = plain
         look = mark_key if lang == "he" else (lambda x: x)
         over = {look(k): v for k, v in OVERRIDES[lang].items()}
         sayfix = {look(k): v for k, v in SAY_FIX.get(lang, {}).items()}
         g = over.get(look(lemma), g).replace("/", ", ")
-        say = sayfix.get(look(lemma), say).replace("ph", "f")
+        say = sayfix.get(look(lemma), say)
         words.append([key, lemma, g, total, say])
         for s in senses[1:]:
             alias[s[1]] = key

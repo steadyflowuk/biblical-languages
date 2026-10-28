@@ -1,0 +1,137 @@
+{
+  "id": "he-10",
+  "lang": "he",
+  "title": "Adjectives and simple sentences",
+  "steps": [
+    {
+      "step": "hear",
+      "intro": "An adjective can describe a noun (“the great king”) or say something about it (“the king is great”). Listen for the difference: it's in the word “the”.",
+      "cards": [
+        { "type": "scene", "picture": "👑", "text": "הַמֶּלֶךְ הַגָּדוֹל", "say": "ha-ME-lekh ha-ga-DOL", "en": "the great king" },
+        { "type": "scene", "picture": "🏙️", "text": "הָעִיר הַגְּדוֹלָה", "say": "ha-IR ha-ge-do-LAH", "en": "the great city" },
+        { "type": "scene", "picture": "🧔", "text": "אִישׁ צַדִּיק", "say": "ish tsa-DIK", "en": "a righteous man" },
+        { "type": "scene", "picture": "👍", "text": "טוֹב הַדָּבָר", "say": "tov ha-da-VAR", "en": "The word is good." },
+        { "type": "scene", "picture": "✨", "text": "קָדוֹשׁ יְהוָה", "say": "ka-DOSH a-do-NAI", "en": "The LORD is holy." },
+        { "type": "scene", "picture": "🙋", "text": "אֲנִי יְהוָה", "say": "a-NI a-do-NAI", "en": "I am the LORD." }
+      ]
+    },
+    {
+      "step": "notice",
+      "cards": [
+        {
+          "type": "explain",
+          "title": "Adjectives match their noun",
+          "body": [
+            "An adjective takes the same endings as nouns, matching its noun's gender and number: טוֹב, good, is טוֹבָה with a feminine noun, טוֹבִים and טוֹבוֹת with plurals."
+          ],
+          "table": {
+            "head": ["", "one", "more than one"],
+            "rows": [
+              ["masculine", "טוֹב", "טוֹבִים"],
+              ["feminine", "טוֹבָה", "טוֹבוֹת"]
+            ]
+          }
+        },
+        {
+          "type": "explain",
+          "title": "“The great king”: after the noun, with “the”",
+          "body": [
+            "To describe a noun, the adjective comes after it and copies its “the”: הַמֶּלֶךְ הַגָּדוֹל, “the king the great”, means the great king. Without “the” on either, אִישׁ צַדִּיק is “a righteous man”.",
+            "Grammar books call this the attributive use."
+          ],
+          "examples": [
+            { "t": "הַמֶּלֶךְ הַגָּדוֹל", "say": "ha-ME-lekh ha-ga-DOL", "en": "the great king" },
+            { "t": "הָעִיר הַגְּדוֹלָה", "say": "ha-IR ha-ge-do-LAH", "en": "the great city: feminine, like עִיר" }
+          ]
+        },
+        {
+          "type": "explain",
+          "title": "“The king is great”: no “the”, and no “is”",
+          "body": [
+            "To say something about a noun, the adjective has no “the”, and often comes first: טוֹב הַדָּבָר, “good the word”, means the word is good.",
+            "Hebrew doesn't need a word for “is” or “am” here. Two nouns side by side make a sentence too: אֲנִי יְהוָה, “I the LORD”, means “I am the LORD”.",
+            "Grammar books call these the predicate use and the verbless (nominal) sentence."
+          ],
+          "examples": [
+            { "t": "טוֹב הַדָּבָר", "say": "tov ha-da-VAR", "en": "the word is good" },
+            { "t": "אֲנִי יְהוָה", "say": "a-NI a-do-NAI", "en": "I am the LORD" }
+          ]
+        }
+      ]
+    },
+    {
+      "step": "practise",
+      "cards": [
+        {
+          "type": "choose",
+          "prompt": "What does הַמֶּלֶךְ הַגָּדוֹל mean?",
+          "options": ["the great king", "The king is great.", "a great king", "great kings"],
+          "answer": 0,
+          "explain": "The adjective comes after the noun and has “the” too, so it describes it: the great king."
+        },
+        {
+          "type": "choose",
+          "prompt": "What does טוֹב הַדָּבָר mean?",
+          "options": ["The word is good.", "the good word", "a good word"],
+          "answer": 0,
+          "explain": "The adjective has no “the” and comes first, so it says something about the noun: the word is good."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each adjective to its meaning.",
+          "pairs": [["גָּדוֹל", "great, big"], ["קָטֹן", "small"], ["רַע", "bad, evil"], ["קָדוֹשׁ", "holy"], ["צַדִּיק", "righteous"]]
+        },
+        {
+          "type": "parse",
+          "prompt": "Describe הַגְּדוֹלָה in הָעִיר הַגְּדוֹלָה.",
+          "word": "הַגְּדוֹלָה",
+          "fields": [
+            { "label": "Gender", "options": ["masculine", "feminine"], "answer": "feminine" },
+            { "label": "How many?", "options": ["one", "more than one"], "answer": "one" },
+            { "label": "Has “the”?", "options": ["yes", "no"], "answer": "yes" }
+          ],
+          "explain": "It matches עִיר (feminine, one) and copies its “the”: the great city."
+        },
+        {
+          "type": "choose",
+          "prompt": "What does אֲנִי יְהוָה mean?",
+          "options": ["I am the LORD.", "my LORD", "the LORD and I"],
+          "answer": 0,
+          "explain": "Two nouns side by side make a sentence; Hebrew needs no word for “am”."
+        },
+        {
+          "type": "build",
+          "prompt": "Write “the great king”, starting on the right.",
+          "tiles": ["הַמֶּלֶךְ", "הַגָּדוֹל"],
+          "explain": "Noun first, then the adjective, both with “the”: הַמֶּלֶךְ הַגָּדוֹל."
+        }
+      ]
+    },
+    {
+      "step": "read",
+      "intro": "Find each adjective: does it describe its noun, or say something about it?",
+      "cards": [
+        { "type": "verse", "ref": "ISA 6:3", "note": "קָדוֹשׁ קָדוֹשׁ קָדוֹשׁ יְהוָה צְבָאוֹת: the adjective first, with no “is”: “Holy, holy, holy is the LORD of hosts.”" },
+        { "type": "verse", "ref": "PSA 100:5", "note": "כִּי טוֹב יְהֹוָה: “for the LORD is good”. טוֹב comes first, with no “the”." }
+      ]
+    },
+    {
+      "step": "review",
+      "cards": [
+        {
+          "type": "words",
+          "items": [
+            { "k": "H1419A", "t": "גָּדוֹל", "say": "ga-DOL", "en": "great, big" },
+            { "k": "H6996B", "t": "קָטֹן", "say": "ka-TON", "en": "small, young" },
+            { "k": "H7451H", "t": "רַע", "say": "ra", "en": "bad, evil" },
+            { "k": "H7227A", "t": "רַב", "say": "rav", "en": "many, much, great" },
+            { "k": "H6918G", "t": "קָדוֹשׁ", "say": "ka-DOSH", "en": "holy" },
+            { "k": "H6662", "t": "צַדִּיק", "say": "tsa-DIK", "en": "righteous" },
+            { "k": "H2205G", "t": "זָקֵן", "say": "za-KEN", "en": "old; elder" },
+            { "k": "H2450", "t": "חָכָם", "say": "cha-KHAM", "en": "wise" }
+          ]
+        }
+      ]
+    }
+  ]
+}

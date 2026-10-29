@@ -117,7 +117,7 @@ export function heShortGrammar(desc) {
   if (d.startsWith("interjection")) return "exclamation";
   if (d.startsWith("demonstrative")) return label("this/that");
   if (d.startsWith("adverb")) return "adv.";
-  if (d.startsWith("directional")) return "toward (ending)";
+  if (d.startsWith("directional")) return "towards (ending)";
   if (d.startsWith("conditional")) return "conj. (if/for)"; // כִּי and אִם share this tag
   return s.split(/[\s(]/)[0].toLowerCase();
 }

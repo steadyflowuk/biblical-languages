@@ -462,6 +462,10 @@ def build_votd(gnt, hot, bsb, glex, hlex, gmorph, hmorph, books_meta):
                 item.update({"lemma": lex.get("lemma", ""), "gloss": gloss,
                              "parse": parse, "en": w[2],
                              "k": lookup(glex if lang == "grc" else hlex, main) or ""})  # dictionary entry
+                if lang == "grc" and len(keys) > 1:  # a word joined from two (κἀγώ, οὐκέτι): every part
+                    item["parts"] = [[glex.get(lookup(glex, k) or "", {}).get("lemma", ""),
+                                      (glex.get(lookup(glex, k) or "", {}).get("gloss", "")).split(": ")[-1],
+                                      lookup(glex, k) or ""] for k in keys]
                 if any(k.strip("{}").startswith(focus) for k in keys) and not focus_i:
                     focus_i = i
                 items.append({k: v for k, v in item.items() if v})

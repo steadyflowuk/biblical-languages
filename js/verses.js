@@ -19,7 +19,7 @@ export const VERSES = [
       { t: "ὁ", lemma: "ὁ", en: "the", gloss: "the/this/who", parse: "article, nominative singular masculine", k: "G3588" },
       { t: "λόγος", lemma: "λόγος", en: "word, message", gloss: "word", parse: "noun, nominative singular masculine", k: "G3056" },
       { t: "ἦν", lemma: "εἰμί", en: "was", gloss: "to be", parse: "verb, imperfect, he/she/it", k: "G1510" },
-      { t: "πρὸς", lemma: "πρός", en: "with, toward", gloss: "to/with", parse: "preposition", k: "G4314" },
+      { t: "πρὸς", lemma: "πρός", en: "with, towards", gloss: "to/with", parse: "preposition", k: "G4314" },
       { t: "τὸν", lemma: "ὁ", en: "the", gloss: "the/this/who", parse: "article, accusative singular masculine", k: "G3588" },
       { t: "θεόν", p: ",", lemma: "θεός", en: "God", gloss: "God", parse: "noun, accusative singular masculine", k: "G2316" },
       { t: "καὶ", lemma: "καί", en: "and", gloss: "and", parse: "conjunction", k: "G2532" },

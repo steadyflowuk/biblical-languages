@@ -58,7 +58,20 @@ export function meaningOf(lang, key, gloss) {
 
 export const books = () => getJSON("data/books.json");
 export const verseOfTheDay = () => getJSON("data/votd.json");
-export const morph = (lang) => getJSON(`data/morph/${lang === "he" ? "hebrew" : "greek"}.json`);
+// Spelling slips in the source's grammar explanations, put right once when the labels load (we restyle these;
+// the Bible text and glosses are left as published).
+const MORPH_FIXES = [[/belonginging/g, "belonging"], [/malemembers/g, "male members"], [/shouldor/g, "should or"],
+  [/Yourteachings/g, "Your teachings"], [/Pharoah/g, "Pharaoh"], [/transtive/g, "transitive"]];
+const tidied = new WeakSet();
+export const morph = (lang) => getJSON(`data/morph/${lang === "he" ? "hebrew" : "greek"}.json`).then((m) => {
+  if (!tidied.has(m)) {
+    tidied.add(m);
+    Object.keys(m).forEach((k) => {
+      if (Array.isArray(m[k])) m[k] = m[k].map((x) => (typeof x === "string" ? MORPH_FIXES.reduce((t, [re, to]) => t.replace(re, to), x) : x));
+    });
+  }
+  return m;
+});
 export const bsb = (bookId) => getJSON(`data/bsb/${bookId}.json`);
 
 // The Septuagint (Swete): its own books and numbering, and its verses lined up with the Hebrew/English OT

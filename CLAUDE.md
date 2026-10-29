@@ -125,6 +125,12 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   "country/planet"), else the lexicon gloss tidied; data.loadMeanings(lang) first. votd words carry en (in-context
   English); starter verses (js/verses.js) too. Dictionary search: "Dictionary form of your word". Today's grammar
   goes through friendlyGrammar/heFriendlyGrammar ("transtive" fixed). Lessons/alphabet glosses checked: all in context.
+- [x] 12d (29 Oct 2026): targeted check of what tapped words show (every Today and lesson verse word scanned in the
+  page). Greek words joined from two (κἀγώ JHN 10:27 in grc-4, οὐκέτι GAL 2:20 on Today) showed no/half a dictionary
+  form, a raw code and a dead link: lessons split keys/codes on "+", "Joined from two words: ἐγώ · I + καί · and",
+  one dictionary link each, known only when both parts are; votd words get "parts" [[lemma, gloss, key]] (build_votd;
+  current votd.json given parts from data/gnt since the sources weren't here). data.morph() fixes source spelling
+  slips once on load (belonginging, malemembers, shouldor, Yourteachings, Pharoah, transtive). "toward" → "towards".
 
 ## Data (Session 2)
 - Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (46 checks).

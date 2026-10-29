@@ -71,7 +71,8 @@ function showGloss(root, v, i) {
     `<span class="form" lang="${v.lang}"${he ? ' dir="rtl"' : ""}>${esc(w.t)}</span>${sayButton(w.t, v.lang, { className: "small" })}
      <span class="meaning">${here || esc(meaning)}</span>
      <span class="hint">${esc(he ? heFriendlyGrammar(w.parse) : friendlyGrammar(w.parse))}</span>
-     ${w.lemma ? `<span class="from">Dictionary form: <span class="lemma" lang="${v.lang}"${he ? ' dir="rtl"' : ""}>${esc(w.lemma)}</span>${meaning ? ` · ${esc(meaning)}` : ""}</span>` : ""}
+     ${w.parts ? `<span class="from">Joined from two words: ${w.parts.map(([l, g, k]) => `<span class="lemma" lang="${v.lang}">${esc(l)}</span> · ${esc(data.meaningOf(v.lang, k, g))}`).join(" + ")}</span>`
+       : w.lemma ? `<span class="from">Dictionary form: <span class="lemma" lang="${v.lang}"${he ? ' dir="rtl"' : ""}>${esc(w.lemma)}</span>${meaning ? ` · ${esc(meaning)}` : ""}</span>` : ""}
      ${w.k ? `<a class="verse-link verse-dict" href="#/words/${encodeURIComponent(w.k)}">Look it up in the dictionary</a>` : ""}`;
 }
 

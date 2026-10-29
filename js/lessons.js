@@ -263,7 +263,9 @@ async function verseView(card, lang, known) {
   let knownCount = 0;
   const html = words.map((w, i) => {
     const key = he ? heMainKey(w) : w[3];
-    const isKnown = known.has(keyNumber(key)) || !!(known.forms && original.lex[key] && known.forms.has(lemmaKey(original.lex[key][0])));
+    // a word joined from two (κἀγώ = καί + ἐγώ) counts as known when both parts are
+    const isKnown = String(key || "").split("+").every((k) =>
+      known.has(keyNumber(k)) || !!(known.forms && original.lex[k] && known.forms.has(lemmaKey(original.lex[k][0]))));
     if (isKnown) knownCount++;
     const text = he ? heText(w) : w[0];
     const en = englishHTML(he ? heEnglish(w[2]) : w[2]); // safe HTML: "<the>" greyed, "[the]" in italics, as in the Reader
@@ -275,19 +277,23 @@ async function verseView(card, lang, known) {
   // the tapped word as it stands in the verse (ἔστιν "is"), then its dictionary form (εἰμί "to be")
   const gloss = (i) => {
     const w = words[i];
-    const key = he ? heMainKey(w) : w[3];
-    const lex = original.lex[key] || [];
-    const code = he ? (heParts(w).find((p) => p.main) || {}).code : w[4];
-    const desc = (morph[code] || [code])[0];
+    // Greek words joined from two (κἀγώ = καί + ἐγώ) carry two keys and two grammar codes: show both parts
+    const keys = he ? [heMainKey(w)] : String(w[3] || "").split("+").filter(Boolean);
+    const codes = he ? [(heParts(w).find((p) => p.main) || {}).code] : String(w[4] || "").split("+");
     const form = he ? heText(w) : w[0];
     const ga = he ? ' lang="he" dir="rtl"' : ' lang="grc"';
-    const meaning = data.meaningOf(lang, key, lex[2]);
+    const grammar = codes.map((c) => { const d = (morph[c] || [c])[0]; return he ? heFriendlyGrammar(d) : friendlyGrammar(d); }).join(" + ");
+    const from = keys.map((k) => {
+      const lex = original.lex[k] || [];
+      const meaning = data.meaningOf(lang, k, lex[2]);
+      return lex[0] ? `<span class="ls-gl-lemma"${ga}>${esc(lex[0])}</span>${meaning ? ` · ${esc(meaning)}` : ""}` : "";
+    }).filter(Boolean);
     const here = englishHTML(he ? heEnglish(w[2]) : w[2]);
     return `<p><span class="ls-gl-form"${ga}>${esc(form)}</span> ${sayButton(form, he ? "he" : "grc", { className: "small" })}
-      <span class="ls-gl-en">${here || esc(meaning)}</span></p>
-      <p class="muted">${esc(he ? heFriendlyGrammar(desc) : friendlyGrammar(desc))}</p>
-      ${lex[0] ? `<p class="ls-gl-from">Dictionary form: <span class="ls-gl-lemma"${ga}>${esc(lex[0])}</span>${meaning ? ` · ${esc(meaning)}` : ""}</p>` : ""}
-      ${key ? `<p><a class="verse-link" href="#/words/${encodeURIComponent(key)}">Look it up in the dictionary</a></p>` : ""}`;
+      <span class="ls-gl-en">${here || esc(data.meaningOf(lang, keys[0], (original.lex[keys[0]] || [])[2]))}</span></p>
+      <p class="muted">${esc(grammar)}</p>
+      ${from.length ? `<p class="ls-gl-from">${from.length > 1 ? "Joined from two words" : "Dictionary form"}: ${from.join(" + ")}</p>` : ""}
+      ${keys.map((k) => `<p><a class="verse-link" href="#/words/${encodeURIComponent(k)}">${keys.length > 1 ? `Look up <span${ga}>${esc((original.lex[k] || [k])[0])}</span> in the dictionary` : "Look it up in the dictionary"}</a></p>`).join("")}`;
   };
   return {
     html: `<div class="ls-verse">

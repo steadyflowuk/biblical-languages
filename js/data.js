@@ -32,6 +32,30 @@ export function getJSON(path) {
   return cache.get(path);
 }
 
+// The meaning shown beside a word's dictionary form. Common words use our own wording from the frequency decks
+// (data/decks; e.g. אֶרֶץ "land, earth" rather than the brief lexicon gloss "country/planet"); other words use the
+// lexicon's gloss, tidied ("to hear: hear" → "hear", "in/on/among" → "in, on, among").
+const ours = {};
+const oursLoading = {};
+/** Load the decks' wording for a language ("grc" | "he"); resolves when ready (or quietly fails offline). */
+export function loadMeanings(lang) {
+  const l = lang === "he" ? "he" : "grc";
+  if (!oursLoading[l]) {
+    oursLoading[l] = getJSON(`data/decks/${l === "he" ? "hebrew" : "greek"}.json`).then((d) => {
+      const m = {};
+      d.words.forEach((w) => { m[w[0]] = w[2]; });
+      ours[l] = m;
+    }).catch(() => { delete oursLoading[l]; });
+  }
+  return oursLoading[l];
+}
+/** A dictionary word's meaning: ours when loaded and the word is in the decks, else the lexicon's gloss tidied. */
+export function meaningOf(lang, key, gloss) {
+  const m = ours[lang === "he" ? "he" : "grc"];
+  if (m && key && m[key]) return m[key];
+  return String(gloss || "").split(": ").pop().replace(/^\[(.*)\]$/, "$1").replace(/\s*\/\s*/g, ", ");
+}
+
 export const books = () => getJSON("data/books.json");
 export const verseOfTheDay = () => getJSON("data/votd.json");
 export const morph = (lang) => getJSON(`data/morph/${lang === "he" ? "hebrew" : "greek"}.json`);

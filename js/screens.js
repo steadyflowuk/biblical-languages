@@ -6,6 +6,8 @@ import * as esv from "./esv.js";
 import * as lessons from "./lessons.js";
 import * as review from "./review.js";
 import { sayButton } from "./audio.js";
+import { englishHTML, friendlyGrammar } from "./reader.js";
+import { heEnglish, heFriendlyGrammar } from "./hebrew.js";
 import { streak } from "./activity.js";
 import { saveBackup, backupDue, languageSummary } from "./progress.js";
 import { videoForToday } from "./media.js";
@@ -55,13 +57,21 @@ function verseHTML(v) {
   <p class="verse-source">Tap any word to see what it means. ${SOURCE[v.lang]}; English: Berean Standard Bible.</p>`;
 }
 
+/**
+ * The tapped word as it stands in the verse (ἔστιν "is"), its grammar, then where it comes from in the dictionary
+ * (εἰμί "to be"). Leading with the dictionary form made ἔστιν look as if it were εἰμί.
+ */
 function showGloss(root, v, i) {
   const w = v.words[i];
+  const he = v.lang === "he";
   root.querySelectorAll(".verse-original .w").forEach((el) => el.setAttribute("aria-pressed", String(Number(el.dataset.i) === i)));
+  const here = englishHTML(he ? heEnglish(w.en) : w.en);
+  const meaning = data.meaningOf(v.lang, w.k, w.gloss);
   root.querySelector(".verse-gloss").innerHTML =
-    `<span class="lemma" lang="${v.lang}">${esc(w.lemma)}</span>${sayButton(w.lemma, v.lang, { className: "small" })}
-     <span class="meaning">${esc(w.gloss)}</span>
-     <span class="hint">${esc(w.parse)}</span>
+    `<span class="form" lang="${v.lang}"${he ? ' dir="rtl"' : ""}>${esc(w.t)}</span>${sayButton(w.t, v.lang, { className: "small" })}
+     <span class="meaning">${here || esc(meaning)}</span>
+     <span class="hint">${esc(he ? heFriendlyGrammar(w.parse) : friendlyGrammar(w.parse))}</span>
+     ${w.lemma ? `<span class="from">Dictionary form: <span class="lemma" lang="${v.lang}"${he ? ' dir="rtl"' : ""}>${esc(w.lemma)}</span>${meaning ? ` · ${esc(meaning)}` : ""}</span>` : ""}
      ${w.k ? `<a class="verse-link verse-dict" href="#/words/${encodeURIComponent(w.k)}">Look it up in the dictionary</a>` : ""}`;
 }
 
@@ -170,6 +180,11 @@ export const today = {
       });
     };
     draw();
+    // our wording for common words (the decks) arrives a moment later: show the tapped word again with it
+    Promise.all([data.loadMeanings("grc"), data.loadMeanings("he")]).then(() => {
+      const on = slot.querySelector('.verse-original .w[aria-pressed="true"]');
+      if (main.contains(slot) && on) showGloss(slot, todays[lang], Number(on.dataset.i));
+    });
     main.querySelectorAll("[data-lang]").forEach((b) =>
       b.addEventListener("click", () => {
         lang = b.dataset.lang;

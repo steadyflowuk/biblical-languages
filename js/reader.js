@@ -235,13 +235,13 @@ function heWordSheetHTML(w, ctx) {
         const label = heShortGrammar((ctx.morph[p.code] || [p.code])[0]);
         return `<li${p.main ? ' class="main"' : ""}><span lang="he" dir="rtl" class="ws-lemma">${esc(p.text)}</span> ${esc(l ? plainGloss(l[2]) : "")} <span class="muted">(${esc(label)})</span></li>`;
       }).join("")}</ul>`) : ""}
+      ${row("In this verse", englishHTML(heEnglish(english)) || "—")}
       ${row("Dictionary form", mains.map((p) => {
         const l = lexOf(p);
         const strong = realStrongs(p.key);
         return `<span lang="he" dir="rtl" class="ws-lemma">${esc(l[0])}</span> <span class="muted">${esc(heTranslit(l[1]))}${strong ? ` · Strong's ${esc(strong)}` : ""}</span>`;
       }).join("<br>"))}
-      ${row("Meaning", esc(mains.map((p) => plainGloss(lexOf(p)[2])).filter(Boolean).join(" + ") || "—"))}
-      ${row("In this verse", englishHTML(heEnglish(english)) || "—")}
+      ${row("Dictionary meaning", esc(mains.map((p) => data.meaningOf("he", p.key, plainGloss(lexOf(p)[2]))).filter(Boolean).join(" + ") || "—"))}
       ${row("Grammar", mains.map(grammarOf).join("<br>"))}
       <div class="ws-count" hidden><dt>How common</dt><dd></dd></div>
     </dl>
@@ -265,9 +265,9 @@ function wordSheetHTML(w, ctx) {
     <h2 class="ws-word" lang="grc" id="sheet-title">${form}</h2>
     <p class="ws-translit">${esc(translit)} ${sayButton(text, "grc", { className: "small" })}</p>
     <dl class="ws-facts">
-      <div><dt>Dictionary form</dt><dd>${lex.map((l, i) => `<span lang="grc" class="ws-lemma">${esc(l[0])}</span> <span class="muted">${esc(l[1])} · Strong's ${esc(strongs(keys[i]))}</span>`).join("<br>")}</dd></div>
-      <div><dt>Meaning</dt><dd>${lex.map((l) => esc(compact(l[2]) || "—")).join(" + ")}</dd></div>
       <div><dt>In this verse</dt><dd>${englishHTML(english) || "—"}</dd></div>
+      <div><dt>Dictionary form</dt><dd>${lex.map((l, i) => `<span lang="grc" class="ws-lemma">${esc(l[0])}</span> <span class="muted">${esc(l[1])} · Strong's ${esc(strongs(keys[i]))}</span>`).join("<br>")}</dd></div>
+      <div><dt>Dictionary meaning</dt><dd>${lex.map((l, i) => esc(data.meaningOf("grc", keys[i], l[2]) || "—")).join(" + ")}</dd></div>
       <div><dt>Grammar</dt><dd>${grammar.map((g) => `<strong>${esc(friendlyGrammar(g[0]))}</strong>${g[1] ? `<span class="ws-explain">${esc(g[1])}${g[2] ? `, as in “${esc(g[2])}”` : ""}.</span>` : ""}`).join("<br>")}</dd></div>
       <div class="ws-count" hidden><dt>How common</dt><dd></dd></div>
     </dl>
@@ -727,7 +727,7 @@ async function showLxxWord(el, where) {
   const body = openSheet(`<p class="ws-ref">${esc(where || "Septuagint")}</p>
     <h2 class="ws-word" lang="grc" id="sheet-title">${esc(word)}</h2>
     <p class="ws-translit">${sayButton(word, "grc", { className: "small" })}</p>
-    <p class="muted">The Septuagint isn't tagged word by word yet, so these are likely matches found by spelling.</p>
+    <p class="muted">The Septuagint isn't tagged word by word yet, so these are the dictionary forms that most likely match this word, found by its spelling.</p>
     <div class="lxx-look"><p class="muted">Looking it up…</p></div>`, { label: `Look up ${word}`, returnFocus: el });
   document.querySelectorAll(".lw.on").forEach((x) => x.classList.remove("on"));
   el.classList.add("on");
@@ -912,7 +912,7 @@ export const read = {
     const holder = main.querySelector(".chapter");
     let original, bsbBook, morph;
     try {
-      [original, bsbBook, morph] = await Promise.all([data.original(book.id), data.bsb(book.id), data.morph(he ? "he" : "grc")]);
+      [original, bsbBook, morph] = await Promise.all([data.original(book.id), data.bsb(book.id), data.morph(he ? "he" : "grc"), data.loadMeanings(he ? "he" : "grc")]);
     } catch {
       holder.innerHTML = `<div class="note"><p>${esc(book.name)} couldn't load. Check you're connected to the internet; once it has loaded it is saved for offline reading.</p>
         <p><button type="button" class="btn secondary" data-retry>Try again</button></p></div>`;

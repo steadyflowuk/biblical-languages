@@ -179,6 +179,10 @@ async def main():
         check("Tapping a word shows its dictionary form, meaning and grammar", "λόγος" in g and "word" in g and "Noun" in g, g)
         check("…with a link to the dictionary and to the Reader", await pg.locator('.ls-gloss a[href="#/words/G3056"]').count() == 1
               and await pg.locator('.ls-verse a[href="#/read/JHN/1/1"]').count() == 1)
+        await pg.click(".ls-vw >> nth=2")
+        g = unicodedata.normalize("NFC", await pg.locator(".ls-gloss").inner_text())
+        check("A tapped verb shows itself first (ἦν, was), then where it comes from (Dictionary form: εἰμί · to be)",
+              g.startswith("ἦν") and "was" in g.split("Verb")[0] and "Dictionary form: εἰμί · to be" in g, g)
         await go_next(pg)
         await pg.wait_for_selector(".ls-vw")
         check("John 1:2: the note is shown and known words are underlined", await pg.locator(".ls-note").count() == 1 and await pg.locator(".ls-vw.known").count() >= 6)

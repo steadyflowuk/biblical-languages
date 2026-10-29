@@ -118,6 +118,14 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   dictionary's search lists saved automatically 8 s after opening (js/offline.js) so lesson verses, the Letters
   read-aloud and Words search work offline; Settings › Offline › "Save it all" (data/files.json, ~70 MB).
 
+- [x] 12c (29 Oct 2026): tapped words lead with the word as it stands, not its dictionary form (user: Ἔστιν showed as
+  εἰμί "to be"). Today's verse and the lessons' Read step: form · English in this verse · grammar · "Dictionary form:
+  εἰμί · to be"; Listen says the form. Reader sheets: In this verse → Dictionary form → Dictionary meaning → Grammar.
+  data.meaningOf(lang, key, gloss) gives the decks' wording for common words (אֶרֶץ "land, earth", not the lexicon's
+  "country/planet"), else the lexicon gloss tidied; data.loadMeanings(lang) first. votd words carry en (in-context
+  English); starter verses (js/verses.js) too. Dictionary search: "Dictionary form of your word". Today's grammar
+  goes through friendlyGrammar/heFriendlyGrammar ("transtive" fixed). Lessons/alphabet glosses checked: all in context.
+
 ## Data (Session 2)
 - Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (46 checks).
 - Greek = TAGNT words whose editions include NA28, plus 64 places where NA28's reading sits in TAGNT's variant column
@@ -209,7 +217,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - Store: dictLang (both|G|H), recentWords (12 keys).
 - Deep check (5b): index keywords are "verse English|definition words" (tg ranks 1.2, kw 2.5) — "Yahweh" → יהוה,
   "church" → ἐκκλησία. lex/<greek|hebrew>-forms.json = {normalised written form: [keys]} (77/221 KB gz), loaded only
-  when Greek/Hebrew is typed: ἠγάπησεν, בְּרֵאשִׁית find their entry, labelled "Form in the text". Python
+  when Greek/Hebrew is typed: ἠγάπησεν, בְּרֵאשִׁית find their entry, labelled "Dictionary form of your word". Python
   greek_norm/hebrew_norm in build_dictionary.py must match greekNorm/hebrewNorm in dictionary.js.
   looseNorm (y/u, ph/f, ch/kh/h, w/v, doubles) for pronunciations: kyrios, huios (source "uhios"), nefesh, chesed.
   A gloss's slash parts match exactly ("in" → ἐν "in/on/among"). Multi-word English needs every word.

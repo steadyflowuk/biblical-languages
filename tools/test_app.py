@@ -72,14 +72,16 @@ async def main():
                 await page.locator(".verse-original .w").nth(i).click()
                 g = (await page.text_content(".verse-gloss .meaning")) or ""
                 lem = (await page.text_content(".verse-gloss .lemma")) or ""
+                form = (await page.text_content(".verse-gloss .form")) or ""
+                tapped = (await page.locator(".verse-original .w").nth(i).text_content()) or ""
                 pressed = await page.locator('.verse-original .w[aria-pressed="true"]').count()
-                if not g.strip() or not lem.strip() or pressed != 1: bad.append(i)
+                if not g.strip() or not lem.strip() or pressed != 1 or form != tapped: bad.append(i)
             dir_ = await page.get_attribute(".verse-original", "dir")
-            check(f"{vid}: all {n} words show a meaning and dictionary form", n > 0 and not bad, f"failed words {bad}")
+            check(f"{vid}: all {n} words show the tapped word, its meaning here and its dictionary form", n > 0 and not bad, f"failed words {bad}")
             check(f"{vid}: text direction", dir_ == ("rtl" if lang == "he" else "ltr"), dir_)
         # every curated verse renders a complete gloss
-        empty = [f"{v['id']} word {i}" for v in votd for i, w in enumerate(v["words"]) if not w.get("gloss") or not w.get("lemma") or not w.get("parse")]
-        check("all 24 curated verses have a meaning, form and grammar for every word", len(votd) == 24 and not empty, "; ".join(empty[:5]))
+        empty = [f"{v['id']} word {i}" for v in votd for i, w in enumerate(v["words"]) if not w.get("gloss") or not w.get("lemma") or not w.get("parse") or not w.get("en")]
+        check("all 24 curated verses have the English in the verse, a meaning, form and grammar for every word", len(votd) == 24 and not empty, "; ".join(empty[:5]))
         check("all curated verses have their English", all(v["english"] for v in votd))
         await page.click('[data-lang="grc"]')
         await page.locator(".verse-original .w").nth(1).focus()
@@ -211,7 +213,7 @@ async def main():
         await page.wait_for_function("!document.querySelector('.ws-count')?.hidden")
         count = await page.text_content(".ws-count dd")
         facts = await page.locator(".ws-facts dd").all_inner_texts()
-        check("Reader: tapping λόγος opens its details", word.strip() == "λόγος" and "G3056" in facts[0] and "word" in facts[1], f"{word} {facts[:2]}")
+        check("Reader: tapping λόγος opens its details", word.strip() == "λόγος" and facts[0] == "Word" and "G3056" in facts[1] and "word" in facts[2], f"{word} {facts[:3]}")
         check("Reader: shows how common the word is", "330" in count, count)
         await page.click('.sheet [data-step="1"]')
         nxt = await page.text_content(".sheet .ws-word")
@@ -224,7 +226,7 @@ async def main():
         bad = await page.evaluate("""async () => {
           const ws = [...document.querySelectorAll('.chapter .w')]; const out = [];
           for (const w of ws) { w.click(); const dd = document.querySelectorAll('.sheet .ws-facts dd');
-            if (!dd.length || !dd[0].textContent.trim() || !dd[1].textContent.trim() || dd[1].textContent.trim() === '—') out.push(w.textContent.slice(0, 20));
+            if (dd.length < 3 || !dd[1].textContent.trim() || !dd[2].textContent.trim() || dd[2].textContent.trim() === '—') out.push(w.textContent.slice(0, 20));
             document.querySelector('.sheet [data-close]')?.click(); }
           return out; }""")
         check(f"Reader: all {total} words in Philemon open with a dictionary form and meaning", total > 300 and not bad, "; ".join(bad[:5]))
@@ -290,7 +292,7 @@ async def main():
         bad = await page.evaluate("""async () => {
           const ws = [...document.querySelectorAll('.chapter .w')]; const out = [];
           for (const w of ws) { w.click(); const dl = document.querySelector('.sheet .ws-facts'); const t = dl ? dl.innerText : '';
-            if (!/Dictionary form\\s*\\S/.test(t) || !/Meaning\\s*[^—\\s]/.test(t) || !/Grammar\\s*\\S/.test(t)) out.push(w.textContent.slice(0, 20));
+            if (!/Dictionary form\\s*\\S/.test(t) || !/Dictionary meaning\\s*[^—\\s]/.test(t) || !/Grammar\\s*\\S/.test(t)) out.push(w.textContent.slice(0, 20));
             document.querySelector('.sheet [data-close]')?.click(); }
           return out; }""")
         check(f"Reader: all {total} words in Ruth 1 open with a dictionary form, meaning and grammar", total > 250 and not bad, "; ".join(bad[:5]))

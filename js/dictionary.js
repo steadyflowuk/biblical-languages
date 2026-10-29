@@ -345,7 +345,7 @@ function rowHTML(e, asForm = false) {
   return `<li><a class="row dict-row" href="#/words/${encodeURIComponent(e.key)}">
       ${lemmaHTML(e)}
       <span class="row-main"><span class="row-title">${esc(compact(e.gloss) || "—")}</span>
-        <span class="row-sub">${asForm ? `<span class="dict-form">${asForm === "similar" ? "Sounds like a word in the text" : "Form in the text"}</span> · ` : ""}${esc(tr)}${tr && sn ? " · " : ""}${esc(sn)}</span></span>
+        <span class="row-sub">${asForm ? `<span class="dict-form">${asForm === "similar" ? "Sounds like a word in the text" : "Dictionary form of your word"}</span> · ` : ""}${esc(tr)}${tr && sn ? " · " : ""}${esc(sn)}</span></span>
       <span class="row-end">${e.count ? `${e.count.toLocaleString("en-GB")}<span class="sr"> times</span>×` : `<span class="dict-none">${notInText(e)}</span>`}</span>
     </a></li>`;
 }

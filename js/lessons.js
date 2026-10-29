@@ -254,7 +254,7 @@ function wordsHTML(c) {
 async function verseView(card, lang, known) {
   const [bookId, cv] = card.ref.split(" ");
   const [ch, v] = cv.split(":").map(Number);
-  const [books, original, morph, bsbBook] = await Promise.all([data.books(), data.original(bookId), data.morph(lang), data.bsb(bookId)]);
+  const [books, original, morph, bsbBook] = await Promise.all([data.books(), data.original(bookId), data.morph(lang), data.bsb(bookId), data.loadMeanings(lang)]);
   const book = books.find((b) => b.id === bookId);
   const words = ((original.ch.find(([c]) => c === ch) || [0, []])[1].find(([n]) => n === v) || [0, []])[1];
   const english = bsbChapter(bsbBook, ch).verses.get(v) || "";
@@ -272,15 +272,21 @@ async function verseView(card, lang, known) {
       <span class="ls-vw-t">${esc(text)}${esc(after && !heJoined(after) ? after : he && heJoined(after) ? "־" : "")}</span>
       <span class="ls-vw-en" lang="en" dir="ltr">${en}</span></button>`;
   }).join("");
+  // the tapped word as it stands in the verse (ἔστιν "is"), then its dictionary form (εἰμί "to be")
   const gloss = (i) => {
     const w = words[i];
     const key = he ? heMainKey(w) : w[3];
     const lex = original.lex[key] || [];
     const code = he ? (heParts(w).find((p) => p.main) || {}).code : w[4];
     const desc = (morph[code] || [code])[0];
-    return `<p><span class="ls-gl-lemma"${he ? ' lang="he" dir="rtl"' : ' lang="grc"'}>${esc(lex[0] || (he ? heText(w) : w[0]))}</span> ${sayButton(he ? heText(w) : w[0], he ? "he" : "grc", { className: "small" })}
-      <span class="ls-gl-en">${esc(String(lex[2] || "").split(": ").pop())}</span></p>
+    const form = he ? heText(w) : w[0];
+    const ga = he ? ' lang="he" dir="rtl"' : ' lang="grc"';
+    const meaning = data.meaningOf(lang, key, lex[2]);
+    const here = englishHTML(he ? heEnglish(w[2]) : w[2]);
+    return `<p><span class="ls-gl-form"${ga}>${esc(form)}</span> ${sayButton(form, he ? "he" : "grc", { className: "small" })}
+      <span class="ls-gl-en">${here || esc(meaning)}</span></p>
       <p class="muted">${esc(he ? heFriendlyGrammar(desc) : friendlyGrammar(desc))}</p>
+      ${lex[0] ? `<p class="ls-gl-from">Dictionary form: <span class="ls-gl-lemma"${ga}>${esc(lex[0])}</span>${meaning ? ` · ${esc(meaning)}` : ""}</p>` : ""}
       ${key ? `<p><a class="verse-link" href="#/words/${encodeURIComponent(key)}">Look it up in the dictionary</a></p>` : ""}`;
   };
   return {

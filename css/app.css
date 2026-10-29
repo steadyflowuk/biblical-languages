@@ -209,7 +209,11 @@ h2 { font-size: 1.15rem; margin: 32px 0 10px; }
   margin: 18px 0 0; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.12);
   display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; min-height: 2.6em;
 }
-.verse-gloss .lemma { color: var(--gold); font-size: 1.35rem; }
+.verse-gloss .form { color: var(--gold); font-size: 1.35rem; }
+.verse-gloss .form:lang(he) { font-size: 1.6rem; }
+.verse-gloss .from { flex-basis: 100%; color: var(--panel-ink); font-size: .95rem; }
+.verse-gloss .from .lemma { color: var(--gold); font-size: 1.15rem; }
+.verse-gloss .from .lemma:lang(he) { font-size: 1.3rem; }
 .verse-gloss .meaning { color: var(--panel-ink); }
 .verse-gloss .hint { color: var(--panel-muted); font-size: .9rem; }
 .verse-source { margin: 8px 2px 0; color: var(--muted); font-size: .8rem; }
@@ -370,6 +374,7 @@ legend { font-weight: 700; margin-bottom: 8px; padding: 0; }
 .wm { font-size: .72rem; line-height: 1.2; color: var(--sage-ink); max-width: 8rem; }
 .e-u { color: var(--muted); }
 .e-s { font-style: italic; color: var(--muted); }
+.verse-gloss .e-u, .verse-gloss .e-s { color: var(--panel-muted); }
 .bsb {
   grid-column: 2; margin: 10px 0 0; font-family: var(--font-scripture); font-size: 1.05rem; line-height: 1.55;
   color: var(--ink); opacity: .86;
@@ -784,9 +789,10 @@ ol.rows { list-style: none; padding: 0; }
 .ls-vw.known .ls-vw-t { text-decoration: underline; text-decoration-color: var(--gold); text-decoration-thickness: 3px; text-underline-offset: 6px; }
 .ls-gloss:not(:empty) { padding: 10px 14px; margin: 0 0 12px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
 .ls-gloss p { margin: 4px 0; }
-.ls-gl-lemma { font-size: 1.35rem; margin-right: 8px; }
-.ls-gl-lemma:lang(grc) { font-family: var(--font-greek); }
-.ls-gl-lemma:lang(he) { font-family: var(--font-hebrew); }
+.ls-gl-form { font-size: 1.35rem; margin-right: 8px; }
+.ls-gl-lemma { font-size: 1.15rem; }
+.ls-gl-form:lang(grc), .ls-gl-lemma:lang(grc) { font-family: var(--font-greek); }
+.ls-gl-form:lang(he), .ls-gl-lemma:lang(he) { font-family: var(--font-hebrew); }
 .ls-verse-en { font-family: var(--font-scripture); font-size: 1.08rem; line-height: 1.55; }
 .ls-note { padding: 10px 14px; border-radius: 12px; background: var(--surface-soft); }
 

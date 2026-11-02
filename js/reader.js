@@ -379,8 +379,9 @@ function headingsHTML(state, v) {
 }
 
 const BRACKET_NOTE = `<p class="v-gap v-note">Words in double brackets ⟦ ⟧ are not in the oldest manuscripts. The SBL editors keep them in the text, marked off, because they were added very early and have long been read in the church.</p>`;
-/** True when a verse's words open a passage the SBL text prints in double brackets ⟦ ⟧ (Mark 16:9-20, John 7:53-8:11). */
-const opensBracket = (words) => words.some((w) => /⟦|\[\[/.test(String(w[6] || "")));
+/** True when a verse's words open or close a passage the SBL text prints in double brackets ⟦ ⟧ (Mark 16:9-20,
+ * John 7:53-8:11): John 8 has only the closing ⟧, so the note goes before the first verse showing either. */
+const opensBracket = (words) => words.some((w) => /⟦|⟧|\[\[|\]\]/.test(String(w[6] || "") + String(w[5] || "")));
 
 function missingNote(from, to) {
   const list = from === to ? `Verse ${from} is` : `Verses ${from} to ${to} are`;
@@ -389,15 +390,17 @@ function missingNote(from, to) {
 
 // Verses the BSB has after the last Greek verse of a chapter: Romans 16:25-27, which the SBL text doesn't print
 const BSB_ONLY_WHY = {
-  "ROM 16": "Manuscripts place these closing words of praise in different parts of the letter, and the SBL edition doesn't print them here.",
+  "ROM 16": "Manuscripts place these closing words of praise in different parts of the letter, and the SBL edition doesn't include them.",
 };
 function bsbOnlyNote(state, nums) {
   if (!nums.length) return "";
   const list = nums.length === 1 ? `verse ${nums[0]}` : `verses ${nums[0]} to ${nums[nums.length - 1]}`;
   return `<p class="v-gap">The SBL Greek text doesn't have ${list}. ${BSB_ONLY_WHY[`${state.book.id} ${state.ch}`] || ""} ${state.prefs.showBSB && state.prefs.readLayout !== "text" ? "The BSB's English is shown on its own." : ""}</p>`;
 }
-/** BSB verse numbers after the chapter's last Greek verse that no Greek verse carries. */
-function bsbOnlyAfter(state, carried) {
+/** BSB verse numbers after the chapter's last Greek verse that no Greek verse carries (Acts 19:41 and 2 Cor 13:14 are
+ * carried by Greek 19:40 and 13:13, so only Romans 16:25-27 qualify). */
+function bsbOnlyAfter(state) {
+  const carried = new Set([].concat(...state.verses.map((v) => englishRefs(state, v))));
   const last = state.verses.length ? state.verses[state.verses.length - 1][0] : 0;
   return [...state.bsb.verses.keys()].filter((v) => v > last && state.bsb.verses.get(v) && !carried.has(`${state.ch}.${v}`));
 }
@@ -501,7 +504,7 @@ function greekChapterHTML(state) {
   flushPara();
 
   // BSB verses after the last Greek verse (Romans 16:25-27): a note, then the English on its own
-  const only = bsbOnlyAfter(state, assigned);
+  const only = bsbOnlyAfter(state);
   out.push(bsbOnlyNote(state, only));
   if (state.prefs.showBSB && !textMode) {
     only.forEach((v) => {
@@ -704,7 +707,7 @@ function bsbForRefs(state, refs, v, all) {
   const parts = refs.map((r) => bsbVerse(state, r)).filter(Boolean)
     .map((b) => (own ? "" : `<sup class="bsb-ref">${b.c === state.ch ? b.n : `${b.c}:${b.n}`}</sup>`) + bsbHTML(b.text, b.notes, b.c));
   return parts.length ? parts.join(" ") : !(all || refs).some((r) => bsbVerse(state, r)) && !state.he ? `<span class="muted">${BSB_LEAVES_OUT}</span>`
-    : `<span class="muted">Part of a neighbouring verse in the BSB.</span>`;
+    : `<span class="muted">In the BSB these words are part of ${(all || refs).map((r) => (r.startsWith(`${state.ch}.`) ? `verse ${r.split(".")[1]}` : refLabel(r))).join(" and ")}.</span>`;
 }
 
 /** Side by side: each verse with the original and the chosen translations in columns (stacked on phones). */
@@ -740,8 +743,7 @@ function parallelHTML(state) {
     out.push(`<div class="v pv" data-vi="${vi}" id="v${v}"><span class="vn"><span class="sr">Verse </span>${v === 0 ? "title" : v}</span><div class="cols n${cols.length}">${cells}</div></div>`);
   });
   if (!he) {
-    const carried = new Set([].concat(...Object.values(owned)));
-    const only = bsbOnlyAfter(state, carried);
+    const only = bsbOnlyAfter(state);
     out.push(bsbOnlyNote(state, only));
     if (state.prefs.showBSB) only.forEach((v) => out.push(`<div class="v v-bsb-only"><span class="vn">${v}</span><p class="bsb">${bsbHTML(state.bsb.verses.get(v), state.bsb.notes, state.ch)}</p></div>`));
   }

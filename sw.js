@@ -1,7 +1,8 @@
 // Offline support. Bump VERSION whenever app files change so phones pick up the update.
-const VERSION = "2026-11-02.1";
+const VERSION = "2026-11-02.2";
 const SHELL = `shell-${VERSION}`;
-const DATA = "data-v1"; // Bible books and lexicons: kept across app updates, refreshed in the background
+const DATA = "data-v2"; // Bible books and lexicons: kept across app updates, refreshed in the background.
+// v2 (Session 13): the Greek text became the SBL edition and the Hebrew definitions Strong's, so v1 copies are removed.
 
 const SHELL_FILES = [
   "./",
@@ -85,7 +86,7 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k.startsWith("shell-") && k !== SHELL).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => (k.startsWith("shell-") && k !== SHELL) || (k.startsWith("data-") && k !== DATA)).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });

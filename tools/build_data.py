@@ -18,7 +18,8 @@ Writes into data/ (relative to the repo root):
     stats.json                      counts used by the checks
 
 Word formats (arrays, trailing empty fields dropped):
-    Greek:  [text, translit, english, strong, morph, after, before]
+    Greek:  [text, translit, english, strong, morph, after, before, cont]
+        cont "+" = second half of a word SBL writes as two (Μαράνα θά, Ἄρειος Πάγος): not counted again
         "after" ending in ¶ marks a paragraph break after the word (not shown as a character)
         compound (crasis) words join two keys and codes with "+", e.g. "G2532+G1565", "CONJ+D-NSM"
     Hebrew: [text, translit, english, strongs, morph, after, flag, note]
@@ -99,14 +100,23 @@ def strongs_hebrew_definitions(hlex):
         meaning = re.sub(r"<def>(.*?)</def>", r"<b>\1</b>", ns(part("meaning")))
         meaning = re.sub(r"</?(?!b>|/b>)[^>]+>", "", meaning)
         source = re.sub(r"<[^>]+>", "", ns(part("source"))).strip().rstrip(";")
-        usage = re.sub(r"<[^>]+>", "", ns(part("usage"))).strip()
+        usage = re.sub(r"\(\s*\)\s*", "", re.sub(r"<[^>]+>", "", ns(part("usage")))).strip()  # "( ) arrow": lost signs
         lines = [x for x in (meaning.strip(), source and f"<i>Origin:</i> {source}", usage and f"<i>Translated in the KJV:</i> {usage}") if x]
         tidy_line = lambda x: re.sub(r";\s*,", ",", re.sub(r"\s+([,;.:)])", r"\1", re.sub(r"\s+", " ", x)))
         strong[int(m.group(1))] = " <br /> ".join(tidy_line(x) for x in lines)
     n = 0
+    STOPS = {"the", "and", "for", "with", "from", "his", "her", "who", "one", "not", "that", "this", "son", "place"}
+    per_number = Counter(int(re.sub(r"\D", "", e["estrong"]) or 0) for e in hlex.values())
     for e in hlex.values():
         num = int(re.sub(r"\D", "", e["estrong"]) or 0)
-        e["def"] = strong.get(num, "") if num < 9000 else ""
+        d = strong.get(num, "") if num < 9000 else ""
+        # A Strong's number STEPBible splits into several words or names (H6211: "moth" and the Aramaic "grass"):
+        # show Strong's entry only under the ones it is about (a word of the gloss appears in it)
+        words = {w for w in re.findall(r"[a-z]{3,}", e["gloss"].lower()) if w not in STOPS}
+        plain = re.sub(r"<[^>]+>", " ", d).lower()
+        if d and per_number[num] > 1 and words and not any(re.search(r"\b" + re.escape(w[:max(4, len(w) - 2)]), plain) for w in words):
+            d = ""
+        e["def"] = d
         n += bool(e["def"])
     return n
 
@@ -247,8 +257,8 @@ def parse_variants(text):
             forms, trs, pairs = m.group(1).split(), m.group(2).split(), [x.strip() for x in m.group(4).split(" + ")]
             if len(forms) == len(pairs):
                 for i, (f, pr) in enumerate(zip(forms, pairs)):
-                    out.append((f, trs[i] if len(trs) == len(forms) else "", m.group(3) if i == 0 else "", pr,
-                                m.group(5).split("+")))
+                    head = re.sub(r"<[^>]*>", "", m.group(3)).strip() if i == len(forms) - 1 else ""
+                    out.append((f, trs[i] if len(trs) == len(forms) else "", head, pr, m.group(5).split("+")))
     return out
 
 
@@ -275,7 +285,7 @@ SBL_TAGS = {
     ("JHN", 8, 9, "οὖσα"): ("G1510", "V-PAP-NSF", "being"),
     ("JHN", 8, 11, "κρίνω"): ("G2919", "V-PAI-1S", "judge"),
     ("1CO", 16, 22, "Μαράνα"): ("G3134", "N-NSM-ARAM", "Our Lord"),
-    ("1CO", 16, 22, "θά"): ("G3134", "N-NSM-ARAM", "come!"),
+    ("1CO", 16, 22, "θά"): ("G3134", "N-NSM-ARAM", "come!", True),  # True: second half of one word (counted once)
 }
 
 GREEK_LATIN = {"α": "a", "β": "b", "γ": "g", "δ": "d", "ε": "e", "ζ": "z", "η": "ē", "θ": "th", "ι": "i", "κ": "k",
@@ -419,8 +429,12 @@ def build_greek(glex):
                             parts = [(ks[first], ms[first]), (ks[1 - first], ms[1 - first])]
                         else:
                             parts = [(r["strong"], r["morph"])] * 2
-                        match[i] = dict(r, form=ws[i][2], key=a[i], tr="", strong=parts[0][0], morph=parts[0][1])
-                        match[i + 1] = dict(r, form=ws[i + 1][2], key=a[i + 1], tr="", en="", strong=parts[1][0], morph=parts[1][1])
+                        if len(ks) == 2:
+                            match[i] = dict(r, form=ws[i][2], key=a[i], tr="", en="", strong=parts[0][0], morph=parts[0][1])
+                            match[i + 1] = dict(r, form=ws[i + 1][2], key=a[i + 1], tr="", en="", strong=parts[1][0], morph=parts[1][1])
+                        else:  # Ἄρειος Πάγος: one word in TAGNT, two in SBL; the English and the count go with the first
+                            match[i] = dict(r, form=ws[i][2], key=a[i], tr="")
+                            match[i + 1] = dict(r, form=ws[i + 1][2], key=a[i + 1], tr="", en="(with the word before)", cont=True)
                         if one is not None:
                             used.add(one)
                         stats["split_from_one_record"] += 2
@@ -465,24 +479,32 @@ def build_greek(glex):
                     else:
                         stats["matched_from_other_readings"] += 1
                 if (uid, ch, vs, text) in SBL_TAGS:
-                    st, mo, gl = SBL_TAGS[(uid, ch, vs, text)]
-                    r = dict(r, strong=st, morph=mo, en=gl, form=text, key=a[i], tr="")
+                    st, mo, gl = SBL_TAGS[(uid, ch, vs, text)][:3]
+                    r = dict(r, strong=st, morph=mo, en=gl, form=text, key=a[i], tr="", cont=len(SBL_TAGS[(uid, ch, vs, text)]) > 3)
                     stats["tagged_here"] += 1
                 if r["key"] != a[i]:
                     stats["spelling_differs_from_tagnt"] += 1
                     SPELLING_LOG.append((f"{uid} {ch}:{vs}", text, r["form"], r["strong"], r["morph"]))
                 tr = r["tr"] if r["key"] == a[i] and r["tr"] else greek_translit(text)
-                if not r["en"].strip() and r["strong"]:  # second half of a split word (ἐγώ of καὶ ἐγώ): its dictionary gloss
+                if re.search("[ηω]\u0345", unicodedata.normalize("NFD", text)) and re.search("[ēō]a$", tr):
+                    tr = tr[:-1]  # TAGNT writes τῇ as "tēa": the iota under η/ω isn't sounded
+                first = next((x for x in text if x.isalpha()), "")
+                if tr and first:  # capitals as in the SBL text (SBL capitalises quotations, TAGNT doesn't)
+                    tr = (tr[0].upper() if first.isupper() else tr[0].lower()) + tr[1:]
+                if not r["en"].strip() and r["strong"] and not r.get("cont"):  # half of a split word: its own short gloss
                     gl = (glex.get(lookup(glex, r["strong"].split("+")[0]) or "", {}) or {}).get("gloss", "")
-                    r = dict(r, en=gl.split(": ")[-1].replace("/", ", "))
+                    r = dict(r, en=re.split(r"[/,;]", gl.split(": ")[-1])[0].strip())
                     stats["english_from_dictionary"] += 1
-                item = trim([text, tr, r["en"], r["strong"], r["morph"], post, pre])
+                item = trim([text, tr, r["en"], r["strong"], r["morph"], post, pre, "+" if r.get("cont") else ""])
                 books.setdefault(uid, OrderedDict()).setdefault(ch, OrderedDict()).setdefault(vs, []).append(item)
                 refs = en_refs.setdefault((uid, ch, vs), [])
                 if r["enref"] not in refs:
                     refs.append(r["enref"])
                 stats["words"] += 1
-                for k in r["strong"].split("+"):
+                prev = books[uid][ch][vs][-2] if len(books[uid][ch][vs]) > 1 else None
+                same_name = (prev is not None and "+" not in r["strong"] and prev[3:4] == [r["strong"]]
+                             and greek_match_key(prev[0]) != a[i] and r["morph"].endswith(("-P", "-L", "-T")))
+                for k in ([] if r.get("cont") or same_name else r["strong"].split("+")):
                     if k:
                         counts[lookup(glex, k) or k] += 1
     stats["unmatched"] = len(unmatched)

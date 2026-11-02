@@ -247,8 +247,14 @@ for letter, name, folder in (("G", "greek", "gnt"), ("H", "hebrew", "hot")):
                 mismatch.append(f"{key} {n}/{idx.get(key, 0)}")
     all_words = sum(len(ws) for bk in text.values() for ch in bk.values() for ws in ch.values())
     lang = "Greek" if letter == "G" else "Hebrew"
-    check(f"Dictionary: every {lang} word is listed under an entry, at a real place", not bad and len(words_hit) == all_words,
-          f"{len(words_hit):,}/{all_words:,} words; bad refs: {bad[:3]}")
+    # Greek: the second half of a word or name written as two (Μαράνα θά, Ἄρειον Πάγον) is listed with the first
+    unlisted = [(bk, c, v, wi) for bk, chs in text.items() for c, vs in chs.items() for v, ws in vs.items()
+                for wi in range(len(ws)) if (bk, c, v, wi) not in words_hit]
+    second_half = lambda bk, c, v, wi: (letter == "G" and wi > 0 and (
+        (len(text[bk][c][v][wi]) > 7 and text[bk][c][v][wi][7] == "+") or text[bk][c][v][wi - 1][3:4] == text[bk][c][v][wi][3:4]))
+    odd = [f"{bk} {c}:{v} {text[bk][c][v][wi][0]}" for bk, c, v, wi in unlisted if not second_half(bk, c, v, wi)]
+    check(f"Dictionary: every {lang} word is listed under an entry, at a real place", not bad and not odd,
+          f"{len(words_hit):,}/{all_words:,} words ({len(unlisted)} second halves); not listed: {odd[:4]}; bad refs: {bad[:3]}")
     check(f"Dictionary: {lang} 'how common' counts equal the occurrence lists", not mismatch, ", ".join(mismatch[:5]))
 logos_entry = load("lex/G/30.json")["G3056"]
 check("Dictionary: λόγος has 330 occurrences, John 1:1 among them, and its forms", "1.1.4" in logos_entry[6]["JHN"].split(" ")

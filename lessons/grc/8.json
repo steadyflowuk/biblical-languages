@@ -111,7 +111,7 @@
       "step": "read",
       "intro": "Look for τό and τά, and for neuter plurals with singular verbs.",
       "cards": [
-        { "type": "verse", "ref": "MRK 1:1", "note": "The first words of Mark: Ἀρχὴ τοῦ εὐαγγελίου, “the beginning of the gospel”, with εὐαγγελίου in the genitive." },
+        { "type": "verse", "ref": "MRK 1:1", "note": "The first words of Mark: Ἀρχὴ τοῦ εὐαγγελίου, “the beginning of the gospel”, with εὐαγγελίου in the genitive. The BSB adds “the Son of God”, which some early manuscripts have; the SBL text leaves it out." },
         { "type": "verse", "ref": "JHN 10:3", "note": "τὰ πρόβατα… ἀκούει: the sheep (plural) hear (singular verb), just as in this lesson." }
       ]
     },

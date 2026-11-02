@@ -114,6 +114,8 @@ what into upon out up down over under than then so such not no nor but if also v
 other another one ones etc used use see esp especially lit literally fig figuratively prob probably perh perhaps viz cf
 thing things person persons something someone used make made cause caused causing become became being have has had do does
 did his her their them they he she him you your we our us i me my mine subst literal means act pass ptcp prep adj adv
+figurative application immediate remote compare properly generally extension intransitively transitively causatively
+reflexively passively denominative primitive root fore less sense kjv origin translated
 noun verb intrans trans absol poss pron pers sing plur pl sg masc fem neut gen dat acc nom voc infin impf perf aor
 pres fut mid dep comp superl one two may might shall will would should let were was are having can could
 there here when where how why just about""".split())
@@ -121,12 +123,14 @@ there here when where how why just about""".split())
 
 def keywords(entry, letter, from_text=()):
     """English words for search: those used for it in the verses (e.g. "Yahweh"), then from the definition
-    (Greek: the bold glosses; Hebrew: the outline's words)."""
+    (Greek: the bold glosses; Hebrew: the meaning line of Strong's entry)."""
     d = entry[4] if len(entry) > 4 else ""
     if letter == "G":
         text = " ".join(re.findall(r"<b>(.*?)</b>", d, flags=re.S))
     else:
-        text = re.sub(r"\((?:Qal|Niphal|Piel|Pual|Hiphil|Hophal|Hithpael|Peal|Pael|Aphel|Hithpeel|Hithpaal|[A-Z][a-z]+)\)", " ", d)
+        # Strong's: the meaning line and the KJV's renderings, without their labels; never the "Origin:" line
+        lines = [x for x in d.split("<br />") if "Origin:" not in x]
+        text = re.sub(r"<i>[^<]*</i>", " ", " ".join(lines))
     text = re.sub(r"<[^>]+>", " ", text)
     seen = set(re.findall(r"[a-z]+", str(entry[3] if len(entry) > 3 else "").lower()))
     lists = ([], [])
@@ -166,6 +170,12 @@ def build():
                 for verse in verses:
                     v = verse[0]
                     for wi, w in enumerate(verse[1]):
+                        if letter == "G" and len(w) > 7 and w[7] == "+":
+                            continue  # second half of a word SBL writes as two (Μαράνα θά): counted with the first
+                        prev = verse[1][wi - 1] if letter == "G" and wi else None
+                        if (prev and len(w) > 4 and "+" not in w[3] and prev[3:4] == [w[3]] and greek_norm(prev[0]) != greek_norm(w[0])
+                                and w[4].endswith(("-P", "-L", "-T"))):
+                            continue  # a name written as two words with one tag (Ἄρειον Πάγον): counted once
                         if letter == "G":
                             ks, cs = w[3].split("+"), w[4].split("+") if len(w) > 4 else []
                             items = [(k, w[0], cs[i] if i < len(cs) else "", w[2] if len(ks) == 1 else "") for i, k in enumerate(ks) if k]

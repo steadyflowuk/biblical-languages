@@ -363,7 +363,7 @@ let lastQuery = "";
 let lastScroll = 0;
 
 const COMMON = {
-  G: { n: 25, note: "The 25 most common words make up about half of the Greek New Testament (48%), and 319 words appear 50 times or more." },
+  G: { n: 25, note: "The 25 most common words make up about half of the Greek New Testament (48%), and 315 words appear 50 times or more." },
   H: { n: 25, note: "The 100 most common words make up nearly half of the Hebrew Old Testament (47%), not counting the little words joined to the front, such as “and” and “the”." },
 };
 
@@ -511,7 +511,7 @@ export function definitionHTML(raw) {
     .replace(/<ref>([\s\S]*?)<\/ref>/g, "$1")
     .replace(/<\/?ref[^>]*>/g, "")
     // Mentions of other entries ("H0157H", "G2424") open that entry (only in text, never inside a tag)
-    .replace(/(^|>)([^<]*)/g, (m, gt, txt) => gt + txt.replace(/\b([GH]\d{4,5}[A-Z]?)\b/g, '<a href="#/words/$1">$1</a>'));
+    .replace(/(^|>)([^<]*)/g, (m, gt, txt) => gt + txt.replace(/\b([GH]\d{4,5}[A-Z]?)\b/g, (k) => `<a href="#/words/${k}">${strongs(k)}</a>`));
   // One line per sense: "__1." (Abbott-Smith) starts an indented line.
   // A few entries run a marker on mid-line (no break in the source): start a new line there too.
   html = html.replace(/\s*__(?=\s*\S)/g, "\n__");

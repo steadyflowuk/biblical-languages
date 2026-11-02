@@ -143,7 +143,7 @@ async def main():
         need = await pg.evaluate("import('./js/offline.js').then((m) => m.essentialFiles()).then((f) => f.length)")
         for _ in range(60):  # up to a minute
             if await pg.evaluate("""import('./js/offline.js').then((m) => m.essentialFiles()).then(async (f) => {
-                const c = await caches.open('data-v1');
+                const c = await caches.open('data-v2');
                 for (const u of f) if (!(await c.match(new URL(u, location.href).href))) return false;
                 return true; })"""):
                 break

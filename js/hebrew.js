@@ -10,9 +10,25 @@ export const heText = (w) => String(w[0] || "").replace(/\//g, "");
 export const heTranslit = (t) => String(t || "").replace(/[\u0591-\u05c7]/g, "") // a few source entries carry a stray Hebrew vowel
   .replace(/\//g, "").replace(/\./g, "·").replace(/·{2,}/g, "·");
 
-/** "in/ beginning" → "in beginning". */
-export const heEnglish = (e) => String(e || "").replace(/\s*\/\s*/g, " ").trim()
-  .replace(/^\((.*?):\s*written, not read\)$/, "$1"); // the 14 words written but not read: the note explains
+/**
+ * "in/ beginning" → "in beginning". Two source habits are put right for a learner:
+ * - a preposition with a pronoun ending is tagged as if it had "the" ("for <the>/ him" → "for him", 5,700 words);
+ * - Aramaic writes "the" as an ending, so the source puts it last ("to/ king/ the" → "to the king", 700 words).
+ */
+export function heEnglish(e) {
+  let parts = String(e || "").split(/\s*\/\s*/).map((x) => x.trim()).filter((x) => x !== "");
+  parts = parts.map((x, i) => (i + 1 < parts.length && /^(\S+ )?<the>$/.test(x) && PRONOUN.test(parts[i + 1]) ? x.replace(/\s*<the>$/, "") : x))
+    .filter((x) => x !== "");
+  if (parts.length > 1 && /^(<the>|the)$/.test(parts[parts.length - 1])) {
+    const the = parts.pop();
+    parts.splice(parts.length - 1, 0, the);
+  }
+  return parts.join(" ").trim().replace(/^\((.*?):\s*written, not read\)$/, "$1"); // the 14 written-not-read words
+}
+const PRONOUN = /^(me|you|him|her|it|us|them|yourselves|themselves|himself|herself|myself|yourself|ourselves|itself)\b/;
+
+/** A dictionary form as shown: prefix entries are listed with a slash ("/ל" → "ל"). */
+export const heLemma = (l) => String(l || "").replace(/\//g, "");
 
 /** Punctuation printed after a word: keep maqaf ־, sof pasuq ׃, paseq ׀ and inverted nun ׆; drop paragraph letters פ ס. */
 export const heAfter = (after) => String(after || "").replace(/(^|\s)[פס](?=\s|$)/g, "").trim()
@@ -39,7 +55,8 @@ export function heParts(w) {
   texts.forEach((t, i) => {
     if (!t.trim() || t.trim() === "־") return; // the space or maqaf inside compound names
     const rawKey = keys[i] || "";
-    const code = i === 0 ? segs[0] : segs[i] ? lang + segs[i] : "";
+    let code = i === 0 ? segs[0] : segs[i] ? lang + segs[i] : "";
+    if (/^[HA]Rd$/.test(code) && /^S/.test(segs[i + 1] || "")) code = code.slice(0, 2); // לוֹ "to him", not "to the him"
     const key = rawKey.replace(/[{}+\s]/g, "");
     // main = the part(s) in {braces}; H9001+ are prefix/suffix labels, never the main word
     parts.push({ text: t, key, code, main: /[{}]/.test(rawKey) && !/^H90\d\d/.test(key) });
@@ -53,7 +70,9 @@ export function heMainKey(w) {
   const raw = String(w[3] || "");
   const m = raw.match(/\{([^}]+)\}/);
   const keys = (m ? m[1] : raw).split(/[/\\+\s]/).map((k) => k.replace(/[{}]/g, "")).filter(Boolean);
-  return keys.find((k) => !/^H90\d\d/.test(k)) || keys[0] || "";
+  // a preposition with a pronoun ending (לוֹ "to him") has only the ending in braces: the preposition is the word
+  const all = raw.split(/[/\\]/).map((k) => k.replace(/[{}+\s]/g, "")).filter(Boolean);
+  return keys.find((k) => !/^H90\d\d/.test(k)) || all[0] || keys[0] || "";
 }
 
 // ---------------------------------------------------------------- grammar labels

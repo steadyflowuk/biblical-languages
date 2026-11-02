@@ -63,5 +63,7 @@ async def main():
             print(f"\n{len(v):4d} {k}"); [print("      ", x) for x in v[:8]]
         print("\nissue types:", len(issues))
         await b.close()
+        if issues:
+            raise SystemExit(1)  # tools/check_all.py reads the exit code
 
 asyncio.run(main())

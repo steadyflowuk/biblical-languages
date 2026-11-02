@@ -159,7 +159,7 @@ def audit_data():
                 bad_tr.append(ref)
             elif first and tr[0].isalpha() and tr[0].isupper() != first.isupper():
                 bad_case.append(f"{ref} → {tr}")
-            if re.search("[ηω]ͅ", unicodedata.normalize("NFD", w[0])) and re.search("[ēō]a$", tr):
+            if re.search("[ηω][\u0300-\u036f]*\u0345", unicodedata.normalize("NFD", w[0])) and re.search("[ēō]a$", tr):
                 bad_sub.append(f"{ref} → {tr}")
             if len(w) < 3 or not w[2].strip():
                 bad_en.append(ref)
@@ -236,6 +236,61 @@ def audit_data():
             if int(m.group(1)) != len(deck["he"]["words"]):
                 bad.append(f"{p}: says {m.group(1)}, the Hebrew list has {len(deck['he']['words'])}")
     check(S, "word-list sizes quoted in the app match the lists", bad)
+
+    # 2h. Hand-checked answers in the data (independent of how the data is built)
+    bad = []
+    lexG = {}
+    for f in glob.glob("data/lex/G/*.json"):
+        lexG.update(load(f))
+    lexH = {}
+    for f in glob.glob("data/lex/H/*.json"):
+        lexH.update(load(f))
+    rom = load("data/gnt/ROM.json")
+    v833 = next(v[1] for ch in rom["ch"] if ch[0] == 8 for v in ch[1] if v[0] == 33)
+    wi = next(i for i, w in enumerate(v833) if w[0] == "θεὸς")
+    if f"8.33.{wi}" not in lexG["G2316"][6]["ROM"].split(" "):
+        bad.append("ROM 8:33 θεὸς missing from θεός's list of places")
+    gal = load("data/gnt/GAL.json")
+    w = next(w for ch in gal["ch"] if ch[0] == 2 for v in ch[1] if v[0] == 20 for w in v[1] if w[0] == "ζῇ")
+    if w[1] != "zē":
+        bad.append(f"GAL 2:20 ζῇ transliterated {w[1]!r}, not 'zē'")
+    if not str(lexH["H0426"][2]).startswith("A:"):
+        bad.append("H0426 אֱלָהּ not marked Aramaic")
+    for k in ("H1980G", "H6310G", "H5769G", "H6664G", "H5387A", "H0001G"):
+        if len(lexH[k]) < 5 or not lexH[k][4]:
+            bad.append(f"{k} {lexH[k][0]} has no definition")
+    if "moth" in str(lexH["H6211B"][4:5]):
+        bad.append("H6211B 'grass' has the definition of 'moth'")
+    notes = [k for k, e in lexH.items() if re.search(r"corrected to|xlit|<note", str(e[4:5]))]
+    bad += [f"{k}: editors' note left in the definition" for k in notes[:5]]
+    check(S, "known answers in the data (θεὸς ROM 8:33, ζῇ, אֱלָהּ, common Hebrew definitions, no editors' notes)", bad)
+
+    # 2i. Every word in the review lists and lesson review lists has a definition in the dictionary
+    bad = []
+    for name, lex in (("greek", lexG), ("hebrew", lexH)):
+        for w in load(f"data/decks/{name}.json")["words"]:
+            e = lex.get(w[0])
+            if not e or len(e) < 5 or not e[4]:
+                bad.append(f"{name} list: {w[0]} {w[1]} has no definition")
+    for p in glob.glob("lessons/*/*.json"):
+        L = load(p)
+        for st in L.get("steps", []):
+            for c in st["cards"]:
+                for w in c.get("items", []) if c.get("type") == "words" else []:
+                    e = (lexG if str(w.get("k", "")).startswith("G") else lexH).get(w.get("k"))
+                    if e is not None and (len(e) < 5 or not e[4]):
+                        bad.append(f"{L['id']}: {w.get('t')} ({w.get('k')}) has no definition")
+    check(S, "every review-list and lesson word has a definition", bad)
+
+    # 2j. English shown under Hebrew words: no "the" before a pronoun ending, Aramaic "the" in front (via js/hebrew.js)
+    js = """import { heEnglish } from './js/hebrew.js'; import fs from 'fs';
+      const out = []; for (const f of fs.readdirSync('data/hot')) { const d = JSON.parse(fs.readFileSync('data/hot/' + f));
+        for (const [c, vs] of d.ch) for (const [v, ws] of vs) for (const w of ws) { const e = heEnglish(w[2]);
+          if (/\\bthe (him|her|them|me|you|us|it)\\b|\\bthe$/.test(e)) out.push(`${d.id} ${c}:${v} ${w[0]} → ${e}`); } }
+      console.log(JSON.stringify(out.slice(0, 20).concat(out.length > 20 ? ['… ' + out.length + ' in all'] : [])));"""
+    r = subprocess.run(["node", "--input-type=module", "-e", js], capture_output=True, text=True)
+    bad = json.loads(r.stdout or "[]") if r.returncode == 0 else [f"node failed: {r.stderr[:200]}"]
+    check(S, "Hebrew English reads naturally ('to him', 'the king', never 'to the him' or 'king the')", bad)
 
     # 2g. Lesson review words still in the dictionary, with the meaning the lesson gives sensible (not empty)
     idx = {r[0] for n in ("greek", "hebrew") for r in load(f"data/lex/{n}-index.json")}
@@ -478,25 +533,40 @@ async def audit_pages():
         await pg.evaluate("localStorage.setItem('ao:readLayout', JSON.stringify('words'))")
         check(S, "Reader notes true and the same in every layout (Romans 16, Mark 16, John 7–8, Acts 19 …)", bad)
 
-        # 5d. Dictionary entries whose Strong's number is shared: the definition is about the word shown
+        # 5d. Hand-checked answers on screen (independent of how the data is built)
         bad = []
-        h = {}
-        for f in glob.glob("data/lex/H/*.json"):
-            h.update(load(f))
-        stop = {"the", "and", "for", "with", "from", "his", "her", "who", "one", "not", "that", "this", "son", "place"}
-        by_num = defaultdict(list)
-        for k in h:
-            by_num[re.sub(r"[A-Z]$", "", k)].append(k)
-        for num, ks in by_num.items():
-            if len(ks) < 2:
-                continue
-            for k in ks:
-                e = h[k]
-                d = re.sub(r"<[^>]+>", " ", e[4] if len(e) > 4 else "").lower()
-                words = {w for w in re.findall(r"[a-z]{3,}", str(e[3]).lower()) if w not in stop}
-                if d and words and not any(re.search(r"\b" + re.escape(w[:max(4, len(w) - 2)]), d) for w in words):
-                    bad.append(f"{k} '{e[3]}': definition is about something else: {d[:60]}")
-        check(S, "dictionary: a shared Strong's number never shows another word's definition", bad)
+        await pg.goto(f"{BASE}#/settings")
+        await pg.goto(f"{BASE}#/read/GEN/2/18")
+        await pg.wait_for_selector("#v18 .w")
+        ws = pg.locator("#v18 .w")
+        for k in range(await ws.count()):
+            if "לּ" in ((await ws.nth(k).text_content()) or "") and "ו" in ((await ws.nth(k).text_content()) or ""):
+                await ws.nth(k).click()
+                break
+        await pg.wait_for_selector(".sheet .ws-facts")
+        sheet = await pg.locator(".sheet .ws-facts").inner_text()
+        if "/" in (await pg.locator(".sheet .ws-lemma").first.inner_text()):
+            bad.append("GEN 2:18 לּוֹ: dictionary form shows a slash")
+        if re.search(r"\bthe him\b|definite", sheet, re.I):
+            bad.append(f"GEN 2:18 לּוֹ: 'the' where there is none: {sheet[:120]!r}")
+        await pg.keyboard.press("Escape")
+        await pg.goto(f"{BASE}#/settings")
+        await pg.goto(f"{BASE}#/words/H9005")
+        await pg.wait_for_selector(".entry-lemma")
+        if "/" in await pg.locator(".entry-lemma").inner_text():
+            bad.append("Words › H9005: headword shows a slash")
+        await pg.goto(f"{BASE}#/words/H6211B")
+        await pg.wait_for_selector(".entry-lemma")
+        t = await pg.locator("main").inner_text()
+        if "moth" in t.lower():
+            bad.append("Words › H6211B 'grass' shows the definition of 'moth'")
+        if "together with another word" not in t:
+            bad.append("Words › H6211B: no note saying why there is no definition")
+        await pg.goto(f"{BASE}#/words/H0426")
+        await pg.wait_for_selector(".entry-lemma")
+        if "Aramaic" not in await pg.locator("main").inner_text():
+            bad.append("Words › H0426 אֱלָהּ not labelled Aramaic")
+        check(S, "known answers on screen (לוֹ, prefix headwords, homonyms, אֱלָהּ)", bad)
 
         # 5e. Settings › About shows every credit
         await pg.goto(f"{BASE}#/settings")

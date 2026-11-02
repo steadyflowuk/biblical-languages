@@ -86,6 +86,8 @@ async def main():
         print(f"{k}: {len(v)}")
         for x in v[:12]:
             print("   ", x)
+    if issues:
+        raise SystemExit(1)  # tools/check_all.py reads the exit code
 
 
 asyncio.run(main())

@@ -250,8 +250,14 @@ for letter, name, folder in (("G", "greek", "gnt"), ("H", "hebrew", "hot")):
     # Greek: the second half of a word or name written as two (Μαράνα θά, Ἄρειον Πάγον) is listed with the first
     unlisted = [(bk, c, v, wi) for bk, chs in text.items() for c, vs in chs.items() for v, ws in vs.items()
                 for wi in range(len(ws)) if (bk, c, v, wi) not in words_hit]
-    second_half = lambda bk, c, v, wi: (letter == "G" and wi > 0 and (
-        (len(text[bk][c][v][wi]) > 7 and text[bk][c][v][wi][7] == "+") or text[bk][c][v][wi - 1][3:4] == text[bk][c][v][wi][3:4]))
+    def second_half(bk, c, v, wi):
+        """Μαράνα θά (marked "+"), or a name in two words with one tag and one grammar code (Ἄρειον Πάγον)."""
+        w, prev = text[bk][c][v][wi], text[bk][c][v][wi - 1] if wi else None
+        if letter != "G" or prev is None:
+            return False
+        if len(w) > 7 and w[7] == "+":
+            return True
+        return (prev[3:5] == w[3:5] and strip_greek(prev[0]) != strip_greek(w[0]) and str(w[4]).endswith(("-P", "-L", "-T")))
     odd = [f"{bk} {c}:{v} {text[bk][c][v][wi][0]}" for bk, c, v, wi in unlisted if not second_half(bk, c, v, wi)]
     check(f"Dictionary: every {lang} word is listed under an entry, at a real place", not bad and not odd,
           f"{len(words_hit):,}/{all_words:,} words ({len(unlisted)} second halves); not listed: {odd[:4]}; bad refs: {bad[:3]}")

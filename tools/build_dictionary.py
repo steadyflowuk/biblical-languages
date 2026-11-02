@@ -173,7 +173,7 @@ def build():
                         if letter == "G" and len(w) > 7 and w[7] == "+":
                             continue  # second half of a word SBL writes as two (Μαράνα θά): counted with the first
                         prev = verse[1][wi - 1] if letter == "G" and wi else None
-                        if (prev and len(w) > 4 and "+" not in w[3] and prev[3:4] == [w[3]] and greek_norm(prev[0]) != greek_norm(w[0])
+                        if (prev and len(w) > 4 and "+" not in w[3] and prev[3:5] == w[3:5] and greek_norm(prev[0]) != greek_norm(w[0])
                                 and w[4].endswith(("-P", "-L", "-T"))):
                             continue  # a name written as two words with one tag (Ἄρειον Πάγον): counted once
                         if letter == "G":

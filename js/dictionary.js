@@ -5,7 +5,7 @@ import * as store from "./store.js";
 import * as data from "./data.js";
 import * as nav from "./nav.js";
 import { strongs, shortGrammar, englishHTML } from "./reader.js";
-import { heText, heAfter, heJoined, heEnglish, heTranslit, heShortGrammar } from "./hebrew.js";
+import { heText, heAfter, heJoined, heEnglish, heTranslit, heShortGrammar, heLemma } from "./hebrew.js";
 import { head } from "./screens.js";
 import { sayButton } from "./audio.js";
 
@@ -21,6 +21,9 @@ function glossText(gloss) {
   return g === s || g.includes(s) ? general : `${general} (${specific})`;
 }
 const compact = glossText;
+// our wording for common words (the review lists) in result rows, as the Reader and Today use it
+data.loadMeanings("grc");
+data.loadMeanings("he");
 const plain = (s) => String(s || "").replace(/^\//, "").replace(/\//g, "");
 
 // ---------------------------------------------------------------- text matching
@@ -250,12 +253,15 @@ export async function lookupForm(word) {
   const forms = await formsList("G");
   const list = await index("G");
   const variants = lxxVariants(norm);
+  // a small-letter word never matches a name (διὰ "through" is spelt like Δία "Zeus" without accents)
+  const wordIsName = word.trim().charAt(0) !== word.trim().charAt(0).toLowerCase();
+  const fits = (e) => wordIsName || e.lemma.charAt(0) === e.lemma.charAt(0).toLowerCase();
   for (const v of variants) {
     for (const k of forms[v] || []) {
       const e = await resolveKey(k);
-      if (e) found.set(e.key, e);
+      if (e && fits(e)) found.set(e.key, e);
     }
-    list.filter((e) => e.lemmaN === v).forEach((e) => found.set(e.key, e));
+    list.filter((e) => e.lemmaN === v && fits(e)).forEach((e) => found.set(e.key, e));
     if (found.size) break; // the plain spelling first; variants only when it finds nothing
   }
   if (!found.size && norm.length >= 4) {
@@ -333,7 +339,7 @@ export async function resolveKey(key) {
 // ---------------------------------------------------------------- shared bits
 
 const lemmaHTML = (e, cls = "dict-lemma") =>
-  `<span class="${cls}" lang="${LANGS[e.letter].lang}" dir="${LANGS[e.letter].dir}">${esc(e.lemma)}</span>`;
+  `<span class="${cls}" lang="${LANGS[e.letter].lang}" dir="${LANGS[e.letter].dir}">${esc(e.letter === "H" ? heLemma(e.lemma) : e.lemma)}</span>`;
 const timesText = (n, where) => (n === 1 ? `Once in the ${where}` : `${n.toLocaleString("en-GB")} times in the ${where}`);
 const showStrongs = (key) => (/^H90\d\d/.test(key) ? "" : strongs(key));
 
@@ -344,7 +350,7 @@ function rowHTML(e, asForm = false) {
   const sn = showStrongs(e.key);
   return `<li><a class="row dict-row" href="#/words/${encodeURIComponent(e.key)}">
       ${lemmaHTML(e)}
-      <span class="row-main"><span class="row-title">${esc(compact(e.gloss) || "—")}</span>
+      <span class="row-main"><span class="row-title">${esc(data.meaningOf(e.letter === "H" ? "he" : "grc", e.key, "") || compact(e.gloss) || "—")}</span>
         <span class="row-sub">${asForm ? `<span class="dict-form">${asForm === "similar" ? "Sounds like a word in the text" : "Dictionary form of your word"}</span> · ` : ""}${esc(tr)}${tr && sn ? " · " : ""}${esc(sn)}</span></span>
       <span class="row-end">${e.count ? `${e.count.toLocaleString("en-GB")}<span class="sr"> times</span>×` : `<span class="dict-none">${notInText(e)}</span>`}</span>
     </a></li>`;
@@ -364,7 +370,7 @@ let lastScroll = 0;
 
 const COMMON = {
   G: { n: 25, note: "The 25 most common words make up about half of the Greek New Testament (48%), and 315 words appear 50 times or more." },
-  H: { n: 25, note: "The 100 most common words make up nearly half of the Hebrew Old Testament (47%), not counting the little words joined to the front, such as “and” and “the”." },
+  H: { n: 25, note: "These are the 25 most common. The 100 most common words make up nearly half of the Hebrew Old Testament (47%), not counting the little words joined to the front, such as “and” and “the”." },
 };
 
 async function renderSearch(main) {
@@ -632,7 +638,7 @@ async function renderEntry(main, rawKey) {
   main.innerHTML = `<div class="screen dict-entry">
     <p class="entry-nav"><button type="button" class="back-btn" data-back>‹ Back</button></p>
     <header class="entry-head">
-      <h1 class="entry-lemma" lang="${L.lang}" dir="${L.dir}">${esc(e.lemma)}</h1>
+      <h1 class="entry-lemma" lang="${L.lang}" dir="${L.dir}">${esc(e.letter === "H" ? heLemma(e.lemma) : e.lemma)}</h1>
       ${tr ? `<p class="entry-translit">${esc(tr)}</p>` : ""}
       <p class="entry-listen">${sayButton(String(e.lemma || "").split(",")[0].trim(), L.lang === "he" ? "he" : "grc", { label: "Listen" })}</p>
       <p class="entry-tags">
@@ -661,6 +667,11 @@ async function renderEntry(main, rawKey) {
       <p class="entry-credit">${e.letter === "G"
         ? "From STEPBible's Greek lexicon, based on Abbott-Smith's <em>Manual Greek Lexicon of the New Testament</em> (AS) and the Middle Liddell (ML; Perseus Digital Library, CC BY-SA)."
         : "From Strong's Hebrew dictionary (1890), as edited by the Open Scriptures Hebrew Bible Project. Short meanings: STEPBible (Tyndale House)."}</p>
+    </section>` : ""}
+
+    ${!defHTML && e.letter === "H" && Number(e.key.slice(1, 5)) <= 8674 ? `<section class="entry-sec">
+      <h2>Definition</h2>
+      <p class="muted">Strong's dictionary lists this word under ${esc(strongs(e.key.slice(0, 5)))} together with another word, so its definition isn't shown here. The meaning above is this word's.</p>
     </section>` : ""}
 
     ${siblings.length ? `<section class="entry-sec">

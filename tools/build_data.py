@@ -32,6 +32,7 @@ Data: SBL Greek New Testament CC BY 4.0 (Society of Biblical Literature, Logos B
 CC BY 4.0 (Tyndale House Cambridge, STEPBible.org); BSB public domain.
 """
 import glob, json, os, re, sys, unicodedata
+from difflib import SequenceMatcher
 from collections import Counter, OrderedDict, defaultdict
 
 SRC = sys.argv[1] if len(sys.argv) > 1 else os.environ.get("SOURCES", "")
@@ -95,7 +96,7 @@ def strongs_hebrew_definitions(hlex):
     ns = lambda t: re.sub(r"<w src=\"H(\d+)\"[^>]*>[^<]*</w>", lambda m: f"H{int(m.group(1)):04d}", t)
     strong = {}
     for m in re.finditer(r'<entry id="H(\d+)">(.*?)</entry>', xml, re.S):
-        body = m.group(2)
+        body = re.sub(r"<note>.*?</note>", "", m.group(2), flags=re.S)  # the editors' notes ("corrected to …")
         part = lambda tag: (re.search(f"<{tag}>(.*?)</{tag}>", body, re.S) or [None, ""])[1]
         meaning = re.sub(r"<def>(.*?)</def>", r"<b>\1</b>", ns(part("meaning")))
         meaning = re.sub(r"</?(?!b>|/b>)[^>]+>", "", meaning)
@@ -105,19 +106,32 @@ def strongs_hebrew_definitions(hlex):
         tidy_line = lambda x: re.sub(r";\s*,", ",", re.sub(r"\s+([,;.:)])", r"\1", re.sub(r"\s+", " ", x)))
         strong[int(m.group(1))] = " <br /> ".join(tidy_line(x) for x in lines)
     n = 0
-    STOPS = {"the", "and", "for", "with", "from", "his", "her", "who", "one", "not", "that", "this", "son", "place"}
-    per_number = Counter(int(re.sub(r"\D", "", e["estrong"]) or 0) for e in hlex.values())
+    STOPS = {"the", "and", "for", "with", "from", "his", "her", "who", "one", "not", "that", "this", "place"}
+    # STEPBible numbers without a lower-case letter (H1980, H5769) split one word into senses or people: Strong's
+    # entry is about them all. Numbers with a letter (H6211a "moth", H6211b "grass") are different words sharing a
+    # Strong's number: Strong's entry shows only under the one it describes. A few are decided by hand (checked):
+    SHOW, HIDE = {"H5178a", "H5387a", "H5608b"}, {"H6211b", "H5178b", "H7189a"}
+    stem = lambda w: re.sub(r"(ings?|ed|es|s|ness|ers?|ly|eous|ous)$", "", w) if len(w) > 4 else w
+    loose = lambda w: re.sub(r"(.)\1", r"\1", w.replace("ch", "h").replace("j", "y").replace("ts", "z").replace("k", "c").replace("ph", "f"))
     for e in hlex.values():
         num = int(re.sub(r"\D", "", e["estrong"]) or 0)
         d = strong.get(num, "") if num < 9000 else ""
-        # A Strong's number STEPBible splits into several words or names (H6211: "moth" and the Aramaic "grass"):
-        # show Strong's entry only under the ones it is about (a word of the gloss appears in it)
-        words = {w for w in re.findall(r"[a-z]{3,}", e["gloss"].lower()) if w not in STOPS}
-        plain = re.sub(r"<[^>]+>", " ", d).lower()
-        if d and per_number[num] > 1 and words and not any(re.search(r"\b" + re.escape(w[:max(4, len(w) - 2)]), plain) for w in words):
-            d = ""
+        homonym = bool(re.search(r"[a-z]$", e["estrong"]))
+        if d and homonym and e["estrong"] not in SHOW:
+            text = re.sub(r"<[^>]+>|[()\[\]]", " ", d).lower()
+            tokens = re.findall(r"[a-z]+", text.replace("-", " ")) + re.findall(r"[a-z]+", text.replace("-", ""))  # he-goat: "goat", "hegoat"
+            have = {stem(w) for w in tokens} | {loose(w) for w in tokens}
+            words = [w for w in re.findall(r"[a-z]+", e["gloss"].lower().replace("-", "")) if len(w) > 1 and w not in STOPS]
+            names = [w for w in re.findall(r"[A-Z][a-z]+", e["gloss"]) if len(w) > 3]  # spelt differently: Elioenai / Eljoenai
+            close = lambda w: any(SequenceMatcher(None, loose(w.lower()), x).ratio() >= 0.75 for x in have if len(x) > 3)
+            if e["estrong"] in HIDE or (words and not any(stem(w) in have or loose(w) in have for w in words)
+                                        and not any(close(w) for w in names)):
+                d = ""
         e["def"] = d
         n += bool(e["def"])
+        # Aramaic words STEPBible marks "in Aramaic of" but codes as Hebrew (אֱלָהּ H0426)
+        if "in Aramaic of" in e.get("rel", "") and e["morph"].startswith("H:"):
+            e["morph"] = "A:" + e["morph"][2:]
     return n
 
 
@@ -486,7 +500,7 @@ def build_greek(glex):
                     stats["spelling_differs_from_tagnt"] += 1
                     SPELLING_LOG.append((f"{uid} {ch}:{vs}", text, r["form"], r["strong"], r["morph"]))
                 tr = r["tr"] if r["key"] == a[i] and r["tr"] else greek_translit(text)
-                if re.search("[ηω]\u0345", unicodedata.normalize("NFD", text)) and re.search("[ēō]a$", tr):
+                if re.search("[ηω][\u0300-\u036f]*\u0345", unicodedata.normalize("NFD", text)) and re.search("[ēō]a$", tr):
                     tr = tr[:-1]  # TAGNT writes τῇ as "tēa": the iota under η/ω isn't sounded
                 first = next((x for x in text if x.isalpha()), "")
                 if tr and first:  # capitals as in the SBL text (SBL capitalises quotations, TAGNT doesn't)
@@ -503,7 +517,8 @@ def build_greek(glex):
                 stats["words"] += 1
                 prev = books[uid][ch][vs][-2] if len(books[uid][ch][vs]) > 1 else None
                 same_name = (prev is not None and "+" not in r["strong"] and prev[3:4] == [r["strong"]]
-                             and greek_match_key(prev[0]) != a[i] and r["morph"].endswith(("-P", "-L", "-T")))
+                             and prev[4:5] == [r["morph"]] and greek_match_key(prev[0]) != a[i]
+                             and r["morph"].endswith(("-P", "-L", "-T")))
                 for k in ([] if r.get("cont") or same_name else r["strong"].split("+")):
                     if k:
                         counts[lookup(glex, k) or k] += 1

@@ -7,7 +7,7 @@ import * as store from "./store.js";
 import * as data from "./data.js";
 import { friendlyGrammar, bsbChapter, englishHTML } from "./reader.js";
 import { sayButton } from "./audio.js";
-import { heText, heEnglish, heAfter, heJoined, heMainKey, heParts, heFriendlyGrammar } from "./hebrew.js";
+import { heText, heEnglish, heAfter, heJoined, heMainKey, heParts, heFriendlyGrammar, heLemma } from "./hebrew.js";
 import { logActivity } from "./activity.js";
 
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -278,15 +278,21 @@ async function verseView(card, lang, known) {
   const gloss = (i) => {
     const w = words[i];
     // Greek words joined from two (κἀγώ = καί + ἐγώ) carry two keys and two grammar codes: show both parts
-    const keys = he ? [heMainKey(w)] : String(w[3] || "").split("+").filter(Boolean);
-    const codes = he ? [(heParts(w).find((p) => p.main) || {}).code] : String(w[4] || "").split("+");
+    let keys = he ? [heMainKey(w)] : String(w[3] || "").split("+").filter(Boolean);
+    let codes = he ? [(heParts(w).find((p) => p.main) || {}).code] : String(w[4] || "").split("+");
+    // a joined word's parts in the order they are written: κἀγώ = καί + ἐγώ (the source lists ἐγώ first)
+    const first = (s) => String(s || "").normalize("NFD").replace(/[^\u03b1-\u03c9]/gi, "").toLowerCase().charAt(0);
+    if (keys.length === 2 && first((original.lex[keys[1]] || [])[0]) === first(w[0]) && first((original.lex[keys[0]] || [])[0]) !== first(w[0])) {
+      keys = [keys[1], keys[0]];
+      codes = [codes[1], codes[0]];
+    }
     const form = he ? heText(w) : w[0];
     const ga = he ? ' lang="he" dir="rtl"' : ' lang="grc"';
     const grammar = codes.map((c) => { const d = (morph[c] || [c])[0]; return he ? heFriendlyGrammar(d) : friendlyGrammar(d); }).join(" + ");
     const from = keys.map((k) => {
       const lex = original.lex[k] || [];
       const meaning = data.meaningOf(lang, k, lex[2]);
-      return lex[0] ? `<span class="ls-gl-lemma"${ga}>${esc(lex[0])}</span>${meaning ? ` · ${esc(meaning)}` : ""}` : "";
+      return lex[0] ? `<span class="ls-gl-lemma"${ga}>${esc(he ? heLemma(lex[0]) : lex[0])}</span>${meaning ? ` · ${esc(meaning)}` : ""}` : "";
     }).filter(Boolean);
     const here = englishHTML(he ? heEnglish(w[2]) : w[2]);
     return `<p><span class="ls-gl-form"${ga}>${esc(form)}</span> ${sayButton(form, he ? "he" : "grc", { className: "small" })}

@@ -47,6 +47,19 @@ JOBS = {
     "audit_content":   ([PY, "tools/audit_content.py"], 4, 10),
 }
 QUICK_SKIP = {"sweep_reader", "sweep_lxx", "sweep_dictionary"}
+# What each job must have covered: a run that stops early, or quietly checks less, fails (numbers as of Session 14)
+COVERAGE = {
+    "sweep_reader": [(r"([\d,]+) chapters,", 1189)],
+    "sweep_lxx": [(r"(\d+) OT chapters side by side", 929), (r"(\d+) Septuagint chapters", 1259)],
+    "sweep_dictionary": [(r"([\d,]+) entries opened", 21234)],
+    "crawl_app": [(r"phone light: (\d+) screens", 28)],
+    "check_lessons": [(r"All (\d+) lessons pass", 21)],
+    "test_app": [(r"\d+/(\d+) passed", 115)], "test_lessons": [(r"\d+/(\d+) passed", 78)],
+    "test_dictionary": [(r"\d+/(\d+) passed", 52)], "test_review": [(r"\d+/(\d+) passed", 48)],
+    "test_alphabet": [(r"\d+/(\d+) passed", 42)], "test_journey": [(r"\d+/(\d+) passed", 35)],
+    "test_progress": [(r"\d+/(\d+) passed", 47)], "test_reader_edges": [(r"\d+/(\d+) passed", 28)],
+    "test_check": [(r"\d+/(\d+) passed", 29)], "test_translations": [(r"\d+/(\d+) passed", 70)],
+}
 PARALLEL = {1: 4, 2: 4, 3: 4, 4: 1}
 
 
@@ -57,15 +70,21 @@ def port_open(port=8765):
 
 
 def failed(name, code, log):
-    """A job fails on a non-zero exit, a FAIL line, or a sweep/crawl that reports issues."""
+    """A job fails on a non-zero exit, a FAIL line, reported issues, or covering less than it should."""
     if code != 0:
         return True
     if re.search(r"^FAIL\b", log, re.M):
         return True
-    if re.search(r"issue types: [1-9]", log) or re.search(r"^\s*[1-9]\d* problems", log, re.M):
+    if re.search(r"issue types: [1-9]", log) or re.search(r"^\s*[1-9][\d,]* (problems|issues)\b", log, re.M):
         return True
-    m = re.search(r"(\d+)/(\d+) passed", log)
-    return bool(m and m.group(1) != m.group(2))
+    m = re.findall(r"(\d+)/(\d+) passed", log)
+    if m and m[-1][0] != m[-1][1]:
+        return True
+    for pat, want in COVERAGE.get(name, []):
+        got = re.findall(pat, log)
+        if not got or int(got[-1].replace(",", "")) < want:
+            return True
+    return False
 
 
 def headline(log):
@@ -140,7 +159,9 @@ def main():
     version = re.search(r'VERSION = "([^"]+)"', open("sw.js").read()).group(1)
     ok = all(r["ok"] for r in results.values())
     lines = [f"# Full check {STAMP}", "",
-             f"Commit {sha} on {branch}, app version {version}. {'Everything passed.' if ok else 'Something failed: see below.'}",
+             f"Commit {sha} on {branch}, app version {version}. " + ("Something failed: see below." if not ok else
+             f"Everything passed ({sum(r['retry'] for r in results.values())} only on a second run: see below)." if any(r["retry"] for r in results.values())
+             else "Everything passed."),
              f"Took {(time.time() - total) / 60:.0f} minutes{' (quick: whole-Bible sweeps skipped)' if quick else ''}.", "",
              "| Job | Result | Minutes | Summary |", "|---|---|---|---|"]
     for n in names:

@@ -1,5 +1,5 @@
 // Offline support. Bump VERSION whenever app files change so phones pick up the update.
-const VERSION = "2026-11-02.2";
+const VERSION = "2026-11-02.3";
 const SHELL = `shell-${VERSION}`;
 const DATA = "data-v2"; // Bible books and lexicons: kept across app updates, refreshed in the background.
 // v2 (Session 13): the Greek text became the SBL edition and the Hebrew definitions Strong's, so v1 copies are removed.

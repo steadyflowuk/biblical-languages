@@ -6,7 +6,7 @@ import * as nav from "./nav.js";
 import { readingStarted } from "./activity.js";
 import * as esv from "./esv.js";
 import { sayButton } from "./audio.js";
-import {
+import { heLemma,
   heText, heTranslit, heEnglish, heAfter, heJoined, heParagraphAfter, isAramaic, heParts, heMainKey,
   heShortGrammar, heFriendlyGrammar,
 } from "./hebrew.js";
@@ -218,7 +218,7 @@ function heWordSheetHTML(w, ctx) {
   const lexOf = (p) => ctx.lex[p.key] || [p.text || heText(w), translit, ""];
   const grammarOf = (p) => {
     const g = ctx.morph[p.code] || [p.code];
-    const explain = g[1] ? `<span class="ws-explain">${esc(g[1].charAt(0).toUpperCase() + g[1].slice(1))}${g[2] ? `, as in “${esc(g[2])}”` : ""}.</span>` : "";
+    const explain = g[1] ? `<span class="ws-explain">${esc(g[1].charAt(0).toUpperCase() + g[1].slice(1))}${/\p{L}/u.test(g[2] || "") ? `, as in “${esc(g[2])}”` : ""}.</span>` : "";
     return `<strong>${esc(heFriendlyGrammar(g[0]))}</strong>${explain}`;
   };
   const row = (dt, dd, cls = "") => `<div${cls ? ` class="${cls}"` : ""}><dt>${dt}</dt><dd>${dd}</dd></div>`;
@@ -239,7 +239,7 @@ function heWordSheetHTML(w, ctx) {
       ${row("Dictionary form", mains.map((p) => {
         const l = lexOf(p);
         const strong = realStrongs(p.key);
-        return `<span lang="he" dir="rtl" class="ws-lemma">${esc(l[0])}</span> <span class="muted">${esc(heTranslit(l[1]))}${strong ? ` · Strong's ${esc(strong)}` : ""}</span>`;
+        return `<span lang="he" dir="rtl" class="ws-lemma">${esc(heLemma(l[0]))}</span> <span class="muted">${esc(heTranslit(l[1]))}${strong ? ` · Strong's ${esc(strong)}` : ""}</span>`;
       }).join("<br>"))}
       ${row("Dictionary meaning", esc(mains.map((p) => data.meaningOf("he", p.key, plainGloss(lexOf(p)[2]))).filter(Boolean).join(" + ") || "—"))}
       ${row("Grammar", mains.map(grammarOf).join("<br>"))}
@@ -268,7 +268,7 @@ function wordSheetHTML(w, ctx) {
       <div><dt>In this verse</dt><dd>${englishHTML(english) || "—"}</dd></div>
       <div><dt>Dictionary form</dt><dd>${lex.map((l, i) => `<span lang="grc" class="ws-lemma">${esc(l[0])}</span> <span class="muted">${esc(l[1])} · Strong's ${esc(strongs(keys[i]))}</span>`).join("<br>")}</dd></div>
       <div><dt>Dictionary meaning</dt><dd>${lex.map((l, i) => esc(data.meaningOf("grc", keys[i], l[2]) || "—")).join(" + ")}</dd></div>
-      <div><dt>Grammar</dt><dd>${grammar.map((g) => `<strong>${esc(friendlyGrammar(g[0]))}</strong>${g[1] ? `<span class="ws-explain">${esc(g[1])}${g[2] ? `, as in “${esc(g[2])}”` : ""}.</span>` : ""}`).join("<br>")}</dd></div>
+      <div><dt>Grammar</dt><dd>${grammar.map((g) => `<strong>${esc(friendlyGrammar(g[0]))}</strong>${g[1] ? `<span class="ws-explain">${esc(g[1])}${/\p{L}/u.test(g[2] || "") ? `, as in “${esc(g[2])}”` : ""}.</span>` : ""}`).join("<br>")}</dd></div>
       <div class="ws-count" hidden><dt>How common</dt><dd></dd></div>
     </dl>
     ${ctx.bsb ? `<p class="ws-bsb"><span class="muted">${esc(ctx.bsbRef)} (BSB)</span><br>${ctx.bsb}</p>` : ""}

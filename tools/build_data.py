@@ -101,7 +101,8 @@ def strongs_hebrew_definitions(hlex):
         source = re.sub(r"<[^>]+>", "", ns(part("source"))).strip().rstrip(";")
         usage = re.sub(r"<[^>]+>", "", ns(part("usage"))).strip()
         lines = [x for x in (meaning.strip(), source and f"<i>Origin:</i> {source}", usage and f"<i>Translated in the KJV:</i> {usage}") if x]
-        strong[int(m.group(1))] = " <br /> ".join(re.sub(r"\s+", " ", x) for x in lines)
+        tidy_line = lambda x: re.sub(r";\s*,", ",", re.sub(r"\s+([,;.:)])", r"\1", re.sub(r"\s+", " ", x)))
+        strong[int(m.group(1))] = " <br /> ".join(tidy_line(x) for x in lines)
     n = 0
     for e in hlex.values():
         num = int(re.sub(r"\D", "", e["estrong"]) or 0)

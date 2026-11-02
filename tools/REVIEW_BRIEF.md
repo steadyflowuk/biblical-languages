@@ -6,6 +6,10 @@ errors the tests missed: a tapped Greek word shown as its dictionary form (ἔσ
 Acts 19:41 was missing, John 8 without its bracket note, Hebrew entries showing another word's definition, a lesson
 note quoting "the kingdom of God" where the text has no "of God", and copyrighted text (NA28 wording, Online Bible
 definitions) that every test had passed.
+Session 14's review also found: correct Strong's definitions hidden for the commonest Hebrew words, editors' notes
+inside definitions, a transliteration fix that missed accented words, a counting rule that dropped real occurrences,
+לוֹ "for the him", Aramaic "king the", and two checks that could never fail. Look hardest at anything a fix or a rule
+*removes* or *hides*: check what it caught that it shouldn't have.
 
 ## Ground rules for the reviewer
 

@@ -173,6 +173,24 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   Strong's definition under the shared-number rule (559 of 11,682) and at H0426 אֱלָהּ labelled Hebrew (STEPBible's code);
   the Claude Docs plan and guide still say "NA28" (offered to update).
 
+- [x] 14 (2 Nov 2026): first run of the full check (tools/check_all.py + reviewer agent with REVIEW_BRIEF.md). All
+  sweeps/suites passed; the reviewer found 9 definite errors, fixed: Strong's definitions hidden for common words —
+  rule now: STEPBible numbers without a lower-case letter (senses/people) always show Strong's; homonyms (H6211a/b)
+  matched on stems, hyphen-split words, KJV list and loose name spelling (SequenceMatcher ≥ .75), SHOW/HIDE by hand
+  (11,430 of 11,682 have a definition; the rest get "Strong's dictionary lists this word under H… together with
+  another word"); <note> editors' notes removed; τῇ translit regex allows the accent ([ηω][\u0300-\u036f]*\u0345);
+  two-word names counted once only with the same tag AND grammar code (θεοῦ θεός ROM 8:33 was dropped); לוֹ-type words
+  (preposition + pronoun ending; source codes Rd and "<the>/ him"): heParts treats Rd + suffix as R, heMainKey falls
+  back to the preposition, heEnglish drops "<the>" before a pronoun and moves Aramaic "the" in front, heLemma drops
+  "/" from headwords; "in Aramaic of" entries coded H: become A: (אֱלָהּ); grammar examples "( )" hidden; small-letter
+  Septuagint words never match names (διὰ ≠ Δία); dictionary rows use meaningOf; joined-word parts in written order
+  (κἀγώ = καί + ἐγώ); About links for LXX-Swete, Perseus, BSB; Hebrew words note says "These are the 25 most common".
+  Checking tools: sweeps exit 1 on issues; check_all COVERAGE (expected chapter/entry/check counts), last "N/M passed",
+  retries named in the headline; audit_content gained known answers (data and screen), definitions for every list and
+  lesson word, natural Hebrew English over all 305,648 words (node + js/hebrew.js); check_data's second-half excuse
+  needs the "+" mark or same tag + grammar code. Left: Swete ISA 53:5 παιδία (source text, not ours); 53 names used only
+  in Aramaic passages still tagged Hebrew (STEPBible gives names no language).
+
 ## Data (Session 2)
 - Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (46 checks).
 - Greek = SBLGNT text (since Session 13; see the log) tagged from TAGNT. 137,741 words, 7,939 verses, SBL verse

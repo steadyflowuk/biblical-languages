@@ -460,6 +460,20 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   through the service worker, which saves each file. Restore = store.importBackup() removes every ao: key first.
 
 ## Checks
+- **The full check (use this): `python3 tools/check_all.py`** (~60–75 min; `quick` skips the whole-Bible sweeps,
+  ~20 min; `only <job> …` runs chosen jobs). Starts the server, fetches sources if missing, runs every job below plus
+  `tools/audit_content.py`, retries a failed suite once alone, writes `tools/reports/<time>/SUMMARY.md`. Then hand
+  `tools/REVIEW_BRIEF.md` to a separate reviewer agent (report-only) and fix what both find. Re-run the affected jobs,
+  bump VERSION, deploy.
+- `python3 tools/audit_content.py [--static]` — the mistakes tests used to miss: copyright (no NA28/Online Bible/etc.
+  text, Hebrew defs are Strong's, every source credited in About + README with licence links, licence files kept, no
+  keys), data (Greek translit/English/capitals/τῇ, Today's verses = Bible text, js/verses.js = data, Hebrew definition
+  markup and links, search keywords, list sizes quoted in text, lesson review words), wording (British spelling,
+  doubled words, sentence case), shell (SHELL_FILES, one data cache name and old ones deleted, VERSION bumped vs
+  origin/main, files.json, iOS 13.4 syntax, https links), pages (every lesson-verse word, every word of all 24 Today
+  verses on a fake clock, Reader notes in all three layouts for ROM 16, MRK 16, JHN 7–8, ACT 19, 2CO 13 …, shared
+  Strong's numbers, About credits, console errors). Proven to catch the 13b Reader bugs. Add a check here whenever a
+  review finds a new kind of mistake.
 - `python3 tools/test_check.py` — 29 checks: device check (device descriptions, voices, no voice, no speech, report,
   copy, offline, 320px largest dark) and offline saving (automatic essentials, Save it all, bare Strong's numbers).
 - `python3 tools/test_journey.py` — 35 checks: a new learner's week on a fake clock across every screen, backup restored

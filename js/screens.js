@@ -37,7 +37,7 @@ function toast(message) {
 // ---------------------------------------------------------------- Today
 
 const SOURCE = {
-  grc: "Greek: NA28 text from STEPBible (Tyndale House)",
+  grc: "Greek: SBL Greek New Testament, tagged with STEPBible data (Tyndale House)",
   he: "Hebrew: Leningrad Codex from STEPBible (Tyndale House)",
 };
 
@@ -360,7 +360,7 @@ export const settings = {
 
       <h2>About</h2>
       <p class="muted" style="margin-top:0">Aleph to Omega is a personal study app.</p>
-      <p class="muted">Greek New Testament (NA28 text), Hebrew and Aramaic Old Testament (Leningrad Codex), word-by-word translations, grammar and lexicons: STEPBible Data, created by STEPBible.org based on work at Tyndale House Cambridge, licensed CC BY 4.0, reformatted for this app. Dictionary definitions draw on Abbott-Smith's Manual Greek Lexicon of the New Testament, the Liddell–Scott lexicon and Brown–Driver–Briggs, as included in STEPBible's lexicons. English: Berean Standard Bible, public domain. Septuagint: H. B. Swete's edition (1909–1930), public domain, from the LXX-Swete-1930 database by Eliran Wong (GPL-3.0); lined up with the Hebrew verses using STEPBible's versification data (CC BY 4.0). Fonts: Gentium Plus, Noto Serif Hebrew and Atkinson Hyperlegible, SIL Open Font Licence. Review scheduling: ts-fsrs by Open Spaced Repetition, MIT licence. Listen buttons use your device's own voices.</p>
+      <p class="muted">Greek New Testament: the SBL Greek New Testament, copyright 2010 Society of Biblical Literature and Logos Bible Software, licensed CC BY 4.0 (sblgnt.com); its apparatus signs are left out. Hebrew and Aramaic Old Testament (Leningrad Codex), and the word-by-word translations, grammar and lexicons for both: STEPBible Data, created by STEPBible.org based on work at Tyndale House Cambridge, licensed CC BY 4.0, reformatted for this app. Greek definitions: Abbott-Smith's Manual Greek Lexicon of the New Testament (public domain) and the Middle Liddell (Perseus Digital Library, CC BY-SA 3.0 US), as edited by STEPBible. Hebrew definitions: Strong's Hebrew dictionary (public domain) as edited by the Open Scriptures Hebrew Bible Project, CC BY 4.0. English: Berean Standard Bible, public domain. Septuagint: H. B. Swete's edition (1909–1930), public domain, from the LXX-Swete-1930 database by Eliran Wong (GPL-3.0); lined up with the Hebrew verses using STEPBible's versification data (CC BY 4.0). Fonts: Gentium Plus, Noto Serif Hebrew and Atkinson Hyperlegible, SIL Open Font Licence. Review scheduling: ts-fsrs by Open Spaced Repetition, MIT licence. Listen buttons use your device's own voices.</p>
     </div>`;
 
     main.querySelector(".screen").insertAdjacentHTML("beforeend", `<div class="esv-notice"><p class="muted">${esc(esv.NOTICE)}</p><p><a class="btn secondary" href="https://www.esv.org" target="_blank" rel="noopener">Visit www.esv.org</a></p></div>`);

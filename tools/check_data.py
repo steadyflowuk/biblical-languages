@@ -28,9 +28,7 @@ def strip_greek(s):
     s = unicodedata.normalize("NFD", s)
     s = "".join(ch for ch in s if unicodedata.category(ch)[0] == "L")
     s = s.lower().replace("ς", "σ").replace("\u02bc", "")
-    # spelling conventions that differ between NA28 and SBLGNT: movable nu, elided ἀλλά
-    s = re.sub(r"(σι|ε|στι)ν$", r"\1", s)
-    return "αλλ" if s == "αλλα" else s
+    return s
 
 
 def strip_hebrew(s):
@@ -74,17 +72,18 @@ for b in books:
                 diff += 1
                 diffs.append(f"{b['id']} {ch}:{v}")
 total = same + diff
-check("Greek NT word count close to NA28 (~138,000)", 137_000 < ours_words < 139_000, f"{ours_words:,}")
-check("Greek verses identical to SBLGNT (letters only, spelling conventions aside) ≥ 90%", same / total >= 0.90,
-      f"{same:,}/{total:,} identical ({same/total:.1%}); {diff} differ: NA28 bracketed words and readings SBLGNT does not follow")
-check("Jude 5 reads Ἰησοῦς (an NA28 change)",
-      any(w[0] == "Ἰησοῦς" for v in load("gnt/JUD.json")["ch"][0][1] if v[0] == 5 for w in v[1]))
+sbl_words = sum(len([t for t in txt.split() if strip_greek(t)]) for txt in sbl.values())
+check("Greek NT is the SBL text: same number of words as SBLGNT", ours_words == sbl_words, f"{ours_words:,} vs {sbl_words:,}")
+check("Greek NT is the SBL text: every verse letter for letter as in SBLGNT", diff == 0 and only_ours == 0 and total == len(sbl),
+      f"{same:,}/{len(sbl):,} identical; {diff} differ, {only_ours} not in SBLGNT: {', '.join(diffs[:6])}")
+untagged = [f"{b['id']} {c}:{v[0]} {w[0]}" for b in books if b["lang"] == "grc" for c, vs in load(f"gnt/{b['id']}.json")["ch"]
+            for v in vs for w in v[1] if len(w) < 5 or not w[3] or not w[4]]
+check("every Greek word has a Strong's number and grammar code", not untagged, "; ".join(untagged[:5]))
+signs = [f"{b['id']} {c}:{v[0]}" for b in books if b["lang"] == "grc" for c, vs in load(f"gnt/{b['id']}.json")["ch"]
+         for v in vs for w in v[1] if re.search("[\u2e00-\u2e0f]", "".join(str(x) for x in w[:1] + w[5:7]))]
+check("no apparatus signs (⸀ ⸂ ⸃) left in the Greek", not signs, ", ".join(signs[:5]))
 mat17 = {v[0] for c, vs in load("gnt/MAT.json")["ch"] if c == 17 for v in vs}
-check("Matthew 17:21 absent (not in NA28)", 21 not in mat17)
-mrk16 = {v[0] for c, vs in load("gnt/MRK.json")["ch"] if c == 16 for v in vs}
-jhn8 = {v[0] for c, vs in load("gnt/JHN.json")["ch"] if c == 8 for v in vs}
-check("Mark 16:9-20 and John 8:1-11 present (NA28 prints them in double brackets)",
-      set(range(9, 21)) <= mrk16 and set(range(1, 12)) <= jhn8)
+check("Matthew 17:21 absent (not in the SBL text)", 21 not in mat17)
 
 # ------------------------------------------------ Hebrew vs WLC (Open Scriptures)
 OSHB_BOOK = {"GEN": "Gen", "EXO": "Exod", "LEV": "Lev", "NUM": "Num", "DEU": "Deut", "JOS": "Josh", "JDG": "Judg",
@@ -143,12 +142,13 @@ def vmap(bk):
     d = load(f"{'gnt' if any(b['id'] == bk and b['lang'] == 'grc' for b in books) else 'hot'}/{bk}.json")
     return {(c, v[0]): v for c, vs in d["ch"] for v in vs}
 mrk, jhn, act, rom, ijn, luk = (vmap(b) for b in ("MRK", "JHN", "ACT", "ROM", "1JN", "LUK"))
-check("NA28 omissions absent: John 5:4, Acts 8:37, Romans 16:24",
-      (5, 4) not in jhn and (8, 37) not in act and (16, 24) not in rom)
-check("NA28 bracketed passages present: Mark 16:9-20, Luke 22:43-44, John 7:53-8:11, Romans 16:25-27",
-      all((16, v) in mrk for v in range(9, 21)) and (22, 43) in luk and (22, 44) in luk and (7, 53) in jhn
-      and all((8, v) in jhn for v in range(1, 12)) and all((16, v) in rom for v in (25, 26, 27)))
-check("John 7:53 opens with NA28's double brackets", jhn[(7, 53)][1][0][6:7] == ["[["], str(jhn[(7, 53)][1][0]))
+check("omissions absent: John 5:4, Acts 8:37; Romans 16:25-27 not printed by SBL",
+      (5, 4) not in jhn and (8, 37) not in act and not any((16, v) in rom for v in (25, 26, 27)))
+check("SBL prints Romans 16:24, Mark 16:9-20, Luke 22:43-44, John 7:53-8:11",
+      (16, 24) in rom and all((16, v) in mrk for v in range(9, 21)) and (22, 43) in luk and (22, 44) in luk
+      and (7, 53) in jhn and all((8, v) in jhn for v in range(1, 12)))
+check("John 7:53 and Mark 16:9 open with SBL's double brackets ⟦",
+      jhn[(7, 53)][1][0][6:7] == ["⟦"] and mrk[(16, 9)][1][0][6:7] == ["⟦"], str(jhn[(7, 53)][1][0]))
 check("1 John 5:7 has no 'heavenly witnesses' addition", len(ijn[(5, 7)][1]) == 5)
 dan = vmap("DAN")
 check("Daniel 2:4 switches to Aramaic mid-verse", "".join(w[4][0] for w in dan[(2, 4)][1]).startswith("HHHHA"))
@@ -180,7 +180,7 @@ check("Every original-language verse has its BSB verse (except known numbering d
 bsb_total = sum(b["v"][i] for b in books for i in range(b["ch"]))
 check("BSB verse total", bsb_total == 31086, str(bsb_total))
 
-# ------------------------------------------------ Reader alignment: every BSB verse sits under some NA28 verse
+# ------------------------------------------------ Reader alignment: every BSB verse sits under some Greek verse
 uncovered = []
 for b in books:
     if b["lang"] != "grc":
@@ -197,7 +197,9 @@ for b in books:
             for x in items:
                 if isinstance(x, int) and f"{ci}.{x}" not in covered:
                     uncovered.append(f"{b['id']} {ci}:{x}")
-check("Reader: every NT verse of the BSB appears under an NA28 verse", not uncovered, ", ".join(uncovered[:8]))
+# Romans 16:25-27 (BSB) has no Greek verse in the SBL text: the Reader shows it on its own with a note
+check("Reader: every NT verse of the BSB appears under a Greek verse (Romans 16:25-27 aside)",
+      sorted(uncovered) == ["ROM 16:25", "ROM 16:26", "ROM 16:27"], ", ".join(uncovered[:8]))
 
 # The Hebrew Reader puts each BSB verse under the Hebrew verse with the same (English) number, and psalm titles
 # (Hebrew verse 0) under the BSB title text. Both directions must match exactly.

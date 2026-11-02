@@ -11,7 +11,7 @@ The search index lex/<greek|hebrew>-index.json becomes [key, lemma, translit, gl
 lex/<greek|hebrew>-sounds.json lists their pronunciations (for "bereshit").
 
 occ   = {"JHN": "1.1.4 1.14.2 …", …}   chapter.verse.word-index, as the Reader numbers them
-        (Greek: NA28 verse numbers; Hebrew: English verse numbers, Psalm titles = verse 0)
+        (Greek: SBL verse numbers; Hebrew: English verse numbers, Psalm titles = verse 0)
 forms = [[form, count, grammar code], …]  most common first
 
 Keys are resolved exactly as build_data.lookup() does, so counts, occurrences and the Reader agree.

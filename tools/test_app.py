@@ -245,7 +245,7 @@ async def main():
         check("Reader: explains the missing Matthew 17:21", "Verse 21" in gap, gap[:60])
         await page.goto(f"{BASE}#/read/2CO/13"); await page.wait_for_selector(".chapter .v")
         b13 = await page.text_content("#v13 .bsb")
-        check("Reader: 2 Corinthians 13:13 (NA28) shows BSB verse 14", "grace of the Lord Jesus" in b13, b13[:50])
+        check("Reader: 2 Corinthians 13:13 (Greek) shows BSB verse 14", "grace of the Lord Jesus" in b13, b13[:50])
         # display options persist, no paragraph marks shown, largest text fits
         await page.goto(f"{BASE}#/read/JHN/1"); await page.wait_for_selector(".chapter .v")
         await page.click("[data-display]"); await page.check('[data-pref="showTranslit"]'); await page.check('[data-pref="showGrammar"]')

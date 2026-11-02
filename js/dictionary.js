@@ -512,7 +512,7 @@ export function definitionHTML(raw) {
     .replace(/<\/?ref[^>]*>/g, "")
     // Mentions of other entries ("H0157H", "G2424") open that entry (only in text, never inside a tag)
     .replace(/(^|>)([^<]*)/g, (m, gt, txt) => gt + txt.replace(/\b([GH]\d{4,5}[A-Z]?)\b/g, '<a href="#/words/$1">$1</a>'));
-  // One line per sense: "__1." (Abbott-Smith) and "1a)" (Hebrew outline) start indented lines.
+  // One line per sense: "__1." (Abbott-Smith) starts an indented line.
   // A few entries run a marker on mid-line (no break in the source): start a new line there too.
   html = html.replace(/\s*__(?=\s*\S)/g, "\n__");
   const lines = html.split("\n").map((l) => l.trim().replace(/^:\s*/, "")).filter(Boolean); // some entries start with ": …"
@@ -659,8 +659,8 @@ async function renderEntry(main, rawKey) {
       <div class="entry-def${longDef ? " clipped" : ""}" lang="en">${defHTML}</div>
       ${longDef ? `<p><button type="button" class="btn secondary" data-full-def aria-expanded="false">Read the full definition</button></p>` : ""}
       <p class="entry-credit">${e.letter === "G"
-        ? "From STEPBible's Greek lexicon, based on Abbott-Smith's <em>Manual Greek Lexicon of the New Testament</em> (AS) and the Liddell–Scott lexicon (ML)."
-        : "From STEPBible's Hebrew lexicon, based on Brown–Driver–Briggs."}</p>
+        ? "From STEPBible's Greek lexicon, based on Abbott-Smith's <em>Manual Greek Lexicon of the New Testament</em> (AS) and the Middle Liddell (ML; Perseus Digital Library, CC BY-SA)."
+        : "From Strong's Hebrew dictionary (1890), as edited by the Open Scriptures Hebrew Bible Project. Short meanings: STEPBible (Tyndale House)."}</p>
     </section>` : ""}
 
     ${siblings.length ? `<section class="entry-sec">

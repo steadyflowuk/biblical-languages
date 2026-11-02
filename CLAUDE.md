@@ -6,7 +6,9 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 (https://claude.ai/artifact/6XUnCXehf36NFpjEky5anT).
 
 ## Rules
-- Only public-domain or CC BY data is committed (site is public on GitHub Pages). No NA28, LSB or Logos text.
+- Only public-domain or CC BY data is committed (site is public on GitHub Pages). No NA28 (or any Nestle-Aland
+  reading, spelling, punctuation or paragraphing), LSB, Logos or Online Bible text. Check every new source's licence
+  notes inside the files, not just the repo's licence (STEPBible's TBESH 'Meaning' column is Online Bible's: not usable).
   One exception (Session 6): `data/lxx` is Swete's public-domain Septuagint from the GPL-3.0 LXX-Swete-1930 database,
   committed with its LICENSE and README. Keep that folder's LICENSE/README with it. The user confirmed keeping it
   (27 Oct 2026). GPL duties: licence + credit + dated notice of changes (written by build_lxx.py into
@@ -132,15 +134,29 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   current votd.json given parts from data/gnt since the sources weren't here). data.morph() fixes source spelling
   slips once on load (belonginging, malemembers, shouldor, Yourteachings, Pharoah, transtive). "toward" → "towards".
 
+- [x] 13 (2 Nov 2026): copyright clean-up. Greek NT = the SBL Greek New Testament (CC BY 4.0) in place of the NA28
+  wording: build_greek() reads SBLGNT's XML (words, spelling, punctuation, ⟦ ⟧, paragraphs from <p>, verse numbers;
+  apparatus signs ⸀⸂⸃ dropped) and matches each word to TAGNT rows flagged SBL (then variant-column SBL readings, any
+  reading of the verse, joins/splits like μήγε = μή + γε and καὶ ἐγώ = κἀγώ, gaps by position). SBL_TAGS tags 16
+  words SBLGNT prints differently from TAGNT's SBL flags (ἐθαύμασεν, πέπτωκαν, John 8 pericope …); every spelling
+  difference is logged (SPELLING_LOG) and was reviewed. Translit falls back to greek_translit() for SBL spellings.
+  SBL omits Rom 16:25-27 (Reader: note + BSB on its own), prints Rom 16:24 (Reader: "The BSB leaves this verse out"),
+  numbers Acts 19:41 into 19:40, capitalises quotations, writes ἀλλά unelided and elides with ʼ. Greek deck 315
+  (γραφή fell to 49). Hebrew definitions: STEPBible's TBESH Meaning is Online Bible's Abridged BDB ("permission should
+  be gained") — replaced by Strong's Hebrew dictionary (public domain) from openscriptures/HebrewLexicon (CC BY 4.0,
+  credit "Open Scriptures Hebrew Bible Project"). Greek definitions: Abbott-Smith (public domain) + Middle Liddell
+  (Perseus, CC BY-SA: credited; README notes share-alike). check_data: Greek must equal SBLGNT letter for letter,
+  every word tagged, no apparatus signs, Rom 16:25-27 the only BSB verses without Greek.
+
 ## Data (Session 2)
 - Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (46 checks).
-- Greek = TAGNT words whose editions include NA28, plus 64 places where NA28's reading sits in TAGNT's variant column
-  (e.g. Jude 5 Ἰησοῦς) and 9 NA28 spellings. 137,954 words, 7,942 verses, NA28 verse numbering. 92% of verses
-  letter-identical to SBLGNT; the rest are NA28 bracketed words and known NA28/SBL differences.
+- Greek = SBLGNT text (since Session 13; see the log) tagged from TAGNT. 137,741 words, 7,939 verses, SBL verse
+  numbering, identical to SBLGNT letter for letter (check_data). TAGNT's own main refs follow Nestle-Aland numbering;
+  only its tagging is used.
 - TAGNT refs: main = NA28 numbering; [x.y] = English numbering for part of a verse; {x.y} = where other editions
   put it (e.g. Rom 16:25{14.24}). Missing the {..} form once dropped John 7:53 and Rom 16:25-27 — check_data guards it.
-- Greek "after" can contain ¶ (paragraph break, 2,240×) and once ¬ (Mat 11:17): never display them; ¶ is useful
-  for Reader paragraphs. NA28 double brackets [[ ]] are kept in before/after (John 7:53-8:11 etc.).
+- Greek "after" can end in ¶ (paragraph break, from SBLGNT's <p>): never display it; the Reader uses it for
+  paragraphs. SBL's double brackets ⟦ ⟧ are kept in before/after (Mark 16:8 shorter ending, 16:9-20, John 7:53-8:11).
 - Hebrew = TAHOT (Leningrad), English verse numbering with Hebrew ref kept where different (2,090 verses).
   Qere shown, ketiv in word note (flag "q"); 14 written-but-not-read words flagged "k"; type X words (from other
   manuscripts, e.g. Gen 4:8) flagged "x". 305,648 words. Psalm titles are English verse 0.
@@ -150,8 +166,9 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - BSB from communityofbrothers.github.io/assets/bsb.gz (ebible/bereanbible blocked here). Known issue: some BSB
   footnotes contain stray "a" words from that conversion (e.g. "Literally a day one"); only "a a" fixed. Replace
   from an official BSB file if the user allows ebible.org or bereanbible.com in Settings > Capabilities.
-- Numbering differences the Reader must map: 3 John 1:15 and Rev 12:18 (no BSB verse), 2 Cor 13:14 (BSB) = NA28 13:13.
-  BSB omits 15 verses that NA28 also omits (Mat 17:21 etc.).
+- Numbering differences the Reader must map: 3 John 1:15 and Rev 12:18 (no BSB verse), 2 Cor 13:14 (BSB) = Greek 13:13,
+  Acts 19:41 (BSB) inside Greek 19:40, Rom 16:24 (Greek only), Rom 16:25-27 (BSB only). The BSB omits the verses SBL omits
+  (Mat 17:21 etc.).
 - Lexicon glosses can be "general: specific" (e.g. "to hear: hear"); show the part after ": " in compact UI.
 - STEPBible asks that data isn't changed (corrections go to them): we reformat; only grammar explanations are restyled.
   Credit required (Settings > About, README).
@@ -163,13 +180,13 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   showGrammar, showBSB, lastRead.
 - Greek verse item may carry a 3rd element: list of English (BSB) verse refs its words belong to (from TAGNT [x.y],
   KJV-based) — 38 verses. BSB_REF_OVERRIDES in build_data.py fixes where the BSB differs from KJV (Rev 12:18 → 12:17).
-  The Reader gives each English verse to the first NA28 verse holding its words; check_data verifies full coverage.
-- BSB placement: an English verse goes under the NA28 verse with the same number if that verse holds any of its
-  words, else under the first NA28 verse holding them. Only 3 John 15 and Rev 12:18 then show "part of verse …".
+  The Reader gives each English verse to the first Greek verse holding its words; check_data verifies full coverage.
+- BSB placement: an English verse goes under the Greek verse with the same number if that verse holds any of its
+  words, else under the first Greek verse holding them. Only 3 John 15 and Rev 12:18 then show "part of verse …".
 - Grammar display: friendlyGrammar() dedupes and maps source tags in ONE regex pass (individual → name of a person,
   location → place, title, "… gentilic" → people group); "1st person" in pronouns is grammar, left alone.
   shortGrammar() abbreviates for under-word display. Strong's shown in familiar form via strongs() (G0025 → G25).
-- Double brackets [[ ]]: a one-per-chapter note explains them (Mark 16:8 Shorter Ending, 16:9-20, John 7:53-8:11).
+- Double brackets ⟦ ⟧: a one-per-chapter note explains them (Mark 16:8 Shorter Ending, 16:9-20, John 7:53-8:11).
 - Sheets make every other body child `inert` while open (focus stays inside; Escape closes; focus returns).
 - Light-theme small text uses --accent-ink #765A1C and --sage-ink #476050 (≥5:1 on beige). color-mix() has rgba
   fallbacks. JS avoids ??= etc.: baseline is iOS 13.4 (optional chaining). Older iPads won't run the app.
@@ -204,7 +221,8 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 
 ## Dictionary (Session 5)
 - Data: `tools/build_dictionary.py` (called at the end of build_data.py) rewrites lex/G|H/<nn>.json entries to
-  [lemma, translit, morph, gloss, def, rel, occ, forms]; occ = {BOOK: "c.v.wi …"} in Reader numbering; forms =
+  [lemma, translit, morph, gloss, def, rel, occ, forms] (Hebrew def = Strong's, written by build_data's
+  strongs_hebrew_definitions(); never TBESH's Meaning); occ = {BOOK: "c.v.wi …"} in Reader numbering; forms =
   [[form, count, code]] (Hebrew: main part, cantillation removed, grouped ignoring dagesh/rafe, one row per grammar).
   Index = [key, lemma, translit, gloss, count, keywords]; count = occurrence count (single source of truth for the
   Reader's "how common" too); keywords = up to 12 English words from the definition (so "shepherd" finds רָעָה).
@@ -310,7 +328,8 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   (split senses: τηρέω G5083G, κύριος G2962G, φωνή G5456G, οἶκος G3624G). Read verses chosen with tools/find_verses.py.
 - check_lessons also checks Greek pronunciations (capitalised syllable = accented one, one part per vowel sound;
   skipped when the say has a note in it) and that Greek quoted in a verse note is in that verse (form or dictionary
-  form; endings/stems with "-" skipped). Our NT text doesn't capitalise quotations (110 of 4,004 after "·").
+  form; endings/stems with "-" skipped). The SBL text capitalises the start of a quotation (Πεπλήρωται, Ἐγώ);
+  greek_key ignores case and treats elision marks ’ ʼ ᾽ alike.
 - Short step labels show up to 460px (and to 680px at larger/largest text); lesson tables tighten and hyphenate
   English under 460px so every column stays in view; don't put long English in Greek table columns.
 - Explain cards can carry `table`; `"letters": true` skips spelling; lesson `"unattested"` lists paradigm forms
@@ -345,7 +364,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   card later met in a lesson takes the lesson's wording.
 - plan() refreshes list cards (src deck) from the current deck: wording, say and count follow corrections.
 - store.get() returns a fresh copy of object defaults (a mutated default {} once leaked cards across a reset).
-- Decks: tools/build_decks.py (also run by build_data.py) → data/decks/greek.json (316: Mounce's 319 minus split
+- Decks: tools/build_decks.py (also run by build_data.py) → data/decks/greek.json (315 since the SBL text; 316 before: Mounce's 319 minus split
   senses) and hebrew.json (743; Aramaic-only, H9001+ and the two "[כִּי] אם" phrase entries left out; "be X" → "to be X"). [key, lemma, gloss, count, say]; Greek say empty
   (the app respells), Hebrew say from the commonest standalone TAHOT translit (last capitalised syllable = stress;
   'E at the start can be hataf) → "ME-lekh"; ph → f; YHWH say "a-do-NAI". OVERRIDES = our wording where the brief

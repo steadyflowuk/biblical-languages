@@ -100,9 +100,9 @@
       "letters": true,
       "body": [
         "Full stops and commas work as in English. A raised dot · is a pause like a colon or semicolon, and often comes just before someone's words. ; is the Greek question mark.",
-        "An apostrophe shows a dropped vowel before another vowel: δι’ αὐτοῦ is διά αὐτοῦ, “through him”. Capitals mark names and the start of a paragraph, not every sentence.",
-        "Double brackets ⟦ ⟧ (shown [[ ]] in the Reader) mark passages that most scholars think were added after the Gospel was first written, such as John 7:53–8:11 and Mark 16:9–20. The Reader explains them where they appear.",
-        "The printed NA28 also has a list of manuscript readings at the foot of each page (the apparatus), with its own signs. That isn't part of this app, and none of it changes how the main text is read aloud."
+        "An apostrophe shows a dropped vowel before another vowel: δι’ αὐτοῦ is διά αὐτοῦ, “through him”. Capitals mark names, the start of a paragraph and the start of someone's words, not every sentence.",
+        "Double brackets ⟦ ⟧ mark passages that most scholars think were added after the Gospel was first written, such as John 7:53–8:11 and Mark 16:9–20. The Reader explains them where they appear.",
+        "Printed Greek New Testaments also list manuscript readings at the foot of each page (the apparatus), with their own signs. That isn't part of this app, and none of it changes how the main text is read aloud."
       ]
     }
   ],

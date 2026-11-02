@@ -127,7 +127,7 @@ function bsbHTML(text, notes, ch) {
 
 const refLabel = (r) => r.replace(".", ":");
 
-/** The English (BSB) verses an NA28 verse covers: usually its own number; see build_data.py for the exceptions. */
+/** The English (BSB) verses a Greek verse covers: usually its own number; see build_data.py for the exceptions. */
 function englishRefs(state, verse) {
   return Array.isArray(verse[2]) ? verse[2] : [`${state.ch}.${verse[0]}`];
 }
@@ -378,12 +378,31 @@ function headingsHTML(state, v) {
   return (state.bsb.headings.get(v) || []).map((h) => `<h2 class="sec">${esc(h)}</h2>`).join("");
 }
 
-const BRACKET_NOTE = `<p class="v-gap v-note">Words in double brackets [[ ]] are not in the oldest manuscripts. The NA28 editors print them because they were added very early and have long been read in the church.</p>`;
+const BRACKET_NOTE = `<p class="v-gap v-note">Words in double brackets ⟦ ⟧ are not in the oldest manuscripts. The SBL editors keep them in the text, marked off, because they were added very early and have long been read in the church.</p>`;
+/** True when a verse's words open a passage the SBL text prints in double brackets ⟦ ⟧ (Mark 16:9-20, John 7:53-8:11). */
+const opensBracket = (words) => words.some((w) => /⟦|\[\[/.test(String(w[6] || "")));
 
 function missingNote(from, to) {
   const list = from === to ? `Verse ${from} is` : `Verses ${from} to ${to} are`;
-  return `<p class="v-gap">${list} not in the oldest manuscripts, so the NA28 text and the BSB leave ${from === to ? "it" : "them"} out. The BSB footnote nearby gives the wording found in later manuscripts.</p>`;
+  return `<p class="v-gap">${list} not in the oldest manuscripts, so the SBL Greek text and the BSB leave ${from === to ? "it" : "them"} out. The BSB footnote nearby gives the wording found in later manuscripts.</p>`;
 }
+
+// Verses the BSB has after the last Greek verse of a chapter: Romans 16:25-27, which the SBL text doesn't print
+const BSB_ONLY_WHY = {
+  "ROM 16": "Manuscripts place these closing words of praise in different parts of the letter, and the SBL edition doesn't print them here.",
+};
+function bsbOnlyNote(state, nums) {
+  if (!nums.length) return "";
+  const list = nums.length === 1 ? `verse ${nums[0]}` : `verses ${nums[0]} to ${nums[nums.length - 1]}`;
+  return `<p class="v-gap">The SBL Greek text doesn't have ${list}. ${BSB_ONLY_WHY[`${state.book.id} ${state.ch}`] || ""} ${state.prefs.showBSB && state.prefs.readLayout !== "text" ? "The BSB's English is shown on its own." : ""}</p>`;
+}
+/** BSB verse numbers after the chapter's last Greek verse that no Greek verse carries. */
+function bsbOnlyAfter(state, carried) {
+  const last = state.verses.length ? state.verses[state.verses.length - 1][0] : 0;
+  return [...state.bsb.verses.keys()].filter((v) => v > last && state.bsb.verses.get(v) && !carried.has(`${state.ch}.${v}`));
+}
+/** For a Greek verse the BSB leaves out altogether (Romans 16:24 is in the SBL text, not in the BSB). */
+const BSB_LEAVES_OUT = "The BSB leaves this verse out, following the manuscripts that don't have it.";
 
 /** "4–49", "11", "8–24" from a sorted list of verse numbers. */
 function ranges(nums) {
@@ -428,8 +447,8 @@ function chapterHTML(state) {
 function greekChapterHTML(state) {
   const out = [];
   const assigned = new Set();
-  // An English verse goes under the NA28 verse with the same number when that verse holds any of its words,
-  // otherwise under the first NA28 verse that holds them (e.g. 2 Cor 13:14 under NA28 13:13).
+  // An English verse goes under the Greek verse with the same number when that verse holds any of its words,
+  // otherwise under the first Greek verse that holds them (e.g. 2 Cor 13:14 under Greek 13:13).
   const owner = new Map();
   state.verses.forEach((verse, vi) => {
     const own = `${state.ch}.${verse[0]}`;
@@ -447,7 +466,7 @@ function greekChapterHTML(state) {
     const heads = headingsHTML(state, v);
     if (textMode) {
       if (heads) { flushPara(); out.push(heads); }
-      if (!state.bracketNoted && words.some((w) => String(w[6] || "").includes("[["))) {
+      if (!state.bracketNoted && opensBracket(words)) {
         state.bracketNoted = true;
         flushPara(); out.push(BRACKET_NOTE);
       }
@@ -462,7 +481,7 @@ function greekChapterHTML(state) {
       return;
     }
     out.push(heads);
-    if (!state.bracketNoted && words.some((w) => String(w[6] || "").includes("[["))) {
+    if (!state.bracketNoted && opensBracket(words)) {
       state.bracketNoted = true;
       out.push(BRACKET_NOTE);
     }
@@ -475,18 +494,19 @@ function greekChapterHTML(state) {
     const tag = trTag(state, "BSB");
     const bsb = !state.prefs.showBSB ? ""
       : parts.length ? `<p class="bsb">${tag}${parts.join(" ")}</p>`
+      : !refs.some((r) => bsbVerse(state, r)) ? `<p class="bsb muted">${tag}${BSB_LEAVES_OUT}</p>`
       : `<p class="bsb muted">${tag}In the BSB these words are part of ${refs.map((r) => (r.startsWith(`${state.ch}.`) ? `verse ${r.split(".")[1]}` : refLabel(r))).join(" and ")}.</p>`;
     out.push(`<div class="v" data-vi="${vi}" id="v${v}"><span class="vn"><span class="sr">Verse </span>${v}</span><div class="words" lang="grc">${words.map((w, wi) => wordHTML(w, vi, wi, state)).join("")}</div>${bsb}${esvHTML(state, esvRefs(state, vi, fresh), "p")}</div>`);
   });
   flushPara();
 
-  // Any BSB verse in this chapter that no NA28 verse covered (none expected; kept as a safety net)
+  // BSB verses after the last Greek verse (Romans 16:25-27): a note, then the English on its own
+  const only = bsbOnlyAfter(state, assigned);
+  out.push(bsbOnlyNote(state, only));
   if (state.prefs.showBSB && !textMode) {
-    for (const [v, text] of state.bsb.verses) {
-      if (v > 0 && text && !assigned.has(`${state.ch}.${v}`) && v > prev) {
-        out.push(`<div class="v v-bsb-only"><span class="vn">${v}</span><p class="bsb">${bsbHTML(text, state.bsb.notes, state.ch)}</p></div>`);
-      }
-    }
+    only.forEach((v) => {
+      out.push(`<div class="v v-bsb-only"><span class="vn">${v}</span><p class="bsb">${bsbHTML(state.bsb.verses.get(v), state.bsb.notes, state.ch)}</p></div>`);
+    });
   }
   return out.join("");
 }
@@ -675,7 +695,7 @@ function ownedRefs(state) {
   });
 }
 
-function bsbForRefs(state, refs, v) {
+function bsbForRefs(state, refs, v, all) {
   if (state.he) {
     const text = state.bsb.verses.get(v);
     return text ? bsbHTML(text, state.bsb.notes, state.ch) : `<span class="muted">—</span>`;
@@ -683,7 +703,8 @@ function bsbForRefs(state, refs, v) {
   const own = refs.length === 1 && refs[0] === `${state.ch}.${v}`;
   const parts = refs.map((r) => bsbVerse(state, r)).filter(Boolean)
     .map((b) => (own ? "" : `<sup class="bsb-ref">${b.c === state.ch ? b.n : `${b.c}:${b.n}`}</sup>`) + bsbHTML(b.text, b.notes, b.c));
-  return parts.length ? parts.join(" ") : `<span class="muted">Part of a neighbouring verse in the BSB.</span>`;
+  return parts.length ? parts.join(" ") : !(all || refs).some((r) => bsbVerse(state, r)) && !state.he ? `<span class="muted">${BSB_LEAVES_OUT}</span>`
+    : `<span class="muted">Part of a neighbouring verse in the BSB.</span>`;
 }
 
 /** Side by side: each verse with the original and the chosen translations in columns (stacked on phones). */
@@ -702,13 +723,13 @@ function parallelHTML(state) {
     if (!he && v > prev + 1 && prev > 0) out.push(missingNote(prev + 1, v - 1));
     prev = v;
     out.push(headingsHTML(state, v) + (notes.get(vi) || []).join(""));
-    if (!he && !state.bracketNoted && words.some((w) => String(w[6] || "").includes("[["))) { state.bracketNoted = true; out.push(BRACKET_NOTE); }
+    if (!he && !state.bracketNoted && opensBracket(words)) { state.bracketNoted = true; out.push(BRACKET_NOTE); }
     const refs = owned[vi];
     const orig = words.map((w, wi) => wordHTML(w, vi, wi, state) + (he && heJoined(w[5]) ? "" : " ")).join("");
     const cells = cols.map(([k, label]) => {
       const lab = `<span class="col-label">${label}</span>`;
       if (k === "orig") return `<div class="col col-orig" lang="${he ? "he" : "grc"}" dir="${he ? "rtl" : "ltr"}">${orig}</div>`;
-      if (k === "bsb") return `<div class="col col-bsb" lang="en">${lab}${bsbForRefs(state, refs, v)}</div>`;
+      if (k === "bsb") return `<div class="col col-bsb" lang="en">${lab}${bsbForRefs(state, refs, v, he ? null : englishRefs(state, verse))}</div>`;
       if (k === "esv") {
         const er = esvRefs(state, vi, refs);
         const t = er.length ? esvTextFor(state, er) : "";
@@ -718,6 +739,12 @@ function parallelHTML(state) {
     }).join("");
     out.push(`<div class="v pv" data-vi="${vi}" id="v${v}"><span class="vn"><span class="sr">Verse </span>${v === 0 ? "title" : v}</span><div class="cols n${cols.length}">${cells}</div></div>`);
   });
+  if (!he) {
+    const carried = new Set([].concat(...Object.values(owned)));
+    const only = bsbOnlyAfter(state, carried);
+    out.push(bsbOnlyNote(state, only));
+    if (state.prefs.showBSB) only.forEach((v) => out.push(`<div class="v v-bsb-only"><span class="vn">${v}</span><p class="bsb">${bsbHTML(state.bsb.verses.get(v), state.bsb.notes, state.ch)}</p></div>`));
+  }
   return out.join("");
 }
 
@@ -900,7 +927,7 @@ export const read = {
           <button type="button" class="icon-btn" data-display aria-haspopup="dialog" aria-label="Display options"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button>
         </div>
       </header>
-      <p class="reader-source">${he ? "Hebrew and Aramaic Old Testament (Leningrad Codex)" : "Greek New Testament (NA28 text)"} with the Berean Standard Bible</p>
+      <p class="reader-source">${he ? "Hebrew and Aramaic Old Testament (Leningrad Codex)" : "Greek New Testament (SBL edition)"} with the Berean Standard Bible</p>
       <div class="chapter" aria-busy="true"><p class="muted">Loading ${esc(title)}…</p></div>
       <nav class="chapter-nav" aria-label="Chapters">
         ${prevRef ? `<a class="btn secondary" href="${link(prevRef)}">${esc(label(prevRef))}</a>` : "<span></span>"}

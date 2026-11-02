@@ -29,10 +29,17 @@ if [ ! -f bsb/bsb.json ]; then
   mkdir -p bsb && gunzip -c cob/assets/bsb.gz > bsb/bsb.json
 fi
 
+# Strong's Hebrew dictionary (1890, public domain) as prepared by the Open Scriptures Hebrew Bible Project (CC BY 4.0):
+# the Hebrew dictionary's definitions (STEPBible's own Hebrew definitions are Online Bible's and need its permission)
+if [ ! -f HebrewLexicon/HebrewStrong.xml ]; then
+  rm -rf HebrewLexicon && git clone -q --depth 1 --filter=blob:none --no-checkout https://github.com/openscriptures/HebrewLexicon HebrewLexicon
+  (cd HebrewLexicon && git sparse-checkout init --no-cone && git sparse-checkout set --no-cone /HebrewStrong.xml /readme.md && git checkout -q HEAD)
+fi
+
 # Independent copies used only by tools/check_data.py
 if [ ! -d sblgnt ]; then
   git clone -q --depth 1 --filter=blob:none --no-checkout https://github.com/LogosBible/SBLGNT sblgnt
-  (cd sblgnt && git sparse-checkout init --no-cone && git sparse-checkout set --no-cone '/data/sblgnt/text/*' && git checkout -q HEAD)
+  (cd sblgnt && git sparse-checkout init --no-cone && git sparse-checkout set --no-cone '/data/sblgnt/text/*' '/data/sblgnt/xml/*' '/LICENSE*' '/README*' && git checkout -q HEAD)
 fi
 if [ ! -d morphhb ]; then
   git clone -q --depth 1 --filter=blob:none --no-checkout https://github.com/openscriptures/morphhb morphhb

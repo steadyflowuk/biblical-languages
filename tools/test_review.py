@@ -168,7 +168,7 @@ async def main():
         check("Changing it to 20 shows all 8", True)
         await pg.check("[data-deck='grc']")
         await pg.wait_for_function("document.querySelector('.rv-summary').textContent.includes('20 new')", timeout=5000)
-        check("Greek list on: lesson words first, then the commonest words, up to 20", "316 most common Greek words" in await pg.locator(".rv-lists").inner_text())
+        check("Greek list on: lesson words first, then the commonest words, up to 20", "315 most common Greek words" in await pg.locator(".rv-lists").inner_text())
         await pg.click("[data-start]")
         order = []
         for _ in range(10):
@@ -318,7 +318,7 @@ async def main():
         await pg.goto(f"{BASE}#/review")
         await pg.wait_for_selector(".rv-summary")
         t = await pg.locator(".screen").inner_text()
-        check("Offline: both word lists still load (saved with the app)", "need a connection" not in t and "316 most common" in t and bool(re.search(r"7\d\d most common Hebrew", t)), t[:200])
+        check("Offline: both word lists still load (saved with the app)", "need a connection" not in t and "315 most common" in t and bool(re.search(r"7\d\d most common Hebrew", t)), t[:200])
         await ctx.set_offline(False)
 
         # 12. Lists can't load (offline, first time): the page still works

@@ -118,20 +118,24 @@ async def main():
         await pg.wait_for_selector('.occ-book[data-book="JHN"][open] .occ')
         check("Back: returns to λόγος with John still open", await pg.locator('.occ-book[data-book="JHN"][open]').count() == 1)
 
-        # 5. A Hebrew entry with an outline definition and other senses
+        # 5. A Hebrew entry with its Strong's definition and other senses
         await pg.goto(f"{BASE}#/words/H1254A")
         await pg.wait_for_selector(".entry-def")
         outline = await pg.locator(".def-line").count()
         sib = await pg.locator(".entry-sec .rows .dict-row").all_inner_texts()
         gen = await pg.text_content('.occ-book[data-book="GEN"] .occ-n')
-        check("Entry בָּרָא: numbered definition, 'to fatten' as another meaning, 11 in Genesis",
-              outline >= 10 and any("fatten" in s for s in sib) and gen.strip() == "11", f"{outline} {sib} {gen}")
+        dtext = await pg.locator(".entry-def").inner_text()
+        check("Entry בָּרָא: Strong's definition (meaning, origin, KJV), 'to fatten' as another meaning, 11 in Genesis",
+              "create" in dtext and "Origin:" in dtext and "Translated in the KJV:" in dtext and any("fatten" in s for s in sib)
+              and gen.strip() == "11", f"{dtext[:200]} {sib} {gen}")
+        credit = await pg.locator(".entry-credit").inner_text()
+        check("Hebrew definitions credit Strong's and Open Scriptures (not Online Bible's BDB)", "Strong's Hebrew dictionary" in credit and "Open Scriptures" in credit, credit)
         forms = [r.split("\t")[0].strip() for r in await pg.locator(".forms tbody tr").all_inner_texts()]
         check("Entry בָּרָא: forms differing only by a dagesh are one row", len(forms) == len(set(f.replace("ּ", "") for f in forms)), forms)
 
-        await pg.goto(f"{BASE}#/words/H0157G")
+        await pg.goto(f"{BASE}#/words/H0003")
         await pg.wait_for_selector(".entry-def")
-        check("Definition: a mention of another entry (H0157H) links to it", await pg.locator(".entry-def a[href='#/words/H0157H']").count() >= 1)
+        check("Definition: a mention of another entry (from H0024) links to it", await pg.locator(".entry-def a[href='#/words/H0024']").count() >= 1)
 
         # 6. Entries that are not ordinary words
         await pg.goto(f"{BASE}#/words/H9002")

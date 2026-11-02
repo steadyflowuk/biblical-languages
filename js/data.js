@@ -79,7 +79,7 @@ export const lxxBooks = () => getJSON("data/lxx/books.json");
 export const lxxText = (id) => getJSON(`data/lxx/text/${id}.json`);
 export const lxxForOT = (bookId) => getJSON(`data/lxx/ot/${bookId}.json`);
 
-/** Original-language text of a book: Greek NT (NA28) or Hebrew/Aramaic OT (Leningrad). */
+/** Original-language text of a book: Greek NT (SBL edition) or Hebrew/Aramaic OT (Leningrad). */
 export async function original(bookId) {
   const list = await books();
   const book = list.find((b) => b.id === bookId);

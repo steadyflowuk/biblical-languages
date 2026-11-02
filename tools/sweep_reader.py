@@ -55,7 +55,7 @@ async def main():
                 if r["bad"]: issues["bad text on screen"].append(f"{ref}: {r['bad']}")
                 if r["engLeft"]: issues["leftover markup in English"].append(f"{ref}: {r['engLeft']}")
                 if r["ov"] > 0 or r["wide"]: issues["wider than the screen"].append(f"{ref}: overflow {r['ov']}px, {r['wide']} words")
-                if r["extra"]: issues["BSB-only verses appended"].append(ref)
+                if r["extra"] and ref != "ROM 16": issues["BSB-only verses appended"].append(ref)  # Rom 16:25-27: SBL doesn't print them
                 if len(errs) > n0: issues["console errors"].append(f"{ref}: {errs[n0:][:2]}")
         print(f"{chapters} chapters, {total_words:,} words rendered at 360px with pronunciation and grammar on")
         print("BSB 'part of a neighbouring verse' notes:", notes)

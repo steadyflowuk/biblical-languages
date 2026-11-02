@@ -66,7 +66,7 @@
           "title": "Punctuation and capitals",
           "body": [
             "Full stops and commas look and work as in English. A raised dot (·) is a pause like a colon or semicolon. And the Greek question mark is ; — a semicolon in English eyes.",
-            "Capital letters mark names and the start of a paragraph, not every sentence. There are no quotation marks either: a raised dot often comes just before someone's words, as in λέγει αὐτοῖς· (he says to them:)."
+            "Capital letters mark names, the start of a paragraph and the start of someone's words, not every sentence. There are no quotation marks either: a raised dot often comes just before someone's words, as in λέγει αὐτοῖς· (he says to them:)."
           ],
           "examples": [
             { "t": "τίς;", "say": "tis?", "en": "who?" },

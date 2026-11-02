@@ -38,6 +38,7 @@ def bad(where, msg):
 # ---------------------------------------------------------------- spelling sources
 def greek_key(w):
     """Compare Greek with accents and breathings, but grave = acute (καὶ in a sentence = καί) and no punctuation."""
+    w = re.sub("[\u2019\u02bc\u1fbd'\u1fbf]", "", w)  # elision marks: ’ in our text, ʼ in the SBL text, ᾽
     w = unicodedata.normalize("NFD", w).replace("̀", "́")
     w = re.sub(r"[^\ẁ-ͯ]", "", w)
     return unicodedata.normalize("NFC", w).lower()

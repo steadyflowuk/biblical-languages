@@ -163,6 +163,16 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   NA28 text and Online Bible definitions (essentials re-save 8 s after opening; "Save it all" needs repeating).
   About/README: licence links, STEPBible change notes. Known, left: H0426 אֱלָהּ labelled Hebrew (STEPBible's code).
 
+- [x] 13c (2 Nov 2026): the full check built — tools/check_all.py (one command, report in tools/reports/), tools/
+  audit_content.py (copyright, data, wording, shell and page checks for the mistakes reviews used to find; proven on
+  the 13b Reader bugs), tools/REVIEW_BRIEF.md (independent reviewer agent). First quick run: one finding — the new
+  licence links in Settings › About were 21px tall; now a "Sources and licences" list of 44px links. Skill proposed to
+  the user: aleph-full-check.
+  **For the next full check (user's request: feed these in):** run `python3 tools/check_all.py` (full) — the
+  dictionary sweep last ran before the final 13b rebuild; reviewer to look again at Hebrew entries that lost their
+  Strong's definition under the shared-number rule (559 of 11,682) and at H0426 אֱלָהּ labelled Hebrew (STEPBible's code);
+  the Claude Docs plan and guide still say "NA28" (offered to update).
+
 ## Data (Session 2)
 - Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (46 checks).
 - Greek = SBLGNT text (since Session 13; see the log) tagged from TAGNT. 137,741 words, 7,939 verses, SBL verse

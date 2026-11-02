@@ -1049,3 +1049,9 @@ button.row:hover { background: var(--surface-soft); }
 .ck-tip { margin: 6px 0 0; font-size: .92rem; }
 .ck-report { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .82rem; line-height: 1.45; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 12px 14px; margin: 0 0 12px; max-height: 22rem; overflow: auto; }
 .restore-confirm { margin-top: 14px; }
+
+/* Settings › About: sources and licences as full-size links */
+.about-links-title { font-size: 1rem; margin: 18px 0 4px; }
+.about-links { list-style: none; margin: 0; padding: 0; }
+.about-links li + li { border-top: 1px solid var(--line); }
+.about-links a { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 4px 2px; }

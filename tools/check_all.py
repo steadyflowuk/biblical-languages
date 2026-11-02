@@ -145,10 +145,11 @@ def main():
             for name in batch:
                 if stage == 3 and not results[name]["ok"]:
                     print(f"  re-running {name} on its own …")
+                    shutil.copy(os.path.join(OUT, f"{name}.log"), os.path.join(OUT, f"{name}.first-run.log"))
                     _, code, log, secs = run(name)
                     if not failed(name, code, log):
                         results[name].update(ok=True, retry=True, head=headline(log), log=log)
-                        print(f"  pass  {name:18} on retry (look at {name}.log from the first run)")
+                        print(f"  pass  {name:18} on retry (first run: {name}.first-run.log)")
     finally:
         if server:
             server.terminate()

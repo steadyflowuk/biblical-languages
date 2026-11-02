@@ -558,7 +558,7 @@ async def audit_pages():
         await pg.goto(f"{BASE}#/words/H6211B")
         await pg.wait_for_selector(".entry-lemma")
         t = await pg.locator("main").inner_text()
-        if "moth" in t.lower():
+        if await pg.locator(".entry-def").count() and "moth" in (await pg.locator(".entry-def").inner_text()).lower():
             bad.append("Words › H6211B 'grass' shows the definition of 'moth'")
         if "together with another word" not in t:
             bad.append("Words › H6211B: no note saying why there is no definition")

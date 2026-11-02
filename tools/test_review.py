@@ -342,8 +342,12 @@ async def main():
         await pg.evaluate("""() => localStorage.setItem('ao:cards', JSON.stringify({ 'grc:G0846': { id: 'grc:G0846', lang: 'grc', k: 'G0846', t: 'αὐτός', say: '', en: 'it/s/he', n: 1, src: 'deck',
             f: { due: new Date(Date.now() + 5 * 86400000).toISOString(), stability: 5, difficulty: 5, elapsed_days: 0, scheduled_days: 5, reps: 1, lapses: 0, learning_steps: 0, state: 2 } } }))""")
         await open_review(pg)
-        c = await pg.evaluate("JSON.parse(localStorage.getItem('ao:cards'))['grc:G0846']")
-        check("A list card picks up the list's corrected meaning and count", c["en"] == "he, she, it; self, same" and c["n"] > 1000, str(c))
+        try:  # the refresh is written a moment after the screen draws (slower when the machine is busy)
+            await pg.wait_for_function("(JSON.parse(localStorage.getItem('ao:cards') || '{}')['grc:G0846'] || {}).n > 1000", timeout=8000)
+        except Exception:
+            pass
+        c = await pg.evaluate("JSON.parse(localStorage.getItem('ao:cards') || '{}')['grc:G0846'] || {}")
+        check("A list card picks up the list's corrected meaning and count", c.get("en") == "he, she, it; self, same" and c.get("n", 0) > 1000, str(c))
         import datetime
         ctx3 = await b.new_context(viewport={"width": 390, "height": 844}, service_workers="block")
         pg3 = await ctx3.new_page()

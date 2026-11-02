@@ -3,10 +3,10 @@
 // - warmEssentials(): after the app opens online, quietly saves the books the lessons, the Letters tab's read-aloud
 //   verses and the dictionary's search lists need, so lessons and searching work offline from then on.
 // - saveEverything(): Settings › "Save it all for offline use" fetches every file in data/files.json.
-// Files go through the service worker, which keeps them in its data cache (data-v2).
+// Files go through the service worker, which keeps them in its data cache (data-v3).
 import * as data from "./data.js";
 
-const CACHE = "data-v2";
+const CACHE = "data-v3";
 const has = async (cache, url) => !!(cache && await cache.match(new URL(url, location.href).href));
 const openCache = async () => (window.caches ? caches.open(CACHE) : null);
 

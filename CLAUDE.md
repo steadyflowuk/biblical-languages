@@ -38,7 +38,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 - The one bold element: the verse panel on Today (navy, large original text, tap a word for its gloss).
 
 ## Structure
-- `index.html`, `manifest.webmanifest`, `sw.js` (shell cache + `data-v2` cache for `/data/`; data-v1 removed on activate)
+- `index.html`, `manifest.webmanifest`, `sw.js` (shell cache + `data-v3` cache for `/data/`; older data-v* removed on activate)
 - `css/app.css` — tokens at top, light/dark, text size via `html[data-size]`
 - `js/app.js` hash router · `js/screens.js` all screens · `js/store.js` settings + backup (localStorage keys `ao:*`)
 - `js/install.js` add-to-home-screen help · `js/verses.js` built-in fallback verses · `js/data.js` data loader
@@ -159,7 +159,7 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   Hebrew search keywords skip "Origin:" lines and labels (stop words added); "( )" removed from Strong's usage;
   definition links show H24 not H0024; Words note says 315; Rom 16:25-27 note "doesn't include them"; side-by-side
   says "part of verse 14" like word by word; lessons grc-3 (ἀλλ’ "often shortened"), grc-8 (MRK 1:1 υἱοῦ θεοῦ) and
-  grc-9 (MAT 6:33 τοῦ θεοῦ) notes follow SBL. sw.js DATA = data-v2: the update deletes data-v1 so devices drop the
+  grc-9 (MAT 6:33 τοῦ θεοῦ) notes follow SBL. sw.js DATA = data-v3: the update deletes data-v1 so devices drop the
   NA28 text and Online Bible definitions (essentials re-save 8 s after opening; "Save it all" needs repeating).
   About/README: licence links, STEPBible change notes. Known, left: H0426 אֱלָהּ labelled Hebrew (STEPBible's code).
 
@@ -190,6 +190,8 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
   lesson word, natural Hebrew English over all 305,648 words (node + js/hebrew.js); check_data's second-half excuse
   needs the "+" mark or same tag + grammar code. Left: Swete ISA 53:5 παιδία (source text, not ours); 53 names used only
   in Aramaic passages still tagged Hebrew (STEPBible gives names no language).
+  Second full run: everything passed (test_review once only on retry: it read the card before the refresh was saved;
+  it now waits). sw.js DATA = data-v3 so devices fetch the corrected files at once.
 
 ## Data (Session 2)
 - Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (46 checks).
@@ -478,12 +480,12 @@ Full research and plan: Claude Doc "Biblical Languages App — Research & Build 
 ## Device check (Session 12)
 - js/check.js: describeDevice(ua, maxTouchPoints) → {device, system, browser}; iPad asking for desktop sites = Macintosh UA
   with touch points. features(): flex gap measured, color-mix / :has / :focus-visible via CSS.supports, inert — all
-  cosmetic. Offline state from caches (shell-<VERSION>, data-v2). Voices waited for up to 2 s (voiceschanged).
+  cosmetic. Offline state from caches (shell-<VERSION>, data-v3). Voices waited for up to 2 s (voiceschanged).
   The test buttons call speak() inside the tap with onstart (new option in sound.js) → report "started"/"DID NOT START".
   Rows inside a voice item are divs (an li inside an li broke the list once). Settings tab stays current on #/check.
 - Device testing waits on the user: reports come back pasted into a chat ("session 12 results").
 - Offline data (12-check): warmEssentials() (app.js, 8 s after load; skipped offline or with Save-Data) fetches the
-  lesson/alphabet verse books (gnt|hot + bsb) and the two dictionary indexes not yet in data-v2 — about 30 files.
+  lesson/alphabet verse books (gnt|hot + bsb) and the two dictionary indexes not yet in data-v3 — about 30 files.
   saveEverything() fetches data/files.json's list (430 files; tools/list_data.py, run by build_data.py). Pages fetch
   through the service worker, which saves each file. Restore = store.importBackup() removes every ao: key first.
 

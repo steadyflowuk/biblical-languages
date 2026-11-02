@@ -76,8 +76,8 @@ async function offlineState() {
       out.version = shell.slice(6);
       out.shellFiles = (await (await caches.open(shell)).keys()).length;
     }
-    if (keys.indexOf("data-v2") >= 0) {
-      const reqs = await (await caches.open("data-v2")).keys();
+    if (keys.indexOf("data-v3") >= 0) {
+      const reqs = await (await caches.open("data-v3")).keys();
       out.dataFiles = reqs.length;
       out.books = reqs.filter((r) => /\/data\/(gnt|hot)\/[0-9A-Z]{3}\.json/.test(r.url)).length;
     }

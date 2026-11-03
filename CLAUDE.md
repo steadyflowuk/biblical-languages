@@ -198,7 +198,7 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
 - [x] 12b part A (3 Nov 2026): Phase 2 plan Part A. iPhone report (iOS 27.0.1, all healthy): describeDevice reads the
   real version from Safari's Version/NN when the UA says iOS 18.x (Apple froze it from iOS 26); "1 lesson" plurals.
   A3: BSB now from eBible.org's official USFM (engbsb_usfm.zip, dated 30 Oct 2026; fetch_sources.sh, usfm_book() in
-  build_data.py): stray "a" in footnotes gone; it is a newer BSB revision (1,083 verses, 265 notes, 43 headings
+  build_data.py): stray "a" in footnotes gone; it is a newer BSB revision (1,061 verses, 265 notes, 43 headings
   differ, apostrophes ’ not ʼ); BSB_FIXES puts right 3 slips in that file (PSA 3 "A Psalms of", 1CH 16 heading,
   JDG 16:14 space after a note); "Song of Songs" name kept. DATA stays data-v3 (files refresh in the background as
   used; no 70 MB re-download). A4 checks, all in check_all: test_a11y (axe-core 4.14 vendored in tools/vendor, MPL;

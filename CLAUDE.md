@@ -4,6 +4,8 @@ Personal PWA for learning Biblical Hebrew (incl. Aramaic) and Koine Greek for Bi
 Users: the owner and his mother (retired), on iPhone, iPad and Android. Beginner first; intermediate/advanced later.
 Full research and plan: Claude Doc "Biblical Languages App — Research & Build Plan"
 (https://claude.ai/artifact/6XUnCXehf36NFpjEky5anT).
+Phase 2 plan (3 Nov 2026; checks A1–A4, features B1–B11, session plan 12b, 15–19+): Claude Doc "Aleph to Omega —
+Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agreed to all of it; open decisions are listed there.
 
 ## Rules
 - Only public-domain or CC BY data is committed (site is public on GitHub Pages). No NA28 (or any Nestle-Aland

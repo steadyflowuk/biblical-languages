@@ -23,9 +23,9 @@ export function describeDevice(ua, touchPoints) {
   if (ios || ipadDesktop) {
     device = /iPad/.test(u) || ipadDesktop ? "iPad" : /iPod/.test(u) ? "iPod" : "iPhone";
     // From iOS 26, Safari reports the system as iOS 18.x; the real version shows only in "Version/26.0" (or later)
-    const safariV = u.match(/Version\/(\d+)(?:\.(\d+))?/);
+    const safariV = u.match(/Version\/(\d+)(?:\.(\d+))?(?:\.(\d+))?/);
     const frozen = ios && +ios[1] === 18 && safariV && +safariV[1] >= 26;
-    const v = frozen ? `${safariV[1]}.${safariV[2] || 0}` : ios ? `${ios[1]}.${ios[2]}` : safariV ? `${safariV[1]}.${safariV[2] || 0}` : "";
+    const v = frozen ? `${safariV[1]}.${safariV[2] || 0}${safariV[3] ? `.${safariV[3]}` : ""}` : ios ? `${ios[1]}.${ios[2]}` : safariV ? `${safariV[1]}.${safariV[2] || 0}` : "";
     system = v ? `${device === "iPad" ? "iPadOS" : "iOS"} ${v}` : "iOS";
     browser = /CriOS/.test(u) ? "Chrome" : /FxiOS/.test(u) ? "Firefox" : /EdgiOS/.test(u) ? "Edge" : "Safari";
   } else if (/Android/.test(u)) {

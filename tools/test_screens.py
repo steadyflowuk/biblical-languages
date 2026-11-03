@@ -1,4 +1,5 @@
-"""Screenshot comparison: 12 key screens at phone and iPad sizes, light and dark (48 pictures), compared with the
+"""Screenshot comparison: 12 key screens at phone and iPad sizes and the smallest phone at the largest text size, light and dark (72
+pictures), compared with the
 approved pictures in tools/fixtures/screens/. Catches layouts that break quietly (a shifted bar, text spilling at the
 largest size). Run with the local server on :8765:
 
@@ -25,7 +26,7 @@ SCREENS = [
     ("septuagint-psalm-23", "lxx/PSA/23", ".lxx-text"), ("words", "words", "main h1"), ("logos", "words/G3056", ".entry-lemma"),
     ("review", "review", "main h1"), ("progress", "progress", ".pg-big"), ("lesson", "lesson/grc/grc-4", ".ls-stepbar"),
 ]
-SIZES = [("phone", 390, 844), ("ipad", 1180, 820)]
+SIZES = [("phone", 390, 844, "normal"), ("ipad", 1180, 820, "normal"), ("small-largest", 320, 700, "largest")]
 NOISE = 40        # a channel difference above this counts as a real change
 ALLOWED = 0.003   # share of pixels that may differ
 
@@ -46,13 +47,16 @@ async def main():
     async with async_playwright() as p:
         b = await p.chromium.launch(executable_path=CHROME)
         for scheme in ("light", "dark"):
-            for label, w, h in SIZES:
+            for label, w, h, size in SIZES:
                 ctx = await b.new_context(viewport={"width": w, "height": h}, color_scheme=scheme, service_workers="block",
                                           reduced_motion="reduce")
                 pg = await ctx.new_page()
                 await pg.clock.install(time=datetime.datetime(2026, 11, 3, 10, 0))
                 await pg.goto(f"{BASE}#/settings")
                 await pg.evaluate(SEED)
+                if size != "normal":
+                    await pg.evaluate(f"localStorage.setItem('ao:textSize', JSON.stringify('{size}'))")
+                    await pg.reload()
                 for name, route, ready in SCREENS:
                     await pg.goto(f"{BASE}#/today")
                     await pg.goto(f"{BASE}#/{route}")

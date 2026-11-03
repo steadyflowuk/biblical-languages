@@ -23,6 +23,7 @@ def main():
         subprocess.run(["bash", os.path.join(ROOT, "tools", "fetch_sources.sh"), src], check=True)
     copy = os.path.join(work, "app")
     shutil.copytree(ROOT, copy, ignore=shutil.ignore_patterns(".git", "reports", "__pycache__"))
+    shutil.rmtree(os.path.join(copy, "data"))  # build from nothing, so a file the build no longer makes shows up
     print(f"Rebuilding in {copy} from {src} …")
     p = subprocess.run([sys.executable, "tools/build_data.py", src], cwd=copy, capture_output=True, text=True)
     if p.returncode:

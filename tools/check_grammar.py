@@ -52,7 +52,7 @@ def greek_feats(code):
     f = {"pos": code.split("-")[0]}
     parts = code.split("-")
     if f["pos"] == "V" and len(parts) > 1:
-        tvm = parts[1]
+        tvm = parts[1].lstrip("2")  # V-2AAI: second aorist, still aorist
         f["tense"], f["mood"] = tvm[:1], tvm[-1:]
         if len(parts) > 2:
             pn = parts[2]
@@ -74,7 +74,7 @@ def hebrew_feats(code):
     """TAHOT code → features of the main part, plus the prefixes: HVqp3ms, HNcmpa, HTd/Ncfsa, HRd/Ncbsa, HC/Vqw3ms …"""
     segs = code[1:].split("/")
     f = {"prefixes": [s for s in segs[:-1] if s], "article": any(s.startswith(("Td", "Rd")) for s in segs[:-1]),
-         "conj": any(s.startswith("C") for s in segs[:-1])}
+         "conj": any(s.startswith("C") for s in segs[:-1]), "prep": any(s.startswith("R") for s in segs[:-1])}
     main = segs[-1]
     f["pos"] = main[:1]
     if main.startswith("V") and len(main) >= 3:
@@ -115,6 +115,14 @@ def claims_of(label, lang, field=""):
     out = {}
     if lang == "he" and field.lower().startswith("has “the”"):
         return {"article": label.startswith("yes")}
+    if lang == "he" and field.lower() == "then" and "the" in label:
+        return {"article": True}
+    if lang == "he" and field.lower() == "preposition":
+        return {"prep": True}
+    if lang == "he" and re.fullmatch(r"with “the”", label):
+        return {"article": True}
+    if lang == "he" and re.fullmatch(r"without “the”", label):
+        return {"article": False}
     if lang == "he" and field.lower() == "first letter" and "and" in label:
         return {"conj": True}
     for pat, feats in (GREEK_CLAIMS if lang == "grc" else HEBREW_CLAIMS):
@@ -168,9 +176,11 @@ def paradigm_check(lid, L):
             t = c.get("table")
             if t and not c.get("letters"):
                 head = t.get("head") or []
+                # the first column holds row labels, unless its heading itself claims grammar (he-8: 'without “the”')
+                first = 0 if head and claims_of(head[0], lang) else 1
                 for r, row in enumerate(t.get("rows", [])):
-                    rowc = claims_of(row[0], lang)
-                    for j, cell in enumerate(row[1:], start=1):
+                    rowc = claims_of(row[0], lang) if first else {}
+                    for j, cell in enumerate(row[first:], start=first):
                         h = head[j] if j < len(head) else ""
                         # a heading that is itself a word ("λύω, I loose") claims nothing; the column wins a clash,
                         # except that a row "a pair" refines "more than one" to the dual (he-6: עַיִן / עֵינַיִם)
@@ -274,7 +284,18 @@ def main():
     caught = len(problems)
     problems.clear()
     if caught != 4:  # λέγετε, λέγει, and both words of τοῖς ἀδελφοῖς
-        problems.append(f"self-test: the paradigm check caught {caught} of 4 planted mistakes")
+        problems.append(f"self-test: the paradigm check caught {caught} of 4 planted Greek mistakes")
+    fake_he = {"lang": "he", "steps": [{"step": "notice", "cards": [{"type": "explain", "table": {"head": ["", "one", "more than one"],
+               "rows": [["masculine", "דְּבָרִים", "דָּבָר"]]}}, {"type": "explain", "table": {"head": ["without “the”", "with “the”"],
+               "rows": [["בָּאָרֶץ", "בְּאֶרֶץ"]]}}]},
+               {"step": "practise", "cards": [{"type": "parse", "word": "בָּרָא", "fields": [{"label": "Who?", "answer": "she"},
+                {"label": "Action", "answer": "not yet finished"}]}, {"type": "parse", "word": "מְלָכִים", "fields": [
+                {"label": "Gender", "answer": "feminine"}, {"label": "How many?", "answer": "a pair"}]}]}]}
+    paradigm_check("self-test", fake_he)
+    caught = len(problems)
+    problems.clear()
+    if caught != 6:  # both table rows swapped (4 forms) and both drills answered wrongly
+        problems.append(f"self-test: the paradigm check caught {caught} of 6 planted Hebrew mistakes")
     # and a lesson whose teaching changes after its record must need checking again (its fingerprint changes)
     probe = json.loads(json.dumps(cl.load(dict(written())["grc-4"])))
     before = record_problems("grc-4", probe)

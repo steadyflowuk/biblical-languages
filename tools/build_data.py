@@ -718,9 +718,12 @@ def usfm_book(path):
         cur[1] = [usfm_inline(x, notes) if isinstance(x, str) else x for x in cur[1]]
         cur[1] = [re.sub(r"\s+(\u0001\d+\u0001)", r"\1", re.sub(r"\s+", " ", x)).strip() if isinstance(x, str) else x
                   for x in cur[1]]
-        # a note that ends straight before the next word (JDG 16:13 "web.\\f*\\w Then") still needs the space
+        # a note that ends straight before the next word (JDG 16:14 "web.\\f*\\w Then") still needs the space
         cur[1] = [re.sub(r"(\u0001\d+\u0001)(?=[A-Za-z“‘(])", r"\1 ", x) if isinstance(x, str) else x for x in cur[1]]
         cur[1] = [x for x in cur[1] if x != ""]
+        # a heading line that is only a bracketed reference is a cross-reference (HEB 11 "(Joshua–Malachi)")
+        if mk in ("s1", "s2") and re.fullmatch(r"\(.*\)", cur[1][0] if cur[1] and isinstance(cur[1][0], str) else ""):
+            cur[0] = "r"
         if mk in ("b", "s1", "s2", "ms1", "mr", "r", "d", "qa"):
             cur = None  # a verse line after a heading or blank line starts a paragraph of its own
     # blocks that hold nothing (\b, an empty \m before its verse line) are kept only as the "b" marker the Reader skips
@@ -739,6 +742,12 @@ def build_bsb():
         name = re.search(r"^\\h (.+?)\s*$", open(os.path.join(folder, f), encoding="utf-8-sig").read(), re.M).group(1)
         name = BSB_NAMES.get(uid, name)
         chapters = usfm_book(os.path.join(folder, f))
+        if uid == "PSA":  # Psalm 119's stanza names, with the Hebrew letter each stanza's lines begin with
+            stanzas = [blk for blk in chapters[118][0] if blk[0] == "qa"]
+            if len(stanzas) != 22:
+                raise ValueError(f"Psalm 119: {len(stanzas)} stanza headings, expected 22")
+            for letter, blk in zip("אבגדהוזחטיכלמנסעפצקרשת", stanzas):
+                blk[1] = [f"{letter} {blk[1][0]}"]
         for book, wrong, right in BSB_FIXES:
             if book == uid:
                 hits = 0
@@ -775,7 +784,7 @@ VOTD = {
 def bsb_verse_text(bsb_book, ch, vs):
     out, on = [], False
     for kind, items in bsb_book["chapters"][ch - 1][0]:
-        if kind in ("s", "r", "b"):
+        if kind in ("s", "r", "b", "qa"):
             continue  # section headings, cross-references and blank lines belong to no verse
         for x in items:
             if isinstance(x, int):

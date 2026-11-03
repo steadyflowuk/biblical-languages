@@ -54,7 +54,7 @@ async def main():
         check("Android phone with Chrome", r[2] == "Android phone | Android 14 | Chrome 126", r[2])
         check("Samsung tablet with Samsung Internet", r[3] == "Android tablet | Android 13 | Samsung Internet 25", r[3])
         check("A Mac (no touch) is a computer", r[4].startswith("Computer | macOS | Safari"), r[4])
-        check("iOS 26+ (system frozen at 18.x): real version from Safari's", r[5] == "iPhone | iOS 27.0 | Safari", r[5])
+        check("iOS 26+ (system frozen at 18.x): real version from Safari's", r[5] == "iPhone | iOS 27.0.1 | Safari", r[5])
         check("Real iOS 18.6 stays 18.6", r[6] == "iPhone | iOS 18.6 | Safari", r[6])
         await ctx.close()
 

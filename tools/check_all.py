@@ -67,9 +67,9 @@ COVERAGE = {
     "test_progress": [(r"\d+/(\d+) passed", 47)], "test_reader_edges": [(r"\d+/(\d+) passed", 28)],
     "test_check": [(r"\d+/(\d+) passed", 31)], "test_translations": [(r"\d+/(\d+) passed", 70)],
     "test_a11y": [(r"(\d+) pages checked", 104)], "test_backups": [(r"\d+/(\d+) passed", 35)],
-    "test_screens": [(r"\d+/(\d+) passed", 48)], "test_slow": [(r"\d+/(\d+) passed", 12)],
+    "test_screens": [(r"\d+/(\d+) passed", 72)], "test_slow": [(r"\d+/(\d+) passed", 12)],
     "check_rebuild": [(r"(\d+) data files compared", 433)],
-    "check_grammar": [(r"(\d+) forms compared", 143)],
+    "check_grammar": [(r"(\d+) forms compared", 149)],
 }
 PARALLEL = {1: 4, 2: 4, 3: 4, 4: 1, 5: 1}
 

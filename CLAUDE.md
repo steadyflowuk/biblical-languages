@@ -200,7 +200,7 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
   A3: BSB now from eBible.org's official USFM (engbsb_usfm.zip, dated 30 Oct 2026; fetch_sources.sh, usfm_book() in
   build_data.py): stray "a" in footnotes gone; it is a newer BSB revision (1,083 verses, 265 notes, 43 headings
   differ, apostrophes ’ not ʼ); BSB_FIXES puts right 3 slips in that file (PSA 3 "A Psalms of", 1CH 16 heading,
-  JDG 16:13 space after a note); "Song of Songs" name kept. DATA stays data-v3 (files refresh in the background as
+  JDG 16:14 space after a note); "Song of Songs" name kept. DATA stays data-v3 (files refresh in the background as
   used; no 70 MB re-download). A4 checks, all in check_all: test_a11y (axe-core 4.14 vendored in tools/vendor, MPL;
   104 pages; fixed: Learn "Coming soon" contrast, letter tiles' names, lesson h1, table labels), test_slow (CPU 6×,
   slow 4G; first visit + 11 screens), test_backups (tools/fixtures/backups: 27 Oct lessons-only + 3 Nov full),
@@ -209,7 +209,7 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
   forms in tables and parse drills vs the text's tagging, with a self-test) and grammar cross-check records:
   each lesson has "source" + "grammarCheck" (claims, verdict, fingerprint of Notice/Practise/Read notes); all 21
   compared with Schwandt 1–8 and Wegner 1–12 in Logos (browser pane, signed in by the user). Fixed: grc-3 ρ "nearly
-  always" rough (Ραββουνι), he-4 furtive patah "after a long vowel" and the RU-ach drill label, he-7 הֶ before חָ.
+  always" rough (Ραββουνι), he-4 furtive patah "after any vowel except an a-vowel" and the RU-ach drill label, he-7 הֶ before חָ.
   Deliberate differences recorded (Erasmian, ω oh, Israeli-based Hebrew, "stem" for Schwandt's root). Logos reading
   tip: open the contents (…/references/page.v), click the art=CHn link via JS, then scroll the resourceViewer element
   collecting text (it is virtualised). crawl_app COVERAGE 27 (the day's verse decides one link kind).

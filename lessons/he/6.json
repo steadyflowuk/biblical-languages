@@ -130,5 +130,7 @@
         }
       ]
     }
-  ]
+  ],
+  "source": {"book": "Wegner, A Simplified Grammar of Biblical Hebrew", "chapter": "Lessons 7 and 8: The Hebrew Nouns; Vowel Reduction Rules"},
+  "grammarCheck": {"date": "2026-11-03", "verdict": "agrees", "claims": [{"claim": "masculine nouns have no ending; feminine usually ָה or ת", "result": "agrees"}, {"claim": "plural -ִים and -וֹת; dual -ַיִם for pairs", "result": "agrees"}, {"claim": "gender must be learnt: אֶרֶץ and עִיר are feminine without the ending", "result": "agrees"}, {"claim": "adding an ending often changes the vowels (דָּבָר → דְּבָרִים, מֶלֶךְ → מְלָכִים)", "result": "agrees"}, {"claim": "irregular plurals אֲנָשִׁים, אָבוֹת, שָׁנִים", "result": "agrees"}], "fingerprint": "e63639160781a2ce"}
 }

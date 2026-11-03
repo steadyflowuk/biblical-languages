@@ -157,5 +157,7 @@
         }
       ]
     }
-  ]
+  ],
+  "source": {"book": "Wegner, A Simplified Grammar of Biblical Hebrew", "chapter": "Lesson 1: Hebrew Consonants"},
+  "grammarCheck": {"date": "2026-11-03", "verdict": "agrees", "claims": [{"claim": "the letters are consonants; vowels are marks added above and below", "result": "agrees"}, {"claim": "a dot (dagesh) makes בּ b and כּ k; without it ב v, כ kh", "result": "agrees"}, {"claim": "א is silent and carries a vowel; ח is a throat ch as in loch", "result": "agrees"}, {"claim": "ו is said v, ט t, כ kh", "result": "differs on purpose", "note": "Wegner gives the academic transliteration (wāw); the app uses the Israeli-based pronunciation chosen for the course"}], "fingerprint": "1a8be719256a859e"}
 }

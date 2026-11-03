@@ -48,7 +48,7 @@
           "type": "explain",
           "title": "A sneaky a, and letters that go quiet",
           "body": [
-            "When ח or ע ends a word after another vowel, a patah is slipped in under it and said first: רוּחַ is RU-ach, not ru-cha. This is called a furtive patah.",
+            "When ח or ע ends a word after any vowel except an a-vowel, a patah is slipped in under it and said first: רוּחַ is RU-ach, not ru-cha. This is called a furtive patah.",
             "א at the end of a syllable makes no sound: לֹא is just lo. ה at the end of a word is usually silent too, as in תּוֹרָה, to-RAH."
           ],
           "examples": [
@@ -94,7 +94,7 @@
           "word": "רוּחַ",
           "fields": [
             { "label": "Vowel under ח", "options": ["patah, said before ח", "patah, said after ח", "silent"], "answer": "patah, said before ח" },
-            { "label": "Syllables", "options": ["RU-ach", "ru-CHA"], "answer": "RU-ach" }
+            { "label": "Said as", "options": ["RU-ach", "ru-CHA"], "answer": "RU-ach" }
           ],
           "explain": "A furtive patah is said before its letter: RU-ach."
         },
@@ -134,5 +134,7 @@
         }
       ]
     }
-  ]
+  ],
+  "source": {"book": "Wegner, A Simplified Grammar of Biblical Hebrew", "chapter": "Lessons 3 and 5: Quiescent and Guttural Letters; Simple and Compound Shewas"},
+  "grammarCheck": {"date": "2026-11-03", "verdict": "agrees, two wordings fixed", "claims": [{"claim": "shewa is said at the start of a word, silent when it closes a syllable; of two in a row the first is silent, the second said", "result": "agrees"}, {"claim": "throat letters take hateph vowels instead of a said shewa, prefer a-vowels and are never doubled", "result": "agrees"}, {"claim": "a furtive patah comes under a final ח or ע after another vowel", "result": "fixed", "note": "Wegner: after a long vowel; the data also has it after qibbuts (יְהוֹשֻׁעַ) and never after qamets or patah, so the lesson says 'after any vowel except an a-vowel'"}, {"claim": "רוּחַ shown as two syllables (drill label 'Syllables')", "result": "fixed", "note": "Wegner: one syllable; the drill now asks how it is said"}, {"claim": "א at the end of a syllable and ה at the end of a word are silent", "result": "agrees"}], "fingerprint": "511d31fbe641791f"}
 }

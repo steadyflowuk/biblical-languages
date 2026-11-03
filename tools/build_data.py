@@ -654,32 +654,119 @@ def chapters_out(book, heb_refs=None, uid=None, en_refs=None):
 
 # ---------------------------------------------------------------- BSB
 
-def clean_note(n):
-    return n.replace(" a a ", " a ").strip()
+USFM_KIND = {"m": "p", "p": "p", "pmo": "pi", "li1": "li", "li2": "li2", "s1": "s", "s2": "s", "ms1": "s", "mr": "r",
+             "r": "r", "b": "b", "q1": "q1", "q2": "q2", "qr": "qr", "d": "d", "qa": "qa", "pc": "pc"}
+# Slips in the official file, put right (each checked against the BSB's printed wording and the chapter's sense)
+BSB_FIXES = [("PSA", "A Psalms of David, when he fled", "A Psalm of David, when he fled"),
+             ("1CH", "David’s Psalms of Thanksgiving", "David’s Psalm of Thanksgiving")]
+BSB_NAMES = {"SNG": "Song of Songs"}  # the file's short title is "Song"
+USFM_SKIP = {"id", "h", "toc1", "toc2", "toc3", "mt1", "mt2", "ide", "rem"}
+
+
+def usfm_inline(text, notes):
+    """One line's text: word markup removed, footnotes replaced by \u0001n\u0001 (n = index into the chapter's notes)."""
+    def note(m):
+        body = re.sub(r"\\fr [^\\]*", "", m.group(1))
+        body = re.sub(r"\\f[a-z]+\*?\s?", "", body).strip()
+        notes.append(re.sub(r"\s+", " ", body))
+        return f"\u0001{len(notes) - 1}\u0001"
+    text = re.sub(r"\\f \+ (.*?)\\f\*", note, text)
+    text = re.sub(r"\\\+?w ([^|\\]*)(\|[^\\]*)?\\\+?w\*", r"\1", text)
+    text = re.sub(r"\\\+?(it|bk|add|nd|sc|em|bd|wj)\*? ?", "", text)
+    if "\\" in text:
+        raise ValueError(f"BSB: markup left in {text[:80]!r}")
+    return text
+
+
+def usfm_book(path):
+    """A USFM book → chapters [[blocks, notes]] in the app's format: blocks [kind, items], items = verse numbers and text."""
+    chapters, blocks, notes = [], None, None
+    cur = None
+    for raw in open(path, encoding="utf-8-sig"):
+        line = raw.strip()
+        if not line:
+            continue
+        m = re.match(r"\\(\w+)\s?(.*)$", line)
+        if not m:
+            raise ValueError(f"BSB: unexpected line {line[:60]!r} in {path}")
+        mk, rest = m.group(1), m.group(2)
+        if mk in USFM_SKIP:
+            continue
+        if mk == "c":
+            blocks, notes = [], []
+            chapters.append([blocks, notes])
+            cur = None
+            continue
+        if mk == "v":  # a verse line inside the current paragraph
+            if cur is None:
+                cur = ["p", []]
+                blocks.append(cur)
+            rest = line
+        elif mk in USFM_KIND:
+            cur = [USFM_KIND[mk], []]
+            blocks.append(cur)
+        else:
+            raise ValueError(f"BSB: unknown marker \\{mk} in {path}")
+        parts = re.split(r"\\v (\S+) ?", rest)
+        if parts[0].strip():
+            cur[1].append(parts[0])
+        for i in range(1, len(parts), 2):
+            v = parts[i]
+            cur[1].append(int(v) if v.isdigit() else v)
+            if parts[i + 1].strip():
+                cur[1].append(parts[i + 1])
+        cur[1] = [usfm_inline(x, notes) if isinstance(x, str) else x for x in cur[1]]
+        cur[1] = [re.sub(r"\s+(\u0001\d+\u0001)", r"\1", re.sub(r"\s+", " ", x)).strip() if isinstance(x, str) else x
+                  for x in cur[1]]
+        # a note that ends straight before the next word (JDG 16:14 "web.\\f*\\w Then") still needs the space
+        cur[1] = [re.sub(r"(\u0001\d+\u0001)(?=[A-Za-z“‘(])", r"\1 ", x) if isinstance(x, str) else x for x in cur[1]]
+        cur[1] = [x for x in cur[1] if x != ""]
+        # a heading line that is only a bracketed reference is a cross-reference (HEB 11 "(Joshua–Malachi)")
+        if mk in ("s1", "s2") and re.fullmatch(r"\(.*\)", cur[1][0] if cur[1] and isinstance(cur[1][0], str) else ""):
+            cur[0] = "r"
+        if mk in ("b", "s1", "s2", "ms1", "mr", "r", "d", "qa"):
+            cur = None  # a verse line after a heading or blank line starts a paragraph of its own
+    # blocks that hold nothing (\b, an empty \m before its verse line) are kept only as the "b" marker the Reader skips
+    for blocks, _ in chapters:
+        blocks[:] = [b for b in blocks if b[1] or b[0] == "b"]
+    return chapters
 
 
 def build_bsb():
-    d = json.load(open(os.path.join(SRC, "bsb", "bsb.json"), encoding="utf-8"))
-    out, verse_sets = {}, {}
-    for uid, b in d["books"].items():
-        chapters = []
+    """The Berean Standard Bible (public domain) from eBible.org's official USFM files (engbsb_usfm.zip)."""
+    folder = os.path.join(SRC, "bsb", "usfm")
+    files = sorted(f for f in os.listdir(folder) if re.match(r"\d\d-\w{3}engbsb\.usfm$", f))
+    out, verse_sets, index = {}, {}, []
+    for f in files:
+        uid, testament = f[3:6], ("NT" if int(f[:2]) >= 70 else "OT")
+        name = re.search(r"^\\h (.+?)\s*$", open(os.path.join(folder, f), encoding="utf-8-sig").read(), re.M).group(1)
+        name = BSB_NAMES.get(uid, name)
+        chapters = usfm_book(os.path.join(folder, f))
+        if uid == "PSA":  # Psalm 119's stanza names, with the Hebrew letter each stanza's lines begin with
+            stanzas = [blk for blk in chapters[118][0] if blk[0] == "qa"]
+            if len(stanzas) != 22:
+                raise ValueError(f"Psalm 119: {len(stanzas)} stanza headings, expected 22")
+            for letter, blk in zip("אבגדהוזחטיכלמנסעפצקרשת", stanzas):
+                blk[1] = [f"{letter} {blk[1][0]}"]
+        for book, wrong, right in BSB_FIXES:
+            if book == uid:
+                hits = 0
+                for blocks, _ in chapters:
+                    for blk in blocks:
+                        for i, x in enumerate(blk[1]):
+                            if isinstance(x, str) and wrong in x:
+                                blk[1][i] = x.replace(wrong, right)
+                                hits += 1
+                if hits != 1:
+                    raise ValueError(f"BSB fix {wrong!r} found {hits} times in {uid}")
         vset = set()
-        for ci, c in enumerate(b["c"], start=1):
-            blocks = []
-            for blk in c["b"]:
-                items = []
-                for x in blk.get("c", []):
-                    if isinstance(x, dict) and "v" in x:
-                        v = x["v"]
-                        items.append(int(v) if str(v).isdigit() else v)
-                        vset.add((ci, int(v) if str(v).isdigit() else v))
-                    else:
-                        items.append(x)
-                blocks.append([blk["k"], items])
-            chapters.append(trim([blocks, [clean_note(n) for n in c.get("n", [])]]))
-        out[uid] = {"name": b["n"], "t": b["t"], "chapters": chapters}
+        for ci, (blocks, _) in enumerate(chapters, start=1):
+            for _, items in blocks:
+                vset.update((ci, x) for x in items if not isinstance(x, str))
+        out[uid] = {"name": name, "t": testament, "chapters": [trim(c) for c in chapters]}
         verse_sets[uid] = vset
-    return d["index"], out, verse_sets
+        index.append({"a": uid, "n": name, "t": testament, "c": len(chapters)})
+    return index, out, verse_sets
 
 
 # ---------------------------------------------------------------- verse of the day
@@ -697,7 +784,7 @@ VOTD = {
 def bsb_verse_text(bsb_book, ch, vs):
     out, on = [], False
     for kind, items in bsb_book["chapters"][ch - 1][0]:
-        if kind in ("s", "r", "b"):
+        if kind in ("s", "r", "b", "qa"):
             continue  # section headings, cross-references and blank lines belong to no verse
         for x in items:
             if isinstance(x, int):

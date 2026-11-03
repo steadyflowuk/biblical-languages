@@ -46,12 +46,16 @@ async def main():
           c.describeDevice('Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36', 5),
           c.describeDevice('Mozilla/5.0 (Linux; Android 13; SM-T220) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/25.0 Chrome/121.0.0.0 Safari/537.36', 5),
           c.describeDevice('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15', 0),
+          c.describeDevice('Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.0.1 Mobile/15E148 Safari/604.1', 5),
+          c.describeDevice('Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1', 5),
         ].map((d) => [d.device, d.system, d.browser].join(' | ')); }""")
         check("iPhone: iOS 17.1, Safari", r[0] == "iPhone | iOS 17.1 | Safari", r[0])
         check("iPad (asks for desktop sites): iPadOS 16.5", r[1] == "iPad | iPadOS 16.5 | Safari", r[1])
         check("Android phone with Chrome", r[2] == "Android phone | Android 14 | Chrome 126", r[2])
         check("Samsung tablet with Samsung Internet", r[3] == "Android tablet | Android 13 | Samsung Internet 25", r[3])
         check("A Mac (no touch) is a computer", r[4].startswith("Computer | macOS | Safari"), r[4])
+        check("iOS 26+ (system frozen at 18.x): real version from Safari's", r[5] == "iPhone | iOS 27.0.1 | Safari", r[5])
+        check("Real iOS 18.6 stays 18.6", r[6] == "iPhone | iOS 18.6 | Safari", r[6])
         await ctx.close()
 
         # 2. The screen with voices, as an iPhone

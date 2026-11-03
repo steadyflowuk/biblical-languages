@@ -160,5 +160,7 @@
         }
       ]
     }
-  ]
+  ],
+  "source": {"book": "Schwandt, An Introduction to Biblical Greek (2020)", "chapter": "Lesson 8: A-Stem Feminine Nouns (First Declension)"},
+  "grammarCheck": {"date": "2026-11-03", "verdict": "agrees", "claims": [{"claim": "η-pattern γραφή: γραφή γραφῆς γραφῇ γραφήν; plural -αι -ων -αις -ας", "result": "agrees", "note": "Schwandt's example is ἀρχή, same endings"}, {"claim": "after ε, ι or ρ the singular keeps α (ἡμέρα)", "result": "agrees", "note": "Schwandt: after a vowel or ρ; exceptions such as δόξα come in his next lesson"}, {"claim": "ἡμέρας is genitive singular or accusative plural; the article decides", "result": "agrees"}, {"claim": "feminine article ἡ αἱ, τῆς τῶν, τῇ ταῖς, τήν τάς, and the whole article in three genders", "result": "agrees"}, {"claim": "the article agrees with its noun in gender, number and case", "result": "agrees"}], "fingerprint": "02afe8ffec3a1d01"}
 }

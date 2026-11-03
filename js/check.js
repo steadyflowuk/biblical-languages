@@ -22,7 +22,10 @@ export function describeDevice(ua, touchPoints) {
   const ipadDesktop = /Macintosh/.test(u) && touchPoints > 1; // iPadOS asks for desktop sites by default
   if (ios || ipadDesktop) {
     device = /iPad/.test(u) || ipadDesktop ? "iPad" : /iPod/.test(u) ? "iPod" : "iPhone";
-    const v = ios ? `${ios[1]}.${ios[2]}` : ((u.match(/Version\/(\d+\.\d+)/) || [])[1] || "");
+    // From iOS 26, Safari reports the system as iOS 18.x; the real version shows only in "Version/26.0" (or later)
+    const safariV = u.match(/Version\/(\d+)(?:\.(\d+))?(?:\.(\d+))?/);
+    const frozen = ios && +ios[1] === 18 && safariV && +safariV[1] >= 26;
+    const v = frozen ? `${safariV[1]}.${safariV[2] || 0}${safariV[3] ? `.${safariV[3]}` : ""}` : ios ? `${ios[1]}.${ios[2]}` : safariV ? `${safariV[1]}.${safariV[2] || 0}` : "";
     system = v ? `${device === "iPad" ? "iPadOS" : "iOS"} ${v}` : "iOS";
     browser = /CriOS/.test(u) ? "Chrome" : /FxiOS/.test(u) ? "Firefox" : /EdgiOS/.test(u) ? "Edge" : "Safari";
   } else if (/Android/.test(u)) {
@@ -39,6 +42,7 @@ export function describeDevice(ua, touchPoints) {
   return { device, system, browser, apple: !!(ios || ipadDesktop), android: /Android/.test(u) };
 }
 
+const count = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
 const supports = (prop, value) => { try { return !!(window.CSS && CSS.supports(prop, value)); } catch (e) { return false; } };
 const supportsSelector = (sel) => { try { return !!(window.CSS && CSS.supports(`selector(${sel})`)); } catch (e) { return false; } };
 
@@ -224,7 +228,7 @@ export const check = {
         `Voices listed: ${vs === null ? "no speech" : vs.count} · Greek: ${vs && vs.grc ? `${vs.grc.name} (${vs.grc.lang})` : "none"} · Hebrew: ${vs && vs.he ? `${vs.he.name} (${vs.he.lang})` : "none"}`,
         ...["grc", "he"].map((l) => `${LANG[l]} test: ${sound[l].started === null ? "not played" : sound[l].started ? "started" : "DID NOT START"}${sound[l].heard ? ` · heard: ${sound[l].heard}` : ""}`),
         `Settings: Greek ${store.get("greekVoice")} · speed ${store.get("speechRate")} · learning ${store.get("learnLang")}`,
-        `Progress: ${lessonsDone} lessons done · ${cards} review cards · ${streak().current} days in a row · last backup ${store.get("lastBackup") ? whenText(store.get("lastBackup")) : "never"}`,
+        `Progress: ${count(lessonsDone, "lesson")} done · ${count(cards, "review card")} · ${count(streak().current, "day")} in a row · last backup ${store.get("lastBackup") ? whenText(store.get("lastBackup")) : "never"}`,
         `Browser: ${navigator.userAgent}`,
       ];
       return lines.join("\n");

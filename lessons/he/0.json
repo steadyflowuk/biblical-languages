@@ -125,5 +125,7 @@
         }
       ]
     }
-  ]
+  ],
+  "source": {"book": "Wegner, A Simplified Grammar of Biblical Hebrew", "chapter": "Taster (topics of Lessons 1, 2, 9–11, 14 and 16)"},
+  "grammarCheck": {"date": "2026-11-03", "verdict": "agrees", "claims": [{"claim": "Hebrew reads right to left; letters are consonants, vowels are marks", "result": "agrees", "note": "Lessons 1–2"}, {"claim": "בְּ in, הַ/הָ the, וְ and are fixed to the front of the next word", "result": "agrees", "note": "Lessons 9–11"}, {"claim": "אֵת marks the object and is not translated", "result": "agrees", "note": "Lesson 16 (definite direct object marker)"}, {"claim": "בָּרָא is Qal perfect 3ms, a finished action", "result": "agrees", "note": "Lesson 14; also confirmed by the paradigm check"}], "fingerprint": "940b83b6415b051a"}
 }

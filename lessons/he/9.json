@@ -120,5 +120,7 @@
         }
       ]
     }
-  ]
+  ],
+  "source": {"book": "Wegner, A Simplified Grammar of Biblical Hebrew", "chapter": "Lesson 11: Waw Conjunction"},
+  "grammarCheck": {"date": "2026-11-03", "verdict": "agrees", "claims": [{"claim": "וְ 'and', also 'but', 'then', 'so'; always fixed to the next word", "result": "agrees"}, {"claim": "וּ before ב מ פ or a shewa", "result": "agrees"}, {"claim": "before a hateph vowel it takes that vowel", "result": "agrees", "note": "the table shows וַ / וֶ; Wegner adds וָ before hateph qamets"}, {"claim": "before יְ it becomes וִי", "result": "agrees"}, {"claim": "often וָ before a stressed syllable", "result": "agrees"}], "fingerprint": "f12457e69554e190"}
 }

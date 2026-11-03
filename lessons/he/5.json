@@ -134,5 +134,7 @@
         }
       ]
     }
-  ]
+  ],
+  "source": {"book": "Wegner, A Simplified Grammar of Biblical Hebrew", "chapter": "Lessons 4 and 6: Syllables and Accents; Maqqephs and Dagheshes"},
+  "grammarCheck": {"date": "2026-11-03", "verdict": "agrees", "claims": [{"claim": "every syllable starts with a consonant; וּ 'and' is the one exception", "result": "agrees"}, {"claim": "open and closed syllables; divide a word from the end", "result": "agrees"}, {"claim": "most words are stressed on the last syllable; segholates and -ayim words on the one before", "result": "agrees"}, {"claim": "accents mark stress and work as punctuation; ׃ ends a verse, ֑ marks its middle", "result": "agrees"}, {"claim": "a dagesh after a vowel doubles (forte); in begad kefat at a word's start or after a silent shewa it only hardens (lene)", "result": "agrees"}, {"claim": "maqqef joins words said as one; the first loses its stress", "result": "agrees"}], "fingerprint": "9a679d2abd3767e1"}
 }

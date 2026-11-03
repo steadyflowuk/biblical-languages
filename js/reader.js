@@ -104,7 +104,7 @@ export function bsbChapter(bsbBook, ch) {
   let v = 0;
   let pending = [];
   for (const [kind, items] of chapter[0]) {
-    if (kind === "s") { pending.push(items.filter((x) => typeof x === "string").join(" ")); continue; }
+    if (kind === "s" || kind === "qa") { pending.push(items.filter((x) => typeof x === "string").join(" ")); continue; }
     if (kind === "r" || kind === "b") continue; // cross-reference lines and blank lines
     for (const x of items) {
       if (typeof x === "number") {

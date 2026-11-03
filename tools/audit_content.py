@@ -104,10 +104,10 @@ def audit_copyright():
     about = read("js/screens.js")
     readme = read("README.md")
     credit = {"STEPBible-Data": "STEPBible", "LXX-Swete-1930": "Swete", "HebrewLexicon": "Open Scriptures",
-              "SBLGNT": "SBL Greek New Testament", "communityofbrothers": "Berean Standard Bible"}
+              "SBLGNT": "SBL Greek New Testament", "communityofbrothers": "Berean Standard Bible", "ebible.org": "eBible.org"}
     bad = []
-    for url in re.findall(r"https://github.com/\S+", read("tools/fetch_sources.sh")):
-        name = url.rstrip("/").split("/")[-1]
+    for url in re.findall(r"https://(?:github.com|ebible.org)/\S+", read("tools/fetch_sources.sh")):
+        name = "ebible.org" if "ebible.org" in url else url.rstrip("/").split("/")[-1]
         if name == "morphhb":
             continue  # used only by tools/check_data.py, not shipped
         want = credit.get(name) or credit.get(url.split("/")[3])

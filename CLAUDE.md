@@ -195,6 +195,25 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
   Second full run: everything passed (test_review once only on retry: it read the card before the refresh was saved;
   it now waits). sw.js DATA = data-v3 so devices fetch the corrected files at once.
 
+- [x] 12b part A (3 Nov 2026): Phase 2 plan Part A. iPhone report (iOS 27.0.1, all healthy): describeDevice reads the
+  real version from Safari's Version/NN when the UA says iOS 18.x (Apple froze it from iOS 26); "1 lesson" plurals.
+  A3: BSB now from eBible.org's official USFM (engbsb_usfm.zip, dated 30 Oct 2026; fetch_sources.sh, usfm_book() in
+  build_data.py): stray "a" in footnotes gone; it is a newer BSB revision (1,083 verses, 265 notes, 43 headings
+  differ, apostrophes ’ not ʼ); BSB_FIXES puts right 3 slips in that file (PSA 3 "A Psalms of", 1CH 16 heading,
+  JDG 16:13 space after a note); "Song of Songs" name kept. DATA stays data-v3 (files refresh in the background as
+  used; no 70 MB re-download). A4 checks, all in check_all: test_a11y (axe-core 4.14 vendored in tools/vendor, MPL;
+  104 pages; fixed: Learn "Coming soon" contrast, letter tiles' names, lesson h1, table labels), test_slow (CPU 6×,
+  slow 4G; first visit + 11 screens), test_backups (tools/fixtures/backups: 27 Oct lessons-only + 3 Nov full),
+  check_rebuild (fresh build in a copy = data/, 433 files; --fresh refetches), test_screens (48 approved pictures in
+  tools/fixtures/screens; --approve after a deliberate change). A2: tools/check_grammar.py — paradigm check (143
+  forms in tables and parse drills vs the text's tagging, with a self-test) and grammar cross-check records:
+  each lesson has "source" + "grammarCheck" (claims, verdict, fingerprint of Notice/Practise/Read notes); all 21
+  compared with Schwandt 1–8 and Wegner 1–12 in Logos (browser pane, signed in by the user). Fixed: grc-3 ρ "nearly
+  always" rough (Ραββουνι), he-4 furtive patah "after a long vowel" and the RU-ach drill label, he-7 הֶ before חָ.
+  Deliberate differences recorded (Erasmian, ω oh, Israeli-based Hebrew, "stem" for Schwandt's root). Logos reading
+  tip: open the contents (…/references/page.v), click the art=CHn link via JS, then scroll the resourceViewer element
+  collecting text (it is virtualised). crawl_app COVERAGE 27 (the day's verse decides one link kind).
+
 ## Data (Session 2)
 - Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (46 checks).
 - Greek = SBLGNT text (since Session 13; see the log) tagged from TAGNT. 137,741 words, 7,939 verses, SBL verse
@@ -210,9 +229,8 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
   Hebrew is NOT Unicode-normalised (NFC reorders dagesh/vowel marks in 47% of words) — never NFC Hebrew in JS either;
   compare Hebrew by consonants or with both sides normalised.
   99.4% of verses match WLC consonants; the rest are verse-division differences. Aramaic = morph codes starting "A".
-- BSB from communityofbrothers.github.io/assets/bsb.gz (ebible/bereanbible blocked here). Known issue: some BSB
-  footnotes contain stray "a" words from that conversion (e.g. "Literally a day one"); only "a a" fixed. Replace
-  from an official BSB file if the user allows ebible.org or bereanbible.com in Settings > Capabilities.
+- BSB from eBible.org's official USFM (since 12b; ebible.org and bereanbible.com are now allowed here). Rebuilding
+  with a newer dated file changes verses: check_rebuild --fresh shows it; list the changes for the user.
 - Numbering differences the Reader must map: 3 John 1:15 and Rev 12:18 (no BSB verse), 2 Cor 13:14 (BSB) = Greek 13:13,
   Acts 19:41 (BSB) inside Greek 19:40, Rom 16:24 (Greek only), Rom 16:25-27 (BSB only). The BSB omits the verses SBL omits
   (Mat 17:21 etc.).
@@ -492,6 +510,9 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
   through the service worker, which saves each file. Restore = store.importBackup() removes every ao: key first.
 
 ## Checks
+- New in 12b: `tools/check_grammar.py` (paradigm check + Logos cross-check records; `status`, `record ID FILE`),
+  `tools/test_a11y.py`, `tools/test_slow.py`, `tools/test_backups.py`, `tools/check_rebuild.py [--fresh]`,
+  `tools/test_screens.py [--approve]` — all run by check_all.
 - **The full check (use this): `python3 tools/check_all.py`** (~60–75 min; `quick` skips the whole-Bible sweeps,
   ~20 min; `only <job> …` runs chosen jobs). Starts the server, fetches sources if missing, runs every job below plus
   `tools/audit_content.py`, retries a failed suite once alone, writes `tools/reports/<time>/SUMMARY.md`. Then hand

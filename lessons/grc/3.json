@@ -23,7 +23,7 @@
           "title": "Breathing marks: is there an h?",
           "body": [
             "Every word that begins with a vowel has a breathing mark over it. ῾ (rough breathing, like an opening quote) means say an h first. ᾿ (smooth breathing, like an apostrophe) means no h.",
-            "When a word begins with a pair of vowels, the mark sits on the second one: οὐρανός, εἰμί, υἱός. A word beginning with ρ or υ always takes the rough breathing, which is why English has rhythm and hydro-."
+            "When a word begins with a pair of vowels, the mark sits on the second one: οὐρανός, εἰμί, υἱός. A word beginning with υ always takes the rough breathing, and one beginning with ρ nearly always does, which is why English has hydro- and rhythm."
           ],
           "examples": [
             { "t": "ἡμέρα", "say": "hay-ME-ra", "en": "rough: h" },
@@ -152,5 +152,7 @@
         }
       ]
     }
-  ]
+  ],
+  "source": {"book": "Schwandt, An Introduction to Biblical Greek (2020)", "chapter": "Lesson 2: Accent Marks, Additional Marks, and the Square of Stops"},
+  "grammarCheck": {"date": "2026-11-03", "verdict": "agrees, one wording fixed", "claims": [{"claim": "every word starting with a vowel has a breathing; rough = h, smooth = no h", "result": "agrees"}, {"claim": "with a vowel pair the breathing sits on the second vowel", "result": "agrees"}, {"claim": "initial υ always rough; initial ρ always rough", "result": "fixed", "note": "Schwandt: ρ 'generally' rough; the SBL text has Ραββουνι without one. Now 'nearly always'"}, {"claim": "the h of the rough breathing is said", "result": "differs on purpose", "note": "Schwandt: not pronounced by NT times; the app teaches Erasmian, which sounds it"}, {"claim": "acute, grave and circumflex all simply mark the stressed syllable", "result": "agrees"}, {"claim": "iota subscript under α η ω, not sounded", "result": "agrees"}, {"claim": "; is the question mark, · a pause like a colon or semicolon, no quotation marks", "result": "agrees"}, {"claim": "an apostrophe marks a dropped final vowel before a vowel (elision)", "result": "agrees"}], "fingerprint": "c31303fb37d56b80"}
 }

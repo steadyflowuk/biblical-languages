@@ -21,7 +21,14 @@ The app (`js/lessons.js`) turns it into the five-step loop. After adding or chan
    on the Videos screen and on Today). Plain YouTube links only (`watch?v=…&list=…`), no `index=` or tracking.
 5. Run `python3 tools/check_lessons.py`, then `node tools/check_speech.mjs`, then with the local server running
    `python3 tools/test_lessons.py` (it finishes every written lesson with right answers at 320px).
-6. Changing a lesson that people may be part-way through: if the number of steps or cards changes, its signature
+6. Grammar cross-check (Phase 2, A2): compare every claim the lesson makes (Notice, Practise, Read notes) with the
+   chapter in Logos, fix differences in our own words, then write the claims to a JSON file
+   (`{"source": {"book", "chapter"}, "verdict", "claims": [{"claim", "result": "agrees"|"differs on purpose"|"fixed",
+   "note"}]}`) and run `python3 tools/check_grammar.py record <id> <file>`. It stores the record with a fingerprint
+   of the teaching; `python3 tools/check_grammar.py` (part of the full check) fails for a lesson with no record or
+   whose teaching changed since. The same command's paradigm check compares the lesson's tables and parse drills
+   with the Bible's tagging: table row and column labels and drill answers are read as grammar (see `CLAIMS` there).
+7. Changing a lesson that people may be part-way through: if the number of steps or cards changes, its signature
    changes and anyone in the middle of it starts it again from the beginning (their best score is kept).
 
 ## The index

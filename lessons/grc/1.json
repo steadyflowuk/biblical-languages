@@ -153,5 +153,7 @@
         }
       ]
     }
-  ]
+  ],
+  "source": {"book": "Schwandt, An Introduction to Biblical Greek (2020)", "chapter": "Lesson 1: The Alphabet"},
+  "grammarCheck": {"date": "2026-11-03", "verdict": "agrees", "claims": [{"claim": "24 letters, capital and small forms; small letters are what you read", "result": "agrees"}, {"claim": "Erasmian sounds of α–μ: a, b, g, d, e (met), dz, ay (they), th (thin), ee/i, k, l, m", "result": "agrees"}, {"claim": "β nearer v and δ like th in 'this' in the first century", "result": "agrees", "note": "Schwandt's Koine column"}, {"claim": "ε short, η long 'ay'", "result": "agrees"}, {"claim": "Erasmian is the sound taught", "result": "differs on purpose", "note": "Schwandt prints Koine first with Erasmian alternatives; the app teaches Erasmian (project decision)"}], "fingerprint": "ad38a6e9b9014512"}
 }

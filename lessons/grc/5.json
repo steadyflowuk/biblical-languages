@@ -130,5 +130,7 @@
         }
       ]
     }
-  ]
+  ],
+  "source": {"book": "Schwandt, An Introduction to Biblical Greek (2020)", "chapter": "Lesson 4: Vowel Length, Accentuation, and ε-Contract Verbs"},
+  "grammarCheck": {"date": "2026-11-03", "verdict": "agrees", "claims": [{"claim": "ε + ε → ει, ε + ο → ου", "result": "agrees"}, {"claim": "ε disappears before a long vowel or vowel pair (ε + ω → ω, ε + ει → ει, ε + ου → ου)", "result": "agrees"}, {"claim": "the contracted present of ποιέω: ποιῶ ποιεῖς ποιεῖ ποιοῦμεν ποιεῖτε ποιοῦσιν", "result": "agrees", "note": "same pattern as Schwandt's φιλέω"}, {"claim": "a circumflex often sits on the merged vowel", "result": "agrees", "note": "Schwandt: always in this lesson's forms, sometimes acute in other tenses"}, {"claim": "dictionaries list these verbs uncontracted (ποιέω)", "result": "agrees"}], "fingerprint": "a41565b91cc60da9"}
 }

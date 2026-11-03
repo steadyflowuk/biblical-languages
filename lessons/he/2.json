@@ -163,5 +163,7 @@
         }
       ]
     }
-  ]
+  ],
+  "source": {"book": "Wegner, A Simplified Grammar of Biblical Hebrew", "chapter": "Lesson 1: Hebrew Consonants"},
+  "grammarCheck": {"date": "2026-11-03", "verdict": "agrees", "claims": [{"claim": "five final forms: ך ם ן ף ץ, same letters and sounds", "result": "agrees"}, {"claim": "six letters take the hard-sound dot: ב ג ד כ פ ת (begad kefat)", "result": "agrees"}, {"claim": "only בּ/ב, כּ/כ, פּ/פ change sound in the pronunciation used", "result": "differs on purpose", "note": "Wegner gives all six soft sounds and notes that most have fallen out of use; the app follows the Israeli-based pronunciation"}, {"claim": "א ה ח ע and usually ר never take the doubling dot", "result": "agrees"}, {"claim": "שׁ sh, שׂ s", "result": "agrees"}], "fingerprint": "7d0dde731b8555bc"}
 }

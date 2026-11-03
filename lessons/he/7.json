@@ -37,7 +37,7 @@
           "title": "When the first letter can't be doubled",
           "body": [
             "The throat letters (lesson 4) can't be doubled, so the article changes instead:",
-            "Before א ע ר, the patah stretches to qamets: הָאָרֶץ, הָעִיר. Before ה ח, it stays הַ, and the doubling is just understood: הַחֹשֶׁךְ. Before an unstressed הָ, חָ or עָ, it becomes הֶ: הֶהָרִים.",
+            "Before א ע ר, the patah stretches to qamets: הָאָרֶץ, הָעִיר. Before ה ח, it stays הַ, and the doubling is just understood: הַחֹשֶׁךְ. Before an unstressed הָ or עָ, and before חָ, it becomes הֶ: הֶהָרִים, הֶחָכָם.",
             "So “the” can look like הַ, הָ or הֶ. A ה fixed to the front of a noun is your clue."
           ],
           "table": {
@@ -46,7 +46,7 @@
               ["most letters", "הַ + dot", "הַמֶּלֶךְ"],
               ["א ע ר", "הָ", "הָעִיר"],
               ["ה ח", "הַ", "הַחֹשֶׁךְ"],
-              ["unstressed הָ חָ עָ", "הֶ", "הֶחָכָם"]
+              ["חָ, or unstressed הָ עָ", "הֶ", "הֶחָכָם"]
             ]
           }
         }
@@ -128,5 +128,7 @@
         }
       ]
     }
-  ]
+  ],
+  "source": {"book": "Wegner, A Simplified Grammar of Biblical Hebrew", "chapter": "Lesson 9: The Hebrew Article"},
+  "grammarCheck": {"date": "2026-11-03", "verdict": "agrees, one wording fixed", "claims": [{"claim": "the article is הַ with a doubling dot in the next letter; Hebrew has no word for 'a'", "result": "agrees"}, {"claim": "before א ע ר it becomes הָ (compensatory lengthening)", "result": "agrees"}, {"claim": "before ה ח it stays הַ (doubling understood)", "result": "agrees"}, {"claim": "before unstressed הָ חָ עָ it becomes הֶ", "result": "fixed", "note": "Wegner: before unstressed הָ עָ, and before חָ always; the lesson and its table now say so"}], "fingerprint": "ccc73bfc087631fc"}
 }

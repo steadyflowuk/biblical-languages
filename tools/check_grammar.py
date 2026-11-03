@@ -254,10 +254,15 @@ def main():
             L["source"] = rec.pop("source")
         rec = {"date": datetime.date.today().isoformat(), **rec, "fingerprint": fingerprint(L)}
         L["grammarCheck"] = rec
-        # keep the lesson's key order: id, lang, title, … then the record at the end
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(L, f, ensure_ascii=False, indent=2)
-            f.write("\n")
+        # Written as two lines at the end of the file, so the lesson's own hand layout is kept
+        text = open(path, encoding="utf-8").read()
+        text = re.sub(r',\n  "source": .*\Z', "\n}\n", text, flags=re.S).rstrip()
+        assert text.endswith("}"), path
+        tail = (',\n  "source": ' + json.dumps(L["source"], ensure_ascii=False) +
+                ',\n  "grammarCheck": ' + json.dumps(rec, ensure_ascii=False) + "\n}\n")
+        text = text[:-1].rstrip() + tail
+        json.loads(text)
+        open(path, "w", encoding="utf-8").write(text)
         print(f"{lid}: recorded ({rec['verdict']}, {len(rec.get('claims', []))} claims, fingerprint {rec['fingerprint']})")
         return
     # known answers first: a table with two rows swapped and a drill answered wrongly must both be caught
@@ -270,6 +275,12 @@ def main():
     problems.clear()
     if caught != 4:  # λέγετε, λέγει, and both words of τοῖς ἀδελφοῖς
         problems.append(f"self-test: the paradigm check caught {caught} of 4 planted mistakes")
+    # and a lesson whose teaching changes after its record must need checking again (its fingerprint changes)
+    probe = json.loads(json.dumps(cl.load(dict(written())["grc-4"])))
+    before = record_problems("grc-4", probe)
+    probe["steps"][1]["cards"][0]["body"][0] += " (changed)"
+    if before or not any("teaching changed" in p for p in record_problems("grc-4", probe)):
+        problems.append("self-test: a changed lesson didn't lose its cross-check")
     checked = 0
     waiting = []
     for lid, path in written():

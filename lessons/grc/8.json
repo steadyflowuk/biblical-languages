@@ -133,5 +133,7 @@
         }
       ]
     }
-  ]
+  ],
+  "source": {"book": "Schwandt, An Introduction to Biblical Greek (2020)", "chapter": "Lesson 7: O-Stem Neuter Nouns (Second Declension, Continued)"},
+  "grammarCheck": {"date": "2026-11-03", "verdict": "agrees", "claims": [{"claim": "neuter nouns like ἔργον: subject and object forms the same, -ον / -α", "result": "agrees"}, {"claim": "genitive and dative as λόγος: ἔργου ἔργων, ἔργῳ ἔργοις", "result": "agrees"}, {"claim": "neuter article τό τά, τοῦ τῶν, τῷ τοῖς", "result": "agrees"}, {"claim": "grammatical gender isn't real gender (τέκνον is neuter)", "result": "agrees"}, {"claim": "a neuter plural subject often takes a singular verb", "result": "agrees"}], "fingerprint": "af3e2d387f8aa106"}
 }

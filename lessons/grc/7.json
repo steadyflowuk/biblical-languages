@@ -159,5 +159,7 @@
         }
       ]
     }
-  ]
+  ],
+  "source": {"book": "Schwandt, An Introduction to Biblical Greek (2020)", "chapter": "Lesson 6: Definite Article, Genitive and Dative Cases, and Prepositions"},
+  "grammarCheck": {"date": "2026-11-03", "verdict": "agrees", "claims": [{"claim": "genitive usually 'of'; dative 'to' or 'for'", "result": "agrees"}, {"claim": "endings λόγου λόγων, λόγῳ λόγοις, with iota subscript in the dative singular", "result": "agrees"}, {"claim": "masculine article ὁ οἱ, τοῦ τῶν, τῷ τοῖς, τόν τούς, matching its noun's case", "result": "agrees"}, {"claim": "each preposition takes a particular case: ἐκ/ἀπό + genitive, εἰς + accusative, ἐν + dative, μετά + genitive 'with', πρός + accusative", "result": "agrees", "note": "Schwandt: some prepositions take more than one case (μετά + accusative = after); the lesson gives the commonest use"}, {"claim": "ἐκ becomes ἐξ before a vowel", "result": "agrees"}], "fingerprint": "c7a1ad4d80d8bd2f"}
 }

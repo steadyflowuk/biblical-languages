@@ -141,5 +141,7 @@
         }
       ]
     }
-  ]
+  ],
+  "source": {"book": "Schwandt, An Introduction to Biblical Greek (2020)", "chapter": "Lesson 3: Present Active Indicative"},
+  "grammarCheck": {"date": "2026-11-03", "verdict": "agrees", "claims": [{"claim": "endings -ω -εις -ει -ομεν -ετε -ουσι(ν) for I, you, he/she/it, we, you all, they", "result": "agrees"}, {"claim": "the ending shows who acts, so no separate pronoun is needed", "result": "agrees"}, {"claim": "the present describes ongoing action: I loose / I am loosing", "result": "agrees", "note": "Schwandt: closer to the English present continuous"}, {"claim": "the final ν of -ουσιν may drop before a consonant", "result": "agrees", "note": "Schwandt: moveable ν generally used before a vowel"}, {"claim": "λυ- is called the stem", "result": "differs on purpose", "note": "Schwandt calls λυ- the root and -ο-/-ε- the stem; the app uses the commoner beginner's term"}, {"claim": "οὐ / οὐκ before a vowel / οὐχ before a rough breathing", "result": "agrees", "note": "standard rule; not set out in this chapter"}], "fingerprint": "15b24db1551b9f72"}
 }

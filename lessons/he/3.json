@@ -149,5 +149,7 @@
         }
       ]
     }
-  ]
+  ],
+  "source": {"book": "Wegner, A Simplified Grammar of Biblical Hebrew", "chapter": "Lesson 2: Hebrew Vowels"},
+  "grammarCheck": {"date": "2026-11-03", "verdict": "agrees", "claims": [{"claim": "a vowel is said after the letter it sits with", "result": "agrees"}, {"claim": "vowels helped by a letter: hireq yod, tsere yod, holam vav, shureq", "result": "agrees"}, {"claim": "three vowel classes: a; e and i; o and u", "result": "agrees"}, {"claim": "qamets in a closed unstressed syllable is a short o (qamets hatuf): חָכְמָה chokh-MAH", "result": "agrees", "note": "Wegner uses the same example"}], "fingerprint": "2912353c7d07a766"}
 }

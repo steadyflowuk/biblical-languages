@@ -139,5 +139,7 @@
         }
       ]
     }
-  ]
+  ],
+  "source": {"book": "Wegner, A Simplified Grammar of Biblical Hebrew", "chapter": "Lesson 10: Hebrew Prepositions"},
+  "grammarCheck": {"date": "2026-11-03", "verdict": "agrees", "claims": [{"claim": "בְּ in/with/by, כְּ like/as, לְ to/for, fixed to the next word", "result": "agrees"}, {"claim": "before a shewa they take hireq; before a hateph vowel its short vowel", "result": "agrees"}, {"claim": "with the article the ה drops and the preposition takes its vowel", "result": "agrees"}, {"claim": "מִן assimilates as מִ + doubling, and is מֵ before throat letters", "result": "agrees"}, {"claim": "separate prepositions אֶל עַל עִם עַד תַּחַת אַחַר", "result": "agrees"}], "fingerprint": "95f124ca931c5449"}
 }

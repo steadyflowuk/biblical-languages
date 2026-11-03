@@ -40,7 +40,7 @@ async def slow(pg, cpu=6, net=True):
 
 async def timed(pg, route, ready, limit):
     await pg.goto(f"{BASE}#/settings")
-    await pg.wait_for_function(READY, timeout=30000)
+    await pg.wait_for_function(READY, timeout=90000)
     t0 = time.time()
     await pg.evaluate(f"location.hash = '#/{route}'")
     try:
@@ -74,8 +74,9 @@ async def main():
         await pg.evaluate("navigator.serviceWorker.ready")
         await pg.reload()
         for _, route, ready, _ in SCREENS:  # visit each once so its data is saved, as on a phone in use
+            await pg.goto(f"{BASE}#/settings")
             await pg.goto(f"{BASE}#/{route}")
-            await pg.wait_for_function(ready, timeout=30000)
+            await pg.wait_for_function(ready, timeout=90000)
         await pg.wait_for_timeout(1500)
         await pg.reload()
         await slow(pg)

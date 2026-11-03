@@ -133,5 +133,7 @@
         }
       ]
     }
-  ]
+  ],
+  "source": {"book": "Schwandt, An Introduction to Biblical Greek (2020)", "chapter": "Taster (topics of Lessons 1, 5 and 12)"},
+  "grammarCheck": {"date": "2026-11-03", "verdict": "agrees", "claims": [{"claim": "ν is n and ρ is r; λ l, θ th as in thin", "result": "agrees", "note": "Lesson 1"}, {"claim": "the ending and the article change with a word's job (θεός / τὸν θεόν)", "result": "agrees", "note": "Lesson 5"}, {"claim": "ἦν is third person singular imperfect of εἰμί, 'was'", "result": "agrees", "note": "Lesson 12; also confirmed by the paradigm check against the text's tagging"}], "fingerprint": "76556e6acfab8aaa"}
 }

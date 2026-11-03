@@ -146,5 +146,7 @@
         }
       ]
     }
-  ]
+  ],
+  "source": {"book": "Schwandt, An Introduction to Biblical Greek (2020)", "chapter": "Lesson 5: O-Stem Nouns (Second Declension)"},
+  "grammarCheck": {"date": "2026-11-03", "verdict": "agrees", "claims": [{"claim": "subject = nominative, object = accusative", "result": "agrees"}, {"claim": "endings λόγος λόγοι, λόγον λόγους", "result": "agrees"}, {"claim": "endings, not word order, show subject and object", "result": "agrees"}, {"claim": "the verb agrees with its subject in number", "result": "agrees"}, {"claim": "Greek has no word for 'a'", "result": "agrees"}, {"claim": "these -ος nouns are masculine", "result": "agrees", "note": "Schwandt: nearly all; a few are feminine (ὁδός), as lesson grc-7's source notes"}, {"claim": "vocative left out", "result": "differs on purpose", "note": "Schwandt lists the vocative; the lesson keeps to the four cases used most"}], "fingerprint": "c076e9ff7a5696bf"}
 }

@@ -133,5 +133,7 @@
         }
       ]
     }
-  ]
+  ],
+  "source": {"book": "Wegner, A Simplified Grammar of Biblical Hebrew", "chapter": "Lesson 12: Hebrew Adjectives"},
+  "grammarCheck": {"date": "2026-11-03", "verdict": "agrees", "claims": [{"claim": "adjectives take the noun endings: טוֹב טוֹבָה טוֹבִים טוֹבוֹת", "result": "agrees"}, {"claim": "attributive: after the noun, matching gender, number and 'the'", "result": "agrees"}, {"claim": "predicate: no article, before or after the noun; no word for 'is'", "result": "agrees"}, {"claim": "two nouns side by side make a verbless sentence", "result": "agrees", "note": "Wegner: simple nominal sentences"}], "fingerprint": "5d95e1ab5c196cf4"}
 }

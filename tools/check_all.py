@@ -59,7 +59,7 @@ COVERAGE = {
     "sweep_reader": [(r"([\d,]+) chapters,", 1189)],
     "sweep_lxx": [(r"(\d+) OT chapters side by side", 929), (r"(\d+) Septuagint chapters", 1259)],
     "sweep_dictionary": [(r"([\d,]+) entries opened", 21234)],
-    "crawl_app": [(r"phone light: (\d+) screens", 28)],
+    "crawl_app": [(r"phone light: (\d+) screens", 27)],  # 27 or 28: the day's verse decides one link
     "check_lessons": [(r"All (\d+) lessons pass", 21)],
     "test_app": [(r"\d+/(\d+) passed", 115)], "test_lessons": [(r"\d+/(\d+) passed", 78)],
     "test_dictionary": [(r"\d+/(\d+) passed", 52)], "test_review": [(r"\d+/(\d+) passed", 48)],

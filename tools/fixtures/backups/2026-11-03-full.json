@@ -1,0 +1,39 @@
+{
+ "note": "A sample backup kept so later versions can be checked to restore it (tools/test_backups.py). Never edit: add a new sample when the format changes.",
+ "expect": {
+  "lessons": 3,
+  "started": 1,
+  "cards": 5,
+  "queue": 0,
+  "studyDays": 5,
+  "textSize": "larger",
+  "theme": "dark"
+ },
+ "backup": {
+  "app": "aleph-to-omega",
+  "version": 1,
+  "exported": "2026-11-03T19:30:00.000Z",
+  "data": {
+   "ao:textSize": "\"larger\"",
+   "ao:theme": "\"dark\"",
+   "ao:greekVoice": "\"koine\"",
+   "ao:speechRate": "\"normal\"",
+   "ao:learnLang": "\"grc\"",
+   "ao:abcLang": "\"he\"",
+   "ao:lastRead": "\"GEN/1\"",
+   "ao:readLayout": "\"parallel\"",
+   "ao:showLXX": "true",
+   "ao:newPerDay": "15",
+   "ao:reviewDecks": "{\"grc\": true, \"he\": true, \"grcLetters\": true, \"heLetters\": false}",
+   "ao:lessons": "{\"grc-0\": {\"v\": 1, \"pos\": 0, \"done\": true, \"best\": 90, \"completed\": \"2026-10-27\", \"sig\": \"x\"}, \"grc-1\": {\"v\": 1, \"pos\": 0, \"done\": true, \"best\": 100, \"completed\": \"2026-10-29\"}, \"grc-2\": {\"v\": 1, \"pos\": 0, \"done\": true, \"best\": 80, \"completed\": \"2026-11-01\"}, \"he-0\": {\"v\": 1, \"pos\": 3, \"done\": false}}",
+   "ao:reviewQueue": "[]",
+   "ao:cards": "{\"grc:G3056\": {\"id\": \"grc:G3056\", \"lang\": \"grc\", \"k\": \"G3056\", \"t\": \"\\u03bb\\u03cc\\u03b3\\u03bf\\u03c2\", \"say\": \"LO-gos\", \"en\": \"word\", \"src\": \"lesson\", \"lesson\": \"grc-0\", \"n\": 330, \"added\": \"2026-10-29\", \"f\": {\"due\": \"2026-11-08T09:00:00.000Z\", \"stability\": 25, \"difficulty\": 5.1, \"elapsed_days\": 2, \"scheduled_days\": 4, \"learning_steps\": 0, \"reps\": 4, \"lapses\": 0, \"state\": 2, \"last_review\": \"2026-10-30T09:00:00.000Z\"}}, \"grc:G2316\": {\"id\": \"grc:G2316\", \"lang\": \"grc\", \"k\": \"G2316\", \"t\": \"\\u03b8\\u03b5\\u03cc\\u03c2\", \"say\": \"the-OS\", \"en\": \"God\", \"src\": \"lesson\", \"lesson\": \"grc-0\", \"n\": 1317, \"added\": \"2026-10-29\", \"f\": {\"due\": \"2026-11-04T09:00:00.000Z\", \"stability\": 6, \"difficulty\": 5.1, \"elapsed_days\": 2, \"scheduled_days\": 4, \"learning_steps\": 0, \"reps\": 4, \"lapses\": 0, \"state\": 2, \"last_review\": \"2026-10-30T09:00:00.000Z\"}}, \"grc:G2532\": {\"id\": \"grc:G2532\", \"lang\": \"grc\", \"k\": \"G2532\", \"t\": \"\\u03ba\\u03b1\\u03af\", \"en\": \"and, also\", \"src\": \"deck\", \"n\": 9161, \"added\": \"2026-10-30\", \"f\": {\"due\": \"2026-11-02T09:00:00.000Z\", \"stability\": 0.5, \"difficulty\": 5.1, \"elapsed_days\": 2, \"scheduled_days\": 4, \"learning_steps\": 0, \"reps\": 4, \"lapses\": 0, \"state\": 1, \"last_review\": \"2026-10-30T09:00:00.000Z\"}}, \"he:H0430G\": {\"id\": \"he:H0430G\", \"lang\": \"he\", \"k\": \"H0430G\", \"t\": \"\\u05d0\\u05b1\\u05dc\\u05b9\\u05d4\\u05b4\\u05d9\\u05dd\", \"say\": \"e-lo-HIM\", \"en\": \"God\", \"src\": \"deck\", \"n\": 2600, \"added\": \"2026-10-31\", \"f\": {\"due\": \"2026-11-03T09:00:00.000Z\", \"stability\": 3, \"difficulty\": 5.1, \"elapsed_days\": 2, \"scheduled_days\": 4, \"learning_steps\": 0, \"reps\": 4, \"lapses\": 0, \"state\": 2, \"last_review\": \"2026-10-30T09:00:00.000Z\"}}, \"grc:abc:0\": {\"id\": \"grc:abc:0\", \"lang\": \"grc\", \"k\": \"\", \"t\": \"\\u0391 \\u03b1\", \"src\": \"abc\", \"say\": \"AL-fa\", \"sp\": \"\\u1f04\\u03bb\\u03c6\\u03b1\", \"en\": \"alpha: a\", \"ex\": \"\\u1f00\\u03b3\\u03ac\\u03c0\\u03b7\", \"f\": {\"due\": \"2026-11-06T09:00:00.000Z\", \"stability\": 9, \"difficulty\": 5.1, \"elapsed_days\": 2, \"scheduled_days\": 4, \"learning_steps\": 0, \"reps\": 4, \"lapses\": 0, \"state\": 2, \"last_review\": \"2026-10-30T09:00:00.000Z\"}}}",
+   "ao:reviewLog": "{\"2026-10-29\": {\"r\": 12, \"n\": 5}, \"2026-10-30\": {\"r\": 20, \"n\": 6}, \"2026-11-01\": {\"r\": 8, \"n\": 2}}",
+   "ao:activity": "{\"2026-10-27\": {\"l\": 9}, \"2026-10-29\": {\"r\": 12, \"l\": 4}, \"2026-10-30\": {\"r\": 20}, \"2026-11-01\": {\"r\": 8, \"l\": 6, \"v\": 1}, \"2026-11-02\": {\"v\": 1}}",
+   "ao:bestStreak": "2",
+   "ao:lastBackup": "\"2026-11-01T18:00:00.000Z\"",
+   "ao:recentWords": "[\"G3056\", \"H0430G\"]",
+   "ao:dictLang": "\"G\""
+  }
+ }
+}

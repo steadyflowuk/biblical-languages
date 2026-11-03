@@ -165,7 +165,8 @@ function videoHTML(c) {
 /** A small table (verb endings, noun patterns): { caption, head: [...], rows: [[...]] }. */
 export function tableHTML(t) {
   const cell = (x, tag) => `<${tag}${langAttrs(x) && !/[a-z]/i.test(x) ? langAttrs(x) : ""}>${mixed(x)}</${tag}>`;
-  return `<div class="ls-table-wrap" tabindex="0" role="region" aria-label="Table">
+  const name = String(t.caption || (t.head || []).join(", ")).replace(/<[^>]+>|[*_]/g, "").trim();
+  return `<div class="ls-table-wrap" tabindex="0" role="region" aria-label="${esc(name ? `Table: ${name}` : "Table")}">
     <table class="ls-table">
       ${t.caption ? `<caption>${mixed(t.caption)}</caption>` : ""}
       ${t.head ? `<thead><tr>${t.head.map((h) => cell(h, "th")).join("")}</tr></thead>` : ""}
@@ -368,7 +369,7 @@ export const lesson = {
     main.innerHTML = `<div class="screen lesson" lang="en">
       <header class="ls-head">
         <a class="icon-btn ls-close" href="#/learn" aria-label="Leave the lesson (your place is saved)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></a>
-        <div class="ls-head-text"><p class="ls-kicker">${LANG_NAME[lang]} · ${esc(entry.title)}</p>
+        <div class="ls-head-text"><h1 class="ls-kicker">${LANG_NAME[lang]} · ${esc(entry.title)}</h1>
           <div class="ls-progress" role="progressbar" aria-label="Lesson progress" aria-valuemin="0" aria-valuemax="100"><span></span></div></div>
       </header>
       <div class="ls-stepbar"></div>

@@ -21,12 +21,10 @@ if [ ! -d lxx-swete ]; then
   git clone -q --depth 1 https://github.com/eliranwong/LXX-Swete-1930 lxx-swete
 fi
 
-# Berean Standard Bible (public domain), as prepared for communityofbrothers.github.io
-if [ ! -f bsb/bsb.json ]; then
-  rm -rf cob && git clone -q --depth 1 --filter=blob:none --no-checkout \
-    https://github.com/communityofbrothers/communityofbrothers.github.io cob
-  (cd cob && git sparse-checkout init --no-cone && git sparse-checkout set --no-cone /assets/bsb.gz && git checkout -q HEAD)
-  mkdir -p bsb && gunzip -c cob/assets/bsb.gz > bsb/bsb.json
+# Berean Standard Bible (public domain): the official USFM files as published on eBible.org (with footnotes and headings)
+if [ ! -d bsb/usfm ]; then
+  mkdir -p bsb && curl -sSfL -o bsb/engbsb_usfm.zip https://ebible.org/Scriptures/engbsb_usfm.zip
+  (cd bsb && rm -rf usfm && mkdir usfm && unzip -q -o engbsb_usfm.zip -d usfm)
 fi
 
 # Strong's Hebrew dictionary (1890, public domain) as prepared by the Open Scriptures Hebrew Bible Project (CC BY 4.0):

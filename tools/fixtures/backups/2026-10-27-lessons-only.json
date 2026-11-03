@@ -1,0 +1,26 @@
+{
+ "note": "A sample backup kept so later versions can be checked to restore it (tools/test_backups.py). Never edit: add a new sample when the format changes.",
+ "expect": {
+  "lessons": 2,
+  "started": 1,
+  "cards": 0,
+  "queue": 2,
+  "studyDays": 0,
+  "textSize": "large",
+  "theme": "light"
+ },
+ "backup": {
+  "app": "aleph-to-omega",
+  "version": 1,
+  "exported": "2026-10-27T20:15:00.000Z",
+  "data": {
+   "ao:textSize": "\"large\"",
+   "ao:theme": "\"light\"",
+   "ao:greekVoice": "\"erasmian\"",
+   "ao:learnLang": "\"grc\"",
+   "ao:lastRead": "\"JHN/3\"",
+   "ao:lessons": "{\"grc-0\": {\"v\": 1, \"pos\": 0, \"retries\": [], \"first\": {}, \"done\": true, \"best\": 90, \"completed\": \"2026-10-27\"}, \"grc-1\": {\"v\": 1, \"pos\": 0, \"retries\": [], \"first\": {}, \"done\": true, \"best\": 100, \"completed\": \"2026-10-27\"}, \"grc-2\": {\"v\": 1, \"pos\": 5, \"retries\": [], \"first\": {\"2\": true}, \"done\": false}}",
+   "ao:reviewQueue": "[{\"k\": \"G3056\", \"lang\": \"grc\", \"t\": \"\\u03bb\\u03cc\\u03b3\\u03bf\\u03c2\", \"say\": \"LO-gos\", \"en\": \"word\", \"lesson\": \"grc-0\", \"added\": \"2026-10-27\"}, {\"k\": \"G2316\", \"lang\": \"grc\", \"t\": \"\\u03b8\\u03b5\\u03cc\\u03c2\", \"say\": \"the-OS\", \"en\": \"God\", \"lesson\": \"grc-0\", \"added\": \"2026-10-27\"}]"
+  }
+ }
+}

@@ -29,7 +29,7 @@ function exampleHTML(ex, lang) {
 }
 
 function tileHTML(L, i, lang) {
-  return `<li><button type="button" class="ab-tile" data-letter="${i}" aria-label="${esc(L.name)}: ${esc(L.sound)}">
+  return `<li><button type="button" class="ab-tile" data-letter="${i}">
     <span class="ab-glyph"${textAttrs(lang)}>${L.forms.map(esc).join(" ")}</span>
     <span class="ab-name">${esc(L.name)}</span>
     <span class="ab-sound">${esc(shortSound(L.sound))}</span></button></li>`;

@@ -27,6 +27,8 @@ JOBS = {
     "check_lessons":   ([PY, "tools/check_lessons.py"], 1, 1),
     "check_speech":    (["node", "tools/check_speech.mjs"], 1, 2),
     "audit_static":    ([PY, "tools/audit_content.py", "--static"], 1, 3),
+    "check_rebuild":   ([PY, "tools/check_rebuild.py"], 1, 2),
+    "check_grammar":   ([PY, "tools/check_grammar.py"], 1, 1),
     # 2. sweeps: every chapter, every Septuagint chapter, every dictionary entry, every screen
     "sweep_reader":    ([PY, "tools/sweep_reader.py", "all"], 2, 45),
     "sweep_lxx":       ([PY, "tools/sweep_lxx.py", "all"], 2, 40),
@@ -43,8 +45,13 @@ JOBS = {
     "test_reader_edges": ([PY, "tools/test_reader_edges.py"], 3, 4),
     "test_check":      ([PY, "tools/test_check.py"], 3, 5),
     "test_translations": ([PY, "tools/test_translations.py"], 3, 12),
+    "test_a11y":       ([PY, "tools/test_a11y.py"], 3, 4),
+    "test_backups":    ([PY, "tools/test_backups.py"], 3, 1),
+    "test_screens":    ([PY, "tools/test_screens.py"], 3, 3),
     # 4. what a learner sees: tapped words, Reader notes in every layout, dictionary senses, credits
     "audit_content":   ([PY, "tools/audit_content.py"], 4, 10),
+    # 5. timing, on its own so other jobs don't slow it down
+    "test_slow":       ([PY, "tools/test_slow.py"], 5, 2),
 }
 QUICK_SKIP = {"sweep_reader", "sweep_lxx", "sweep_dictionary"}
 # What each job must have covered: a run that stops early, or quietly checks less, fails (numbers as of Session 14)
@@ -58,9 +65,13 @@ COVERAGE = {
     "test_dictionary": [(r"\d+/(\d+) passed", 52)], "test_review": [(r"\d+/(\d+) passed", 48)],
     "test_alphabet": [(r"\d+/(\d+) passed", 42)], "test_journey": [(r"\d+/(\d+) passed", 35)],
     "test_progress": [(r"\d+/(\d+) passed", 47)], "test_reader_edges": [(r"\d+/(\d+) passed", 28)],
-    "test_check": [(r"\d+/(\d+) passed", 29)], "test_translations": [(r"\d+/(\d+) passed", 70)],
+    "test_check": [(r"\d+/(\d+) passed", 31)], "test_translations": [(r"\d+/(\d+) passed", 70)],
+    "test_a11y": [(r"(\d+) pages checked", 104)], "test_backups": [(r"\d+/(\d+) passed", 35)],
+    "test_screens": [(r"\d+/(\d+) passed", 48)], "test_slow": [(r"\d+/(\d+) passed", 12)],
+    "check_rebuild": [(r"(\d+) data files compared", 433)],
+    "check_grammar": [(r"(\d+) forms compared", 143)],
 }
-PARALLEL = {1: 4, 2: 4, 3: 4, 4: 1}
+PARALLEL = {1: 4, 2: 4, 3: 4, 4: 1, 5: 1}
 
 
 def port_open(port=8765):
@@ -131,7 +142,7 @@ def main():
     results = {}
     total = time.time()
     try:
-        for stage in (1, 2, 3, 4):
+        for stage in (1, 2, 3, 4, 5):
             batch = [n for n in names if JOBS[n][1] == stage]
             if not batch:
                 continue
@@ -143,7 +154,7 @@ def main():
                     print(f"  {'FAIL' if bad else 'pass'}  {name:18} {secs / 60:5.1f} min  {headline(log)}")
             # a failed suite gets one more run on its own (timing checks can trip under load)
             for name in batch:
-                if stage == 3 and not results[name]["ok"]:
+                if stage in (3, 5) and not results[name]["ok"]:
                     print(f"  re-running {name} on its own …")
                     shutil.copy(os.path.join(OUT, f"{name}.log"), os.path.join(OUT, f"{name}.first-run.log"))
                     _, code, log, secs = run(name)

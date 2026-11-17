@@ -52,7 +52,7 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
 - `js/alphabet.js` Alphabet and sounds (`#/alphabet/grc|he`, content in `lessons/alphabet/<lang>.json`)
 - `js/lessons.js` lesson engine (route `#/lesson/LANG/ID`) · `lessons/` index + one JSON file per lesson (format: lessons/README.md)
 - `js/review.js` Review trainer (#/review) · `js/sound.js` respelling + voice text (no DOM; Node can import it) ·
-  `js/audio.js` Listen buttons (one capture-phase click handler in app.js) · `js/vendor/ts-fsrs.js` (MIT, tools/vendor_fsrs.sh)
+  `js/audio.js` Listen buttons (one capture-phase click handler in app.js) + listening practice level · `js/vendor/ts-fsrs.js` (MIT, tools/vendor_fsrs.sh)
 - `assets/fonts`, `assets/icons`
 
 ## Testing
@@ -213,6 +213,36 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
   Deliberate differences recorded (Erasmian, ω oh, Israeli-based Hebrew, "stem" for Schwandt's root). Logos reading
   tip: open the contents (…/references/page.v), click the art=CHn link via JS, then scroll the resourceViewer element
   collecting text (it is virtualised). crawl_app COVERAGE 27 (the day's verse decides one link kind).
+
+- [x] Sounds + listening practice (17 Nov 2026, user's request; the BSB edition fix from the handover is still to do).
+  Sound check of every voice text: Restored Koine was Modern Greek (η, υ, οι, υι all "ee") — koineSpeech now writes
+  η as ε (ηυ → ευ) and υ/οι/υι as ιου ("yu", nearest a Modern Greek voice has to ü, as Greek writes ü in foreign
+  names), lowercased, one-vowel results keep a tonos (ἡ → έ, οἱ → ιού); Erasmian lost the stress on ΐ/ΰ (38 forms:
+  Δαυίδ, Ἠσαΐας, πρωΐ); Hebrew: the Israeli voice drops the said shewa the app teaches (brit, dvarim) — hebrewSpeech
+  turns a said shewa into segol (word's first letter; second of two; dagesh after a vowel; before the same letter;
+  never word-final; plain shewa under א ה ח ע silent; ~1 OT word in 5), כָּל־ → כֹּל, ׇ → holam. check_speech.mjs checks
+  all of it over 1.07 million words. Knowingly left (a Modern Greek voice can't do them; judge on devices): Erasmian
+  ντ/μπ/γκ and σ before β γ δ μ get voiced (πάντα "panda", κόσμος "kozmos"), medial β/δ respelt μπ/ντ may come out
+  mb/nd, no h for the rough breathing, χ softer before e/i, ι before a vowel may glide (κύριος), double consonants
+  single; ü is "yu" in Koine; other qamets hatuf words left to the voice.
+  Listening practice (store listenLevel easy|medium|hard, default medium; Settings and Reader display options):
+  Easy = a tapped word in a verse is said at once (sayTapped, inside the tap; no-voice help once), no whole-verse
+  button; Medium = that plus "Listen to the verse"; Hard = whole verse only (taps show the meaning silently, word
+  Listen buttons in verse contexts hidden). Covers Today's verse, a lesson's Read step, the Reader (small Listen after
+  each verse's last word in word by word and side by side; "Listen to verse N" in word sheets, all layouts), the
+  Septuagint (sheet: the whole Septuagint verse) and the Letters guide's verses (each word a data-say button on
+  Easy/Medium). Dictionary, Review, lesson scenes/examples/word lists keep their Listen buttons at every level.
+  "Sentence" = the whole verse. audio.verseSpeech(words, lang): Greek with punctuation; Hebrew with maqqef, flag "k"
+  words left out.
+  Full check (18 min) + reviewer. Fixed: said shewa also after a long vowel (holam, tsere, shureq so after the
+  conjunction וּ too, hiriq/tsere + yod, qamets with meteg — meteg now stripped after saidShewa; a silent א passes the
+  vowel on: וַיֹּאמְרוּ), not before a final silent א (Artaxerxes); kol and the divine name after up to two prefixes or
+  שֶׁ, rafe allowed and stripped; tapped Hebrew words and word Listen buttons keep their maqqef (kol was "kal" on tap);
+  Koine drops ⟦ ⟧; Letters guide: a paseq is plain text, word buttons ≥32×40; per-verse Listen has lang="en"; no-voice
+  help once per language; Settings wording. check_speech: divine name never spelt out, kol never "kal" (both proven on
+  the old code). check_rebuild: committed gnt data predated Session 14's τῇ translit fix for -ῇς (zēas → zēs, 12 files)
+  and STEPBible's REV 19:10 gloss — fresh build taken. test_screens re-approved (new buttons). Device judgement still
+  needed: whether Carmit follows the points (segol), Koine "yu" and ιεσούς for Ἰησοῦς.
 
 ## Data (Session 2)
 - Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (46 checks).
@@ -441,10 +471,12 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
 - Hebrew voice text: paragraph letters פ ס removed only when standing alone (`(^|\s)[פס](?=\s|$)`); [ ] and / removed.
   Greek: unElide() joins a lone elided consonant to the next word (δ᾽ ἂν) or restores ε (δ᾽ → δε); Koine drops [ ] ( ).
   sayButton() returns "" when the voice text has no Greek/Hebrew letter (paragraph marks, Septuagint numerals).
-- Voices: Greek el-GR, Hebrew he/iw. Erasmian = respelt in Modern Greek letters (β μπ, δ ντ, γ γκ, ζ τζ, η/ει έι|εϊ,
+- Voices: Greek el-GR, Hebrew he/iw. Restored Koine (since 17 Nov 2026) = η → ε, υ/οι/υι → ιου; Hebrew said shewa →
+  segol (see the session log). Erasmian = respelt in Modern Greek letters (β μπ, δ ντ, γ γκ, ζ τζ, η/ει έι|εϊ,
   υ ου, αι άι|αϊ, οι όι|οϊ, αυ άου, ευ έου, no h); one-syllable words keep the mark so έι stays one sound. Koine =
-  monotonic text. Hebrew: no cantillation/meteg/sof pasuq, maqaf → space, יהוה (also after one-letter prefixes) →
-  Adonai, with hiriq → Elohim. Rate 0.75 (slow) or 1. No voice → toast explaining how to add one (iOS / Android).
+  monotonic text with η → ε and υ/οι/υι → ιου, ⟦ ⟧ dropped. Hebrew: no cantillation/meteg/rafe/sof pasuq, maqaf →
+  space, said shewa → segol, כָּל־ → כֹּל (up to two prefixes), יהוה (also after up to two prefixes or שֶׁ) → Adonai, with
+  hiriq → Elohim. A tapped Hebrew word joined by maqqef keeps it for the voice. Rate 0.75 (slow) or 1. No voice → toast explaining how to add one (iOS / Android).
   speak() is synchronous (phones only allow speech started inside the tap): voices not listed yet → set lang only
   (el-GR / he-IL) and let the phone choose; onfail toast if nothing starts within 3 s. warmUpVoices() at start.
 - Listen buttons: lesson scenes, examples (not letter cards), word lists, verse ("Listen to the verse") and its
@@ -539,10 +571,11 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
 - `python3 tools/sweep_reader.py [nt|ot|all]` — opens every chapter at 360px (NT ~10 min, OT ~35 min); expect
   0 issues and only 3JN 15 / REV 12:18 notes.
 - `node tools/check_speech.mjs` — every OT/NT/Septuagint word, headword, lesson and Letters word through the voice
-  text (Hebrew keeps every letter; Greek sayable, no brackets/Latin); run after any change to js/sound.js.
+  text (Hebrew keeps every letter, said shewa sounded, no ׇ; Greek sayable, no brackets/Latin, stress kept in both
+  voices, no Modern vowels left in Koine); run after any change to js/sound.js.
 - `python3 tools/test_alphabet.py` — 42 alphabet checks (both guides, sheets, voices, Read aloud, letter flashcards,
   320px largest dark, offline).
-- `python3 tools/test_review.py` — 48 review/audio checks (incl. a week on a fake clock, speech before voices load) (voices replaced by a recorder; FSRS sessions, limits,
+- `python3 tools/test_review.py` — 59 review/audio checks (incl. listening practice Easy/Medium/Hard on Today, Reader, Letters) (incl. a week on a fake clock, speech before voices load) (voices replaced by a recorder; FSRS sessions, limits,
   lists, aliases, both languages, offline, 320px largest dark).
 - `tools/check_data.py` now has 46 checks (5 for the dictionary, 5 for the Septuagint, 4 for the decks) (incl. OT BSB alignment both ways, psalm titles, Today's verses).
 - `python3 tools/check_lessons.py` — validates every lesson (run after any lesson change).

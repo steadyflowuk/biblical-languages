@@ -3,6 +3,10 @@
 // Hebrew lessons and list — the voice text must keep every letter (the divine name may become Adonai/Elohim).
 // Greek: every NT word, every Greek headword and every Septuagint word, in Erasmian and Restored Koine — something
 // sayable must be left, and no brackets or Latin letters may reach the voice.
+// Since 17 Nov 2026 also the sounds themselves: every accented Greek word of two or more syllables keeps a stress mark
+// in both voices (ΐ once lost it: Δαυίδ, Ἠσαΐας); Restored Koine never hands the voice η, οι, υι or a lone υ (a Modern
+// Greek voice says them all "ee"); Hebrew never starts a word with a silent-looking shewa (the Israeli voice would
+// drop the said e) and never keeps the qamets hatuf sign.
 // Words with nothing to say (a lone ס paragraph mark, Septuagint numerals) are listed: the app shows no Listen for them.
 import fs from "fs";
 import path from "path";
@@ -10,7 +14,7 @@ import { fileURLToPath } from "url";
 
 const R = path.join(path.dirname(fileURLToPath(import.meta.url)), "..") + "/";
 const s = await import(R + "js/sound.js");
-const { heText } = await import(R + "js/hebrew.js");
+const { heText, heJoined } = await import(R + "js/hebrew.js");
 const json = (f) => JSON.parse(fs.readFileSync(R + f, "utf8"));
 const lemmaOf = (e) => String((Array.isArray(e) ? e[0] : e && e.lemma) || "").split(",")[0].trim();
 
@@ -28,20 +32,29 @@ function hebrew(where, t) {
   const kept = cons(t.replace(/(^|\s)[פס](?=\s|$)/g, "$1"));
   if (kept !== cons(out) && !/אֲדֹנָי|אֱלֹהִים/.test(out)) problems.push(`${where}: ${t} → ${out} (letters lost)`);
   if (/[^ְ-ׇא-ת ]/.test(out)) problems.push(`${where}: ${t} → ${out} (not Hebrew)`);
+  if (out.split(" ").some((w) => /^[א-ת][ּׁׂ]*ְ/.test(w) && /[א-ת].*[א-ת]/.test(w))) problems.push(`${where}: ${t} → ${out} (said shewa left silent)`);
+  if (/ׇ/.test(out)) problems.push(`${where}: ${t} → ${out} (qamets hatuf sign)`);
+  // the divine name is never spelt out (also after two prefixes or שֶׁ), and כָּל־ is said kol (17 Nov 2026 review)
+  if (out.split(" ").some((w) => /^(?:[ובכלמהש][ְ-ׇ]*){0,2}י[ְ-ׇ]*ה[ְ-ׇ]*ו[ְ-ׇ]*ה[ְ-ׇ]*$/.test(w))) problems.push(`${where}: ${t} → ${out} (divine name spelt out)`);
+  if (/־/.test(t) && out.split(" ").some((w) => /^(?:[ובכלמהש][ְ-ׇ]*){0,2}כ[ּֽֿ]*ָ[ּֽֿ]*ל$/.test(w))) problems.push(`${where}: ${t} → ${out} (kol said kal)`);
 }
 
 function greek(where, t) {
   n++;
   const eras = s.erasmianSpeech(t), koine = s.koineSpeech(t);
   if (!GR_LETTER.test(eras)) { silent.add(t); return; }
+  const accented = t.split(/\s+/).filter((w) => /[\u0300\u0301\u0342]/.test(w.normalize("NFD")) && s.greekSyllables(w).length > 1).length;
   for (const [mode, out] of [["Erasmian", eras], ["Koine", koine]]) {
     if (/[A-Za-z[\]()=]/.test(out)) problems.push(`${where}: ${t} → ${out} (${mode}: not Greek)`);
+    if (accented && !/[άέήίόύώΐΰ]/.test(out)) problems.push(`${where}: ${t} → ${out} (${mode}: stress lost)`);
   }
+  // Koine: η is ε, and υ, οι, υι are ü (written ιου); only αυ, ευ, ου keep a υ
+  if (/[ηήΗ]|(^|[^ι])ο[ιί]|(^|[^αεοάέό])[υύϋΰ]/.test(koine.replace(/ιο[υύ]/g, ""))) problems.push(`${where}: ${t} → ${koine} (Koine: modern vowel left)`);
 }
 
 for (const f of fs.readdirSync(R + "data/hot")) {
   const B = json("data/hot/" + f);
-  for (const [c, vs] of B.ch) for (const item of vs) item[1].forEach((w, i) => hebrew(`${B.id} ${c}:${item[0]}.${i + 1}`, heText(w)));
+  for (const [c, vs] of B.ch) for (const item of vs) item[1].forEach((w, i) => hebrew(`${B.id} ${c}:${item[0]}.${i + 1}`, heText(w) + (heJoined(w[5]) ? "־" : ""))); // as a tap gives it
 }
 for (const f of fs.readdirSync(R + "data/lex/H")) for (const [k, e] of Object.entries(json("data/lex/H/" + f))) { const l = lemmaOf(e); if (l) hebrew("lex " + k, l); }
 const A = json("lessons/alphabet/he.json");

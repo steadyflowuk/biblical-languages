@@ -5,7 +5,7 @@ import { installTip, bindInstallTip } from "./install.js";
 import * as esv from "./esv.js";
 import * as lessons from "./lessons.js";
 import * as review from "./review.js";
-import { sayButton } from "./audio.js";
+import { sayButton, wordSayButton, verseSayButton, sayTapped, listenLevel } from "./audio.js";
 import { englishHTML, friendlyGrammar } from "./reader.js";
 import { heEnglish, heFriendlyGrammar } from "./hebrew.js";
 import { streak } from "./activity.js";
@@ -41,20 +41,28 @@ const SOURCE = {
   he: "Hebrew: Leningrad Codex from STEPBible (Tyndale House)",
 };
 
+/** What tapping a word does, by Settings › Listening practice. */
+const tapHint = () => (listenLevel() === "hard" ? "Tap any word to see what it means." : "Tap any word to hear it and see what it means.");
+
 function verseHTML(v) {
   const dir = v.lang === "he" ? "rtl" : "ltr";
   // Hebrew words joined by a maqaf (־) are written without a space between them
   const words = v.words
     .map((w, i) => `${w.pre ? esc(w.pre) : ""}<span class="w" role="button" tabindex="0" data-i="${i}" aria-pressed="${i === v.focus}">${esc(w.t)}</span>${w.p ? esc(String(w.p).replace(/[\u00b6\u00ac]/g, "")) : ""}`)
     .reduce((out, html, i) => out + (i && !String(v.words[i - 1].p || "").endsWith("\u05be") ? " " : "") + html, "");
+  // the whole verse for the voice: the words with their punctuation, maqqef-joined words kept together
+  const spoken = v.words.map((w) => w.t + String(w.p || "").replace(/[\u00b6\u00ac]/g, ""))
+    .reduce((out, t, i) => out + (i && !String(v.words[i - 1].p || "").endsWith("\u05be") ? " " : "") + t, "");
+  const listen = verseSayButton(spoken, v.lang);
   return `<section class="verse" aria-labelledby="verse-ref">
     <p class="verse-ref" id="verse-ref">Verse for today · ${esc(v.ref)}</p>
     <p class="verse-original" lang="${v.lang}" dir="${dir}">${words}</p>
+    ${listen ? `<p class="verse-listen">${listen}</p>` : ""}
     <p class="verse-english">${esc(v.english)}</p>
     <div class="verse-gloss" aria-live="polite"></div>
     ${/^[0-9A-Z]{3}-\d+-\d+$/.test(v.id) ? `<a class="verse-link" href="#/read/${v.id.replace(/-/g, "/")}">Read ${esc(v.ref.replace(/:\d+$/, ""))} word by word</a>` : ""}
   </section>
-  <p class="verse-source">Tap any word to see what it means. ${SOURCE[v.lang]}; English: Berean Standard Bible.</p>`;
+  <p class="verse-source">${tapHint()} ${SOURCE[v.lang]}; English: Berean Standard Bible.</p>`;
 }
 
 /**
@@ -68,7 +76,7 @@ function showGloss(root, v, i) {
   const here = englishHTML(he ? heEnglish(w.en) : w.en);
   const meaning = data.meaningOf(v.lang, w.k, w.gloss);
   root.querySelector(".verse-gloss").innerHTML =
-    `<span class="form" lang="${v.lang}"${he ? ' dir="rtl"' : ""}>${esc(w.t)}</span>${sayButton(w.t, v.lang, { className: "small" })}
+    `<span class="form" lang="${v.lang}"${he ? ' dir="rtl"' : ""}>${esc(w.t)}</span>${wordSayButton(w.t + (String(w.p || "").endsWith("\u05be") ? "\u05be" : ""), v.lang, { className: "small" })}
      <span class="meaning">${here || esc(meaning)}</span>
      <span class="hint">${esc(he ? heFriendlyGrammar(w.parse) : friendlyGrammar(w.parse))}</span>
      ${w.parts ? `<span class="from">Joined from two words: ${w.parts.map(([l, g, k]) => `<span class="lemma" lang="${v.lang}">${esc(l)}</span> · ${esc(data.meaningOf(v.lang, k, g))}`).join(" + ")}</span>`
@@ -175,7 +183,11 @@ export const today = {
       slot.dataset.verse = verse.id;
       showGloss(slot, verse, verse.focus);
       slot.querySelectorAll(".verse-original .w").forEach((el) => {
-        const pick = () => showGloss(slot, verse, Number(el.dataset.i));
+        const pick = () => {
+          const w = verse.words[Number(el.dataset.i)];
+          sayTapped(w.t + (String(w.p || "").endsWith("\u05be") ? "\u05be" : ""), verse.lang); // at once, inside the tap (כָּל־ said kol)
+          showGloss(slot, verse, Number(el.dataset.i));
+        };
         el.addEventListener("click", pick);
         el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
       });
@@ -329,9 +341,11 @@ export const settings = {
         ${radios("textSize", "Text size", [["normal", "Standard"], ["large", "Large"], ["larger", "Larger"], ["largest", "Largest"]], store.get("textSize"))}
         ${radios("theme", "Appearance", [["auto", "Match device"], ["light", "Light"], ["dark", "Dark"]], store.get("theme"))}
         ${radios("greekVoice", "Greek pronunciation", [["erasmian", "Erasmian (taught in most colleges)"], ["koine", "Restored Koine (first-century sounds)"]], store.get("greekVoice"),
-          "Erasmian keeps the vowels distinct, which helps with spelling. Restored Koine is closer to how the apostles spoke: ει sounds like “ee”, αι like the e in “bet”, β like v, and δ like the th in “this”. The lessons write pronunciations the Erasmian way, and Listen buttons follow this choice.")}
+          "Erasmian keeps the vowels distinct, which helps with spelling. Restored Koine is closer to how the apostles spoke: ει sounds like “ee”, η and αι like the e in “bet”, υ and οι like the ü in French “tu”, β like v, and δ like the th in “this”. The lessons write pronunciations the Erasmian way, and Listen buttons follow this choice.")}
         ${radios("speechRate", "Listening speed", [["slow", "Slow"], ["normal", "Normal"]], store.get("speechRate"),
-          "Listen buttons use your phone's own Greek and Hebrew voices. For Erasmian, the Modern Greek voice is given each word respelt so it comes out the Erasmian way; it's close, not perfect. Hebrew uses the Israeli voice, and the divine name is read Adonai. On an iPhone, the voices follow the ringer switch: on silent, you won't hear them.")}
+          "Listen buttons use your phone's own Greek and Hebrew voices. The Greek voice is a modern one, so each word is respelt for it: for Erasmian, so it comes out the Erasmian way; for Restored Koine, with η written as e and υ and οι as “yu”, the nearest it has to ü. Hebrew uses the Israeli voice, given the said shewa as a quick e, and the divine name is read Adonai. It's close, not perfect. On an iPhone, the voices follow the ringer switch: on silent, you won't hear them.")}
+        ${radios("listenLevel", "Listening practice", [["easy", "Easy: tap a word to hear it"], ["medium", "Medium: tap a word, or hear the whole verse"], ["hard", "Hard: hear the whole verse only"]], listenLevel(),
+          "For the verses on Today, in lessons, in Read and in the Letters guide. On Easy, each word is said as you tap it. Medium adds a “Listen to the verse” button. On Hard, only the whole verse is said; tapping a word on Today, in lessons or in Read still shows what it means, without saying it.")}
         <div class="btn-row say-test">${sayButton("ἐν ἀρχῇ ἦν ὁ λόγος", "grc", { label: "Try Greek" })}${sayButton("בְּרֵאשִׁית בָּרָא אֱלֹהִים", "he", { label: "Try Hebrew" })}</div>
       </form>
 

@@ -2,7 +2,8 @@
 // greekSay(): the Erasmian respelling shown in the app ("λόγος" → "LO-gos"), stressed syllable in capitals.
 // speechText(): what the phone's own voice is given. Phones have Modern Greek and Israeli Hebrew voices only, so for
 // Erasmian the word is respelt in Modern Greek letters that the Greek voice reads with Erasmian sounds
-// (β → μπ "b", δ → ντ "d", η → εϊ "ay", υ → ου); for Restored Koine the text is read as written, in modern accents.
+// (β → μπ "b", δ → ντ "d", η → εϊ "ay", υ → ου); for Restored Koine the text is read in modern accents, with the
+// first-century vowels the voice has lost written in (η → ε, υ/οι/υι → ιου "yu"). Hebrew: the said shewa sounded.
 // speak(): plays it with the phone's voice, or explains how to add one. Pure functions work in Node too (no DOM).
 
 const GREEK_VOWELS = "αεηιουω";
@@ -123,7 +124,7 @@ function speechVowel(nucleus, stressed, afterVowel) {
   if (v === "αου" || v === "εου") return stressed ? TONOS[v[0]] + "ου" : v[0] + "ου";
   if (v === "ειου") return stressed ? "έιου" : "εϊου";
   if (v === "ου") return stressed ? "ού" : "ου";
-  if (afterVowel && /^[ιυ]$/.test(v)) v = { ι: "ϊ", υ: "ϋ" }[v]; // keep a vowel after a vowel separate
+  if (afterVowel && /^[ιυ]$/.test(v)) return stressed ? { ι: "ΐ", υ: "ΰ" }[v] : { ι: "ϊ", υ: "ϋ" }[v]; // keep it separate (πρωΐ, Δαυίδ)
   return stressed ? TONOS[v] || v : v;
 }
 
@@ -157,29 +158,87 @@ export function erasmianSpeech(text) {
   }).filter(Boolean).join(" ");
 }
 
-/** Greek in modern accents, read as written (Restored Koine is close to Modern Greek): no breathings, one accent mark. */
+// Restored Koine vowels that Modern Greek has lost. A Modern Greek voice reading the text as written says η, υ, οι
+// and υι all as "ee"; in the first century η was still "e" and υ, οι, υι were "ü" (as the Letters guide teaches).
+// So η is written ε (ηυ then reads ev/ef, like ευ), and ü is written ιου, the way Greek writes ü in foreign names
+// (the nearest sound a Modern Greek voice has). αυ, ευ and ου stay as they are: their Koine sounds are the modern ones.
+function koineVowels(word) {
+  const c = [...word];
+  let out = "";
+  for (let i = 0; i < c.length; i++) {
+    const a = c[i], b = c[i + 1] || "";
+    if (/[αεηο]/.test(a) && /[υύ]/.test(b)) { out += (a === "η" ? "ε" : a) + b; i++; continue; } // αυ ευ ηυ ου
+    if (/[ου]/.test(a) && /[ιί]/.test(b)) { out += b === "ί" ? "ιού" : "ιου"; i++; continue; } // οι υι
+    if (/[υϋ]/.test(a)) { out += "ιου"; continue; }
+    if (/[ύΰ]/.test(a)) { out += "ιού"; continue; }
+    if (a === "η" || a === "ή") { out += a === "ή" ? "έ" : "ε"; continue; }
+    out += a;
+  }
+  // a one-letter word keeps a stress mark so it is said as a vowel, not a letter name (ἡ → έ)
+  // a word of one vowel that the change made new keeps a stress mark, so it is said as a word (ἡ → έ, οἱ → ιού)
+  return out === "ε" ? "έ" : out === "ιου" ? "ιού" : out;
+}
+
+/** Greek for the voice in Restored Koine: modern accents, no breathings, and the Koine sounds of η, υ, οι and υι. */
 export function koineSpeech(text) {
-  return unElide(text).replace(/[[\]()]/g, "").replace(/=/g, " ").normalize("NFD")
+  return unElide(text).replace(/[[\]()⟦⟧]/g, "").replace(/=/g, " ").normalize("NFD")
     .replace(/[̓̔ͅ]/g, "") // breathings, iota subscript
     .replace(/[̀͂]/g, "́") // grave and circumflex become acute (tonos)
     .replace(/·/g, ",").replace(/;/g, "?").replace(/[’᾽ʼ]/g, "")
-    .normalize("NFC");
+    .normalize("NFC").toLowerCase()
+    .replace(/[Ͱ-Ͽ]+/g, koineVowels);
 }
 
 // The divine name with any points, alone or after a one-letter prefix (with its vowel): read Adonai, as is customary;
 // with hiriq (after Adonai, "Lord GOD") it is read Elohim.
 const POINTS = "[ְ-ׇ]*";
-const DIVINE_NAME = new RegExp("(^|[^ְ-ׇא-ת])((?:[ובכלמה]" + POINTS + ")?)י" + POINTS + "ה" + POINTS + "ו" + POINTS + "ה" + POINTS + "(?![ְ-ׇא-ת])", "g");
+const DIVINE_NAME = new RegExp("(^|[^ְ-ׇא-ת])((?:[ובכלמהש]" + POINTS + "){0,2})י" + POINTS + "ה" + POINTS + "ו" + POINTS + "ה" + POINTS + "(?![ְ-ׇא-ת])", "g");
 const ADONAI = "אֲדֹנָי";
+const KOL = /(^|\s)((?:[\u05D5\u05D1\u05DB\u05DC\u05DE\u05D4\u05E9][\u05B0-\u05C7]*){0,2})(\u05DB[\u05BC\u05BD\u05BF]*)\u05B8([\u05BC\u05BD\u05BF]*)\u05DC(?=[\u05BD\u05BF]*\u05BE)/g;
 const ELOHIM = "אֱלֹהִים";
 
-/** Hebrew for the Israeli voice: no cantillation or meteg, and the divine name read as Adonai, as is customary. */
+// The app teaches the said (vocal) shewa as a quick e (be-RIT, de-va-RIM, yish-me-RU); an Israeli voice usually drops
+// it (brit, dvarim). In the voice text a said shewa becomes segol, so the voice says the e. A shewa is said:
+// under a word's first letter; after another shewa (the second of two); after a long vowel (holam, tsere, shureq —
+// so after the conjunction וּ too —, hiriq or tsere with yod, a qamets with meteg); under a doubled letter (dagesh
+// after a vowel); and before the same letter (hal-le-LU). Never at the end of a word (nor before a final silent א),
+// and a plain shewa under a throat letter is silent. The other shewas (closing a syllable) stay silent, as taught.
+const SHEWA = "\u05B0", SEGOL = "\u05B6", DAGESH = "\u05BC";
+const FULL_VOWEL = /[\u05B1-\u05BB\u05C7]/;
+const THROAT = /[\u05D0\u05D4\u05D7\u05E2]/;
+function saidShewa(word) {
+  const cl = word.match(/[\u05D0-\u05EA][\u05B0-\u05C7]*/g);
+  if (!cl || cl.length < 2 || cl.join("") !== word) return word; // anything unusual: leave it
+  return cl.map((c, i) => {
+    if (!c.includes(SHEWA) || i === cl.length - 1 || (i && THROAT.test(c[0]))) return c;
+    if (i === cl.length - 2 && cl[i + 1] === "\u05D0") return c; // before a final silent א (אַרְתַּחְשַׁסְתְּא)
+    const prev = cl[i - 1] || "";
+    const afterVowel = !!prev && !prev.includes(SHEWA) && (FULL_VOWEL.test(prev) || prev === "\u05D5\u05BC" || /^[\u05D0\u05D4\u05D5\u05D9]$/.test(prev));
+    // a long vowel before it: holam, tsere, shureq, hiriq or tsere with yod, a qamets with meteg (וַיֹּאמְרוּ, יָֽשְׁבוּ)
+    const before = cl[i - 2] || "";
+    const v = prev === "\u05D0" ? before : prev; // a silent א: the vowel is on the letter before (וַיֹּאמְרוּ)
+    const afterLong = !!prev && !v.includes(SHEWA) && (/[\u05B5\u05B9]/.test(v) || v === "\u05D5\u05BC"
+      || (/\u05B8/.test(v) && /\u05BD/.test(v)) || (prev === "\u05D9" && /[\u05B4\u05B5]/.test(before)));
+    const said = i === 0 || prev.includes(SHEWA) || afterLong || (c.includes(DAGESH) && afterVowel) || cl[i + 1][0] === c[0];
+    return said ? c.replace(SHEWA, SEGOL) : c;
+  }).join("");
+}
+
+/**
+ * Hebrew for the Israeli voice: no cantillation or meteg, the divine name read as Adonai (as is customary), the
+ * said shewa sounded, and kol (כָּל־) and the qamets hatuf sign (ׇ) read o.
+ */
 export function hebrewSpeech(text) {
   return String(text || "").replace(/[/[\]]/g, "") // word-part slashes; brackets round optional words
-    .replace(/[֑-ֽ֯׀׃׆]/g, "") // accents, meteg, paseq, sof pasuq, inverted nun
+    .replace(/[֑-֯׀׃׆]/g, "") // accents, paseq, sof pasuq, inverted nun (meteg stays for now)
     .replace(/(^|\s)[פס](?=\s|$)/g, "$1") // paragraph letters standing alone (not a word's last letter: סוּס)
     .replace(DIVINE_NAME, (m, start, prefix) => start + prefix + (/ִ/.test(m.slice(prefix.length)) ? ELOHIM : ADONAI))
-    .replace(/־/g, " ").replace(/\s+/g, " ").trim();
+    // כָּל־ "kol": the qamets before a maqaf is a short o (also after prefixes: וְכָל־, וּבְכָל־, וּמִכָּל־)
+    .replace(KOL, "$1$2$3ֹ$4ל")
+    .replace(/ׇ/g, "ֹ") // the qamets hatuf sign (חׇכְמָה): o, which not every voice knows
+    .replace(/־/g, " ").replace(/\s+/g, " ").trim()
+    .split(" ").map(saidShewa).join(" ")
+    .replace(/ֽ/g, ""); // meteg: it marked a long qamets for saidShewa; the voice doesn't need it
 }
 
 /** The text a voice should read for a word or phrase, by language and pronunciation setting. */

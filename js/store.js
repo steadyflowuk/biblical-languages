@@ -31,6 +31,7 @@ const DEFAULTS = {
   reviewLang: "all",       // all | grc | he
   reviewAutoPlay: false,   // say each card's word as it appears
   speechRate: "slow",      // slow | normal (js/audio.js)
+  listenLevel: "medium",   // easy | medium | hard: hearing verses word by word, whole, or both (js/audio.js)
   // Dictionary
   dictLang: "both",        // both | G | H
   recentWords: [],         // lexicon keys, most recent first

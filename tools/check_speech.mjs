@@ -14,7 +14,7 @@ import { fileURLToPath } from "url";
 
 const R = path.join(path.dirname(fileURLToPath(import.meta.url)), "..") + "/";
 const s = await import(R + "js/sound.js");
-const { heText } = await import(R + "js/hebrew.js");
+const { heText, heJoined } = await import(R + "js/hebrew.js");
 const json = (f) => JSON.parse(fs.readFileSync(R + f, "utf8"));
 const lemmaOf = (e) => String((Array.isArray(e) ? e[0] : e && e.lemma) || "").split(",")[0].trim();
 
@@ -34,6 +34,9 @@ function hebrew(where, t) {
   if (/[^ְ-ׇא-ת ]/.test(out)) problems.push(`${where}: ${t} → ${out} (not Hebrew)`);
   if (out.split(" ").some((w) => /^[א-ת][ּׁׂ]*ְ/.test(w) && /[א-ת].*[א-ת]/.test(w))) problems.push(`${where}: ${t} → ${out} (said shewa left silent)`);
   if (/ׇ/.test(out)) problems.push(`${where}: ${t} → ${out} (qamets hatuf sign)`);
+  // the divine name is never spelt out (also after two prefixes or שֶׁ), and כָּל־ is said kol (17 Nov 2026 review)
+  if (out.split(" ").some((w) => /^(?:[ובכלמהש][ְ-ׇ]*){0,2}י[ְ-ׇ]*ה[ְ-ׇ]*ו[ְ-ׇ]*ה[ְ-ׇ]*$/.test(w))) problems.push(`${where}: ${t} → ${out} (divine name spelt out)`);
+  if (/־/.test(t) && out.split(" ").some((w) => /^(?:[ובכלמהש][ְ-ׇ]*){0,2}כ[ּֽֿ]*ָ[ּֽֿ]*ל$/.test(w))) problems.push(`${where}: ${t} → ${out} (kol said kal)`);
 }
 
 function greek(where, t) {
@@ -51,7 +54,7 @@ function greek(where, t) {
 
 for (const f of fs.readdirSync(R + "data/hot")) {
   const B = json("data/hot/" + f);
-  for (const [c, vs] of B.ch) for (const item of vs) item[1].forEach((w, i) => hebrew(`${B.id} ${c}:${item[0]}.${i + 1}`, heText(w)));
+  for (const [c, vs] of B.ch) for (const item of vs) item[1].forEach((w, i) => hebrew(`${B.id} ${c}:${item[0]}.${i + 1}`, heText(w) + (heJoined(w[5]) ? "־" : ""))); // as a tap gives it
 }
 for (const f of fs.readdirSync(R + "data/lex/H")) for (const [k, e] of Object.entries(json("data/lex/H/" + f))) { const l = lemmaOf(e); if (l) hebrew("lex " + k, l); }
 const A = json("lessons/alphabet/he.json");

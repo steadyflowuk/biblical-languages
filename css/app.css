@@ -903,7 +903,7 @@ ol.rows { list-style: none; padding: 0; }
 .v-listen { display: inline-flex; align-self: center; }
 .layout-words .v-listen .say-btn.small, .col-orig .v-listen .say-btn.small { margin: -6px 0; color: var(--sage-ink); }
 .ws-verse-listen { margin: 4px 0 10px; }
-.say-w { font: inherit; color: inherit; background: none; border: 0; padding: 2px 1px; margin: 0; cursor: pointer; border-radius: 4px; line-height: inherit; }
+.say-w { font: inherit; color: inherit; background: none; border: 0; padding: 2px 4px; margin: 0; cursor: pointer; border-radius: 6px; line-height: inherit; min-width: 32px; min-height: 40px; }
 .say-w:hover { text-decoration: underline; text-decoration-style: dotted; text-underline-offset: .25em; }
 .say-w.playing { color: var(--accent-ink); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: .25em; }
 .verse-gloss .say-btn { color: var(--panel-ink); vertical-align: baseline; margin: -12px 0 -12px 2px; }

@@ -160,7 +160,7 @@ async def main():
         check("Listen to a Hebrew example: Israeli voice", sp and sp[-1]["lang"] == "he-IL", str(sp))
         await pg.keyboard.press("Escape")
         await pg.evaluate("window.__spoken = []")
-        await pg.click(".ab-verse [data-say]")
+        await pg.click(".ab-verse .say-btn")
         await pg.wait_for_timeout(120)
         sp = await pg.evaluate("window.__spoken")
         check("Listen to the verse: Genesis 1:1, divine name and accents handled", sp and sp[-1]["lang"] == "he-IL" and cons(sp[-1]["text"]).startswith("בראשית ברא אלהים"), str(sp))

@@ -78,7 +78,7 @@ async def main():
         await pg.click("[data-test='he']")
         await pg.wait_for_timeout(150)
         sp = await pg.evaluate("window.__spoken")
-        check("Hebrew test plays with the Israeli voice, sample without accents", sp and sp[-1]["lang"] == "he-IL" and "בְּרֵאשִׁית" in sp[-1]["text"], str(sp))
+        check("Hebrew test plays with the Israeli voice, sample without accents, said shewa sounded", sp and sp[-1]["lang"] == "he-IL" and "בֶּרֵאשִׁית" in sp[-1]["text"], str(sp))
         await pg.click("[data-heard='he'][data-v='no']")
         tip = await pg.locator(".ck-voice[data-lang='he'] .ck-tip").inner_text()
         check("Heard it? No → advice mentions the ringer switch (iPhone)", "ringer switch" in tip, tip)

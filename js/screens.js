@@ -76,7 +76,7 @@ function showGloss(root, v, i) {
   const here = englishHTML(he ? heEnglish(w.en) : w.en);
   const meaning = data.meaningOf(v.lang, w.k, w.gloss);
   root.querySelector(".verse-gloss").innerHTML =
-    `<span class="form" lang="${v.lang}"${he ? ' dir="rtl"' : ""}>${esc(w.t)}</span>${wordSayButton(w.t, v.lang, { className: "small" })}
+    `<span class="form" lang="${v.lang}"${he ? ' dir="rtl"' : ""}>${esc(w.t)}</span>${wordSayButton(w.t + (String(w.p || "").endsWith("\u05be") ? "\u05be" : ""), v.lang, { className: "small" })}
      <span class="meaning">${here || esc(meaning)}</span>
      <span class="hint">${esc(he ? heFriendlyGrammar(w.parse) : friendlyGrammar(w.parse))}</span>
      ${w.parts ? `<span class="from">Joined from two words: ${w.parts.map(([l, g, k]) => `<span class="lemma" lang="${v.lang}">${esc(l)}</span> · ${esc(data.meaningOf(v.lang, k, g))}`).join(" + ")}</span>`
@@ -183,7 +183,11 @@ export const today = {
       slot.dataset.verse = verse.id;
       showGloss(slot, verse, verse.focus);
       slot.querySelectorAll(".verse-original .w").forEach((el) => {
-        const pick = () => { sayTapped(verse.words[Number(el.dataset.i)].t, verse.lang); showGloss(slot, verse, Number(el.dataset.i)); };
+        const pick = () => {
+          const w = verse.words[Number(el.dataset.i)];
+          sayTapped(w.t + (String(w.p || "").endsWith("\u05be") ? "\u05be" : ""), verse.lang); // at once, inside the tap (כָּל־ said kol)
+          showGloss(slot, verse, Number(el.dataset.i));
+        };
         el.addEventListener("click", pick);
         el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
       });
@@ -339,9 +343,9 @@ export const settings = {
         ${radios("greekVoice", "Greek pronunciation", [["erasmian", "Erasmian (taught in most colleges)"], ["koine", "Restored Koine (first-century sounds)"]], store.get("greekVoice"),
           "Erasmian keeps the vowels distinct, which helps with spelling. Restored Koine is closer to how the apostles spoke: ει sounds like “ee”, η and αι like the e in “bet”, υ and οι like the ü in French “tu”, β like v, and δ like the th in “this”. The lessons write pronunciations the Erasmian way, and Listen buttons follow this choice.")}
         ${radios("speechRate", "Listening speed", [["slow", "Slow"], ["normal", "Normal"]], store.get("speechRate"),
-          "Listen buttons use your phone's own Greek and Hebrew voices. The Greek voice is a modern one, so each word is respelt for it: for Erasmian, so it comes out the Erasmian way; for Restored Koine, so η says e and υ and οι say “yu”, the nearest it has to ü. It's close, not perfect. Hebrew uses the Israeli voice, with the said shewa sounded as a quick e, and the divine name is read Adonai. On an iPhone, the voices follow the ringer switch: on silent, you won't hear them.")}
+          "Listen buttons use your phone's own Greek and Hebrew voices. The Greek voice is a modern one, so each word is respelt for it: for Erasmian, so it comes out the Erasmian way; for Restored Koine, with η written as e and υ and οι as “yu”, the nearest it has to ü. Hebrew uses the Israeli voice, given the said shewa as a quick e, and the divine name is read Adonai. It's close, not perfect. On an iPhone, the voices follow the ringer switch: on silent, you won't hear them.")}
         ${radios("listenLevel", "Listening practice", [["easy", "Easy: tap a word to hear it"], ["medium", "Medium: tap a word, or hear the whole verse"], ["hard", "Hard: hear the whole verse only"]], listenLevel(),
-          "For the verses on Today, in lessons, in Read and in the Letters guide. On Easy, each word is said as you tap it. Medium adds a “Listen to the verse” button. On Hard, only the whole verse is said: tap a word to see what it means, but you won't hear it on its own.")}
+          "For the verses on Today, in lessons, in Read and in the Letters guide. On Easy, each word is said as you tap it. Medium adds a “Listen to the verse” button. On Hard, only the whole verse is said; tapping a word on Today, in lessons or in Read still shows what it means, without saying it.")}
         <div class="btn-row say-test">${sayButton("ἐν ἀρχῇ ἦν ὁ λόγος", "grc", { label: "Try Greek" })}${sayButton("בְּרֵאשִׁית בָּרָא אֱלֹהִים", "he", { label: "Try Hebrew" })}</div>
       </form>
 

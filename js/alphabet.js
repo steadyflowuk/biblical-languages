@@ -73,7 +73,9 @@ function verseText(words, lang) {
 
 /** Each word a button that says it (Settings › Listening practice: Easy and Medium). Maqqef-joined words stay one. */
 function tappableWords(text, lang) {
-  return text.split(" ").filter(Boolean).map((w) => `<button type="button" class="say-w" data-say="${esc(w)}" data-say-lang="${lang === "he" ? "he" : "grc"}">${esc(w)}</button>`).join(" ");
+  return text.split(" ").filter(Boolean).map((w) => (/[\u05D0-\u05EA\u0370-\u03FF\u1F00-\u1FFF]/.test(w)
+    ? `<button type="button" class="say-w" data-say="${esc(w)}" data-say-lang="${lang === "he" ? "he" : "grc"}">${esc(w)}</button>`
+    : esc(w))).join(" "); // a paseq ׀ or a dash: nothing to say
 }
 
 async function practiceHTML(A, lang) {

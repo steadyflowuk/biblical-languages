@@ -100,12 +100,13 @@ export function verseSayButton(text, lang, options) {
 }
 
 /** A word of a verse was tapped: say it at once (Easy and Medium). */
-let tapHelpShown = false;
+const tapHelpShown = { grc: false, he: false };
 export function sayTapped(text, lang) {
   if (!wordsSpeak() || !text) return;
-  // with no voice, explain once, not on every word tapped
-  sayText(text, lang === "he" ? "he" : "grc", null, tapHelpShown);
-  tapHelpShown = true;
+  const l = lang === "he" ? "he" : "grc";
+  // with no voice, explain once per language, not on every word tapped
+  sayText(text, l, null, tapHelpShown[l]);
+  tapHelpShown[l] = true;
 }
 
 /**

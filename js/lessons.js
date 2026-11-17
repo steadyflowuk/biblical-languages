@@ -271,7 +271,7 @@ async function verseView(card, lang, known) {
     const text = he ? heText(w) : w[0];
     const en = englishHTML(he ? heEnglish(w[2]) : w[2]); // safe HTML: "<the>" greyed, "[the]" in italics, as in the Reader
     const after = he ? heAfter(w[5]) : String(w[5] || "").replace(/[¶¬]/g, "");
-    return `<button type="button" class="ls-vw${isKnown ? " known" : ""}" data-w="${i}" data-t="${esc(text)}"${he ? ' lang="he"' : ' lang="grc"'}>
+    return `<button type="button" class="ls-vw${isKnown ? " known" : ""}" data-w="${i}" data-t="${esc(text + (he && heJoined(w[5]) ? "־" : ""))}"${he ? ' lang="he"' : ' lang="grc"'}>
       <span class="ls-vw-t">${esc(text)}${esc(after && !heJoined(after) ? after : he && heJoined(after) ? "־" : "")}</span>
       <span class="ls-vw-en" lang="en" dir="ltr">${en}</span></button>`;
   }).join("");
@@ -296,7 +296,7 @@ async function verseView(card, lang, known) {
       return lex[0] ? `<span class="ls-gl-lemma"${ga}>${esc(he ? heLemma(lex[0]) : lex[0])}</span>${meaning ? ` · ${esc(meaning)}` : ""}` : "";
     }).filter(Boolean);
     const here = englishHTML(he ? heEnglish(w[2]) : w[2]);
-    return `<p><span class="ls-gl-form"${ga}>${esc(form)}</span> ${wordSayButton(form, he ? "he" : "grc", { className: "small" })}
+    return `<p><span class="ls-gl-form"${ga}>${esc(form)}</span> ${wordSayButton(form + (he && heJoined(w[5]) ? "־" : ""), he ? "he" : "grc", { className: "small" })}
       <span class="ls-gl-en">${here || esc(data.meaningOf(lang, keys[0], (original.lex[keys[0]] || [])[2]))}</span></p>
       <p class="muted">${esc(grammar)}</p>
       ${from.length ? `<p class="ls-gl-from">${from.length > 1 ? "Joined from two words" : "Dictionary form"}: ${from.join(" + ")}</p>` : ""}

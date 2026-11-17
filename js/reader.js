@@ -225,7 +225,7 @@ function heWordSheetHTML(w, ctx) {
   return `
     <p class="ws-ref">${esc(ctx.ref)}</p>
     <h2 class="ws-word he" lang="he" dir="rtl" id="sheet-title">${esc(heText(w))}</h2>
-    <p class="ws-translit">${esc(heTranslit(translit))} ${wordSayButton(heText(w), "he", { className: "small" })}</p>
+    <p class="ws-translit">${esc(heTranslit(translit))} ${wordSayButton(heText(w) + (heJoined(w[5]) ? "־" : ""), "he", { className: "small" })}</p>
     ${ctx.listen || ""}
     ${flag ? `<p class="ws-flag">${esc(FLAG_NOTES[flag] || "")}</p>` : ""}
     <dl class="ws-facts">
@@ -307,7 +307,7 @@ function showWord(state, vi, wi, returnFocus) {
   body.querySelectorAll("[data-step]").forEach((b) => b.addEventListener("click", () => {
     const next = wi + Number(b.dataset.step);
     const nw = verse[1][next];
-    if (nw) sayTapped(state.he ? heText(nw) : nw[0], state.he ? "he" : "grc");
+    if (nw) sayTapped(spokenWord(state, nw), state.he ? "he" : "grc");
     const target = document.querySelector(`.v[data-vi="${vi}"] .w[data-wi="${next}"]`);
     showWord(state, vi, next, target || returnFocus);
     target?.scrollIntoView({ block: "nearest" });
@@ -342,8 +342,11 @@ const plainLemma = (s) => String(s || "").replace(/^\//, "").replace(/\//g, "");
 function verseListenHTML(state, verse) {
   const b = verseSayButton(verseSpeech(verse[1], state.he ? "he" : "grc"), state.he ? "he" : "grc",
     { label: "", className: "small", name: verse[0] === 0 ? "Listen to the title" : `Listen to verse ${verse[0]}` });
-  return b ? `<span class="v-listen">${b}</span>` : "";
+  return b ? `<span class="v-listen" lang="en" dir="ltr">${b}</span>` : "";
 }
+
+/** A tapped word as the voice gets it: a Hebrew word joined by a maqqef keeps it (כָּל־ is said kol). */
+const spokenWord = (state, w) => (state.he ? heText(w) + (heJoined(w[5]) ? "־" : "") : w[0]);
 
 /** "and + the + noun fs"; the "and" of a wayyiqtol is part of that verb form, so it isn't repeated. */
 function heWordGrammar(w, morph) {
@@ -1067,7 +1070,7 @@ export const read = {
       const v = el.closest("[data-vi]");
       if (!w || !v) return;
       const word = (state.verses[Number(v.dataset.vi)] || [0, []])[1][Number(w.dataset.wi)];
-      if (word) sayTapped(state.he ? heText(word) : word[0], state.he ? "he" : "grc"); // at once, inside the tap
+      if (word) sayTapped(spokenWord(state, word), state.he ? "he" : "grc"); // at once, inside the tap
       showWord(state, Number(v.dataset.vi), Number(w.dataset.wi), w);
     };
     holder.addEventListener("click", (e) => {

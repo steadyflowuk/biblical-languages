@@ -896,6 +896,16 @@ ol.rows { list-style: none; padding: 0; }
 .ls-scene .ls-listen { text-align: center; }
 .entry-listen { margin: 6px 0 10px; }
 .ws-translit .say-btn.small { margin: -10px 0 -10px 2px; }
+/* Listening practice (17 Nov 2026): verse buttons and words that say themselves */
+.verse-listen { margin: 14px 0 0; }
+.verse .verse-listen .say-btn { background: transparent; color: var(--panel-ink); border-color: rgba(237, 230, 216, .45); }
+.verse .verse-listen .say-btn.playing { color: var(--gold); border-color: var(--gold); }
+.v-listen { display: inline-flex; align-self: center; }
+.layout-words .v-listen .say-btn.small, .col-orig .v-listen .say-btn.small { margin: -6px 0; color: var(--sage-ink); }
+.ws-verse-listen { margin: 4px 0 10px; }
+.say-w { font: inherit; color: inherit; background: none; border: 0; padding: 2px 1px; margin: 0; cursor: pointer; border-radius: 4px; line-height: inherit; }
+.say-w:hover { text-decoration: underline; text-decoration-style: dotted; text-underline-offset: .25em; }
+.say-w.playing { color: var(--accent-ink); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: .25em; }
 .verse-gloss .say-btn { color: var(--panel-ink); vertical-align: baseline; margin: -12px 0 -12px 2px; }
 
 /* ---------- Alphabet and sounds (#/alphabet) ---------- */

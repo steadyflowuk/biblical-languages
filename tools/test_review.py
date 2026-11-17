@@ -80,8 +80,8 @@ async def main():
               r2["he"] == ["סוּס", "כָּעַס", "וַיְהִי", "כִּי אם"], str(r2["he"]))
         check("Greek elision: δ᾽ ἂν said as one word (ντάν, dan); δ᾽ alone said ντέ; Koine drops ]]",
               r2["el"] == ["ντάν", "ντέ", "dan", "αμάρτανε."], str(r2["el"]))
-        check("Hebrew voice: the divine name read Adonai (with prefixes) or Elohim after Adonai; no accents or sof pasuq",
-              r["he"] == ["אֲדֹנָי", "לַאֲדֹנָי", "אֲדֹנָי אֱלֹהִים", "בְּרֵאשִׁית", "כָּל הָאָרֶץ"], str(r["he"]))
+        check("Hebrew voice: the divine name read Adonai (with prefixes) or Elohim after Adonai; no accents or sof pasuq; said shewa as e; kol",
+              r["he"] == ["אֲדֹנָי", "לַאֲדֹנָי", "אֲדֹנָי אֱלֹהִים", "בֶּרֵאשִׁית", "כֹּל הָאָרֶץ"], str(r["he"]))
 
         # 2. Nothing yet
         await fresh(pg)
@@ -227,8 +227,8 @@ async def main():
         await pg.click(".say-test [data-say-lang='grc']")
         await pg.wait_for_timeout(150)
         sp = await spoken(pg)
-        check("Settings: Try Greek follows the pronunciation choice (Erasmian respelt, then Koine as written)",
-              len(sp) == 2 and sp[0]["text"] == "έν αρχέι έιν ό λόγκος" and sp[1]["text"] == "εν αρχή ήν ο λόγος", str(sp))
+        check("Settings: Try Greek follows the pronunciation choice (Erasmian respelt, then Koine with η as e)",
+              len(sp) == 2 and sp[0]["text"] == "έν αρχέι έιν ό λόγκος" and sp[1]["text"] == "εν αρχέ έν ο λόγος", str(sp))
 
         # 9. No voice on the phone: plain help; no speech at all: says so
         await pg.evaluate("window.__voices = [{name: 'Daniel', lang: 'en-GB', localService: true}]")
@@ -284,11 +284,91 @@ async def main():
         await pg.wait_for_selector(".lang-he .w")
         await pg.locator(".w").first.click()
         await pg.wait_for_selector(".sheet [data-say]")
-        check("Reader word (Hebrew): Listen in the word sheet", await pg.locator(".sheet [data-say]").get_attribute("data-say-lang") == "he")
+        check("Reader word (Hebrew): Listen in the word sheet", await pg.locator(".sheet .ws-translit [data-say]").get_attribute("data-say-lang") == "he")
         await pg.keyboard.press("Escape")
         await pg.goto(f"{BASE}#/today")
         await pg.wait_for_selector(".verse-gloss [data-say]")
         check("Today's verse: Listen next to the tapped word", True)
+
+        # 10b. (17 Nov 2026) Listening practice: Easy = tap a word to hear it; Medium = that or the whole verse;
+        # Hard = the whole verse only (a tap still shows the meaning, silently)
+        async def level(name):
+            await pg.evaluate(f"localStorage.setItem('ao:listenLevel', JSON.stringify('{name}'))")
+        async def texts():
+            await pg.wait_for_timeout(120)
+            return [x["text"] for x in await spoken(pg)]
+        for name in ["easy", "medium", "hard"]:
+            await level(name)
+            await pg.goto(f"{BASE}#/settings")
+            await pg.goto(f"{BASE}#/today")
+            await pg.wait_for_selector(".verse-original .w")
+            await pg.evaluate("window.__spoken = []")
+            await pg.locator(".verse-original .w").nth(1).click()
+            tapped = await texts()
+            verse_btn = await pg.locator(".verse-listen [data-say]").count()
+            gloss_btn = await pg.locator(".verse-gloss [data-say]").count()
+            whole = []
+            if verse_btn:
+                await pg.evaluate("window.__spoken = []")
+                await pg.locator(".verse-listen [data-say]").click()
+                whole = await texts()
+            hint = await pg.locator(".verse-source").inner_text()
+            if name == "easy":
+                check("Easy, Today: tapping a word says it; no whole-verse button; the word's own Listen stays",
+                      len(tapped) == 1 and " " not in tapped[0] and verse_btn == 0 and gloss_btn == 1 and "hear it" in hint, f"{tapped} {verse_btn} {gloss_btn} {hint}")
+            elif name == "medium":
+                check("Medium, Today: tapping a word says it, and Listen to the verse says the whole verse",
+                      len(tapped) == 1 and verse_btn == 1 and gloss_btn == 1 and len(whole) == 1 and len(whole[0].split()) > 3, f"{tapped} {whole}")
+            else:
+                check("Hard, Today: a tap shows the meaning silently; only the whole verse can be heard",
+                      tapped == [] and verse_btn == 1 and gloss_btn == 0 and len(whole) == 1 and "see what it means" in hint and "hear" not in hint, f"{tapped} {whole} {hint}")
+            # the Reader: a small Listen after each verse (not on Easy); the word sheet has the word and the verse
+            await pg.goto(f"{BASE}#/read/JHN/3")
+            await pg.wait_for_selector(".v .w")
+            verses = await pg.locator(".v[data-vi]").count()
+            per_verse = await pg.locator(".v-listen [data-say]").count()
+            await pg.evaluate("window.__spoken = []")
+            await pg.locator(".v .w").nth(3).click()
+            await pg.wait_for_selector(".sheet-panel")
+            tapped = await texts()
+            sheet_word = await pg.locator(".sheet .ws-translit [data-say]").count()
+            sheet_verse = await pg.locator(".sheet .ws-verse-listen [data-say]").count()
+            label = (await pg.locator(".sheet .ws-verse-listen").inner_text()) if sheet_verse else ""
+            await pg.keyboard.press("Escape")
+            want = {"easy": (0, 1, 0, 1), "medium": (verses, 1, 1, 1), "hard": (verses, 0, 1, 0)}[name]
+            check(f"{name.title()}, Reader: verse buttons {want[0]}, word Listen {want[1]}, verse Listen in the sheet {want[2]}, tap says the word {bool(want[3])}",
+                  (per_verse, sheet_word, sheet_verse, len(tapped)) == want and (not sheet_verse or "Listen to verse 1" in label),
+                  f"{(per_verse, sheet_word, sheet_verse, len(tapped))} {label}")
+            # the Letters guide's verses to read aloud: words that say themselves (Easy, Medium), the whole verse (Medium, Hard)
+            await pg.goto(f"{BASE}#/alphabet/grc")
+            await pg.wait_for_selector(".ab-verse")
+            await pg.wait_for_function("!document.querySelector('.ab-verses .muted') || document.querySelectorAll('.ab-verse').length")
+            words = await pg.locator(".ab-verse .say-w").count()
+            whole_btn = await pg.locator(".ab-verse .say-btn").count()
+            said = []
+            if words:
+                await pg.evaluate("window.__spoken = []")
+                await pg.locator(".ab-verse .say-w").nth(1).click()
+                said = await texts()
+            check(f"{name.title()}, Letters guide: tappable words {name != 'hard'}, whole-verse buttons {name != 'easy'}",
+                  (words > 0) == (name != "hard") and (whole_btn > 0) == (name != "easy") and (not words or len(said) == 1), f"{words} {whole_btn} {said}")
+        # the setting in the Reader's display options, and Settings shows the same choice
+        await level("medium")
+        await pg.goto(f"{BASE}#/read/JHN/3")
+        await pg.wait_for_selector(".v .w")
+        await pg.click("[data-display]")
+        await pg.click("input[name=listenLevel][value=easy]")
+        await pg.keyboard.press("Escape")
+        await pg.wait_for_timeout(200)
+        gone = await pg.locator(".v-listen [data-say]").count()
+        await pg.goto(f"{BASE}#/settings")
+        check("Reader display options: Listening practice applies at once (Easy: verse buttons go) and Settings agrees",
+              gone == 0 and await pg.is_checked("input[name=listenLevel][value=easy]"), str(gone))
+        # a Hebrew verse said whole leaves out words written but not read; joined words keep their maqqef
+        hv = await pg.evaluate("""async () => { const a = await import('./js/audio.js');
+          return a.verseSpeech([["אֶת/", "", "", "", "", "־"], ["הַ/דָּבָר", "", "", "", "", ""], ["הַזֶּה", "", "", "", "", "", "k"], ["וַיֹּאמֶר", "", "", "", "", "׃"]], "he"); }""")
+        check("Hebrew verse for the voice: maqqef joins, a written-not-read word is left out", hv == "אֶת־הַדָּבָר וַיֹּאמֶר", hv)
+        await level("medium")
 
         # 11. Small phone, largest text, dark: the card fits, choices in two rows
         await ctx.close()

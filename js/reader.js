@@ -5,7 +5,7 @@ import * as data from "./data.js";
 import * as nav from "./nav.js";
 import { readingStarted } from "./activity.js";
 import * as esv from "./esv.js";
-import { sayButton } from "./audio.js";
+import { wordSayButton, verseSayButton, verseSpeech, sayTapped, listenLevel } from "./audio.js";
 import { heLemma,
   heText, heTranslit, heEnglish, heAfter, heJoined, heParagraphAfter, isAramaic, heParts, heMainKey,
   heShortGrammar, heFriendlyGrammar,
@@ -225,7 +225,8 @@ function heWordSheetHTML(w, ctx) {
   return `
     <p class="ws-ref">${esc(ctx.ref)}</p>
     <h2 class="ws-word he" lang="he" dir="rtl" id="sheet-title">${esc(heText(w))}</h2>
-    <p class="ws-translit">${esc(heTranslit(translit))} ${sayButton(heText(w), "he", { className: "small" })}</p>
+    <p class="ws-translit">${esc(heTranslit(translit))} ${wordSayButton(heText(w), "he", { className: "small" })}</p>
+    ${ctx.listen || ""}
     ${flag ? `<p class="ws-flag">${esc(FLAG_NOTES[flag] || "")}</p>` : ""}
     <dl class="ws-facts">
       ${flag === "q" && note ? row("Written", `<span lang="he" dir="rtl" class="ws-lemma">${esc(note)}</span>`) : ""}
@@ -263,7 +264,8 @@ function wordSheetHTML(w, ctx) {
   return `
     <p class="ws-ref">${esc(ctx.ref)}</p>
     <h2 class="ws-word" lang="grc" id="sheet-title">${form}</h2>
-    <p class="ws-translit">${esc(translit)} ${sayButton(text, "grc", { className: "small" })}</p>
+    <p class="ws-translit">${esc(translit)} ${wordSayButton(text, "grc", { className: "small" })}</p>
+    ${ctx.listen || ""}
     <dl class="ws-facts">
       <div><dt>In this verse</dt><dd>${englishHTML(english) || "—"}</dd></div>
       <div><dt>Dictionary form</dt><dd>${lex.map((l, i) => `<span lang="grc" class="ws-lemma">${esc(l[0])}</span> <span class="muted">${esc(l[1])} · Strong's ${esc(strongs(keys[i]))}</span>`).join("<br>")}</dd></div>
@@ -291,7 +293,9 @@ function showWord(state, vi, wi, returnFocus) {
   const bsb = refs.map((r) => bsbVerse(state, r)).filter(Boolean)
     .map((b) => (own ? "" : `<sup class="bsb-ref">${b.c === state.ch ? b.n : `${b.c}:${b.n}`}</sup>`) + bsbHTML(b.text, b.notes, b.c))
     .join(" ").replace(/<button[^>]*>†<\/button>/g, "");
+  const listen = verseSayButton(verseSpeech(verse[1], state.he ? "he" : "grc"), state.he ? "he" : "grc", { label: verse[0] === 0 ? "Listen to the title" : `Listen to verse ${verse[0]}` });
   const ctx = {
+    listen: listen ? `<p class="ws-verse-listen">${listen}</p>` : "",
     lex: state.lex, morph: state.morph, ref, i: wi, n: verse[1].length, bsb,
     bsbRef: own ? where : `${name} ${refs.map(refLabel).join(", ")}`,
   };
@@ -302,6 +306,8 @@ function showWord(state, vi, wi, returnFocus) {
   el?.classList.add("on");
   body.querySelectorAll("[data-step]").forEach((b) => b.addEventListener("click", () => {
     const next = wi + Number(b.dataset.step);
+    const nw = verse[1][next];
+    if (nw) sayTapped(state.he ? heText(nw) : nw[0], state.he ? "he" : "grc");
     const target = document.querySelector(`.v[data-vi="${vi}"] .w[data-wi="${next}"]`);
     showWord(state, vi, next, target || returnFocus);
     target?.scrollIntoView({ block: "nearest" });
@@ -331,6 +337,13 @@ function showWord(state, vi, wi, returnFocus) {
 const plainLemma = (s) => String(s || "").replace(/^\//, "").replace(/\//g, "");
 
 // ---------------------------------------------------------------- chapter rendering
+
+/** A small Listen button for a whole verse, after its last word (word by word and side by side; not on Easy). */
+function verseListenHTML(state, verse) {
+  const b = verseSayButton(verseSpeech(verse[1], state.he ? "he" : "grc"), state.he ? "he" : "grc",
+    { label: "", className: "small", name: verse[0] === 0 ? "Listen to the title" : `Listen to verse ${verse[0]}` });
+  return b ? `<span class="v-listen">${b}</span>` : "";
+}
 
 /** "and + the + noun fs"; the "and" of a wayyiqtol is part of that verb form, so it isn't repeated. */
 function heWordGrammar(w, morph) {
@@ -499,7 +512,7 @@ function greekChapterHTML(state) {
       : parts.length ? `<p class="bsb">${tag}${parts.join(" ")}</p>`
       : !refs.some((r) => bsbVerse(state, r)) ? `<p class="bsb muted">${tag}${BSB_LEAVES_OUT}</p>`
       : `<p class="bsb muted">${tag}In the BSB these words are part of ${refs.map((r) => (r.startsWith(`${state.ch}.`) ? `verse ${r.split(".")[1]}` : refLabel(r))).join(" and ")}.</p>`;
-    out.push(`<div class="v" data-vi="${vi}" id="v${v}"><span class="vn"><span class="sr">Verse </span>${v}</span><div class="words" lang="grc">${words.map((w, wi) => wordHTML(w, vi, wi, state)).join("")}</div>${bsb}${esvHTML(state, esvRefs(state, vi, fresh), "p")}</div>`);
+    out.push(`<div class="v" data-vi="${vi}" id="v${v}"><span class="vn"><span class="sr">Verse </span>${v}</span><div class="words" lang="grc">${words.map((w, wi) => wordHTML(w, vi, wi, state)).join("")}${verseListenHTML(state, verse)}</div>${bsb}${esvHTML(state, esvRefs(state, vi, fresh), "p")}</div>`);
   });
   flushPara();
 
@@ -548,7 +561,7 @@ function heChapterHTML(state) {
       ? `<span class="vh" dir="ltr" title="Verse number in Hebrew Bibles"><span class="sr">, Hebrew Bible </span><span aria-hidden="true">Heb </span>${refLabel(heRef)}</span>` : "";
     const aram = mixed && words.some(isAramaic) ? `<span class="vh" dir="ltr">Aram.</span>` : "";
     const vn = v === 0 ? `<span class="vn vn-title">title${heNum}</span>` : `<span class="vn"><span class="sr">Verse </span>${v}${heNum}${aram}</span>`;
-    out.push(`<div class="v" data-vi="${vi}" id="v${v}" dir="rtl">${vn}<div class="words" lang="he">${words.map((w, wi) => wordHTML(w, vi, wi, state)).join("")}</div>${bsb}${esvHTML(state, esvRefs(state, vi, [`${state.ch}.${v}`]), "p")}${lxxHTML(state, v, "p")}</div>`);
+    out.push(`<div class="v" data-vi="${vi}" id="v${v}" dir="rtl">${vn}<div class="words" lang="he">${words.map((w, wi) => wordHTML(w, vi, wi, state)).join("")}${verseListenHTML(state, verse)}</div>${bsb}${esvHTML(state, esvRefs(state, vi, [`${state.ch}.${v}`]), "p")}${lxxHTML(state, v, "p")}</div>`);
   });
   flushPara();
   return out.join("");
@@ -731,7 +744,7 @@ function parallelHTML(state) {
     const orig = words.map((w, wi) => wordHTML(w, vi, wi, state) + (he && heJoined(w[5]) ? "" : " ")).join("");
     const cells = cols.map(([k, label]) => {
       const lab = `<span class="col-label">${label}</span>`;
-      if (k === "orig") return `<div class="col col-orig" lang="${he ? "he" : "grc"}" dir="${he ? "rtl" : "ltr"}">${orig}</div>`;
+      if (k === "orig") return `<div class="col col-orig" lang="${he ? "he" : "grc"}" dir="${he ? "rtl" : "ltr"}">${orig}${verseListenHTML(state, verse)}</div>`;
       if (k === "bsb") return `<div class="col col-bsb" lang="en">${lab}${bsbForRefs(state, refs, v, he ? null : englishRefs(state, verse))}</div>`;
       if (k === "esv") {
         const er = esvRefs(state, vi, refs);
@@ -753,9 +766,14 @@ function parallelHTML(state) {
 /** A tapped Septuagint word: likely dictionary entries (the Septuagint isn't tagged word by word yet). */
 async function showLxxWord(el, where) {
   const word = el.textContent.replace(/[.,;:·()\[\]᾽’]/g, "").trim();
+  // the whole Septuagint verse this word is in (its own screen: .lv; beside the Hebrew: .lxx, .col-lxx)
+  const line = el.closest(".lv, .lxx, .col-lxx");
+  const lxxText = line ? [...line.querySelectorAll(".lw")].map((x) => x.textContent.trim()).join(" ") : "";
+  const lxxListen = lxxText ? verseSayButton(lxxText, "grc", { label: "Listen to the verse" }) : "";
+  sayTapped(word, "grc"); // at once, inside the tap (Easy and Medium)
   const body = openSheet(`<p class="ws-ref">${esc(where || "Septuagint")}</p>
     <h2 class="ws-word" lang="grc" id="sheet-title">${esc(word)}</h2>
-    <p class="ws-translit">${sayButton(word, "grc", { className: "small" })}</p>
+    ${wordSayButton(word, "grc", { className: "small" }) || lxxListen ? `<p class="ws-translit">${wordSayButton(word, "grc", { className: "small" })}${lxxListen}</p>` : ""}
     <p class="muted">The Septuagint isn't tagged word by word yet, so these are the dictionary forms that most likely match this word, found by its spelling.</p>
     <div class="lxx-look"><p class="muted">Looking it up…</p></div>`, { label: `Look up ${word}`, returnFocus: el });
   document.querySelectorAll(".lw.on").forEach((x) => x.classList.remove("on"));
@@ -869,6 +887,12 @@ function displayHTML(prefs) {
       ${box("showBSB", "Berean Standard Bible (BSB)")}
       ${box("showESV", "English Standard Version (ESV)", esv.hasKey() ? "" : "Needs your free ESV key: add it in Settings.")}
       ${box("showLXX", "Septuagint (LXX)", "The Greek Old Testament, lined up with the Hebrew where the verses match. Old Testament only.")}
+    </fieldset>
+    <fieldset>
+      <legend>Listening practice</legend>
+      <div class="choices">${[["easy", "Easy: tap a word to hear it"], ["medium", "Medium: tap a word, or hear the whole verse"], ["hard", "Hard: hear the whole verse only"]]
+        .map(([v, label]) => `<label><input type="radio" name="listenLevel" value="${v}" ${listenLevel() === v ? "checked" : ""}> ${label}</label>`).join("")}</div>
+      <p class="field-help">The same setting as in Settings. On Hard, tapping a word shows what it means without saying it.</p>
     </fieldset>`;
 }
 
@@ -1041,7 +1065,10 @@ export const read = {
     const pick = (el) => {
       const w = el.closest(".w");
       const v = el.closest("[data-vi]");
-      if (w && v) showWord(state, Number(v.dataset.vi), Number(w.dataset.wi), w);
+      if (!w || !v) return;
+      const word = (state.verses[Number(v.dataset.vi)] || [0, []])[1][Number(w.dataset.wi)];
+      if (word) sayTapped(state.he ? heText(word) : word[0], state.he ? "he" : "grc"); // at once, inside the tap
+      showWord(state, Number(v.dataset.vi), Number(w.dataset.wi), w);
     };
     holder.addEventListener("click", (e) => {
       const fn = e.target.closest(".fn");
@@ -1073,6 +1100,7 @@ export const read = {
         const t = ev.target;
         if (t.dataset.pref) store.set(t.dataset.pref, t.checked);
         if (t.name === "readLayout") store.set("readLayout", t.value);
+        if (t.name === "listenLevel") store.set("listenLevel", t.value);
         state.prefs = prefsNow();
         body.querySelectorAll(".word-opts").forEach((f) => (f.disabled = state.prefs.readLayout !== "words"));
         body.querySelectorAll(".tr-opts").forEach((f) => (f.disabled = state.prefs.readLayout === "text"));

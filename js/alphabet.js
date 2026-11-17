@@ -6,7 +6,7 @@ import * as data from "./data.js";
 import { head } from "./screens.js";
 import { mixed, tableHTML } from "./lessons.js";
 import { openSheet } from "./reader.js";
-import { sayButton } from "./audio.js";
+import { sayButton, verseSayButton, wordsSpeak, listenLevel } from "./audio.js";
 import { greekSay } from "./sound.js";
 import { heText, heAfter, heJoined } from "./hebrew.js";
 
@@ -71,6 +71,11 @@ function verseText(words, lang) {
   return words.map((w) => heText(w) + (heJoined(w[5]) ? "־" : heAfter(w[5]) ? heAfter(w[5]) : "")).join(" ").replace(/־ /g, "־");
 }
 
+/** Each word a button that says it (Settings › Listening practice: Easy and Medium). Maqqef-joined words stay one. */
+function tappableWords(text, lang) {
+  return text.split(" ").filter(Boolean).map((w) => `<button type="button" class="say-w" data-say="${esc(w)}" data-say-lang="${lang === "he" ? "he" : "grc"}">${esc(w)}</button>`).join(" ");
+}
+
 async function practiceHTML(A, lang) {
   const out = await Promise.all((A.practice || []).map(async (pr) => {
     const [book, cv] = pr.ref.split(" ");
@@ -87,10 +92,10 @@ async function practiceHTML(A, lang) {
     const say = lang === "grc" ? greekSay(text) : pr.say;
     return `<li class="ab-verse">
       <p class="ab-verse-ref"><a href="#/read/${book}/${ch}/${v}">${esc(name)}</a></p>
-      ${text ? `<p class="ab-verse-t"${textAttrs(lang)}>${esc(text)}</p>` : `<p class="muted">The verse needs a connection the first time.</p>`}
+      ${text ? `<p class="ab-verse-t"${textAttrs(lang)}>${wordsSpeak() ? tappableWords(text, lang) : esc(text)}</p>` : `<p class="muted">The verse needs a connection the first time.</p>`}
       <p class="ls-ex-say">${esc(say)}</p>
       <p class="ab-verse-en">${esc(pr.en)}</p>
-      ${text ? `<p>${sayButton(text, lang, { label: "Listen" })}</p>` : ""}
+      ${text && verseSayButton(text, lang) ? `<p>${verseSayButton(text, lang)}</p>` : ""}
     </li>`;
   }));
   return out.join("");
@@ -127,7 +132,7 @@ export const alphabet = {
       ${A.sections.map((sec) => sectionHTML(sec, lang)).join("")}
       <section class="ab-section">
         <h2>Read aloud</h2>
-        <p>Real verses, with the pronunciation written out. Listen, then read along.</p>
+        <p>Real verses, with the pronunciation written out. ${{ easy: "Tap each word to hear it, then read the verse aloud.", medium: "Tap a word to hear it, or listen to the whole verse, then read along.", hard: "Listen to the whole verse, then read along." }[listenLevel()]}</p>
         <ul class="ab-verses"><li class="muted">Loading the verses…</li></ul>
       </section>
       <div class="note ab-practise">

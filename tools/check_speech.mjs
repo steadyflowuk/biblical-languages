@@ -3,6 +3,10 @@
 // Hebrew lessons and list — the voice text must keep every letter (the divine name may become Adonai/Elohim).
 // Greek: every NT word, every Greek headword and every Septuagint word, in Erasmian and Restored Koine — something
 // sayable must be left, and no brackets or Latin letters may reach the voice.
+// Since 17 Nov 2026 also the sounds themselves: every accented Greek word of two or more syllables keeps a stress mark
+// in both voices (ΐ once lost it: Δαυίδ, Ἠσαΐας); Restored Koine never hands the voice η, οι, υι or a lone υ (a Modern
+// Greek voice says them all "ee"); Hebrew never starts a word with a silent-looking shewa (the Israeli voice would
+// drop the said e) and never keeps the qamets hatuf sign.
 // Words with nothing to say (a lone ס paragraph mark, Septuagint numerals) are listed: the app shows no Listen for them.
 import fs from "fs";
 import path from "path";
@@ -28,15 +32,21 @@ function hebrew(where, t) {
   const kept = cons(t.replace(/(^|\s)[פס](?=\s|$)/g, "$1"));
   if (kept !== cons(out) && !/אֲדֹנָי|אֱלֹהִים/.test(out)) problems.push(`${where}: ${t} → ${out} (letters lost)`);
   if (/[^ְ-ׇא-ת ]/.test(out)) problems.push(`${where}: ${t} → ${out} (not Hebrew)`);
+  if (out.split(" ").some((w) => /^[א-ת][ּׁׂ]*ְ/.test(w) && /[א-ת].*[א-ת]/.test(w))) problems.push(`${where}: ${t} → ${out} (said shewa left silent)`);
+  if (/ׇ/.test(out)) problems.push(`${where}: ${t} → ${out} (qamets hatuf sign)`);
 }
 
 function greek(where, t) {
   n++;
   const eras = s.erasmianSpeech(t), koine = s.koineSpeech(t);
   if (!GR_LETTER.test(eras)) { silent.add(t); return; }
+  const accented = t.split(/\s+/).filter((w) => /[\u0300\u0301\u0342]/.test(w.normalize("NFD")) && s.greekSyllables(w).length > 1).length;
   for (const [mode, out] of [["Erasmian", eras], ["Koine", koine]]) {
     if (/[A-Za-z[\]()=]/.test(out)) problems.push(`${where}: ${t} → ${out} (${mode}: not Greek)`);
+    if (accented && !/[άέήίόύώΐΰ]/.test(out)) problems.push(`${where}: ${t} → ${out} (${mode}: stress lost)`);
   }
+  // Koine: η is ε, and υ, οι, υι are ü (written ιου); only αυ, ευ, ου keep a υ
+  if (/[ηήΗ]|(^|[^ι])ο[ιί]|(^|[^αεοάέό])[υύϋΰ]/.test(koine.replace(/ιο[υύ]/g, ""))) problems.push(`${where}: ${t} → ${koine} (Koine: modern vowel left)`);
 }
 
 for (const f of fs.readdirSync(R + "data/hot")) {

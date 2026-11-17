@@ -31,7 +31,7 @@ function hebrew(where, t) {
   if (!HE_LETTER.test(out)) { silent.add(t); return; }
   const kept = cons(t.replace(/(^|\s)[פס](?=\s|$)/g, "$1"));
   if (kept !== cons(out) && !/אֲדֹנָי|אֱלֹהִים/.test(out)) problems.push(`${where}: ${t} → ${out} (letters lost)`);
-  if (/[^ְ-ׇא-ת ]/.test(out)) problems.push(`${where}: ${t} → ${out} (not Hebrew)`);
+  if (/[^ְ-ׇא-ת ,.]/.test(out) || /,\s*$/.test(out)) problems.push(`${where}: ${t} → ${out} (not Hebrew)`);
   if (out.split(" ").some((w) => /^[א-ת][ּׁׂ]*ְ/.test(w) && /[א-ת].*[א-ת]/.test(w))) problems.push(`${where}: ${t} → ${out} (said shewa left silent)`);
   if (/ׇ/.test(out)) problems.push(`${where}: ${t} → ${out} (qamets hatuf sign)`);
   // the divine name is never spelt out (also after two prefixes or שֶׁ), and כָּל־ is said kol (17 Nov 2026 review)

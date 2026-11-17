@@ -5,7 +5,7 @@ import { installTip, bindInstallTip } from "./install.js";
 import * as esv from "./esv.js";
 import * as lessons from "./lessons.js";
 import * as review from "./review.js";
-import { sayButton, wordSayButton, verseSayButton, sayTapped, listenLevel } from "./audio.js";
+import { sayButton, wordSayButton, verseSayButton, sayTapped, listenLevel, heVoice } from "./audio.js";
 import { englishHTML, friendlyGrammar } from "./reader.js";
 import { heEnglish, heFriendlyGrammar } from "./hebrew.js";
 import { streak } from "./activity.js";
@@ -41,6 +41,18 @@ const SOURCE = {
   he: "Hebrew: Leningrad Codex from STEPBible (Tyndale House)",
 };
 
+/**
+ * A Today word as the voice gets it. Hebrew verbs: the grammar settles qamets hatuf and the said shewa (audio.heVoice),
+ * so the data's description ("Verb: Qal … perfect") is turned into the code the Reader's words carry.
+ */
+function todayVoice(v, w) {
+  if (v.lang !== "he") return w.t;
+  const p = String(w.parse || "");
+  const form = /Verb: Qal[^+]*\bperfect/.test(p) ? "p" : /Verb: Qal[^+]*\bimperative/.test(p) ? "v" : /Verb: Qal[^+]*infinitive construct/.test(p) ? "c" : "";
+  const code = /Verb/.test(p) ? `HVq${form}` : "";
+  return heVoice(["", "", "", "", code, w.p || ""], w.t, String(w.p || "").endsWith("\u05be"));
+}
+
 /** What tapping a word does, by Settings › Listening practice. */
 const tapHint = () => (listenLevel() === "hard" ? "Tap any word to see what it means." : "Tap any word to hear it and see what it means.");
 
@@ -51,7 +63,7 @@ function verseHTML(v) {
     .map((w, i) => `${w.pre ? esc(w.pre) : ""}<span class="w" role="button" tabindex="0" data-i="${i}" aria-pressed="${i === v.focus}">${esc(w.t)}</span>${w.p ? esc(String(w.p).replace(/[\u00b6\u00ac]/g, "")) : ""}`)
     .reduce((out, html, i) => out + (i && !String(v.words[i - 1].p || "").endsWith("\u05be") ? " " : "") + html, "");
   // the whole verse for the voice: the words with their punctuation, maqqef-joined words kept together
-  const spoken = v.words.map((w) => w.t + String(w.p || "").replace(/[\u00b6\u00ac]/g, ""))
+  const spoken = v.words.map((w) => todayVoice(v, w) + String(w.p || "").replace(/[\u00b6\u00ac]/g, ""))
     .reduce((out, t, i) => out + (i && !String(v.words[i - 1].p || "").endsWith("\u05be") ? " " : "") + t, "");
   const listen = verseSayButton(spoken, v.lang);
   return `<section class="verse" aria-labelledby="verse-ref">
@@ -76,7 +88,7 @@ function showGloss(root, v, i) {
   const here = englishHTML(he ? heEnglish(w.en) : w.en);
   const meaning = data.meaningOf(v.lang, w.k, w.gloss);
   root.querySelector(".verse-gloss").innerHTML =
-    `<span class="form" lang="${v.lang}"${he ? ' dir="rtl"' : ""}>${esc(w.t)}</span>${wordSayButton(w.t + (String(w.p || "").endsWith("\u05be") ? "\u05be" : ""), v.lang, { className: "small" })}
+    `<span class="form" lang="${v.lang}"${he ? ' dir="rtl"' : ""}>${esc(w.t)}</span>${wordSayButton(todayVoice(v, w) + (String(w.p || "").endsWith("\u05be") ? "\u05be" : ""), v.lang, { className: "small" })}
      <span class="meaning">${here || esc(meaning)}</span>
      <span class="hint">${esc(he ? heFriendlyGrammar(w.parse) : friendlyGrammar(w.parse))}</span>
      ${w.parts ? `<span class="from">Joined from two words: ${w.parts.map(([l, g, k]) => `<span class="lemma" lang="${v.lang}">${esc(l)}</span> · ${esc(data.meaningOf(v.lang, k, g))}`).join(" + ")}</span>`
@@ -185,7 +197,7 @@ export const today = {
       slot.querySelectorAll(".verse-original .w").forEach((el) => {
         const pick = () => {
           const w = verse.words[Number(el.dataset.i)];
-          sayTapped(w.t + (String(w.p || "").endsWith("\u05be") ? "\u05be" : ""), verse.lang); // at once, inside the tap (כָּל־ said kol)
+          sayTapped(todayVoice(verse, w) + (String(w.p || "").endsWith("\u05be") ? "\u05be" : ""), verse.lang); // at once, inside the tap (כָּל־ said kol)
           showGloss(slot, verse, Number(el.dataset.i));
         };
         el.addEventListener("click", pick);

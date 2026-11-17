@@ -5,7 +5,7 @@ import * as data from "./data.js";
 import * as nav from "./nav.js";
 import { readingStarted } from "./activity.js";
 import * as esv from "./esv.js";
-import { wordSayButton, verseSayButton, verseSpeech, sayTapped, listenLevel } from "./audio.js";
+import { wordSayButton, verseSayButton, verseSpeech, sayTapped, listenLevel, heVoice } from "./audio.js";
 import { heLemma,
   heText, heTranslit, heEnglish, heAfter, heJoined, heParagraphAfter, isAramaic, heParts, heMainKey,
   heShortGrammar, heFriendlyGrammar,
@@ -225,7 +225,7 @@ function heWordSheetHTML(w, ctx) {
   return `
     <p class="ws-ref">${esc(ctx.ref)}</p>
     <h2 class="ws-word he" lang="he" dir="rtl" id="sheet-title">${esc(heText(w))}</h2>
-    <p class="ws-translit">${esc(heTranslit(translit))} ${wordSayButton(heText(w) + (heJoined(w[5]) ? "־" : ""), "he", { className: "small" })}</p>
+    <p class="ws-translit">${esc(heTranslit(translit))} ${wordSayButton(heVoice(w, null, heJoined(w[5])) + (heJoined(w[5]) ? "־" : ""), "he", { className: "small" })}</p>
     ${ctx.listen || ""}
     ${flag ? `<p class="ws-flag">${esc(FLAG_NOTES[flag] || "")}</p>` : ""}
     <dl class="ws-facts">
@@ -346,7 +346,7 @@ function verseListenHTML(state, verse) {
 }
 
 /** A tapped word as the voice gets it: a Hebrew word joined by a maqqef keeps it (כָּל־ is said kol). */
-const spokenWord = (state, w) => (state.he ? heText(w) + (heJoined(w[5]) ? "־" : "") : w[0]);
+const spokenWord = (state, w) => (state.he ? heVoice(w, null, heJoined(w[5])) + (heJoined(w[5]) ? "־" : "") : w[0]);
 
 /** "and + the + noun fs"; the "and" of a wayyiqtol is part of that verb form, so it isn't repeated. */
 function heWordGrammar(w, morph) {

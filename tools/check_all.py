@@ -26,6 +26,7 @@ JOBS = {
     "check_data":      ([PY, "tools/check_data.py", f"{SRC}/sblgnt", f"{SRC}/morphhb"], 1, 2),
     "check_lessons":   ([PY, "tools/check_lessons.py"], 1, 1),
     "check_speech":    (["node", "tools/check_speech.mjs"], 1, 2),
+    "check_pronunciation": (["node", "tools/check_pronunciation.mjs"], 1, 1),
     "audit_static":    ([PY, "tools/audit_content.py", "--static"], 1, 3),
     "check_rebuild":   ([PY, "tools/check_rebuild.py"], 1, 2),
     "check_grammar":   ([PY, "tools/check_grammar.py"], 1, 1),
@@ -62,7 +63,7 @@ COVERAGE = {
     "crawl_app": [(r"phone light: (\d+) screens", 27)],  # 27 or 28: the day's verse decides one link
     "check_lessons": [(r"All (\d+) lessons pass", 21)],
     "test_app": [(r"\d+/(\d+) passed", 115)], "test_lessons": [(r"\d+/(\d+) passed", 78)],
-    "test_dictionary": [(r"\d+/(\d+) passed", 52)], "test_review": [(r"\d+/(\d+) passed", 48)],
+    "test_dictionary": [(r"\d+/(\d+) passed", 52)], "test_review": [(r"\d+/(\d+) passed", 59)],
     "test_alphabet": [(r"\d+/(\d+) passed", 42)], "test_journey": [(r"\d+/(\d+) passed", 35)],
     "test_progress": [(r"\d+/(\d+) passed", 47)], "test_reader_edges": [(r"\d+/(\d+) passed", 28)],
     "test_check": [(r"\d+/(\d+) passed", 31)], "test_translations": [(r"\d+/(\d+) passed", 70)],
@@ -70,6 +71,7 @@ COVERAGE = {
     "test_screens": [(r"\d+/(\d+) passed", 72)], "test_slow": [(r"\d+/(\d+) passed", 12)],
     "check_rebuild": [(r"(\d+) data files compared", 433)],
     "check_grammar": [(r"(\d+) forms compared", 149)],
+    "check_pronunciation": [(r"([\d,]+) Greek words", 68031), (r"([\d,]+) Hebrew words", 111594), (r"([\d,]+) verses", 31200)],
 }
 PARALLEL = {1: 4, 2: 4, 3: 4, 4: 1, 5: 1}
 

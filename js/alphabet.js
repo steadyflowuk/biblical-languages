@@ -6,7 +6,7 @@ import * as data from "./data.js";
 import { head } from "./screens.js";
 import { mixed, tableHTML } from "./lessons.js";
 import { openSheet } from "./reader.js";
-import { sayButton, verseSayButton, wordsSpeak, listenLevel } from "./audio.js";
+import { sayButton, verseSayButton, verseSpeech, wordsSpeak, listenLevel } from "./audio.js";
 import { greekSay } from "./sound.js";
 import { heText, heAfter, heJoined } from "./hebrew.js";
 
@@ -23,7 +23,7 @@ const textAttrs = (lang) => (lang === "he" ? ' lang="he" dir="rtl"' : ' lang="gr
 
 function exampleHTML(ex, lang) {
   return `<li>
-    <span class="ls-ex-head"><span class="ls-ex-t"${textAttrs(lang)}>${esc(ex.t)}</span>${sayButton(ex.t, lang, { className: "small" })}</span>
+    <span class="ls-ex-head"><span class="ls-ex-t"${textAttrs(lang)}>${esc(ex.t)}</span>${sayButton(ex.t, lang, { className: "small", say: ex.say })}</span>
     <span class="ls-ex-say">${esc(ex.say)}</span>
     <span class="ls-ex-en">${mixed(ex.en)}</span></li>`;
 }
@@ -42,7 +42,7 @@ function letterSheetHTML(L, i, A, lang) {
   return `<p class="ws-ref">${NAME[lang]} letter ${i + 1} of ${A.letters.length}</p>
     <h2 class="ab-big" id="sheet-title"${textAttrs(lang)}>${L.forms.map(esc).join(" ")}</h2>
     <p class="ab-sheet-name"><strong>${esc(L.name)}</strong> <span${textAttrs(lang)}>${esc(L.nameT)}</span> <span class="muted">${esc(L.nameSay)}</span>
-      ${sayButton(L.nameT, lang, { className: "small" })}</p>
+      ${sayButton(L.nameT, lang, { className: "small", say: L.nameSay })}</p>
     <dl class="ws-facts">
       <div><dt>${lang === "grc" ? "Sound (Erasmian)" : "Sound"}</dt><dd>${mixed(L.sound)}${lang === "grc" && voice === "erasmian" ? ` <span class="tag">used in the app</span>` : ""}</dd></div>
       ${koine ? `<div><dt>Restored Koine</dt><dd>${mixed(L.koine)}${voice === "koine" ? ` <span class="tag">used in the app</span>` : ""}</dd></div>` : ""}
@@ -83,10 +83,12 @@ async function practiceHTML(A, lang) {
     const [book, cv] = pr.ref.split(" ");
     const [ch, v] = cv.split(":").map(Number);
     let text = "";
+    let spoken = ""; // for the whole-verse button: with the accents, so the voice pauses at the verse's middle
     try {
       const book_ = await data.original(book);
       const words = ((book_.ch.find(([c]) => c === ch) || [0, []])[1].find(([n]) => n === v) || [0, []])[1];
       text = verseText(words, lang).replace(/[֑-ֽ֯]/g, "");
+      spoken = verseSpeech(words, lang);
     } catch (e) { /* offline: show the rest */ }
     const books = await data.books().catch(() => []);
     const b = books.find((x) => x.id === book);
@@ -97,7 +99,7 @@ async function practiceHTML(A, lang) {
       ${text ? `<p class="ab-verse-t"${textAttrs(lang)}>${wordsSpeak() ? tappableWords(text, lang) : esc(text)}</p>` : `<p class="muted">The verse needs a connection the first time.</p>`}
       <p class="ls-ex-say">${esc(say)}</p>
       <p class="ab-verse-en">${esc(pr.en)}</p>
-      ${text && verseSayButton(text, lang) ? `<p>${verseSayButton(text, lang)}</p>` : ""}
+      ${spoken && verseSayButton(spoken, lang) ? `<p>${verseSayButton(spoken, lang)}</p>` : ""}
     </li>`;
   }));
   return out.join("");

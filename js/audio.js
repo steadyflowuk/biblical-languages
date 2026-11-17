@@ -1,7 +1,7 @@
 // Listen buttons (Session 9): <button data-say="λόγος" data-say-lang="grc">. One click handler for the whole app
 // (bound in app.js), so any screen can drop in sayButton() without wiring. Speech itself lives in sound.js.
 import * as store from "./store.js";
-import { speak, speechText, canSpeak, stopSpeaking, warmUpVoices } from "./sound.js";
+import { speak, speechText, canSpeak, stopSpeaking, warmUpVoices, verbHatuf, hebrewForSay } from "./sound.js";
 import { heText, heJoined } from "./hebrew.js";
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -12,12 +12,14 @@ const ICON = `<svg class="say-icon" viewBox="0 0 24 24" aria-hidden="true"><path
  * A listen button. text: the Greek or Hebrew to say; lang: "grc" | "he".
  * options.label: visible words next to the icon (default none: icon only, named for screen readers).
  * options.name: the name screen readers give an icon-only button (default "Listen: " and the text).
+ * options.say: the pronunciation shown beside a Hebrew word ("chokh-MAH"): it settles qamets hatuf for the voice.
  */
 export function sayButton(text, lang, options) {
   const o = options || {};
   // nothing a voice could say (a lone paragraph mark, a dash): no button
-  if (!text || !/[\u05D0-\u05EA\u0370-\u03FF\u1F00-\u1FFF]/.test(speechText(text, lang === "he" ? "he" : "grc"))) return "";
+  if (!text || !/[א-ת\u0370-\u03FF\u1F00-\u1FFF]/.test(speechText(text, lang === "he" ? "he" : "grc"))) return "";
   const name = o.label || "Listen";
+  if (o.say && lang === "he") text = hebrewForSay(text, o.say);
   return `<button type="button" class="say-btn${o.label ? " with-label" : ""}${o.className ? " " + o.className : ""}" data-say="${esc(text)}" data-say-lang="${lang === "he" ? "he" : "grc"}" aria-label="${esc(o.label ? name : o.name ? o.name : `${name}: ${text}`)}">${ICON}${o.label ? `<span>${esc(o.label)}</span>` : ""}</button>`;
 }
 
@@ -110,12 +112,25 @@ export function sayTapped(text, lang) {
 }
 
 /**
+ * A Hebrew word from the Bible data as the voice gets it. For a verb, a closed last syllable that isn't stressed has
+ * qamets hatuf (זְכָר־ ze-khor, יִשְׁמָר־ yish-mor), which only its grammar (the data's code) shows.
+ * text: the word as written (default heText(w)); joined: a maqqef follows.
+ */
+export function heVoice(w, text, joined) {
+  const t = text != null ? text : heText(w);
+  const code = String(w && w[4] || "");
+  const qal = code.match(/(?:^[HA]|\/)Vq([pvc])/); // Qal perfect, imperative, infinitive construct
+  return /(^[HA]|\/)V/.test(code) ? verbHatuf(t, joined, qal ? qal[1] : "") : t;
+}
+
+/**
  * What the voice reads for a whole verse, from the Bible data's words: Greek with its punctuation, so the voice pauses
  * where the text does; Hebrew with its maqqef, leaving out the words written but not read aloud (grey in the Reader).
  */
 export function verseSpeech(words, lang) {
   if (lang === "he") {
-    return (words || []).filter((w) => w[6] !== "k").map((w) => heText(w) + (heJoined(w[5]) ? "־" : "")).join(" ").replace(/־ /g, "־");
+    // the maqqef keeps joined words together; sof pasuq ׃ ends the verse (the voice hears a full stop)
+    return (words || []).filter((w) => w[6] !== "k").map((w) => heVoice(w, null, heJoined(w[5])) + (heJoined(w[5]) ? "־" : /׃/.test(w[5] || "") ? "׃" : "")).join(" ").replace(/־ /g, "־");
   }
   return (words || []).map((w) => w[0] + String(w[5] || "").replace(/[¶¬]/g, "")).join(" ");
 }

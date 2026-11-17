@@ -81,7 +81,7 @@ async def main():
         check("Greek elision: δ᾽ ἂν said as one word (ντάν, dan); δ᾽ alone said ντέ; Koine drops ]]",
               r2["el"] == ["ντάν", "ντέ", "dan", "αμάρτανε."], str(r2["el"]))
         check("Hebrew voice: the divine name read Adonai (with prefixes) or Elohim after Adonai; no accents or sof pasuq; said shewa as e; kol",
-              r["he"] == ["אֲדֹנָי", "לַאֲדֹנָי", "אֲדֹנָי אֱלֹהִים", "בֶּרֵאשִׁית", "כֹּל הָאָרֶץ"], str(r["he"]))
+              r["he"] == ["אֲדֹנָי", "לַאֲדֹנָי", "אֲדֹנָי אֱלֹהִים", "בֶּרֵאשִׁית", "כֹּל הָאָרֶץ."], str(r["he"]))
 
         # 2. Nothing yet
         await fresh(pg)

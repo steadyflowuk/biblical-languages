@@ -302,11 +302,11 @@ function cardHTML(c, shown, pos, count) {
     <div class="rv-card${shown ? " shown" : ""}">
       <p class="rv-meta">${LANG_NAME[c.lang]} · ${status}${c.src === "lesson" ? " · from your lessons" : c.src === "abc" ? " · alphabet" : ""}</p>
       <p class="rv-word" lang="${he ? "he" : "grc"}"${he ? ' dir="rtl"' : ""} tabindex="-1">${esc(c.t)}</p>
-      <p class="rv-listen">${sayButton(c.sp || c.t, c.lang, { label: "Listen" })}</p>
+      <p class="rv-listen">${sayButton(c.sp || c.t, c.lang, { label: "Listen", say: c.say })}</p>
       ${shown ? `<div class="rv-answer">
           <p class="rv-say">${esc(sayOf(c))}</p>
           <p class="rv-en">${mixed(c.en)}</p>
-          ${c.src === "abc" ? `${c.ex ? `<p class="rv-ex"><span${he ? ' lang="he" dir="rtl"' : ' lang="grc"'} class="rv-ex-t">${esc(c.ex.t)}</span> ${sayButton(c.ex.t, c.lang, { className: "small" })} <span class="muted">${esc(c.ex.say)} · ${mixed(c.ex.en)}</span></p>` : ""}
+          ${c.src === "abc" ? `${c.ex ? `<p class="rv-ex"><span${he ? ' lang="he" dir="rtl"' : ' lang="grc"'} class="rv-ex-t">${esc(c.ex.t)}</span> ${sayButton(c.ex.t, c.lang, { className: "small", say: c.ex.say })} <span class="muted">${esc(c.ex.say)} · ${mixed(c.ex.en)}</span></p>` : ""}
           <p class="rv-more"><a href="#/alphabet/${c.lang}">Alphabet guide</a></p>`
           : `<p class="rv-more"><a href="#/words/${encodeURIComponent(c.k)}">Dictionary entry</a>${c.n ? ` · used ${c.n.toLocaleString("en-GB")} times` : ""}</p>`}
         </div>

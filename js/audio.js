@@ -120,9 +120,9 @@ export function heGrammar(code) {
   const parts = String(code || "").replace(/^[HA]/, "").split("/");
   // conjunction (C, or c before a wayyiqtol), preposition, article, interrogative הֲ, relative שֶׁ: one letter each
   const main = parts.findIndex((x) => !/^(C|c|R|Rd|Td|Ti|Tr)$/.test(x));
-  const v = parts.map((x) => x.match(/^V(\w)(\w)(\d)?/)).find(Boolean);
+  const v = parts.map((x) => x.match(/^V(\w)(\w)(\d)?([mfbc]?[spd]?)/)).find(Boolean);
   return {
-    stem: v ? v[1] : "", form: v ? v[2] : "", person: v && v[3] ? v[3] : "",
+    stem: v ? v[1] : "", form: v ? v[2] : "", person: v && v[3] ? v[3] : "", gn: v && v[4] ? v[4] : "", // gn: "fp", "ms"…
     article: parts.some((x) => x === "Td" || x === "Rd"),
     directional: parts.includes("Sd"),
     suffix: parts.some((x) => /^Sp/.test(x)), // a pronoun ending (יִשְׁמׇרְךָ)

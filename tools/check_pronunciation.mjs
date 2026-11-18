@@ -97,7 +97,7 @@ function gUnits(L) {
 }
 
 const ERASMIAN_V = { α: ["a"], ε: ["e"], η: ["e", "i"], ι: ["i"], ο: ["o"], υ: ["y"], ω: ["oː"], αι: ["a", "i"], ει: ["e", "i"],
-  οι: ["o", "i"], υι: ["u", "i"], ου: ["u"], αυ: ["a", "u"], ευ: ["e", "u"], ηυ: ["e", "i", "u"], ωυ: ["oː", "u"] };
+  οι: ["o", "i"], υι: ["u", "i"], ου: ["u"], αυ: ["a", "u"], ευ: ["e", "u"], ηυ: ["e", "u"], ωυ: ["oː", "u"] }; // ηυ said like ευ ("feud")
 const ERASMIAN_C = { β: "b", γ: "g", δ: "d", ζ: ["d", "z"], θ: "θ", κ: "k", λ: "l", μ: "m", ν: "n", ξ: ["k", "s"], π: "p", ρ: "r",
   σ: "s", τ: "t", φ: "f", χ: "x", ψ: ["p", "s"] };
 // Restored Koine (Buth): ε and αι an open e [ɛ]; η a closed e [e], kept apart; υ and οι ü; υι ü-i; ει i; ω = ο
@@ -502,6 +502,9 @@ function hebrewExpected(word, info) {
     }
     // before a doubled letter the syllable is closed and unstressed: a noun from an o-word keeps o (עֹז → עׇזִּי ozzi)
     if (N && !verb && !stressed && has(N, H.DAGESH) && vowelOf(N.m) && lemmaVowel(i) === "o") { q[i] = "o"; return; }
+    // so does a Qal imperative, infinitive or yiqtol-with-ending of a doubled-letter verb (חׇנֵּנִי, רׇנִּי, יְחׇנֵּנוּ)
+    if (N && verb && !stressed && I.stem === "q" && has(N, H.DAGESH) && vowelOf(N.m) && !meteg(i)
+      && (shortImperativeAt(i) || (I.suffix && /[iwjhu]/.test(I.form) && i >= (I.prefix || 0)))) { q[i] = "o"; return; }
     q[i] = "a";
   });
   // the vowel sound just before cluster i: is it long, a shewa, or stressed?
@@ -755,7 +758,7 @@ if (argv[0] === "step") { stepCompare(true); process.exit(0); }
 // as "a.e" (ka.de.Shei), leaves out the said shewa after a long vowel or before the same letter (zoe.Chim, shi.Mot),
 // says the shewa that closes a syllable (da.Ra.she.ti), drops Jerusalem's last syllable, writes "Yahweh", "o.o"…
 // A change to the model that loses agreement must be looked at: `node tools/check_pronunciation.mjs step`.
-const STEP_BASELINE = { same: 111639, stress: 99785 };
+const STEP_BASELINE = { same: 111638, stress: 99776 };
 
 for (const [key, { where, w: dw, lex: dlex, info: dinfo }] of heParts) {
   const joined = key.endsWith("־");
@@ -826,6 +829,17 @@ for (const [where, t, say] of heCards) {
   if (heard.map((x) => x.p).join("") !== shown.map((x) => x.p).join("")) note(problems, "Hebrew: Listen doesn't say what the card shows", `${where}: ${t} shows ${say} (${shown.map((x) => x.p).join(" ")}), Listen says ${heard.map((x) => x.p).join(" ")}`);
 }
 
+// ---- Hebrew: a furtive patah (under a last ח, ע or הּ after a vowel other than a) is never stressed: the card's capital
+// syllable can't be its last when that syllable is only the furtive a (רוּחַ RU-ach, אֱלוֹהַּ e-LO-ah)
+for (const [where, t, say] of heCards) {
+  const C = hClusters(t.replace(/[\u0591-\u05AF]/g, "").trim());
+  const L = C[C.length - 1], P = C[C.length - 2];
+  if (!L || !P || !/[חעה]/.test(L.ch) || (L.ch === "ה" && !has(L, H.DAGESH)) || !L.m.includes(H.PATAH)) continue;
+  if (/[ַָ]/.test(P.m) && P.ch !== "ו") continue; // after an a-vowel the patah is an ordinary vowel
+  const syl = String(say).split(/[-\s]/).filter(Boolean);
+  const last = syl[syl.length - 1];
+  if (syl.length > 1 && /[A-Z]/.test(last) && /^[aA]/.test(last)) note(problems, "Hebrew: a card stresses a furtive patah", `${where}: ${t} shows ${say}`);
+}
 // ---- Hebrew: lesson and Letters cards' shown vowels = the model (the list's are checked above); a word's grammar isn't
 // known here, so where the model can't tell (a plain qamets before a shewa) either reading passes
 for (const [where, t, say] of heCards) {

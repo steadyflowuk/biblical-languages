@@ -583,6 +583,11 @@ def build_hebrew(hlex):
                 continue
             if kind.startswith("Q"):
                 flag = "q"
+                # a qere joined to the next word: the translit ends in "-" (the Leningrad form has the maqqef, e.g.
+                # L= יִקְצָור\־ at PRO 22:8) but the qere text doesn't; keep the join (the Reader and the voice need it)
+                if c[2].strip().endswith("-") and "־" not in after:
+                    after = "־" + after
+                    stats["qere_maqqef_restored"] += 1
                 # ketiv (as written): "K= translit (כְּתִיב) ..." in meaning variants, or "K= כְּתִיב" in spelling variants
                 km = re.search(r"K=\s*[^()¦;]*?\(([^)]*)\)", c[6]) or re.search(r"K=\s*([^\s¦;]+)", c[7])
                 note = km.group(1).split("\\")[0].replace("/", "").strip() if km else ""

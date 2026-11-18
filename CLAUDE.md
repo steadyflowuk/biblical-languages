@@ -300,6 +300,52 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
   "χ softened before e, i (as in German ich)" (Erasmian 1,754, Koine 2,431). Left: grave-accented monosyllables
   (τὸν, πρὸς) keep a tonos — a grave marks the stressed syllable, and Erasmian readers stress it.
 
+- [x] References check (18 Nov 2026, user's request: the material the checker treats as truth scrutinised as a fluent
+  academic would, before re-running it). Hebrew model vs STEPBible's own transliteration of every OT word
+  (`node tools/check_pronunciation.mjs step`, now part of every run with STEP_BASELINE): agrees on every vowel in 111,639
+  of 115,799 forms, stress 99,785 of 99,907; the rest accounted for kind by kind (STEPBible writes qamets hatuf "a.e",
+  drops said shewas, says closing ones, "Yahweh", Jerusalem short…). It found real model + app errors, fixed in both:
+  a shewa after a stressed long vowel was silent, but a stress drawn back keeps the syllables (יָ֥לְדָה ya-le-DAH,
+  דֹּ֣רְכֵי, וַיֵּ֣שְׁבוּ, יֹ֣אמְרוּ: 256 forms) — now silent only where the syllable is closed: a final pair of letters
+  (וַיֵּשְׁתְּ), the -nâ of a 2nd/3rd fem. pl. verb (heGrammar/grammarOf now carry gn), the -ā́ṯ- of a 3fs perfect before
+  a suffix, a pausal qamets standing for the lemma's patah (לָ֑יְלָה; nouns only); shewaAfterStress replaced by
+  shewaBeforeNa (text-level -nâ only) + those grammar rules; a pashta written once = last-syllable stress (Leningrad
+  doubles it otherwise; +7,000 forms now compared, all agree); -ָהּ "her" is never qamets hatuf and a wayyiqtol with a
+  suffix keeps its stress (וַיִּלְכְּדָהּ was "-doh"); Jerusalem-ward יְרוּשָׁלְַמָה read -LAY-mah.
+  Letters guides and sound lessons read line by line (Erasmian vs college use, Restored Koine vs Buth's published
+  system, Hebrew vs GKC/Khan): Koine η is a closed e kept apart from ε/αι (was "e as in met, held a little longer";
+  the voice can't separate them: limit "ε and η said alike"), υι ü-ee (koineSpeech υι → ιουι, stress on the ü), Koine χ
+  softer before e/i is correct (not a limit), ο/ω "a pure o"; Erasmian ι rule matches greekSay, γ always hard,
+  "keeps nearly every letter apart (η and ει are both ay)", pairs are one sound in Erasmian only, accents mean stress
+  in both, rough breathing not said in Koine. Hebrew: alef a glottal stop usually not heard, final ה silent unless
+  הּ, yod also in ֶי and ַי, hateph "mostly" under throat letters, furtive patah after a non-a vowel (also הּ), the
+  article becomes הָ before א ע ר (stays הַ before ה ח), accents: a few sit on the first/last letter, Elohim after
+  Adonai, פ ס "usually" between verses, the Masoretes' ו was v (Khan; "earlier still, w"), more letter pairs; tsere
+  "e, close to the ay of they", tsere yod "ei" (cards Bethel/Bethlehem → beit). Lessons: grc-2 γγ ng-g; he-2 "One of
+  these is silent", ר behaves like the throat letters; he-3 בָּ ba (not בָ), qamets hatuf "closed, unstressed"; he-4 said
+  shewa also under a doubled letter and after a long vowel (יָלְדָה), נַעַר vs מֶלֶךְ for a-vowels — re-recorded in
+  check_grammar with notes (Wegner re-read pending, see below). New checks: lesson/Letters cards' vowels vs the model;
+  `cards-step` lists each card beside STEPBible's transliteration (all agree but STEP slips).
+  **For the next Logos session (Wegner/Schwandt; nothing else needs Logos):** (1) Wegner lesson 3's shewa rules — does
+  it say a shewa after an accented long vowel is silent? We now follow GKC §10/Tiberian (said unless the syllable is
+  closed); record the result on he-4. (2) Wegner on imperatives with meteg (שָֽׁמְרֵנִי PSA 16:1: we read shom-;
+  does the meteg make it shā-me-?) and EXO 18:19 אִיעָ֣צְךָ (munah on the qamets: long a?). (3) Re-read he-2/3/4 and grc-2's
+  18 Nov sentences (and grc-1, he-5 from the second review) against Wegner 1–6 / Schwandt 1 and update their
+  grammarCheck notes. (4) Koine ηυ (5 NT words): Buth ev or eev? (the app and the guide say ev, like ευ).
+  Full check (17 min, all passed) + fluent-academic reviewer on the reference material; fixed: geminate Qal imperatives
+  and yiqtol-with-ending say o before the doubled letter (חׇנֵּנִי chon-NE-ni, רׇנִּי, יְחׇנֵּנוּ; 25 forms; model + app);
+  card H0433 אֱלוֹהַּ e-LO-ah (a furtive patah is never stressed: new check, proven on the old card); qere words joined
+  by maqqef in Leningrad kept the join (build_data: translit ending "-" → after "־"; 46 words, e.g. יִקְצָר־ PRO 22:8;
+  stats qere_maqqef_restored); letter names ee-OH-ta, oh-ME-ga, "tau (rhymes with how)"; Erasmian ηυ said like ευ
+  ("feud", Mounce: greekSay "eu", voice εου; the guide's pair table has ηυ, example ηὔξανεν); tsere "e as in bed, a
+  little longer", tsere yod "ei" everywhere (he-3 label too); ר no longer counted a throat letter (it takes a plain
+  shewa; refuses doubling); he-5 stress rule = segolates (not "two e-vowels": אֱמֶת is e-MET) and silluq/atnah as the
+  strongest accents (׃ follows silluq); history: the Masoretes' qamets was o-like [ɔ] and their said shewa a quick a
+  (Khan); final h in respellings explained; ρ "nearly always" rough; ὔψιλον's own name the exception; Restored Koine
+  credited to Randall Buth; grc-1 "Many scholars think" for first-century sounds. STEP_BASELINE 111,638 / 99,776;
+  COVERAGE 115,881 Hebrew words (the restored joins). The 12 non-qere words STEPBible transliterates with "-" have no
+  maqqef in Leningrad either: left as published.
+
 ## Data (Session 2)
 - Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (46 checks).
 - Greek = SBLGNT text (since Session 13; see the log) tagged from TAGNT. 137,741 words, 7,939 verses, SBL verse

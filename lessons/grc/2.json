@@ -45,12 +45,12 @@
             "ο and ω are both o: ο is short (micro, small) and ω long (mega, great). Their names say so: o-micron and o-mega."
           ],
           "examples": [
-            { "t": "Τ τ", "say": "tau", "en": "t" },
+            { "t": "Τ τ", "say": "tau (rhymes with how)", "en": "t" },
             { "t": "Υ υ", "say": "Ü-psi-lon", "en": "ü as in French tu (or simply oo)" },
             { "t": "Φ φ", "say": "fee", "en": "f (written ph in English words)" },
             { "t": "Χ χ", "say": "khee", "en": "kh as in Scottish loch" },
             { "t": "Ψ ψ", "say": "psee", "en": "ps as in lips" },
-            { "t": "Ω ω", "say": "o-MAY-ga", "en": "o as in tone" }
+            { "t": "Ω ω", "say": "oh-ME-ga", "en": "o as in tone" }
           ]
         },
         {
@@ -176,5 +176,5 @@
     }
   ],
   "source": {"book": "Schwandt, An Introduction to Biblical Greek (2020)", "chapter": "Lesson 1: The Alphabet"},
-  "grammarCheck": {"date": "2026-11-18", "verdict": "agrees; 18 Nov 2026 wording corrections (see claims marked 18 Nov)", "claims": [{"claim": "sounds of ν–ω: n, x (fox), o, p, r, s, t, ü (French u), f, kh (loch), ps, long o", "result": "agrees"}, {"claim": "σ at the start or middle, ς at the end of a word", "result": "agrees"}, {"claim": "ο short (micro), ω long (mega)", "result": "agrees", "note": "Schwandt lesson 4: same sound, different length"}, {"claim": "Erasmian vowel pairs: ου food, αι aisle, ει eight, οι oil, αυ how, ευ feud", "result": "agrees"}, {"claim": "γγ is ng (ἄγγελος)", "result": "agrees", "note": "γ before γ κ χ ξ sounds n"}, {"claim": "ω said 'oh' as in tone", "result": "differs on purpose", "note": "Schwandt gives 'oa in oar' (Koine); the app's Erasmian uses oh throughout"}, {"claim": "γγ is said ng-g (the respelling ANG-ge-los)", "result": "fixed", "note": "18 Nov 2026: the text said 'sound ng'; corrected to match the respelling and the Letters guide (no change to what is taught in Schwandt 1)"}], "fingerprint": "a8988550b22c2fbe"}
+  "grammarCheck": {"date": "2026-11-18", "verdict": "agrees; 18 Nov 2026 wording corrections (see claims marked 18 Nov); 18 Nov 2026 second-review corrections", "claims": [{"claim": "sounds of ν–ω: n, x (fox), o, p, r, s, t, ü (French u), f, kh (loch), ps, long o", "result": "agrees"}, {"claim": "σ at the start or middle, ς at the end of a word", "result": "agrees"}, {"claim": "ο short (micro), ω long (mega)", "result": "agrees", "note": "Schwandt lesson 4: same sound, different length"}, {"claim": "Erasmian vowel pairs: ου food, αι aisle, ει eight, οι oil, αυ how, ευ feud", "result": "agrees"}, {"claim": "γγ is ng (ἄγγελος)", "result": "agrees", "note": "γ before γ κ χ ξ sounds n"}, {"claim": "ω said 'oh' as in tone", "result": "differs on purpose", "note": "Schwandt gives 'oa in oar' (Koine); the app's Erasmian uses oh throughout"}, {"claim": "γγ is said ng-g (the respelling ANG-ge-los)", "result": "fixed", "note": "18 Nov 2026: the text said 'sound ng'; corrected to match the respelling and the Letters guide (no change to what is taught in Schwandt 1)"}, {"claim": "omega respelt oh-ME-ga, tau 'rhymes with how'", "result": "fixed", "note": "18 Nov 2026 (second review): were o-MAY-ga and 'tau', against the app's own ω oh, ε e and αυ ow"}], "fingerprint": "5d13f96d0d996c13"}
 }

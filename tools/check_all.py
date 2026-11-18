@@ -71,7 +71,7 @@ COVERAGE = {
     "test_screens": [(r"\d+/(\d+) passed", 72)], "test_slow": [(r"\d+/(\d+) passed", 12)],
     "check_rebuild": [(r"(\d+) data files compared", 433)],
     "check_grammar": [(r"(\d+) forms compared", 149)],
-    "check_pronunciation": [(r"([\d,]+) Greek words", 68031), (r"([\d,]+) Hebrew words", 115900), (r"([\d,]+) verses", 31200)],
+    "check_pronunciation": [(r"([\d,]+) Greek words", 68031), (r"([\d,]+) Hebrew words", 115881), (r"([\d,]+) verses", 31200)],
 }
 PARALLEL = {1: 4, 2: 4, 3: 4, 4: 1, 5: 1}
 

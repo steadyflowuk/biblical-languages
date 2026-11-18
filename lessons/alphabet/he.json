@@ -7,12 +7,12 @@
     { "forms": ["בּ", "ב"], "name": "bet", "nameT": "בֵּית", "nameSay": "bet", "sound": "b with the dot; v without", "example": { "t": "בַּיִת", "say": "BA-yit", "en": "house" }, "example2": { "t": "לֵב", "say": "lev", "en": "heart" }, "tip": "It has a little foot at the bottom right; כ (kaf) is rounded with none." },
     { "forms": ["ג"], "name": "gimel", "nameT": "גִּימֶל", "nameSay": "GI-mel", "sound": "g as in go", "example": { "t": "גּוֹי", "say": "goy", "en": "nation" } },
     { "forms": ["ד"], "name": "dalet", "nameT": "דָּלֶת", "nameSay": "DA-let", "sound": "d", "example": { "t": "דָּבָר", "say": "da-VAR", "en": "word" }, "tip": "A square corner at the top right; ר (resh) is rounded there." },
-    { "forms": ["ה"], "name": "he", "nameT": "הֵא", "nameSay": "he", "sound": "h; silent at the end of a word, unless it has a dot (הּ)", "example": { "t": "הַר", "say": "har", "en": "mountain" }, "example2": { "t": "תּוֹרָה", "say": "to-RAH", "en": "law: the final ה is silent" }, "tip": "A gap at the top left; ח (chet) is closed." },
+    { "forms": ["ה"], "name": "he", "nameT": "הֵא", "nameSay": "he", "sound": "h; silent at the end of a word, unless it has a dot (הּ). In the respellings a final h after a vowel is only spelling (to-RAH), except where the ה has its dot (lah)", "example": { "t": "הַר", "say": "har", "en": "mountain" }, "example2": { "t": "תּוֹרָה", "say": "to-RAH", "en": "law: the final ה is silent" }, "tip": "A gap at the top left; ח (chet) is closed." },
     { "forms": ["ו"], "name": "vav", "nameT": "וָו", "nameSay": "vav", "sound": "v; also writes the vowels o (וֹ) and u (וּ)", "example": { "t": "דָּוִד", "say": "da-VID", "en": "David" }, "example2": { "t": "יוֹם", "say": "yom", "en": "day: וֹ is o" }, "tip": "A plain upright stroke; ז (zayin) has a cap." },
     { "forms": ["ז"], "name": "zayin", "nameT": "זַיִן", "nameSay": "ZA-yin", "sound": "z", "example": { "t": "זֶה", "say": "zeh", "en": "this" } },
     { "forms": ["ח"], "name": "chet", "nameT": "חֵית", "nameSay": "chet", "sound": "ch as in Scottish loch", "example": { "t": "לֶחֶם", "say": "LE-chem", "en": "bread" } },
     { "forms": ["ט"], "name": "tet", "nameT": "טֵית", "nameSay": "tet", "sound": "t", "example": { "t": "טוֹב", "say": "tov", "en": "good" } },
-    { "forms": ["י"], "name": "yod", "nameT": "יוֹד", "nameSay": "yod", "sound": "y as in yes; also helps write the vowels i (ִי) and e (ֵי ֶי), and ends the ai of ַי", "example": { "t": "יָד", "say": "yad", "en": "hand" }, "example2": { "t": "אִישׁ", "say": "ish", "en": "man: ִי is i" }, "tip": "The smallest letter, hanging high: the “jot” of Matthew 5:18." },
+    { "forms": ["י"], "name": "yod", "nameT": "יוֹד", "nameSay": "yod", "sound": "y as in yes; also helps write the vowels i (ִי) and e or ei (ֵי ֶי), and ends the ai of ַי and ָי", "example": { "t": "יָד", "say": "yad", "en": "hand" }, "example2": { "t": "אִישׁ", "say": "ish", "en": "man: ִי is i" }, "tip": "The smallest letter, hanging high: the “jot” of Matthew 5:18." },
     { "forms": ["כּ", "כ", "ך"], "name": "kaf", "nameT": "כַּף", "nameSay": "kaf", "sound": "k with the dot; kh without; ך at the end of a word", "example": { "t": "כֹּל", "say": "kol", "en": "all" }, "example2": { "t": "מֶלֶךְ", "say": "ME-lekh", "en": "king: final ך is kh" } },
     { "forms": ["ל"], "name": "lamed", "nameT": "לָמֶד", "nameSay": "LA-med", "sound": "l", "example": { "t": "לֹא", "say": "lo", "en": "not" }, "tip": "The only letter that rises above the line." },
     { "forms": ["מ", "ם"], "name": "mem", "nameT": "מֵם", "nameSay": "mem", "sound": "m; ם at the end of a word", "example": { "t": "מַיִם", "say": "MA-yim", "en": "water: both forms in one word" } },
@@ -40,8 +40,8 @@
           ["בָ", "qamets", "a as in father"],
           ["בַ", "patah", "a"],
           ["אֲ", "hateph patah", "a, quick"],
-          ["בֵ", "tsere", "e, a little longer: close to the ay of they"],
-          ["בֵי", "tsere yod", "ei, as in they"],
+          ["בֵ", "tsere", "e as in bed, a little longer"],
+          ["בֵי", "tsere yod", "ei, as in they (the yod only spells the vowel: many read it e)"],
           ["בֶ", "segol", "e as in bed"],
           ["אֱ", "hateph segol", "e, quick"],
           ["בִ", "hireq", "i"],
@@ -101,7 +101,7 @@
       "title": "The throat letters",
       "letters": true,
       "body": [
-        "א ה ח ע (and often ר) are made at the back of the throat. They never take the doubling dot, and instead of a plain said shewa they take a hateph vowel (ֲ ֱ ֳ). They like a-vowels around them.",
+        "א ה ח ע are made at the back of the throat. They never take the doubling dot (ר usually refuses it too), and instead of a plain said shewa they take a hateph vowel (ֲ ֱ ֳ). They like a-vowels around them.",
         "That is why “the”, usually הַ with the doubling dot in the next letter, becomes הָ before א ע ר: הָאָרֶץ, the earth. Before ה and ח it usually stays הַ, without the dot."
       ]
     },
@@ -119,8 +119,8 @@
       "title": "How it sounded long ago",
       "letters": true,
       "body": [
-        "The pronunciation here is the one taught in most colleges, based on Israeli Hebrew. The scribes who added the vowel marks (the Masoretes) heard more differences: ג ד ת without the dot were soft (gh, th as in this, th as in thin); ח and ע were throat sounds of their own; and ט ק צ were said further back than ת כ ס. Earlier still, ו was w.",
-        "You don't need these to read, but they explain why Hebrew has two letters where we now hear one sound: ט and ת, כ and ק, ח and כ, ס and שׂ, א and ע."
+        "The pronunciation here is the one taught in most colleges, based on Israeli Hebrew. The scribes who added the vowel marks (the Masoretes) heard more differences: ג ד ת without the dot were soft (gh, th as in this, th as in thin); ח and ע were throat sounds of their own; and ט ק צ were said further back than ת כ ס. Their qamets was an o-like sound (as in British “law”), which is why one mark can stand for both a and o, and a said shewa was a quick a. Earlier still, ו was w.",
+        "You don't need these to read, but they explain why Hebrew has two letters where we now hear one sound: ט and ת, כ and ק, ח and כ, ס and שׂ, א and ע, ב and ו."
       ]
     }
   ],

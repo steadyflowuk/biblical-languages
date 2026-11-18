@@ -32,7 +32,7 @@
             "rows": [
               ["בָ", "qamets", "a (father)"],
               ["בַ", "patah", "a"],
-              ["בֵ", "tsere", "e (they)"],
+              ["בֵ", "tsere", "e (as in bed)"],
               ["בֶ", "segol", "e (bed)"],
               ["בִ", "hireq", "i (machine)"],
               ["בֹ", "holam", "o (go)"],
@@ -50,7 +50,7 @@
           ],
           "examples": [
             { "t": "אִישׁ", "say": "ish", "en": "hireq with yod: i" },
-            { "t": "בֵּית", "say": "beit", "en": "tsere with yod: e (house of)" },
+            { "t": "בֵּית", "say": "beit", "en": "tsere with yod: ei (house of)" },
             { "t": "יוֹם", "say": "yom", "en": "holam with vav: o" },
             { "t": "סוּס", "say": "sus", "en": "shureq: u" }
           ]
@@ -151,5 +151,5 @@
     }
   ],
   "source": {"book": "Wegner, A Simplified Grammar of Biblical Hebrew", "chapter": "Lesson 2: Hebrew Vowels"},
-  "grammarCheck": {"date": "2026-11-18", "verdict": "agrees; 18 Nov 2026 wording corrections (see claims marked 18 Nov)", "claims": [{"claim": "a vowel is said after the letter it sits with", "result": "agrees"}, {"claim": "vowels helped by a letter: hireq yod, tsere yod, holam vav, shureq", "result": "agrees"}, {"claim": "three vowel classes: a; e and i; o and u", "result": "agrees"}, {"claim": "qamets in a closed unstressed syllable is a short o (qamets hatuf): חָכְמָה chokh-MAH", "result": "agrees", "note": "Wegner uses the same example"}, {"claim": "examples of vowels after a letter: בָּ ba, בֵּ be (with the dot; without it ב is v)", "result": "fixed", "note": "18 Nov 2026: had בָ ba, against the lesson's own rule"}, {"claim": "qamets hatuf: a closed, unstressed syllable", "result": "fixed", "note": "18 Nov 2026: one explanation said 'short'"}], "fingerprint": "82c04b15268160dd"}
+  "grammarCheck": {"date": "2026-11-18", "verdict": "agrees; 18 Nov 2026 wording corrections (see claims marked 18 Nov); 18 Nov 2026 second-review corrections", "claims": [{"claim": "a vowel is said after the letter it sits with", "result": "agrees"}, {"claim": "vowels helped by a letter: hireq yod, tsere yod, holam vav, shureq", "result": "agrees"}, {"claim": "three vowel classes: a; e and i; o and u", "result": "agrees"}, {"claim": "qamets in a closed unstressed syllable is a short o (qamets hatuf): חָכְמָה chokh-MAH", "result": "agrees", "note": "Wegner uses the same example"}, {"claim": "examples of vowels after a letter: בָּ ba, בֵּ be (with the dot; without it ב is v)", "result": "fixed", "note": "18 Nov 2026: had בָ ba, against the lesson's own rule"}, {"claim": "qamets hatuf: a closed, unstressed syllable", "result": "fixed", "note": "18 Nov 2026: one explanation said 'short'"}, {"claim": "tsere e (as in bed); tsere with yod ei, as the app respells it", "result": "fixed", "note": "18 Nov 2026 (second review): labels said 'they' and 'e'"}], "fingerprint": "3e2cfeb3ac14455d"}
 }

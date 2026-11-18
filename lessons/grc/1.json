@@ -50,7 +50,7 @@
           "examples": [
             { "t": "Η η", "say": "AY-ta", "en": "ay as in they" },
             { "t": "Θ θ", "say": "THAY-ta", "en": "th as in thin" },
-            { "t": "Ι ι", "say": "ee-O-ta", "en": "ee as in see (or i as in sit)" },
+            { "t": "Ι ι", "say": "ee-OH-ta", "en": "ee as in see (or i as in sit)" },
             { "t": "Κ κ", "say": "KAP-pa", "en": "k" },
             { "t": "Λ λ", "say": "LAMB-da", "en": "l" },
             { "t": "Μ μ", "say": "mü", "en": "m" }
@@ -63,7 +63,7 @@
           "body": [
             "η looks like an English n, but it is a vowel: “ay”. γ looks a little like y, but it is g. ι has no dot. And θ is one sound, th, written with one letter.",
             "ε and η are both e-sounds: ε is short, as in met, and η is long, “ay” as in they. Greek writes the difference with two letters; English doesn't.",
-            "This is the pronunciation taught in most colleges, called Erasmian. In the first century some letters sounded different (β was nearer v, and δ like the th in “this”); Settings says more."
+            "This is the pronunciation taught in most colleges, called Erasmian. Many scholars think that by the first century some letters already sounded different (β nearer v, and δ like the th in “this”); Settings says more."
           ],
           "examples": [
             { "t": "η", "say": "ay", "en": "not n" },
@@ -155,5 +155,5 @@
     }
   ],
   "source": {"book": "Schwandt, An Introduction to Biblical Greek (2020)", "chapter": "Lesson 1: The Alphabet"},
-  "grammarCheck": {"date": "2026-11-03", "verdict": "agrees", "claims": [{"claim": "24 letters, capital and small forms; small letters are what you read", "result": "agrees"}, {"claim": "Erasmian sounds of α–μ: a, b, g, d, e (met), dz, ay (they), th (thin), ee/i, k, l, m", "result": "agrees"}, {"claim": "β nearer v and δ like th in 'this' in the first century", "result": "agrees", "note": "Schwandt's Koine column"}, {"claim": "ε short, η long 'ay'", "result": "agrees"}, {"claim": "Erasmian is the sound taught", "result": "differs on purpose", "note": "Schwandt prints Koine first with Erasmian alternatives; the app teaches Erasmian (project decision)"}], "fingerprint": "ad38a6e9b9014512"}
+  "grammarCheck": {"date": "2026-11-18", "verdict": "agrees; 18 Nov 2026 second-review corrections", "claims": [{"claim": "24 letters, capital and small forms; small letters are what you read", "result": "agrees"}, {"claim": "Erasmian sounds of α–μ: a, b, g, d, e (met), dz, ay (they), th (thin), ee/i, k, l, m", "result": "agrees"}, {"claim": "β nearer v and δ like th in 'this' in the first century", "result": "agrees", "note": "Schwandt's Koine column"}, {"claim": "ε short, η long 'ay'", "result": "agrees"}, {"claim": "Erasmian is the sound taught", "result": "differs on purpose", "note": "Schwandt prints Koine first with Erasmian alternatives; the app teaches Erasmian (project decision)"}, {"claim": "iota's name respelt ee-OH-ta (ω is always oh)", "result": "fixed", "note": "18 Nov 2026 (second review): was ee-O-ta"}, {"claim": "first-century sounds (β nearer v, δ as in this) are a scholarly view, not settled", "result": "fixed", "note": "18 Nov 2026 (second review): now 'Many scholars think'; Allen (Vox Graeca) and Horrocks date some changes later"}], "fingerprint": "b00deecf5a501738"}
 }

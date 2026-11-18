@@ -91,7 +91,7 @@ OVERRIDES = {
     },
 }
 SAY_FIX = {"he": {"יְהֹוָה": "a-do-NAI", "יְהֹוִה": "e-lo-HIM",  # read aloud as Adonai / Elohim, as is customary
-                  "יַעֲקֹב": "ya-a-KOV", "בַּעַד": "BA-ad", "בָּקַע": "ba-KA", "בֵּיתְ־אֵל": "beit-EL", "בֵּית לֶחֶם": "BEIT LE-chem",  # TAHOT slips (tsere yod is "ei" everywhere)
+                  "יַעֲקֹב": "ya-a-KOV", "בַּעַד": "BA-ad", "בָּקַע": "ba-KA", "אֱלוֹהַּ": "e-LO-ah", "אֱלֹהַּ": "e-LO-ah", "בֵּיתְ־אֵל": "beit-EL", "בֵּית לֶחֶם": "BEIT LE-chem",  # TAHOT slips (tsere yod is "ei" everywhere)
                   # found by tools/check_pronunciation.mjs (17 Nov 2026): TAHOT's syllables or stress were wrong
                   "מַיִם": "MA-yim", "עָוֺן": "a-VON", "יָרָבְעָם": "ya-rov-AM", "צָלֵחַ": "tsa-LE-ach", "שָׂבֵעַ": "sa-VE-a",
                   "מׇרְדֳּכַי": "mor-do-KHAI", "גִּיל": "gil", "יְרוּשָׁלִַם": "ye-ru-sha-LA-yim",

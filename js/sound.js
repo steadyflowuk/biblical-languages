@@ -9,7 +9,7 @@
 const GREEK_VOWELS = "αεηιουω";
 const DIPHTHONGS = ["αι", "ει", "οι", "υι", "αυ", "ευ", "ου", "ηυ"];
 const ACCENTS = /[́̀͂]/;
-const NUCLEUS = { α: "a", ε: "e", η: "ay", ι: "i", ο: "o", υ: "ü", ω: "oh", αι: "ai", ει: "ay", οι: "oi", υι: "wee", αυ: "ow", ευ: "eu", ου: "oo", ηυ: "ayoo" };
+const NUCLEUS = { α: "a", ε: "e", η: "ay", ι: "i", ο: "o", υ: "ü", ω: "oh", αι: "ai", ει: "ay", οι: "oi", υι: "wee", αυ: "ow", ευ: "eu", ου: "oo", ηυ: "eu" }; // ηυ as ευ, "feud" (as Mounce teaches)
 const CONSONANT = { β: "b", γ: "g", δ: "d", ζ: "dz", θ: "th", κ: "k", λ: "l", μ: "m", ν: "n", ξ: "x", π: "p", ρ: "r", σ: "s", ς: "s", τ: "t", φ: "f", χ: "kh", ψ: "ps" };
 
 /** Split one Greek word into letters with their marks: [{ ch, rough, accent, diaeresis }]. */
@@ -110,7 +110,7 @@ export function greekSay(text) {
 
 const TONOS = { α: "ά", ε: "έ", η: "ή", ι: "ί", ο: "ό", υ: "ύ", ω: "ώ" };
 // Erasmian sounds written in Modern Greek letters. The first letter takes the stress mark (έι is "ay", as in κέικ).
-const SPEECH_VOWEL = { α: "α", ε: "ε", η: "ει", ι: "ι", ο: "ο", υ: "ου", ω: "ο", αι: "αι", ει: "ει", οι: "οι", υι: "ουι", αυ: "αου", ευ: "εου", ου: "ου", ηυ: "ειου" };
+const SPEECH_VOWEL = { α: "α", ε: "ε", η: "ει", ι: "ι", ο: "ο", υ: "ου", ω: "ο", αι: "αι", ει: "ει", οι: "οι", υι: "ουι", αυ: "αου", ευ: "εου", ου: "ου", ηυ: "εου" };
 const SPEECH_CONSONANT = { β: "μπ", γ: "γκ", δ: "ντ", ζ: "τζ" };
 const DIGRAPHS = /^(αι|ει|οι|ου|αυ|ευ|υι)$/;
 
@@ -154,7 +154,7 @@ export function erasmianSpeech(text) {
       const prevEndsVowel = !!out && /[αεηιουωάέήίόύώϊϋ]$/.test(out) && !s.onset.length;
       // An unaccented one-syllable word (ὁ, ἐν, εἰς, οὐ) stays unstressed, except that a respelt pair (έι, άι, όι)
       // needs the mark to stay one sound: without it the voice would read εϊ as two ("e-i").
-      const pair = /^(η|ει|αι|οι|ηυ)$/.test(s.nucleus);
+      const pair = /^(η|ει|αι|οι)$/.test(s.nucleus);
       out += onset + speechVowel(s.nucleus, s.stress || (one && pair), prevEndsVowel);
       before = "";
       out += cons(s.coda, next && next.onset[0]);
@@ -474,6 +474,19 @@ export function hebrewByGrammar(word, g) {
     }
     if (short === true) cl[k] = c.replace(QAMATS, QQATAN);
     else if (short === false) { cl[k] = c + KEEP; cl[j] = next.replace(SHEWA, SEGOL); }
+  }
+  // a Qal imperative, infinitive or yiqtol-with-ending of a doubled-letter verb: the qamets before the doubled letter
+  // is o (חׇנֵּנִי chon-NE-ni, רׇנִּי, יְחׇנֵּנוּ), unless it carries the stress or a meteg
+  if (verb && g.stem === "q") {
+    for (let k = g.prefix || 0; k < n - 1; k++) {
+      const c = cl[k], next = cl[k + 1];
+      if (!onlyQamats(c) || c.includes(KEEP) || c.includes(METEG) || !isCons[k + 1]) continue;
+      if (!(next.includes(DAGESH) && FULL_VOWEL.test(next))) continue;
+      if (!g.joined && stressed.length && k === Math.max(...stressed)) continue;
+      const impv = k === (g.prefix || 0) && (g.form === "v" || (g.form === "c" && !g.person));
+      const yiqtol = g.suffix && /[iwjhu]/.test(g.form);
+      if (impv || yiqtol) cl[k] = c.replace(QAMATS, QQATAN);
+    }
   }
   // a noun from an o-word in a closed, unstressed syllable: before a doubled letter (עֹז → עׇזִּי ozzi, קָטֹן → קׇטׇנִּי)
   // or as the last syllable of a word joined by maqqef (חֹק → חׇק־ choq, רֹב → רׇב־ rov)

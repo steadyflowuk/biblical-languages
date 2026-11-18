@@ -47,7 +47,9 @@ inside definitions, a transliteration fix that missed accented words, a counting
 7. **Devices.** Anything that would behave differently on an iPhone (Safari, home-screen app, iOS 15+), an iPad, or
    Android Chrome: tap targets, text size, the share sheet, speech, offline after an update (the service worker keeps
    the shell in `shell-<VERSION>` and data in the `DATA` cache named in `sw.js`).
-8. **Anything else** that looks wrong, odd or confusing.
+8. **Sounds.** `node tools/check_pronunciation.mjs` must pass; read its "known limits" and ask whether any is hiding
+   something fixable, and listen (by reading the voice text with `say WORD`) to a few verses as a linguist would.
+9. **Anything else** that looks wrong, odd or confusing.
 
 ## How to report
 

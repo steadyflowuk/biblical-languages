@@ -94,9 +94,12 @@ SAY_FIX = {"he": {"יְהֹוָה": "a-do-NAI", "יְהֹוִה": "e-lo-HIM",  #
                   "יַעֲקֹב": "ya-a-KOV", "בַּעַד": "BA-ad", "בָּקַע": "ba-KA", "בֵּיתְ־אֵל": "bet-EL",  # TAHOT slips
                   # found by tools/check_pronunciation.mjs (17 Nov 2026): TAHOT's syllables or stress were wrong
                   "מַיִם": "MA-yim", "עָוֺן": "a-VON", "יָרָבְעָם": "ya-rov-AM", "צָלֵחַ": "tsa-LE-ach", "שָׂבֵעַ": "sa-VE-a",
-                  "מׇרְדֳּכַי": "mor-do-KHAI", "גִּיל": "gil", "יְרוּשָׁלִַם": "ye-ru-sha-LA-yim"}}
+                  "מׇרְדֳּכַי": "mor-do-KHAI", "גִּיל": "gil", "יְרוּשָׁלִַם": "ye-ru-sha-LA-yim",
+                  # found by the reviewer of 18 Nov 2026 (consonants and stress the TAHOT syllables got wrong)
+                  "רֹב": "rov", "כְּמוֹ": "ke-MO", "יָשַׁע": "ya-SHA", "רָפָא": "ra-FA", "כִּפֶּר": "ki-PER", "הוֹי": "hoy",
+                  "בָּטַח": "ba-TACH"}}
 # A list card shows the word as the Bible writes it, where the lexicon's headword is a form the text never has
-LEMMA_FIX = {"he": {"מַי": "מַיִם", "יָחְדָּו": "יַחְדָּו"}}
+LEMMA_FIX = {"he": {"מַי": "מַיִם", "יָחְדָּו": "יַחְדָּו", "תּוֹעֵבַה": "תּוֹעֵבָה"}}
 
 
 def he_plain(s):

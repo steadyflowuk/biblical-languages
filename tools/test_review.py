@@ -367,7 +367,7 @@ async def main():
         # a Hebrew verse said whole leaves out words written but not read; joined words keep their maqqef
         hv = await pg.evaluate("""async () => { const a = await import('./js/audio.js');
           return a.verseSpeech([["אֶת/", "", "", "", "", "־"], ["הַ/דָּבָר", "", "", "", "", ""], ["הַזֶּה", "", "", "", "", "", "k"], ["וַיֹּאמֶר", "", "", "", "", "׃"]], "he"); }""")
-        check("Hebrew verse for the voice: maqqef joins, a written-not-read word is left out", hv == "אֶת־הַדָּבָר וַיֹּאמֶר", hv)
+        check("Hebrew verse for the voice: maqqef joins, a written-not-read word is left out, sof pasuq kept (a full stop)", hv == "אֶת־הַדָּבָר וַיֹּאמֶר׃", hv)
         await level("medium")
 
         # 11. Small phone, largest text, dark: the card fits, choices in two rows

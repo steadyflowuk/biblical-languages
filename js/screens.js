@@ -42,15 +42,23 @@ const SOURCE = {
 };
 
 /**
- * A Today word as the voice gets it. Hebrew verbs: the grammar settles qamets hatuf and the said shewa (audio.heVoice),
- * so the data's description ("Verb: Qal … perfect") is turned into the code the Reader's words carry.
+ * A Today word as the voice gets it. Hebrew: Today's words carry a description of their grammar ("Conjunction וְ
+ * “and” + Verb: Qal … perfect … third singular"), not the Reader's code, so the code is rebuilt from it for
+ * audio.heVoice, with the dictionary form, so qamets and shewa come out as in the Reader.
  */
+const STEMS = { Qal: "q", Niphal: "N", Piel: "p", Pual: "P", Hiphil: "h", Hophal: "H", Hithpael: "t" };
 function todayVoice(v, w) {
   if (v.lang !== "he") return w.t;
   const p = String(w.parse || "");
-  const form = /Verb: Qal[^+]*\bperfect/.test(p) ? "p" : /Verb: Qal[^+]*\bimperative/.test(p) ? "v" : /Verb: Qal[^+]*infinitive construct/.test(p) ? "c" : "";
-  const code = /Verb/.test(p) ? `HVq${form}` : "";
-  return heVoice(["", "", "", "", code, w.p || ""], w.t, String(w.p || "").endsWith("\u05be"));
+  const parts = p.split(" + ");
+  const main = parts.findIndex((x) => !/^(Conjunction|Preposition|Definite article)/.test(x));
+  const prefix = parts.slice(0, main < 0 ? 0 : main).map((x) => (/^Definite article/.test(x) ? "Td" : /^Preposition/.test(x) ? "R" : "C"));
+  const m = p.match(/Verb: (\w+)[^+]*?(sequential perfect|consecutive perfect|perfect|sequential imperfect|consecutive imperfect|imperfect|jussive|cohortative|imperative|infinitive construct|infinitive absolute|participle)[^+]*?(first|second|third)?/);
+  const form = m ? { "sequential perfect": "q", "consecutive perfect": "q", perfect: "p", "sequential imperfect": "w", "consecutive imperfect": "w", imperfect: "i", jussive: "j", cohortative: "h", imperative: "v", "infinitive construct": "c", "infinitive absolute": "a", participle: "r" }[m[2]] : "";
+  const person = m && m[3] ? { first: "1", second: "2", third: "3" }[m[3]] : "";
+  const word = m ? `V${STEMS[m[1]] || "x"}${form}${person}` : "N";
+  const code = "H" + [...prefix, word, /directional/.test(p) ? "Sd" : ""].filter(Boolean).join("/");
+  return heVoice(["", "", "", "", code, w.p || ""], w.t, String(w.p || "").endsWith("\u05be"), w.lemma || undefined);
 }
 
 /** What tapping a word does, by Settings › Listening practice. */

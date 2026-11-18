@@ -1,8 +1,8 @@
 // Listen buttons (Session 9): <button data-say="λόγος" data-say-lang="grc">. One click handler for the whole app
 // (bound in app.js), so any screen can drop in sayButton() without wiring. Speech itself lives in sound.js.
 import * as store from "./store.js";
-import { speak, speechText, canSpeak, stopSpeaking, warmUpVoices, verbHatuf, hebrewForSay } from "./sound.js";
-import { heText, heJoined } from "./hebrew.js";
+import { speak, speechText, canSpeak, stopSpeaking, warmUpVoices, hebrewByGrammar, hebrewForSay } from "./sound.js";
+import { heText, heJoined, heMainKey } from "./hebrew.js";
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
@@ -112,25 +112,46 @@ export function sayTapped(text, lang) {
 }
 
 /**
- * A Hebrew word from the Bible data as the voice gets it. For a verb, a closed last syllable that isn't stressed has
- * qamets hatuf (זְכָר־ ze-khor, יִשְׁמָר־ yish-mor), which only its grammar (the data's code) shows.
- * text: the word as written (default heText(w)); joined: a maqqef follows.
+ * The grammar a Hebrew word's code shows, for the voice (sound.hebrewByGrammar): verb stem, form and person; the
+ * article; the ה of direction; how many one-letter prefixes come first. code: STEPBible's, e.g. "HC/R/Ncmsc/Sp3ms",
+ * "HVqp3cp", "HTd/Ncmsa".
  */
-export function heVoice(w, text, joined) {
+export function heGrammar(code) {
+  const parts = String(code || "").replace(/^[HA]/, "").split("/");
+  const main = parts.findIndex((x) => !/^(C|R|Rd|Td)$/.test(x)); // conjunction, preposition, article: one letter each
+  const v = parts.map((x) => x.match(/^V(\w)(\w)(\d)?/)).find(Boolean);
+  return {
+    stem: v ? v[1] : "", form: v ? v[2] : "", person: v && v[3] ? v[3] : "",
+    article: parts.some((x) => x === "Td" || x === "Rd"),
+    directional: parts.includes("Sd"),
+    prefix: main > 0 ? main : 0,
+  };
+}
+
+/**
+ * A Hebrew word from the Bible data as the voice gets it: what its grammar and dictionary form settle (qamets or qamets
+ * hatuf, a said or silent shewa, the stress at the verse's end). text: as written (default heText(w)); joined: a maqqef
+ * follows; lex: the book's dictionary entries ({key: [lemma, …]}), when to hand.
+ */
+export function heVoice(w, text, joined, lex) {
   const t = text != null ? text : heText(w);
-  const code = String(w && w[4] || "");
-  const qal = code.match(/(?:^[HA]|\/)Vq([pvc])/); // Qal perfect, imperative, infinitive construct
-  return /(^[HA]|\/)V/.test(code) ? verbHatuf(t, joined, qal ? qal[1] : "") : t;
+  if (!w) return t;
+  const g = heGrammar(w[4]);
+  g.joined = !!joined;
+  g.final = /\u05C3/.test(String(w[5] || ""));
+  const entry = typeof lex === "string" ? [lex] : lex && lex[heMainKey(w)];
+  if (entry) g.lemma = String(entry[0] || "").split(",")[0];
+  return hebrewByGrammar(t, g);
 }
 
 /**
  * What the voice reads for a whole verse, from the Bible data's words: Greek with its punctuation, so the voice pauses
  * where the text does; Hebrew with its maqqef, leaving out the words written but not read aloud (grey in the Reader).
  */
-export function verseSpeech(words, lang) {
+export function verseSpeech(words, lang, lex) {
   if (lang === "he") {
     // the maqqef keeps joined words together; sof pasuq ׃ ends the verse (the voice hears a full stop)
-    return (words || []).filter((w) => w[6] !== "k").map((w) => heVoice(w, null, heJoined(w[5])) + (heJoined(w[5]) ? "־" : /׃/.test(w[5] || "") ? "׃" : "")).join(" ").replace(/־ /g, "־");
+    return (words || []).filter((w) => w[6] !== "k").map((w) => heVoice(w, null, heJoined(w[5]), lex) + (heJoined(w[5]) ? "־" : /׃/.test(w[5] || "") ? "׃" : "")).join(" ").replace(/־ /g, "־");
   }
   return (words || []).map((w) => w[0] + String(w[5] || "").replace(/[¶¬]/g, "")).join(" ");
 }

@@ -244,6 +244,34 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
   and STEPBible's REV 19:10 gloss — fresh build taken. test_screens re-approved (new buttons). Device judgement still
   needed: whether Carmit follows the points (segol), Koine "yu" and ιεσούς for Ἰησοῦς.
 
+- [x] Pronunciation checker (17 Nov 2026, user's request: "a checker for errors between modern and ancient
+  pronunciations, full sentences, unobvious errors a linguist would spot"). tools/check_pronunciation.mjs (in
+  check_all, ~10 s): its own models of how a word SHOULD sound (Erasmian and Restored Koine from the Letters guide;
+  academic Hebrew: said/silent shewa, qamets/qamets hatuf, matres, furtive patah, stress from the accents) and of what
+  a Modern Greek / Israeli voice SAYS when given js/sound.js's text; aligns them sound by sound for 68,031 Greek words
+  (both pronunciations), 111,594 Hebrew words and 31,200 verses; names every difference; known limits (unavoidable
+  with a Modern voice) are listed with counts and reasons, anything else fails. Also: stress (accented syllable =
+  stressed one), the Erasmian respelling shown (greekSay) against the guide, Hebrew cards: Listen says what the card
+  shows, and the card's capital syllable = the text's accent (same Strong's number), whole verses (every word, in
+  order, said as on its own; Greek , . · ; — pauses; Hebrew atnah/sof pasuq). `say WORD …` prints one word's models.
+  Proven: on the 3 Nov sound.js it finds 81,904 problems in 12 kinds, on the morning's 1,727 in 11; now 0.
+  Fixed with it: Koine ü after a vowel was swallowed into a pair (θεοί → θειού "thi-u"; now θεϊού; after ι plain ιου),
+  η before ι kept apart (νηί → νεΐ); Erasmian lost "?" (U+037E) and pauses before ")" and dashes, ββ/δδ respelt twice
+  (σαββάτου "samm-b"); greekSay put h after a consonant (καἱ). Hebrew: verse pauses (atnah/segolta → comma, sof pasuq →
+  full stop; none after a lone word); qamets hatuf where the spelling settles it (כָּל always kol; before hateph qamets
+  except the article בָּאֳנִי; before a throat letter's plain shewa רָחְבּוֹ; wayyiqtol with retracted accent וַיָּ֖מָת) and
+  where grammar does (audio.heVoice(w): verbs' closed last syllable when joined/stressed earlier זְכָר־, Qal perfect
+  = qamets + said shewa שָׁמְרוּ, Qal imperative/infinitive = hatuf שָׁמְרֵנִי; Today derives the code from "parse");
+  nouns keep long qamets (אָ֣דָם, הָעָם־) and a plain qamets + shewa noun stays with the voice (ambiguous). Cards with a
+  respelling settle the rest: sound.hebrewForSay(text, say) (sayButton option say; review, lessons, Letters). ׇ is kept
+  until saidShewa so the shewa after it stays silent (חׇכְמָה was "cho-khe-ma"). Perpetual qere spelt as read: הִוא →
+  הִיא (191), hiriq + patah/qamets on one letter → vowel + יִ (Jerusalem), unpointed ש dropped (Issachar). Shewa beside
+  another vowel (source slip) dropped; dehi counts as written before the stress; extraordinary points ignored.
+  List says fixed (TAHOT slips, tools/build_decks.py SAY_FIX/LEMMA_FIX): מַיִם MA-yim (lemma was מַי), עָוֺן a-VON,
+  יָרָבְעָם ya-rov-AM, צָלֵחַ tsa-LE-ach, שָׂבֵעַ sa-VE-a, מׇרְדֳּכַי mor-do-KHAI, גִּיל gil, יְרוּשָׁלִַם ye-ru-sha-LA-yim,
+  יַחְדָּו (lemma was יָחְדָּו). Known limits kept (Erasmian h, nt/mp/nk and σ voicing, nasal before respelt b d g,
+  double consonants, υ "oo", Koine "yu" and i-u after a vowel, synizesis). No look-behind in regexes (iOS < 16.4).
+
 ## Data (Session 2)
 - Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (46 checks).
 - Greek = SBLGNT text (since Session 13; see the log) tagged from TAGNT. 137,741 words, 7,939 verses, SBL verse
@@ -570,6 +598,9 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
 - `python3 tools/test_reader_edges.py` — 28 Reader edge cases (odd links, fast switching incl. OT↔NT, offline Hebrew, focus, back button, 320px).
 - `python3 tools/sweep_reader.py [nt|ot|all]` — opens every chapter at 360px (NT ~10 min, OT ~35 min); expect
   0 issues and only 3JN 15 / REV 12:18 notes.
+- `node tools/check_pronunciation.mjs [--examples N] [say WORD …]` — the linguist's check (see the 17 Nov log entry):
+  how each word should sound vs what a Modern voice says from the app's text, stress, shown respellings, Hebrew card
+  stress, whole verses. Run after any change to js/sound.js, heVoice/verseSpeech, a lesson say or the lists.
 - `node tools/check_speech.mjs` — every OT/NT/Septuagint word, headword, lesson and Letters word through the voice
   text (Hebrew keeps every letter, said shewa sounded, no ׇ; Greek sayable, no brackets/Latin, stress kept in both
   voices, no Modern vowels left in Koine); run after any change to js/sound.js.

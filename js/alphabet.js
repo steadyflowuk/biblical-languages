@@ -88,7 +88,7 @@ async function practiceHTML(A, lang) {
       const book_ = await data.original(book);
       const words = ((book_.ch.find(([c]) => c === ch) || [0, []])[1].find(([n]) => n === v) || [0, []])[1];
       text = verseText(words, lang).replace(/[֑-ֽ֯]/g, "");
-      spoken = verseSpeech(words, lang);
+      spoken = verseSpeech(words, lang, book_.lex);
     } catch (e) { /* offline: show the rest */ }
     const books = await data.books().catch(() => []);
     const b = books.find((x) => x.id === book);

@@ -335,7 +335,10 @@ function qametsHatuf(word, joined) {
 function consonantal(cl) {
   return cl.map((c, i) => {
     const prev = cl[i - 1];
-    const own = FULL_VOWEL.test(c) || c.includes(SHEWA);
+    // a vav's own vowel: not the holam it carries as וֹ (that holam is the vowel the vav stands for)
+    // (after a bare א the holam is that א's vowel, written on the vav: שְׁאוֹל; the vav is then left as it was)
+    const afterAlef = prev && prev[0] === "א" && !FULL_VOWEL.test(prev) && !prev.includes(SHEWA);
+    const own = FULL_VOWEL.test(c[0] === "ו" && !afterAlef ? c.replace(HOLAM, "") : c) || c.includes(SHEWA);
     if (c[0] === "ו" && !own && (c.includes(HOLAM) || (c.includes(DAGESH) && (i === 0 || (prev && !FULL_VOWEL.test(prev) && !prev.includes(SHEWA)))))) return false;
     if (c[0] === "י" && !own && !c.includes(DAGESH) && prev && /[ִֵֶ]/.test(prev)) return false;
     if (c[0] === "א" && !own && !c.includes(DAGESH) && !(cl[i + 1] && cl[i + 1][0] === "ו" && /[ֹּ]/.test(cl[i + 1]) && !FULL_VOWEL.test(cl[i + 1].replace(HOLAM, "")))) return false;
@@ -355,7 +358,7 @@ function lemmaVowelAt(lemma, consonants, n) {
   const at = cons[n];
   if (at == null) return "";
   const x = L[at], y = L[at + 1];
-  if (/[ׇֹֻ]/.test(x) || (y && y[0] === "ו" && y.includes(HOLAM) && !consonantal(L)[at + 1])) return "o";
+  if (/[ֳׇֹֻ]/.test(x) || (y && y[0] === "ו" && y.includes(HOLAM) && !consonantal(L)[at + 1])) return "o";
   return /[ַָ]/.test(x) ? "a" : "";
 }
 
@@ -421,7 +424,12 @@ export function hebrewByGrammar(word, g) {
     const next = cl[j];
     // a Qal imperative or infinitive (and the Hophal) shortens the qamets of the word's first letter only (שָׁמְרֵנִי
     // shom-RE-ni; but לִקְרָאתְךָ liq-ra-te-KHA keeps its long a on the second)
-    const shortVerb = verb && k === (g.prefix || 0) && ((g.stem === "q" && (g.form === "v" || (g.form === "c" && !g.person))) || g.stem === "H");
+    let shortVerb = verb && k === (g.prefix || 0) && ((g.stem === "q" && (g.form === "v" || (g.form === "c" && !g.person))) || g.stem === "H");
+    // a Qal imperfect (wayyiqtol, jussive, cohortative) or infinitive with a pronoun ending: the qamets stands for the
+    // stem's o (yish-MOR → yish-mor-KHA יִשְׁמׇרְךָ, a-khol-KHA אֲכׇלְךָ), unless a quiet א comes between (לִקְרָאתְךָ) or
+    // the shewa stands before the same letter (יְשָׁדְדֵם)
+    if (verb && g.suffix && g.stem === "q" && (/[iwjhu]/.test(g.form) || (g.form === "c" && !g.person)) && k >= (g.prefix || 0)
+      && j === k + 1 && !(cl[j + 1] && cl[j + 1][0] === cl[j][0])) shortVerb = true;
     if (!onlyQamats(c) || c.includes(KEEP) || (c.includes(METEG) && !shortVerb) || !plainShewa(next) || next.includes(SILENT) || THROAT.test(next[0]) || j >= lastCons) continue;
     if (!g.joined && stressed.length && k === Math.max(...stressed)) continue; // the stressed syllable, closed by the shewa (יָ֥לְדָה YAL-dah)
     let short = null;
@@ -433,6 +441,20 @@ export function hebrewByGrammar(word, g) {
     }
     if (short === true) cl[k] = c.replace(QAMATS, QQATAN);
     else if (short === false) { cl[k] = c + KEEP; cl[j] = next.replace(SHEWA, SEGOL); }
+  }
+  // a noun from an o-word in a closed, unstressed syllable: before a doubled letter (עֹז → עׇזִּי ozzi, קָטֹן → קׇטׇנִּי)
+  // or as the last syllable of a word joined by maqqef (חֹק → חׇק־ choq, רֹב → רׇב־ rov)
+  if (!verb && g.lemma) {
+    for (let k = g.prefix || 0; k < n - 1; k++) {
+      const c = cl[k], next = cl[k + 1];
+      if (!onlyQamats(c) || c.includes(KEEP) || !isCons[k + 1]) continue;
+      if (!g.joined && stressed.length && k === Math.max(...stressed)) continue;
+      const doubled = next.includes(DAGESH) && FULL_VOWEL.test(next);
+      const closedLast = g.joined && k + 1 === n - 1 && !FULL_VOWEL.test(next); // (a last shewa is silent: כְּדׇרְ־)
+      if (!doubled && !closedLast) continue;
+      const nth = consAt.filter((i) => i >= (g.prefix || 0) && i < k).length;
+      if (lemmaVowelAt(g.lemma, mainCons, nth) === "o") cl[k] = c.replace(QAMATS, QQATAN);
+    }
   }
   const out = cl.join("");
   return /[ׅׄ]/.test(out) ? MARKED + out : out; // our marks, not the scribes' dots (which were taken off above)
@@ -471,7 +493,12 @@ export function hebrewSpeech(text) {
       w = qametsHatuf(shewaAfterStress(w, joined), joined)
         .replace(/[֑-֯]/g, ""); // accents (the meteg stays for saidShewa)
       w = perpetualQere(w)
-        .replace(DIVINE_NAME, (m, start, prefix) => start + prefix + ((/ִ/.test(m.slice(prefix.length)) ? ELOHIM : ADONAI).replace(prefix ? /^(א)[ֱֲ]/ : /^$/, "$1")));
+        .replace(DIVINE_NAME, (m, start, prefix) => {
+          // after לַ בַּ כַּ וַ (Adonai) or לֵ (Elohim) the א is quiet: la-do-NAI; after מֵ or שֶׁ it keeps its vowel (me-a-do-NAI)
+          const elohim = /ִ/.test(m.slice(prefix.length));
+          const quiet = elohim ? /ֵ[ּֽׁׂ]*$/.test(prefix) : /ַ[ּֽׁׂ]*$/.test(prefix);
+          return start + prefix + (elohim ? ELOHIM : ADONAI).replace(quiet ? /^(א)[ֱֲ]/ : /^$/, "$1");
+        });
       // a shewa after qamets hatuf (ׇ, short) stays silent: חׇכְמָה chokh-MAH; then ׇ becomes holam, which every voice knows
       w = saidShewa(w).replace(/[ֽֿׅׄ]/g, "").replace(/ׇ/g, HOLAM); // meteg, rafe, the scribes' dots
       out.push(w + stop);

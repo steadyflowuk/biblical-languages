@@ -271,6 +271,34 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
   יָרָבְעָם ya-rov-AM, צָלֵחַ tsa-LE-ach, שָׂבֵעַ sa-VE-a, מׇרְדֳּכַי mor-do-KHAI, גִּיל gil, יְרוּשָׁלִַם ye-ru-sha-LA-yim,
   יַחְדָּו (lemma was יָחְדָּו). Known limits kept (Erasmian h, nt/mp/nk and σ voicing, nasal before respelt b d g,
   double consonants, υ "oo", Koine "yu" and i-u after a vowel, synizesis). No look-behind in regexes (iOS < 16.4).
+  Part 2 (18 Nov 2026, after the first linguist review): the checker's Hebrew model rewritten independently (own
+  grammar rules, dictionary form lined up by consonants), so it can't share sound.js's mistakes. sound.hebrewByGrammar
+  (word, g) replaces verbHatuf: g from audio.heGrammar(STEPBible code) + the book's lex (heVoice(w, text, joined, lex);
+  Today's todayVoice builds a code from "parse"). Marks inside a word: KEEP U+05C5 (qamets known long: perfects,
+  participles, nouns whose dictionary form has a), SILENT U+05C4 (shewa known silent: before a perfect's ת/נ ending,
+  before directional ה), STRESS replaces silluq on the verse's last word (silluq and meteg share a sign); a word
+  carrying KEEP/SILENT starts with U+2060, and in every other word those code points are the scribes' extraordinary
+  dots and are removed (NUM 3:39 וְׄאַׄהֲׄרֹׄןׄ once lost its said shewa). Fixed: retracted wayyiqtol (double pashta,
+  telisha), the article by grammar (Td/Rd), Vqc with a person = cohortative, the divine name after a prefix said as
+  לַאדֹנָי. Greek: unaccented one-syllable words (ὁ, ἐν, ἐκ, οὐ) no longer get a stress mark in Erasmian voice text,
+  except a respelt pair (εἰς → έις, or the voice splits it); Erasmian ω modelled as long o (limit "ω said like ο").
+  New checks: card consonants = the pointing (begadkefat by dagesh, shin/sin, matres; self-test of right and wrong
+  cards), a printed note that Hebrew word stress is the voice's choice. More card fixes (SAY_FIX): rov, ke-MO, ya-SHA,
+  ra-FA, ki-PER, hoy, ba-TACH; LEMMA_FIX תּוֹעֵבָה. STRESS_OK lists verbs whose only exact spelling has the stress
+  drawn back (בָּקַע, בָּטַח). check_speech accepts לַאדֹנָי. COVERAGE: 115,900 Hebrew words (keys now include grammar).
+  Second linguist review (18 Nov) found, fixed, each now in the checker (proven on the code before): a Qal imperfect,
+  wayyiqtol or infinitive with a pronoun ending says the stem's o (יִשְׁמׇרְךָ yish-mor-KHA, אֲכׇלְךָ; 48 written forms were
+  "yish-ma-re-KHA"; heGrammar suffix = an Sp part; not after a quiet א, before the same letter, or under the accent);
+  heGrammar/grammarOf count the prefixes c (wayyiqtol's vav), Ti הֲ, Tr שֶׁ; the divine name after מֵ or שֶׁ keeps
+  Adonai's first syllable (me-a-do-NAI; the quiet א only after patah, Elohim's after tsere; new check, 16 forms);
+  todayVoice now reads the verb's own person and adds Sp; a dictionary form's hateph qamets counts as o (יׇפְיֵךְ);
+  nouns from o-words: qamets before a doubled letter (עׇזִּי ozzi, קׇטׇנִּי) or last in a maqqef-joined word (חׇק־,
+  רׇב־, כְּדׇרְ־) is o; consonantal() and rolesOf treat וֹ as the vowel letter it is (after a bare א the vav stays as
+  it was: שְׁאוֹל); the card consonant check was too loose (collapsed doubles, dropped every y: סוּס "su" passed) —
+  now doubles merge only across a hyphen (kip-PER), y kept (optional for a yod with shewa after a vowel, LAY-lah),
+  a last h optional, 29 self-tests; Letters guide word buttons use heVoice like the verse button. New limit:
+  "χ softened before e, i (as in German ich)" (Erasmian 1,754, Koine 2,431). Left: grave-accented monosyllables
+  (τὸν, πρὸς) keep a tonos — a grave marks the stressed syllable, and Erasmian readers stress it.
 
 ## Data (Session 2)
 - Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (46 checks).

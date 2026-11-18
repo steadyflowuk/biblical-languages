@@ -118,12 +118,14 @@ export function sayTapped(text, lang) {
  */
 export function heGrammar(code) {
   const parts = String(code || "").replace(/^[HA]/, "").split("/");
-  const main = parts.findIndex((x) => !/^(C|R|Rd|Td)$/.test(x)); // conjunction, preposition, article: one letter each
+  // conjunction (C, or c before a wayyiqtol), preposition, article, interrogative הֲ, relative שֶׁ: one letter each
+  const main = parts.findIndex((x) => !/^(C|c|R|Rd|Td|Ti|Tr)$/.test(x));
   const v = parts.map((x) => x.match(/^V(\w)(\w)(\d)?/)).find(Boolean);
   return {
     stem: v ? v[1] : "", form: v ? v[2] : "", person: v && v[3] ? v[3] : "",
     article: parts.some((x) => x === "Td" || x === "Rd"),
     directional: parts.includes("Sd"),
+    suffix: parts.some((x) => /^Sp/.test(x)), // a pronoun ending (יִשְׁמׇרְךָ)
     prefix: main > 0 ? main : 0,
   };
 }

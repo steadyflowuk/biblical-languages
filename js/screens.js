@@ -53,11 +53,12 @@ function todayVoice(v, w) {
   const parts = p.split(" + ");
   const main = parts.findIndex((x) => !/^(Conjunction|Preposition|Definite article)/.test(x));
   const prefix = parts.slice(0, main < 0 ? 0 : main).map((x) => (/^Definite article/.test(x) ? "Td" : /^Preposition/.test(x) ? "R" : "C"));
-  const m = p.match(/Verb: (\w+)[^+]*?(sequential perfect|consecutive perfect|perfect|sequential imperfect|consecutive imperfect|imperfect|jussive|cohortative|imperative|infinitive construct|infinitive absolute|participle)[^+]*?(first|second|third)?/);
+  const m = p.match(/Verb: (\w+)[^+]*?(sequential perfect|consecutive perfect|perfect|sequential imperfect|consecutive imperfect|imperfect|jussive|cohortative|imperative|infinitive construct|infinitive absolute|participle)/);
   const form = m ? { "sequential perfect": "q", "consecutive perfect": "q", perfect: "p", "sequential imperfect": "w", "consecutive imperfect": "w", imperfect: "i", jussive: "j", cohortative: "h", imperative: "v", "infinitive construct": "c", "infinitive absolute": "a", participle: "r" }[m[2]] : "";
-  const person = m && m[3] ? { first: "1", second: "2", third: "3" }[m[3]] : "";
+  const who = (parts.find((x) => /^Verb:/.test(x)) || "").match(/\b(first|second|third)\b/); // the verb's own person, not a suffix's
+  const person = m && who ? { first: "1", second: "2", third: "3" }[who[1]] : "";
   const word = m ? `V${STEMS[m[1]] || "x"}${form}${person}` : "N";
-  const code = "H" + [...prefix, word, /directional/.test(p) ? "Sd" : ""].filter(Boolean).join("/");
+  const code = "H" + [...prefix, word, /directional/.test(p) ? "Sd" : "", parts.some((x) => /^Suffix/.test(x)) ? "Sp" : ""].filter(Boolean).join("/");
   return heVoice(["", "", "", "", code, w.p || ""], w.t, String(w.p || "").endsWith("\u05be"), w.lemma || undefined);
 }
 

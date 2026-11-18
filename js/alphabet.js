@@ -6,7 +6,7 @@ import * as data from "./data.js";
 import { head } from "./screens.js";
 import { mixed, tableHTML } from "./lessons.js";
 import { openSheet } from "./reader.js";
-import { sayButton, verseSayButton, verseSpeech, wordsSpeak, listenLevel } from "./audio.js";
+import { sayButton, verseSayButton, verseSpeech, wordsSpeak, listenLevel, heVoice } from "./audio.js";
 import { greekSay } from "./sound.js";
 import { heText, heAfter, heJoined } from "./hebrew.js";
 
@@ -71,10 +71,17 @@ function verseText(words, lang) {
   return words.map((w) => heText(w) + (heJoined(w[5]) ? "־" : heAfter(w[5]) ? heAfter(w[5]) : "")).join(" ").replace(/־ /g, "־");
 }
 
+/** Hebrew voice text for each word of verseText, in the same order (each word's grammar settles qamets hatuf). */
+function heVoices(words, lex) {
+  return words.map((w) => heVoice(w, null, heJoined(w[5]), lex) + (heJoined(w[5]) ? "־" : heAfter(w[5]) ? heAfter(w[5]) : "")).join(" ").replace(/־ /g, "־").split(" ").filter(Boolean);
+}
+
 /** Each word a button that says it (Settings › Listening practice: Easy and Medium). Maqqef-joined words stay one. */
-function tappableWords(text, lang) {
-  return text.split(" ").filter(Boolean).map((w) => (/[\u05D0-\u05EA\u0370-\u03FF\u1F00-\u1FFF]/.test(w)
-    ? `<button type="button" class="say-w" data-say="${esc(w)}" data-say-lang="${lang === "he" ? "he" : "grc"}">${esc(w)}</button>`
+function tappableWords(text, lang, voices) {
+  const shown = text.split(" ").filter(Boolean);
+  const said = voices && voices.length === shown.length ? voices : shown;
+  return shown.map((w, i) => (/[\u05D0-\u05EA\u0370-\u03FF\u1F00-\u1FFF]/.test(w)
+    ? `<button type="button" class="say-w" data-say="${esc(said[i])}" data-say-lang="${lang === "he" ? "he" : "grc"}">${esc(w)}</button>`
     : esc(w))).join(" "); // a paseq ׀ or a dash: nothing to say
 }
 
@@ -84,11 +91,13 @@ async function practiceHTML(A, lang) {
     const [ch, v] = cv.split(":").map(Number);
     let text = "";
     let spoken = ""; // for the whole-verse button: with the accents, so the voice pauses at the verse's middle
+    let voices = null; // Hebrew: each word's own voice text
     try {
       const book_ = await data.original(book);
       const words = ((book_.ch.find(([c]) => c === ch) || [0, []])[1].find(([n]) => n === v) || [0, []])[1];
       text = verseText(words, lang).replace(/[֑-ֽ֯]/g, "");
       spoken = verseSpeech(words, lang, book_.lex);
+      if (lang === "he") voices = heVoices(words, book_.lex);
     } catch (e) { /* offline: show the rest */ }
     const books = await data.books().catch(() => []);
     const b = books.find((x) => x.id === book);
@@ -96,7 +105,7 @@ async function practiceHTML(A, lang) {
     const say = lang === "grc" ? greekSay(text) : pr.say;
     return `<li class="ab-verse">
       <p class="ab-verse-ref"><a href="#/read/${book}/${ch}/${v}">${esc(name)}</a></p>
-      ${text ? `<p class="ab-verse-t"${textAttrs(lang)}>${wordsSpeak() ? tappableWords(text, lang) : esc(text)}</p>` : `<p class="muted">The verse needs a connection the first time.</p>`}
+      ${text ? `<p class="ab-verse-t"${textAttrs(lang)}>${wordsSpeak() ? tappableWords(text, lang, voices) : esc(text)}</p>` : `<p class="muted">The verse needs a connection the first time.</p>`}
       <p class="ls-ex-say">${esc(say)}</p>
       <p class="ab-verse-en">${esc(pr.en)}</p>
       ${spoken && verseSayButton(spoken, lang) ? `<p>${verseSayButton(spoken, lang)}</p>` : ""}

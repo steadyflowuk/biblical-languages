@@ -40,7 +40,7 @@ function align(A, B) {
   const n = A.length, m = B.length;
   const del = (i) => { const a = A[i - 1]; if (a.opt) return 0; if (VOWEL.test(a.p)) return 1; if (a.p === "h") return 0.5; return (A[i - 2] && A[i - 2].p === a.p) || (A[i] && A[i].p === a.p) ? 0.4 : 1; };
   const ins = (j) => (/^[mnŋ]$/.test(B[j - 1].p) && B[j] && /^[bdg]$/.test(B[j].p) ? 0.4 : 1);
-  const NEAR = [["s", "z"], ["t", "d"], ["p", "b"], ["k", "g"], ["g", "ʝ"], ["ɣ", "ʝ"], ["y", "u"], ["y", "ju"], ["i", "j̯"], ["u", "ju"], ["e", "i"], ["oː", "o"]];
+  const NEAR = [["s", "z"], ["t", "d"], ["p", "b"], ["k", "g"], ["g", "ʝ"], ["ɣ", "ʝ"], ["y", "u"], ["y", "ju"], ["i", "j̯"], ["u", "ju"], ["e", "i"], ["oː", "o"], ["x", "ç"]];
   const vowelish = (x) => /^(a|e|i|o|u|y|ju|j̯)$/.test(x.p);
   const cost = (a, b) => (a.p === b.p || (a.alt && a.alt.includes(b.p)) ? 0 : NEAR.some(([x, y]) => (a.p === x && b.p === y) || (a.p === y && b.p === x)) ? 0.4
     : vowelish(a) === vowelish(b) ? 1 : 1.6);
@@ -193,6 +193,7 @@ function modernGreek(word) {
     if (n && n.ch === a.ch) continue; // double letters are said once
     if (a.ch === "γ") { ph.push({ p: front(i + 1) ? "ʝ" : "ɣ" }); continue; }
     if (a.ch === "σ") { ph.push({ p: n && !isV(n) && MG_VOICED.test(n.ch) ? "z" : "s" }); continue; }
+    if (a.ch === "χ" && front(i + 1)) { ph.push({ p: "ç" }); continue; } // Modern Greek χ before e, i is the sound in German ich
     const m = { β: "v", δ: "ð", ζ: "z", θ: "θ", κ: "k", λ: "l", μ: "m", ν: "n", ξ: ["k", "s"], π: "p", ρ: "r", τ: "t", φ: "f", χ: "x", ψ: ["p", "s"] }[a.ch];
     [].concat(m).forEach((p) => ph.push({ p }));
   }
@@ -209,6 +210,7 @@ const LIMITS = {
   "b, d, g respelt μπ ντ γκ: a nasal may be heard (mb, nd, ng)": "The only Modern Greek spellings of b, d, g; inside a word some voices add the nasal (Erasmian only).",
   "σ said z before λ ν ρ": "Modern Greek voices σ before any voiced consonant (Ἰσραήλ izra-EL); the guide gives z before β γ δ μ, and no spelling avoids it before λ ν ρ (Restored Koine).",
   "ü said i-u after a vowel": "After a vowel, ü is written ϊου so it isn't swallowed into a vowel pair (θεοί → θεϊού); Modern Greek says i-u (Restored Koine).",
+  "χ softened before e, i (as in German ich)": "A Modern Greek voice says χ that way before e and i sounds (ἔχει, ψυχή); the guide's kh as in loch can't be spelt for it.",
   "double consonant said once": "Modern Greek says double letters once (ἐκκλησία → ek-li-…).",
   "υ said oo": "The Letters guide allows it for Erasmian: “ü as in French tu (or simply oo)”.",
   "ü said yu": "Modern Greek has no ü; ιου (yu) is how Greek writes ü in foreign names (Restored Koine).",
@@ -224,6 +226,7 @@ function classify(exp, got, pairs, k, system, word) {
   const nextE = (pairs[k + 1] || [])[0], prevE = (pairs[k - 1] || [])[0];
   if (e === "h" && !g) return "rough breathing h not said";
   if (e === "oː" && g === "o") return "ω said like ο";
+  if (e === "x" && g === "ç") return "χ softened before e, i (as in German ich)";
   if ((e === "t" && g === "d") || (e === "p" && g === "b") || (e === "k" && g === "g")) {
     if (prevE && /^[nmŋ]$/.test(prevE.p)) return "nt said nd, mp said mb, nk said ng";
   }
@@ -351,7 +354,10 @@ function rolesOf(C) {
   const role = C.map(() => "c");
   C.forEach((c, i) => {
     const prev = C[i - 1];
-    const own = vowelOf(c.m) || has(c, H.SHEWA);
+    // a vav's own vowel: not the holam it carries as וֹ (that holam is the vowel the vav stands for)
+    // (after a bare א the holam is that א's vowel, written on the vav: שְׁאוֹל she-OL; the vav is then left as it was)
+    const afterAlef = prev && prev.ch === "א" && !vowelOf(prev.m) && !has(prev, H.SHEWA);
+    const own = (c.ch === "ו" && !afterAlef ? vowelOf(c.m.replace(H.HOLAM, "")) : vowelOf(c.m)) || has(c, H.SHEWA);
     if (c.ch === "ו" && i > 0 && !own && (has(c, H.HOLAM) || has(c, H.DAGESH))) {
       if (has(c, H.HOLAM)) role[i] = "o"; // וֹ
       else if (prev && !vowelOf(prev.m) && !has(prev, H.SHEWA)) role[i] = "u"; // וּ after a letter with no vowel
@@ -417,7 +423,7 @@ function hebrewExpected(word, info) {
     if (at == null) return "";
     const x = L[at], y = L[at + 1];
     if (!x) return "";
-    if (/[ׇֹֻ]/.test(x.m) || (y && Lrole[at + 1] === "o")) return "o";
+    if (/[ֳׇֹֻ]/.test(x.m) || (y && Lrole[at + 1] === "o")) return "o";
     if (/[ַָ]/.test(x.m)) return "a";
     return "";
   };
@@ -436,7 +442,9 @@ function hebrewExpected(word, info) {
     if (finalClosed) {
       if (stressed) { q[i] = "a"; return; }
       if (verb) { q[i] = mood && !meteg(i) && (I.joined || stress >= 0 || (I.form === "w" && stress === -2)) ? "o" : "a"; return; }
-      q[i] = I.joined ? "?" : "a";
+      // a noun joined by maqqef loses its stress: the dictionary form's o shows (חֹק → חׇק־ choq, רֹב → רׇב־ rov)
+      const lv = I.joined ? lemmaVowel(i) : "";
+      q[i] = I.joined ? (lv === "o" ? "o" : lv === "a" ? "a" : "?") : "a";
       return;
     }
     const forcedSaid = N && (has(N, H.DAGESH) && !BGDKPT.test(N.ch) || (C[nextCons(ni)] && C[nextCons(ni)].ch === N.ch));
@@ -444,6 +452,9 @@ function hebrewExpected(word, info) {
     if (N && ni !== lastCons && plainShewa(N) && !GUTTURAL.test(N.ch)) {
       if (ni === endingShewa || ni === directionalShewa || stressed) { q[i] = "a"; sayNext[ni] = false; return; }
       if (shortImperativeAt(i)) { q[i] = "o"; sayNext[ni] = false; return; } // even with a meteg (שָֽׁמְרֵנִי)
+      // Qal yiqtol-type forms and infinitives keep the stem's o before a pronoun ending (yish-mor-KHA, a-khol-KHA, from
+      // yishmor, ekhol): the qamets written there is o and closes its syllable (not when a quiet letter comes between)
+      if (verb && I.suffix && I.stem === "q" && (/[iwjhu]/.test(I.form) || (I.form === "c" && !I.person)) && i >= (I.prefix || 0) && ni === i + 1) { q[i] = "o"; sayNext[ni] = false; return; }
       if (meteg(i)) { q[i] = "a"; sayNext[ni] = true; return; }
       if (verb) { q[i] = "a"; sayNext[ni] = true; return; }
       const lv = lemmaVowel(i);
@@ -452,6 +463,8 @@ function hebrewExpected(word, info) {
       q[i] = "?"; sayNext[ni] = "?";
       return;
     }
+    // before a doubled letter the syllable is closed and unstressed: a noun from an o-word keeps o (עֹז → עׇזִּי ozzi)
+    if (N && !verb && !stressed && has(N, H.DAGESH) && vowelOf(N.m) && lemmaVowel(i) === "o") { q[i] = "o"; return; }
     q[i] = "a";
   });
   // the vowel sound just before cluster i: is it long, a shewa, or stressed?
@@ -598,9 +611,9 @@ const heSeen = new Map();
 function grammarOf(code) {
   const parts = String(code || "").replace(/^[HA]/, "").split("/");
   const v = parts.map((x) => x.match(/^V(\w)(\w)(\d)?/)).find(Boolean);
-  const main = parts.findIndex((x) => !/^(C|R|Rd|Td)$/.test(x));
+  const main = parts.findIndex((x) => !/^(C|c|R|Rd|Td|Ti|Tr)$/.test(x)); // one-letter prefixes (c: wayyiqtol's vav; Ti הֲ; Tr שֶׁ)
   return { stem: v ? v[1] : "", form: v ? v[2] : "", person: v && v[3] ? v[3] : "", article: parts.includes("Td") || parts.includes("Rd"),
-    directional: parts.includes("Sd"), prefix: main > 0 ? main : 0 };
+    directional: parts.includes("Sd"), suffix: parts.some((x) => x.startsWith("Sp")), prefix: main > 0 ? main : 0 };
 }
 const heWord = (t, joined, where, w, lex) => {
   const final = /\u05C3/.test(String(w[5] || ""));
@@ -627,7 +640,22 @@ for (const [key, { where, w: dw, lex: dlex, info: dinfo }] of heParts) {
   const exp = hebrewExpected(word, { ...dinfo, joined });
   // the voice text the app makes for this word (audio.heVoice knows its grammar), then the Israeli voice reading it
   const voice = S.hebrewSpeech(heVoice ? heVoice(dw, word, joined, dlex) + (joined ? "־" : "") : key).replace(/[,.]/g, "");
-  if (/א[ֱֲ]?דֹנָי|א[ֱֲ]?לֹהִים/.test(voice) && !/אֲדֹנָי|אֱלֹהִים/.test(word.replace(/[֑-ֽֿ֯]/g, ""))) continue; // the divine name
+  const plainW = word.replace(/[\u0591-\u05AF\u05BD\u05BF]/g, ""); // accents, meteg, rafe
+  if (/י[ְ-ׇ]*ה[ְ-ׇ]*ו[ְ-ׇ]*ה/.test(plainW)) {
+    // the divine name, read Adonai (Elohim when pointed with hiriq): after a prefix with patah (Adonai) or tsere (Elohim)
+    // the א is quiet (la-do-NAI, le-lo-HIM); after any other vowel it keeps its own (me-a-do-NAI, she-a-do-NAI)
+    const plain = plainW;
+    const at = plain.search(/י[ְ-ׇ]*ה[ְ-ׇ]*ו[ְ-ׇ]*ה/);
+    const prefix = hClusters(plain.slice(0, Math.max(at, 0)));
+    const elohim = /ִ/.test(plain.slice(at));
+    const end = prefix.length ? prefix[prefix.length - 1].m : "";
+    const quiet = elohim ? end.includes(H.TSERE) : end.includes(H.PATAH);
+    const name = elohim ? ["e", "o", "i"] : ["a", "o", "a"];
+    const want = prefix.map((c, i) => vowelOf(c.m) || (c.ch === "ו" && i === 0 && has(c, H.DAGESH) ? "u" : has(c, H.SHEWA) ? "e" : "")).filter(Boolean).concat(quiet ? name.slice(1) : name).join(" ");
+    const got = voice.split(" ").flatMap(israeliVowels).join(" ");
+    if (want !== got) note(problems, "Hebrew: the divine name after a prefix said wrongly", `${word} (${where}) → ${voice}: expected ${want}, heard ${got}`);
+    continue;
+  }
   const heard = voice.split(" ").flatMap(israeliVowels);
   // spellings the scribes read differently (perpetual qere) must reach the voice as they are read
   if (/ִוא(\s|$)/.test(voice)) note(problems, "Hebrew: הִוא handed to the voice as written (read hi)", `${word} (${where}) → ${voice}`);
@@ -714,13 +742,13 @@ for (const [where, t, say, key] of heCards) {
 }
 
 // ---- Hebrew: the consonants a card shows = the consonants the pointing gives (begadkefat by dagesh, shin/sin by
-// their dot, matres and silent letters left out). Doubling, y and a final h are left out on both sides: respellings
-// write doubled letters once (ki-PER), a yod after a vowel as part of it (a-do-NAI) and a final h for some vowels.
+// their dot; matres and silent letters left out). A doubled letter (dagesh forte) is written once in the text and may be
+// written twice across a hyphen in a respelling (kip-PER): only that is merged. A yod is a consonant when it carries a
+// vowel or starts the word; in a respelling, a y before a vowel. A word's last h in a respelling stands for a vowel.
 const SOUND_OF = { ב: ["b", "v"], ג: ["g", "g"], ד: ["d", "d"], ז: ["z"], ח: ["ch"], ט: ["t"], כ: ["k", "kh"], ך: ["k", "kh"],
   ל: ["l"], מ: ["m"], ם: ["m"], נ: ["n"], ן: ["n"], ס: ["s"], פ: ["p", "f"], ף: ["p", "f"], צ: ["ts"], ץ: ["ts"], ק: ["k"],
   ר: ["r"], ת: ["t", "t"] };
-const HAS_VOWEL = /[ְ-ׇֻ]/; // shewa .. qibbuts, qamets hatuf (the vav shureq dagesh is handled on its own)
-const ownVowel = (m) => /[ְ-ׇֻ]/.test(m.replace(/[ּֽ]/g, ""));
+const ownVowel = (m) => /[\u05B0-\u05BB\u05C7]/.test(m); // shewa .. qibbuts, qamets hatuf (not dagesh, meteg, shin/sin dots)
 function pointedConsonants(text) {
   const out = [];
   String(text).replace(/[֑-ֽֿ֯׀]/g, "").split(/[\s־]+/).filter(Boolean).forEach((part) => {
@@ -728,48 +756,77 @@ function pointedConsonants(text) {
     C.forEach((c, i) => {
       const prev = C[i - 1], last = i === C.length - 1, dag = c.m.includes(H.DAGESH);
       if (/[אע]/.test(c.ch)) return;
-      if (c.ch === "ה") { if (!(last && !dag && !ownVowel(c.m))) out.push("h"); return; }
+      if (c.ch === "ה") { if (!(last && !dag)) out.push("h"); return; } // a last ה with mappiq is h, but see below
       if (c.ch === "ו") {
-        const vowelless = !ownVowel(c.m.replace(/[ֹ]/g, ""));
-        if (vowelless && c.m.includes(H.HOLAM) && i > 0 && !ownVowel(prev.m)) return; // holam vav
-        if (vowelless && dag && (i === 0 || !ownVowel(prev.m))) return; // shureq
-        if (!c.m && i > 0 && !(last && (prev.m.includes(H.QAMATS) || prev.ch === "י"))) return; // written, not pointed (but -ָו, -ָיו: "av")
+        const bare = !ownVowel(c.m.replace(/[ֹ]/g, ""));
+        if (bare && c.m.includes(H.HOLAM) && i > 0 && !ownVowel(prev.m)) return; // holam vav
+        if (bare && dag && (i === 0 || !ownVowel(prev.m))) return; // shureq
+        if (!c.m && i > 0 && !(last && (prev.m.includes(H.QAMATS) || prev.ch === "י"))) return; // unpointed (but -ָו, -ָיו "av")
         out.push("v"); return;
       }
-      if (c.ch === "י") return; // y: left out (see above)
+      if (c.ch === "י") {
+        const shewaOnly = c.m.includes(H.SHEWA) && !/[\u05B1-\u05BB\u05C7]/.test(c.m);
+        const vavVowel = C[i + 1] && C[i + 1].ch === "ו" && /[ֹּ]/.test(C[i + 1].m) && !ownVowel(c.m); // אֶבְיוֹן ev-YON
+        if (vavVowel) out.push("y");
+        else if (i > 0 && !dag && shewaOnly && ownVowel(prev.m)) out.push("y?"); // לַיְלָה LAY-lah or va-ye-HI: either way
+        else if (i === 0 || ownVowel(c.m) || dag) out.push("y");
+        return;
+      }
       if (c.ch === "ש") { out.push(c.m.includes("ׂ") ? "s" : "sh"); return; }
       const s = SOUND_OF[c.ch];
       if (!s) return;
       out.push(s.length === 2 && !dag ? s[1] : s[0]);
+      if (c.m.includes(H.HIRIQ) && /[ַָ]/.test(c.m)) out.push("y"); // יְרוּשָׁלִַם: read la-yim
     });
   });
-  return out.filter((x, i, a) => x !== a[i - 1]).filter((x, i, a) => !(x === "h" && i === a.length - 1));
+  return out;
 }
 function respeltConsonants(say) {
   const out = [];
-  String(say).toLowerCase().replace(/[’'ʼ.]/g, "").split(/\s+/).forEach((w) => {
-    let s = w.replace(/-/g, "");
-    while (s) {
-      const two = s.slice(0, 2);
-      if (["sh", "ch", "kh", "ts", "tz"].includes(two)) { out.push(two === "tz" ? "ts" : two); s = s.slice(2); continue; }
-      const c = s[0]; s = s.slice(1);
-      if (/[aeiou]/.test(c) || c === "y") continue;
-      if (c === "h" && !s) continue; // a final h is a vowel letter in a respelling
-      out.push(c === "w" ? "v" : c);
-    }
+  String(say).toLowerCase().replace(/[’'ʼ.]/g, "").split(/\s+/).filter(Boolean).forEach((w) => {
+    const syl = w.split("-");
+    syl.forEach((x, k) => {
+      let s = x;
+      const mine = [];
+      while (s) {
+        const two = s.slice(0, 2);
+        if (["sh", "ch", "kh", "ts", "tz"].includes(two)) { mine.push(two === "tz" ? "ts" : two); s = s.slice(2); continue; }
+        const c = s[0]; s = s.slice(1);
+        if (/[aeiou]/.test(c)) continue;
+        const rest = s || (syl[k + 1] || "");
+        if (c === "y" && !/^[aeiou]/.test(rest)) continue; // ai, oy: part of the vowel
+        if (c === "h" && !s && k === syl.length - 1) { mine.push("h?"); continue; } // a vowel (to-RAH) or a real h (yah)
+        mine.push(c === "w" ? "v" : c);
+      }
+      // kip-PER: the same consonant either side of a hyphen is one doubled letter
+      if (k && mine.length && out.length && out[out.length - 1] === mine[0] && syl[k - 1].endsWith(mine[0])) mine.shift();
+      out.push(...mine);
+    });
   });
-  return out.filter((x, i, a) => x !== a[i - 1]).filter((x, i, a) => !(x === "h" && i === a.length - 1));
+  return out;
+}
+// the pointing's consonants against the respelling's: equal, where "y?" may be there or not
+function sameConsonants(want, got) {
+  const bare = (x) => String(x).replace("?", "");
+  const go = (i, j) => (i === want.length && j === got.length) || (
+    (i < want.length && want[i].endsWith("?") && go(i + 1, j))
+    || (j < got.length && got[j].endsWith("?") && go(i, j + 1))
+    || (i < want.length && j < got.length && bare(want[i]) === bare(got[j]) && go(i + 1, j + 1)));
+  return go(0, 0);
 }
 // the check must catch a wrong card and pass a right one (proof it can see the mistakes it is for)
 for (const [t, say, ok] of [["מֶלֶךְ", "ME-lekh", 1], ["מֶלֶךְ", "ME-lek", 0], ["בַּיִת", "BA-yit", 1], ["בַּיִת", "VA-yit", 0],
   ["שָׂדֶה", "sa-DEH", 1], ["שָׂדֶה", "sha-DEH", 0], ["תּוֹרָה", "to-RAH", 1], ["עֵשָׂו", "e-SAV", 1], ["פֶּה", "peh", 1], ["פֶּה", "feh", 0],
-  ["דָּוִד", "da-VID", 1], ["רוּחַ", "RU-ach", 1], ["רוּחַ", "RU-akh", 0]]) {
-  if ((pointedConsonants(t).join(" ") === respeltConsonants(say).join(" ")) !== !!ok) note(problems, "Checker: card consonant self-test failed", `${t} ${say} should ${ok ? "pass" : "fail"}`);
+  ["דָּוִד", "da-VID", 1], ["רוּחַ", "RU-ach", 1], ["רוּחַ", "RU-akh", 0], ["סוּס", "sus", 1], ["סוּס", "su", 0],
+  ["הַלְלוּ", "hal-le-LU", 1], ["הַלְלוּ", "ha-LU", 0], ["יָד", "yad", 1], ["יָד", "ad", 0], ["שֵׁשׁ", "shesh", 1], ["שֵׁשׁ", "she", 0],
+  ["כִּפֶּר", "kip-PER", 1], ["כִּפֶּר", "ki-PER", 1], ["מַיִם", "MA-yim", 1], ["מַיִם", "MA-im", 0], ["יְרוּשָׁלִַם", "ye-ru-sha-LA-yim", 1],
+  ["גּוֹי", "goy", 1], ["חַי", "chai", 1], ["אֲדֹנָי", "a-do-NAI", 1]]) {
+  if (sameConsonants(pointedConsonants(t), respeltConsonants(say)) !== !!ok) note(problems, "Checker: card consonant self-test failed", `${t} ${say} should ${ok ? "pass" : "fail"} (${pointedConsonants(t).join(" ")} / ${respeltConsonants(say).join(" ")})`);
 }
 for (const [where, t, say] of heCards) {
   if (!/[ְ-ׇֻ]/.test(t) || /יהוה/.test(t)) continue; // bare letters (the Letters guide's names) and the divine name
   const want = pointedConsonants(t).join(" "), shown = respeltConsonants(say).join(" ");
-  if (want !== shown) note(problems, "Hebrew: a card's respelling has other consonants than the pointing", `${where}: ${t} shows ${say} (${shown}); the pointing gives ${want}`);
+  if (!sameConsonants(pointedConsonants(t), respeltConsonants(say))) note(problems, "Hebrew: a card's respelling has other consonants than the pointing", `${where}: ${t} shows ${say} (${shown}); the pointing gives ${want}`);
 }
 
 // ---- whole verses, as "Listen to the verse" gives them

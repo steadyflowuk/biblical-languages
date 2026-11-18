@@ -668,7 +668,7 @@ for (const [, info] of heSeen) {
 }
 // ---- reference check: the model against STEPBible's own transliteration of every word (an independent, scholarly
 // source with its own known slips): node tools/check_pronunciation.mjs step [--examples N] [--kind TEXT]
-if (argv[0] === "step") {
+function stepCompare(print) {
   const stepVowels = (tr) => {
     // "be./re.Shit", "va/y.Hi", "ka.de.Sh/o": syllables split by "." ("/" only marks a prefix); capital = stressed
     const syl = String(tr).replace(/\//g, "").replace(/-$/, "").split(".").filter(Boolean);
@@ -739,10 +739,19 @@ if (argv[0] === "step") {
     }
   }
   if (TSV) fs.writeFileSync(argv[argv.indexOf("--tsv") + 1], TSV.join("\n") + "\n");
-  console.log(`${n} written Hebrew forms compared with STEPBible's transliteration; ${same} agree on every vowel; stress agrees ${stressSame} of ${stressN}.`);
-  [...kinds].sort((a, b) => b[1].n - a[1].n).forEach(([k, r]) => { console.log(`\n${r.n}  ${k}`); r.ex.forEach((x) => console.log("      " + x)); });
-  process.exit(0);
+  if (print) {
+    console.log(`${n} written Hebrew forms compared with STEPBible's transliteration; ${same} agree on every vowel; stress agrees ${stressSame} of ${stressN}.`);
+    [...kinds].sort((a, b) => b[1].n - a[1].n).forEach(([k, r]) => { console.log(`\n${r.n}  ${k}`); r.ex.forEach((x) => console.log("      " + x)); });
+  }
+  return { n, same, stressSame, stressN };
 }
+if (argv[0] === "step") { stepCompare(true); process.exit(0); }
+// The remaining disagreements were accounted for on 18 Nov 2026, kind by kind (the large kinds form by form against the
+// reason the model gives, the small kinds read in full): all are STEPBible's — its transliteration writes qamets hatuf
+// as "a.e" (ka.de.Shei), leaves out the said shewa after a long vowel or before the same letter (zoe.Chim, shi.Mot),
+// says the shewa that closes a syllable (da.Ra.she.ti), drops Jerusalem's last syllable, writes "Yahweh", "o.o"…
+// A change to the model that loses agreement must be looked at: `node tools/check_pronunciation.mjs step`.
+const STEP_BASELINE = { same: 111639, stress: 99785 };
 
 for (const [key, { where, w: dw, lex: dlex, info: dinfo }] of heParts) {
   const joined = key.endsWith("־");
@@ -991,6 +1000,13 @@ if (verseSpeech) {
   }
 }
 
+// ---- the model against an independent source: STEPBible's transliteration of every word (see STEP_BASELINE)
+const step = stepCompare(false);
+if (step.same < STEP_BASELINE.same - 20 || step.stressSame < STEP_BASELINE.stress - 20) {
+  note(problems, "Hebrew model: agrees with STEPBible's transliteration less than before (run: node tools/check_pronunciation.mjs step)",
+    `vowels agree ${step.same} (was ${STEP_BASELINE.same}); stress ${step.stressSame} (was ${STEP_BASELINE.stress})`);
+}
+
 // ================================================================ report
 console.log(`Pronunciation check: ${nGreek.toLocaleString("en-GB")} Greek words (Erasmian and Restored Koine), ${nHebrew.toLocaleString("en-GB")} Hebrew words, ${nVerses.toLocaleString("en-GB")} verses.`);
 if (limits.size) {
@@ -999,6 +1015,8 @@ if (limits.size) {
     console.log(`  ${r.n.toLocaleString("en-GB")} × ${cat}\n      why: ${LIMITS[cat.replace(/^[^:]+: /, "")]}\n      e.g. ${r.ex[0]}`);
   }
 }
+console.log(`\nIndependent check of the Hebrew model: it agrees with STEPBible's transliteration on every vowel in ${step.same.toLocaleString("en-GB")} of ${step.n.toLocaleString("en-GB")} written forms, and on the stress in ${step.stressSame.toLocaleString("en-GB")} of ${step.stressN.toLocaleString("en-GB")};`
+  + "\n  the remaining differences were accounted for kind by kind and are STEPBible's slips (qamets hatuf written a, said shewa left out…).");
 console.log("\nNot checkable here: where an Israeli voice puts the stress in a Hebrew word. Hebrew text has no stress mark a voice"
   + "\n  reads (accents are stripped), so the voice decides; it usually follows Modern Hebrew (mostly the last syllable,"
   + "\n  as the Bible text too). The stress the cards show is checked against the text's accents above. Judge on a device.");

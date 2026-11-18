@@ -502,6 +502,7 @@ function perpetualQere(word) {
   return word
     .replace(/הִ(ֽ?)וא$/, "הִ$1יא")
     .replace(/([א-ת][ּֽֿׁׂ]*)(?:([ַָ])ֽ?ִ|ִֽ?([ַָ]))ֽ?/g, (m, l, a, b) => l + (a || b) + "יִ")
+    .replace(/(ש[\u05B8\u05C1]{2}ל)(?:\u05B0\u05B7|\u05B7\u05B0)/g, "$1\u05B7\u05D9\u05B0") // Jerusalem with the ending of direction, read -LAY-mah (יְרוּשָׁלְַמָה)
     .replace(/([ְ-ׇ])ש(?=[א-ת])/g, "$1"); // (no look-behind: older iPhones can't read it)
 }
 

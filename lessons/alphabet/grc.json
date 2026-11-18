@@ -1,39 +1,39 @@
 {
   "lang": "grc",
   "title": "The Greek alphabet and its sounds",
-  "intro": "The 24 letters, then the small marks and letter pairs that change how a word sounds. Sounds follow the Erasmian pronunciation the lessons use; the Restored Koine sound (closer to the first century) is shown beside it. Tap a letter for more, and Listen to hear an example.",
+  "intro": "The 24 letters, then the small marks and letter pairs that change how a word sounds. Sounds follow the Erasmian pronunciation the lessons use; the Restored Koine sound (Randall Buth's reconstruction of first-century Greek) is shown beside it. Tap a letter for more, and Listen to hear an example.",
   "letters": [
     { "forms": ["Α", "α"], "name": "alpha", "nameT": "ἄλφα", "nameSay": "AL-fa", "sound": "a as in father", "koine": "a as in father", "example": { "t": "ἀγάπη", "say": "a-GA-pay", "en": "love" } },
     { "forms": ["Β", "β"], "name": "beta", "nameT": "βῆτα", "nameSay": "BAY-ta", "sound": "b", "koine": "v as in van", "example": { "t": "βασιλεία", "say": "ba-si-LAY-a", "en": "kingdom" } },
-    { "forms": ["Γ", "γ"], "name": "gamma", "nameT": "γάμμα", "nameSay": "GAM-ma", "sound": "g as in go; ng before γ κ χ ξ", "koine": "a soft g; like y before e and i sounds", "example": { "t": "γῆ", "say": "gay", "en": "earth" }, "tip": "It looks a little like y, but it is g." },
+    { "forms": ["Γ", "γ"], "name": "gamma", "nameT": "γάμμα", "nameSay": "GAM-ma", "sound": "g as in go, always hard (even before e and i); ng before γ κ χ ξ", "koine": "a soft g; like y before e and i sounds", "example": { "t": "γῆ", "say": "gay", "en": "earth" }, "tip": "It looks a little like y, but it is g." },
     { "forms": ["Δ", "δ"], "name": "delta", "nameT": "δέλτα", "nameSay": "DEL-ta", "sound": "d", "koine": "th as in this", "example": { "t": "δόξα", "say": "DOK-sa", "en": "glory" } },
     { "forms": ["Ε", "ε"], "name": "epsilon", "nameT": "ἔψιλον", "nameSay": "EP-si-lon", "sound": "e as in met (short)", "koine": "e as in met", "example": { "t": "ἔργον", "say": "ER-gon", "en": "work" } },
     { "forms": ["Ζ", "ζ"], "name": "zeta", "nameT": "ζῆτα", "nameSay": "DZAY-ta", "sound": "dz as in adze", "koine": "z", "example": { "t": "ζωή", "say": "dzoh-AY", "en": "life" } },
-    { "forms": ["Η", "η"], "name": "eta", "nameT": "ἦτα", "nameSay": "AY-ta", "sound": "ay as in they (long)", "koine": "e as in met, held a little longer", "example": { "t": "ἡμέρα", "say": "hay-ME-ra", "en": "day" }, "tip": "It looks like an English n, but it is a vowel." },
+    { "forms": ["Η", "η"], "name": "eta", "nameT": "ἦτα", "nameSay": "AY-ta", "sound": "ay as in they (long)", "koine": "a closed e, like é in French café (ay without the glide), kept apart from ε", "example": { "t": "ἡμέρα", "say": "hay-ME-ra", "en": "day" }, "tip": "It looks like an English n, but it is a vowel." },
     { "forms": ["Θ", "θ"], "name": "theta", "nameT": "θῆτα", "nameSay": "THAY-ta", "sound": "th as in thin", "koine": "th as in thin", "example": { "t": "θεός", "say": "the-OS", "en": "God" }, "tip": "One letter for one sound: th." },
-    { "forms": ["Ι", "ι"], "name": "iota", "nameT": "ἰῶτα", "nameSay": "ee-O-ta", "sound": "ee as in machine; i as in sit in a closed syllable", "koine": "ee as in machine", "example": { "t": "ἵνα", "say": "HEE-na", "en": "so that" }, "tip": "No dot on top. Written small under α, η or ω it is silent (ᾳ ῃ ῳ)." },
+    { "forms": ["Ι", "ι"], "name": "iota", "nameT": "ἰῶτα", "nameSay": "ee-OH-ta", "sound": "ee as in machine when stressed in an open syllable or before a vowel; otherwise i as in sit", "koine": "ee as in machine", "example": { "t": "ἵνα", "say": "HEE-na", "en": "so that" }, "tip": "No dot on top. Written small under α, η or ω it is silent (ᾳ ῃ ῳ)." },
     { "forms": ["Κ", "κ"], "name": "kappa", "nameT": "κάππα", "nameSay": "KAP-pa", "sound": "k", "koine": "k", "example": { "t": "καρδία", "say": "kar-DEE-a", "en": "heart" } },
     { "forms": ["Λ", "λ"], "name": "lambda", "nameT": "λάμβδα", "nameSay": "LAMB-da", "sound": "l", "koine": "l", "example": { "t": "λόγος", "say": "LO-gos", "en": "word" } },
     { "forms": ["Μ", "μ"], "name": "mu", "nameT": "μῦ", "nameSay": "mü", "sound": "m", "koine": "m", "example": { "t": "μαθητής", "say": "ma-thay-TAYS", "en": "disciple" } },
     { "forms": ["Ν", "ν"], "name": "nu", "nameT": "νῦ", "nameSay": "nü", "sound": "n", "koine": "n", "example": { "t": "νόμος", "say": "NO-mos", "en": "law" }, "tip": "It looks like an English v, but it is n." },
     { "forms": ["Ξ", "ξ"], "name": "xi", "nameT": "ξῖ", "nameSay": "ksee", "sound": "x as in box (ks)", "koine": "ks", "example": { "t": "δόξα", "say": "DOK-sa", "en": "glory" }, "tip": "One letter for two sounds, k + s." },
-    { "forms": ["Ο", "ο"], "name": "omicron", "nameT": "ὄμικρον", "nameSay": "O-mi-kron", "sound": "o as in lot (short)", "koine": "o as in lot", "example": { "t": "ὄνομα", "say": "O-no-ma", "en": "name" }, "tip": "“Little o”: compare ω, “big o”." },
+    { "forms": ["Ο", "ο"], "name": "omicron", "nameT": "ὄμικρον", "nameSay": "O-mi-kron", "sound": "o as in lot (short)", "koine": "a pure o, as in Spanish no", "example": { "t": "ὄνομα", "say": "O-no-ma", "en": "name" }, "tip": "“Little o”: compare ω, “big o”." },
     { "forms": ["Π", "π"], "name": "pi", "nameT": "πῖ", "nameSay": "pee", "sound": "p", "koine": "p", "example": { "t": "πατήρ", "say": "pa-TAYR", "en": "father" } },
-    { "forms": ["Ρ", "ρ"], "name": "rho", "nameT": "ῥῶ", "nameSay": "roh", "sound": "r (lightly rolled)", "koine": "r (lightly rolled)", "example": { "t": "ῥῆμα", "say": "RAY-ma", "en": "word, saying" }, "tip": "It looks like an English p, but it is r. At the start of a word it carries a rough breathing (ῥ), which isn't said." },
+    { "forms": ["Ρ", "ρ"], "name": "rho", "nameT": "ῥῶ", "nameSay": "roh", "sound": "r (lightly rolled)", "koine": "r (lightly rolled)", "example": { "t": "ῥῆμα", "say": "RAY-ma", "en": "word, saying" }, "tip": "It looks like an English p, but it is r. At the start of a word it nearly always carries a rough breathing (ῥ), which isn't said." },
     { "forms": ["Σ", "σ", "ς"], "name": "sigma", "nameT": "σίγμα", "nameSay": "SIG-ma", "sound": "s; ς at the end of a word", "koine": "s; z before β γ δ μ", "example": { "t": "πίστις", "say": "PIS-tis", "en": "faith" }, "tip": "Two small forms: σ at the start or in the middle, ς at the very end. πίστις has both." },
-    { "forms": ["Τ", "τ"], "name": "tau", "nameT": "ταῦ", "nameSay": "tau", "sound": "t", "koine": "t", "example": { "t": "τέκνον", "say": "TEK-non", "en": "child" } },
-    { "forms": ["Υ", "υ"], "name": "upsilon", "nameT": "ὔψιλον", "nameSay": "Ü-psi-lon", "sound": "ü as in French tu (or simply oo)", "koine": "ü as in French tu", "example": { "t": "ὕδωρ", "say": "HÜ-dohr", "en": "water" }, "tip": "At the start of a word it always has a rough breathing: hü-." },
+    { "forms": ["Τ", "τ"], "name": "tau", "nameT": "ταῦ", "nameSay": "tau (rhymes with how)", "sound": "t", "koine": "t", "example": { "t": "τέκνον", "say": "TEK-non", "en": "child" } },
+    { "forms": ["Υ", "υ"], "name": "upsilon", "nameT": "ὔψιλον", "nameSay": "Ü-psi-lon", "sound": "ü as in French tu (or simply oo)", "koine": "ü as in French tu", "example": { "t": "ὕδωρ", "say": "HÜ-dohr", "en": "water" }, "tip": "At the start of a word it always has a rough breathing: hü- (its own later name, ὔψιλον, is the one exception)." },
     { "forms": ["Φ", "φ"], "name": "phi", "nameT": "φῖ", "nameSay": "fee", "sound": "f (written ph in English words)", "koine": "f", "example": { "t": "φῶς", "say": "fohs", "en": "light" } },
-    { "forms": ["Χ", "χ"], "name": "chi", "nameT": "χῖ", "nameSay": "khee", "sound": "kh as in Scottish loch", "koine": "kh as in loch", "example": { "t": "χάρις", "say": "KHA-ris", "en": "grace" }, "tip": "It looks like an English x, but it is kh." },
+    { "forms": ["Χ", "χ"], "name": "chi", "nameT": "χῖ", "nameSay": "khee", "sound": "kh as in Scottish loch", "koine": "kh as in loch; softer before e and i sounds, as in German ich", "example": { "t": "χάρις", "say": "KHA-ris", "en": "grace" }, "tip": "It looks like an English x, but it is kh." },
     { "forms": ["Ψ", "ψ"], "name": "psi", "nameT": "ψῖ", "nameSay": "psee", "sound": "ps as in lips", "koine": "ps", "example": { "t": "ψυχή", "say": "psü-KHAY", "en": "soul, life" }, "tip": "One letter for two sounds, p + s." },
-    { "forms": ["Ω", "ω"], "name": "omega", "nameT": "ὠμέγα", "nameSay": "o-MAY-ga", "sound": "oh as in tone (long)", "koine": "o as in lot (the same as ο)", "example": { "t": "ὥρα", "say": "HOH-ra", "en": "hour" }, "tip": "“Big o”. It looks like an English w, but it is a vowel." }
+    { "forms": ["Ω", "ω"], "name": "omega", "nameT": "ὠμέγα", "nameSay": "oh-ME-ga", "sound": "oh as in tone (long)", "koine": "the same as ο: a pure o", "example": { "t": "ὥρα", "say": "HOH-ra", "en": "hour" }, "tip": "“Big o”. It looks like an English w, but it is a vowel." }
   ],
   "sections": [
     {
       "title": "Marks that change the sound",
       "body": [
-        "A rough breathing ῾ over the first vowel adds an h; a smooth breathing ᾿ adds nothing. With a pair of vowels the mark sits on the second: οὐρανός, υἱός.",
-        "The accent (´ ` or ῀) shows which syllable to stress. In the Erasmian pronunciation all three just mean “stress here”.",
+        "A rough breathing ῾ over the first vowel adds an h (in Erasmian; Restored Koine doesn't say it); a smooth breathing ᾿ adds nothing. With a pair of vowels the mark sits on the second: οὐρανός, υἱός.",
+        "The accent (´ ` or ῀) shows which syllable to stress. In both pronunciations all three just mean “stress here”.",
         "A small ι under α, η or ω (ᾳ ῃ ῳ) is silent. Two dots over a vowel (¨) mean it is said on its own, not as part of a pair.",
         "γ before γ, κ, χ or ξ is said ng: ἄγγελος is ANG-ge-los."
       ],
@@ -51,7 +51,7 @@
       "title": "Pairs of vowels",
       "letters": true,
       "body": [
-        "These pairs are said as one sound. In the first century several of them had already moved towards other sounds, shown on the right."
+        "In Erasmian each pair is said as one sound. By the first century most had become single vowels, and αυ and ευ a vowel and a consonant: the Restored Koine sounds are on the right."
       ],
       "table": {
         "head": ["pair", "Erasmian", "Restored Koine", "example"],
@@ -59,10 +59,11 @@
           ["αι", "ai as in aisle", "e as in met", "καί"],
           ["ει", "ay as in eight", "ee", "εἰμί"],
           ["οι", "oi as in oil", "ü", "οἶκος"],
-          ["υι", "wee", "ü", "υἱός"],
+          ["υι", "wee", "ü-ee", "υἱός"],
           ["ου", "oo as in food", "oo", "οὐρανός"],
           ["αυ", "ow as in how", "av, or af", "αὐτός"],
-          ["ευ", "eu as in feud", "ev, or ef", "εὐαγγέλιον"]
+          ["ευ", "eu as in feud", "ev, or ef", "εὐαγγέλιον"],
+          ["ηυ", "eu as in feud (like ευ)", "ev, or ef", "ηὔξανεν"]
         ]
       },
       "examples": [
@@ -78,7 +79,7 @@
       "title": "Erasmian and Restored Koine",
       "letters": true,
       "body": [
-        "Erasmian, taught in most colleges, gives every letter its own sound, which helps with spelling. Restored Koine aims at how Greek sounded in the first century: closer to Modern Greek, with fewer distinct vowels. Choose which one the Listen buttons use in Settings.",
+        "Erasmian, taught in most colleges, keeps nearly every letter and pair apart (η and ει are both ay), which helps with spelling. Restored Koine aims at how Greek sounded in the first century: closer to Modern Greek, with fewer distinct vowels. Choose which one the Listen buttons use in Settings.",
         "The letters that differ most:"
       ],
       "table": {
@@ -88,7 +89,7 @@
           ["γ", "g", "soft g; y before e, i"],
           ["δ", "d", "th as in this"],
           ["ζ", "dz", "z"],
-          ["η", "ay", "e"],
+          ["η", "ay", "a closed e (é)"],
           ["υ", "ü or oo", "ü"],
           ["ω", "oh", "o, like ο"],
           ["῾", "h", "not said"]

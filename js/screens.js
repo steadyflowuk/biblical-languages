@@ -57,7 +57,9 @@ function todayVoice(v, w) {
   const form = m ? { "sequential perfect": "q", "consecutive perfect": "q", perfect: "p", "sequential imperfect": "w", "consecutive imperfect": "w", imperfect: "i", jussive: "j", cohortative: "h", imperative: "v", "infinitive construct": "c", "infinitive absolute": "a", participle: "r" }[m[2]] : "";
   const who = (parts.find((x) => /^Verb:/.test(x)) || "").match(/\b(first|second|third)\b/); // the verb's own person, not a suffix's
   const person = m && who ? { first: "1", second: "2", third: "3" }[who[1]] : "";
-  const word = m ? `V${STEMS[m[1]] || "x"}${form}${person}` : "N";
+  const gnm = (parts.find((x) => /^Verb:/.test(x)) || "").match(/\b(singular|plural|dual)\b[ ,]*(masculine|feminine|either gender)?/);
+  const gn = person && gnm ? ({ masculine: "m", feminine: "f", "either gender": "c" }[gnm[2]] || "") + gnm[1][0] : "";
+  const word = m ? `V${STEMS[m[1]] || "x"}${form}${person}${gn}` : "N";
   const code = "H" + [...prefix, word, /directional/.test(p) ? "Sd" : "", parts.some((x) => /^Suffix/.test(x)) ? "Sp" : ""].filter(Boolean).join("/");
   return heVoice(["", "", "", "", code, w.p || ""], w.t, String(w.p || "").endsWith("\u05be"), w.lemma || undefined);
 }

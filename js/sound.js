@@ -175,7 +175,8 @@ function koineVowels(word) {
   for (let i = 0; i < c.length; i++) {
     const a = c[i], b = c[i + 1] || "";
     if (/[αεηο]/.test(a) && /[υύ]/.test(b)) { out += (a === "η" ? "ε" : a) + b; i++; continue; } // αυ ευ ηυ ου
-    if (/[ου]/.test(a) && /[ιί]/.test(b)) { out += yu(b === "ί"); i++; continue; } // οι υι
+    if (a === "ο" && /[ιί]/.test(b)) { out += yu(b === "ί"); i++; continue; } // οι: ü
+    if (a === "υ" && /[ιί]/.test(b)) { out += yu(b === "ί") + "ι"; i++; continue; } // υι: ü then i, stressed on the ü (υἱός, εἰδυῖα)
     if (/[υϋ]/.test(a)) { out += yu(false); continue; }
     if (/[ύΰ]/.test(a)) { out += yu(true); continue; }
     if (a === "η" || a === "ή") {
@@ -190,7 +191,7 @@ function koineVowels(word) {
   return out === "ε" ? "έ" : out === "ιου" ? "ιού" : out;
 }
 
-/** Greek for the voice in Restored Koine: modern accents, no breathings, and the Koine sounds of η, υ, οι and υι. */
+/** Greek for the voice in Restored Koine: modern accents, no breathings, and the Koine sounds of η, υ, οι and υι (ü-i). */
 export function koineSpeech(text) {
   return unElide(text).replace(/[[\]()⟦⟧]/g, "").replace(/=/g, " ").normalize("NFD")
     .replace(/[̓̔ͅ]/g, "") // breathings, iota subscript

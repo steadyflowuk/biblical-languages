@@ -33,14 +33,14 @@ const EXAMPLES = argv.includes("--examples") ? Number(argv[argv.indexOf("--examp
 // A sound is { p: "a", s: true } (s = stressed). Vowels: a e i o u y. Glides after a vowel are written as the vowel
 // (ay = e i), so "ay" and a Modern "έι" compare equal. "j̯" = a glide made from a vowel letter (synizesis);
 // "ʝ" = the Modern/Koine γ before e and i; "ju" = the "yu" Modern Greek writes for ü (ιου).
-const VOWEL = /^(a|e|i|o|oː|u|y|ju)$/;
+const VOWEL = /^(a|e|ɛ|i|o|oː|u|y|ju)$/;
 
 /** Line up expected and heard sounds (Needleman–Wunsch); returns [[exp|null, got|null], …]. */
 function align(A, B) {
   const n = A.length, m = B.length;
   const del = (i) => { const a = A[i - 1]; if (a.opt) return 0; if (VOWEL.test(a.p)) return 1; if (a.p === "h") return 0.5; return (A[i - 2] && A[i - 2].p === a.p) || (A[i] && A[i].p === a.p) ? 0.4 : 1; };
   const ins = (j) => (/^[mnŋ]$/.test(B[j - 1].p) && B[j] && /^[bdg]$/.test(B[j].p) ? 0.4 : 1);
-  const NEAR = [["s", "z"], ["t", "d"], ["p", "b"], ["k", "g"], ["g", "ʝ"], ["ɣ", "ʝ"], ["y", "u"], ["y", "ju"], ["i", "j̯"], ["u", "ju"], ["e", "i"], ["oː", "o"], ["x", "ç"]];
+  const NEAR = [["s", "z"], ["t", "d"], ["p", "b"], ["k", "g"], ["g", "ʝ"], ["ɣ", "ʝ"], ["y", "u"], ["y", "ju"], ["i", "j̯"], ["u", "ju"], ["e", "i"], ["oː", "o"], ["x", "ç"], ["ɛ", "e"]];
   const vowelish = (x) => /^(a|e|i|o|u|y|ju|j̯)$/.test(x.p);
   const cost = (a, b) => (a.p === b.p || (a.alt && a.alt.includes(b.p)) ? 0 : NEAR.some(([x, y]) => (a.p === x && b.p === y) || (a.p === y && b.p === x)) ? 0.4
     : vowelish(a) === vowelish(b) ? 1 : 1.6);
@@ -100,7 +100,8 @@ const ERASMIAN_V = { α: ["a"], ε: ["e"], η: ["e", "i"], ι: ["i"], ο: ["o"],
   οι: ["o", "i"], υι: ["u", "i"], ου: ["u"], αυ: ["a", "u"], ευ: ["e", "u"], ηυ: ["e", "i", "u"], ωυ: ["oː", "u"] };
 const ERASMIAN_C = { β: "b", γ: "g", δ: "d", ζ: ["d", "z"], θ: "θ", κ: "k", λ: "l", μ: "m", ν: "n", ξ: ["k", "s"], π: "p", ρ: "r",
   σ: "s", τ: "t", φ: "f", χ: "x", ψ: ["p", "s"] };
-const KOINE_V = { α: ["a"], ε: ["e"], η: ["e"], ι: ["i"], ο: ["o"], υ: ["y"], ω: ["o"], αι: ["e"], ει: ["i"], οι: ["y"], υι: ["y"],
+// Restored Koine (Buth): ε and αι an open e [ɛ]; η a closed e [e], kept apart; υ and οι ü; υι ü-i; ει i; ω = ο
+const KOINE_V = { α: ["a"], ε: ["ɛ"], η: ["e"], ι: ["i"], ο: ["o"], υ: ["y"], ω: ["o"], αι: ["ɛ"], ει: ["i"], οι: ["y"], υι: ["y", "i"],
   ου: ["u"], ωυ: ["o", "u"] };
 const KOINE_C = { β: "v", γ: "ɣ", δ: "ð", ζ: "z", θ: "θ", κ: "k", λ: "l", μ: "m", ν: "n", ξ: ["k", "s"], π: "p", ρ: "r", σ: "s",
   τ: "t", φ: "f", χ: "x", ψ: ["p", "s"] };
@@ -116,7 +117,7 @@ function greekExpected(word, system) {
     if (u.v) {
       if (er && u.rough && !ph.length) ph.push({ p: "h" }); // only at the start of a word
       if (!er && /^[αεη]υ$/.test(u.v)) { // Koine αυ ευ ηυ: av/ev before a voiced sound, af/ef before a voiceless one or at the end
-        ph.push({ p: u.v[0] === "α" ? "a" : "e", s: u.acc, nuc: true });
+        ph.push({ p: u.v[0] === "α" ? "a" : u.v[0] === "ε" ? "ɛ" : "e", s: u.acc, nuc: true });
         ph.push({ p: !next || (next.c && VOICELESS.test(next.c)) ? "f" : "v" });
         return;
       }
@@ -128,6 +129,7 @@ function greekExpected(word, system) {
     if (c === "γ" && next && next.c && /[γκχξ]/.test(next.c)) { ph.push({ p: "ŋ" }); return; }
     if (c === "γ" && i && U[i - 1].c === "γ") { ph.push({ p: "g" }); return; } // γγ: ng-g in both
     if (!er && c === "γ" && frontStart(next)) { ph.push({ p: "ʝ" }); return; }
+    if (!er && c === "χ" && frontStart(next)) { ph.push({ p: "ç" }); return; } // Koine χ is softer before e and i sounds
     if (!er && c === "σ" && next && next.c && /[βγδμ]/.test(next.c)) { ph.push({ p: "z" }); return; }
     const m = (er ? ERASMIAN_C : KOINE_C)[c];
     [].concat(m).forEach((p) => ph.push({ p }));
@@ -211,6 +213,7 @@ const LIMITS = {
   "σ said z before λ ν ρ": "Modern Greek voices σ before any voiced consonant (Ἰσραήλ izra-EL); the guide gives z before β γ δ μ, and no spelling avoids it before λ ν ρ (Restored Koine).",
   "ü said i-u after a vowel": "After a vowel, ü is written ϊου so it isn't swallowed into a vowel pair (θεοί → θεϊού); Modern Greek says i-u (Restored Koine).",
   "χ softened before e, i (as in German ich)": "A Modern Greek voice says χ that way before e and i sounds (ἔχει, ψυχή); the guide's kh as in loch can't be spelt for it.",
+  "ε and η said alike": "Restored Koine keeps η (a closed e, French é) apart from ε and αι (e as in met); a Modern Greek voice has one e for both.",
   "double consonant said once": "Modern Greek says double letters once (ἐκκλησία → ek-li-…).",
   "υ said oo": "The Letters guide allows it for Erasmian: “ü as in French tu (or simply oo)”.",
   "ü said yu": "Modern Greek has no ü; ιου (yu) is how Greek writes ü in foreign names (Restored Koine).",
@@ -227,6 +230,7 @@ function classify(exp, got, pairs, k, system, word) {
   if (e === "h" && !g) return "rough breathing h not said";
   if (e === "oː" && g === "o") return "ω said like ο";
   if (e === "x" && g === "ç") return "χ softened before e, i (as in German ich)";
+  if (system === "koine" && e === "ɛ" && g === "e") return "ε and η said alike";
   if ((e === "t" && g === "d") || (e === "p" && g === "b") || (e === "k" && g === "g")) {
     if (prevE && /^[nmŋ]$/.test(prevE.p)) return "nt said nd, mp said mb, nk said ng";
   }
@@ -820,6 +824,28 @@ for (const [where, t, say] of heCards) {
   const heard = israeliVowels(S.hebrewSpeech((S.hebrewForSay || ((x) => x))(t, say)).replace(/[,.]/g, "")).map((p) => ({ p })); // as the app's Listen gives it
   const shown = sayVowels(say).map((p) => ({ p }));
   if (heard.map((x) => x.p).join("") !== shown.map((x) => x.p).join("")) note(problems, "Hebrew: Listen doesn't say what the card shows", `${where}: ${t} shows ${say} (${shown.map((x) => x.p).join(" ")}), Listen says ${heard.map((x) => x.p).join(" ")}`);
+}
+
+// ---- Hebrew: lesson and Letters cards' shown vowels = the model (the list's are checked above); a word's grammar isn't
+// known here, so where the model can't tell (a plain qamets before a shewa) either reading passes
+for (const [where, t, say] of heCards) {
+  if (where === "list" || /\s/.test(t.trim()) || /־/.test(t) || !/[ְ-ׇ]/.test(t)) continue;
+  const exp = hebrewExpected(t.replace(/[\u0591-\u05AF]/g, ""), {});
+  const shown = sayVowels(say).map((p) => ({ p }));
+  const bad = align(exp.vowels, shown).some(([e, g]) => !(e && g && (e.p === g.p || (e.alt && e.alt.includes(g.p)))) && !(e && e.opt && !g));
+  if (bad) note(problems, "Hebrew: a lesson or Letters card's pronunciation differs from the model", `${where}: ${t} shows ${say} (${shown.map((x) => x.p).join(" ")}), model ${vShow(exp.vowels)}`);
+}
+if (argv[0] === "cards-step") {
+  // each lesson/Letters card against STEPBible's transliteration of the same written word, where the Bible has it
+  const plain = (x) => (String(x).replace(/[\u0591-\u05AF\u05BD\u05BF\/]/g, "").match(/[א-ת][\u05B0-\u05C7]*/g) || []).map((c) => c[0] + [...c.slice(1)].sort().join("")).join("");
+  const tr = new Map();
+  for (const [, { w }] of heSeen) { const k = plain(heText(w)); if (!tr.has(k)) tr.set(k, w[1]); }
+  for (const [where, t, say] of heCards) {
+    if (where === "list") continue;
+    const st = tr.get(plain(t));
+    console.log(`${where}\t${t}\t${say}\t${st || "(not in the text as written)"}`);
+  }
+  process.exit(0);
 }
 
 // ---- Hebrew: the stress the cards show (capital syllable) = the accent the word carries in the Bible text

@@ -24,7 +24,7 @@
           "letters": true,
           "title": "Vowels sit under, over and beside the letters",
           "body": [
-            "A vowel mark belongs to the letter it sits with, and is said after that letter: בָ is ba, בֵ is be.",
+            "A vowel mark belongs to the letter it sits with, and is said after that letter: בָּ is ba, בֵּ is be.",
             "Here they are on the letter ב. The sound in brackets is how to say it."
           ],
           "table": {
@@ -108,7 +108,7 @@
           "prompt": "כָּל־ (all) is said…",
           "options": ["kol", "kal", "kul", "kel"],
           "answer": 0,
-          "explain": "This qamets stands in a short, unstressed syllable, so it is read as o: kol."
+          "explain": "This qamets stands in a closed, unstressed syllable, so it is read as o: kol."
         },
         {
           "type": "build",
@@ -151,5 +151,5 @@
     }
   ],
   "source": {"book": "Wegner, A Simplified Grammar of Biblical Hebrew", "chapter": "Lesson 2: Hebrew Vowels"},
-  "grammarCheck": {"date": "2026-11-03", "verdict": "agrees", "claims": [{"claim": "a vowel is said after the letter it sits with", "result": "agrees"}, {"claim": "vowels helped by a letter: hireq yod, tsere yod, holam vav, shureq", "result": "agrees"}, {"claim": "three vowel classes: a; e and i; o and u", "result": "agrees"}, {"claim": "qamets in a closed unstressed syllable is a short o (qamets hatuf): חָכְמָה chokh-MAH", "result": "agrees", "note": "Wegner uses the same example"}], "fingerprint": "2912353c7d07a766"}
+  "grammarCheck": {"date": "2026-11-18", "verdict": "agrees; 18 Nov 2026 wording corrections (see claims marked 18 Nov)", "claims": [{"claim": "a vowel is said after the letter it sits with", "result": "agrees"}, {"claim": "vowels helped by a letter: hireq yod, tsere yod, holam vav, shureq", "result": "agrees"}, {"claim": "three vowel classes: a; e and i; o and u", "result": "agrees"}, {"claim": "qamets in a closed unstressed syllable is a short o (qamets hatuf): חָכְמָה chokh-MAH", "result": "agrees", "note": "Wegner uses the same example"}, {"claim": "examples of vowels after a letter: בָּ ba, בֵּ be (with the dot; without it ב is v)", "result": "fixed", "note": "18 Nov 2026: had בָ ba, against the lesson's own rule"}, {"claim": "qamets hatuf: a closed, unstressed syllable", "result": "fixed", "note": "18 Nov 2026: one explanation said 'short'"}], "fingerprint": "82c04b15268160dd"}
 }

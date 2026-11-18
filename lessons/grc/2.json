@@ -73,7 +73,7 @@
           "title": "Pairs of vowels",
           "body": [
             "Some pairs of vowels make one sound together. ου is the commonest: οὐρανός is oo-ra-NOS.",
-            "Two gammas together (γγ) sound ng, as in ἄγγελος, ANG-ge-los. That's where English “angel” comes from."
+            "Two gammas together (γγ) are said ng-g, as in ἄγγελος, ANG-ge-los. That's where English “angel” comes from."
           ],
           "examples": [
             { "t": "ου", "say": "oo", "en": "as in food" },
@@ -176,5 +176,5 @@
     }
   ],
   "source": {"book": "Schwandt, An Introduction to Biblical Greek (2020)", "chapter": "Lesson 1: The Alphabet"},
-  "grammarCheck": {"date": "2026-11-03", "verdict": "agrees", "claims": [{"claim": "sounds of ν–ω: n, x (fox), o, p, r, s, t, ü (French u), f, kh (loch), ps, long o", "result": "agrees"}, {"claim": "σ at the start or middle, ς at the end of a word", "result": "agrees"}, {"claim": "ο short (micro), ω long (mega)", "result": "agrees", "note": "Schwandt lesson 4: same sound, different length"}, {"claim": "Erasmian vowel pairs: ου food, αι aisle, ει eight, οι oil, αυ how, ευ feud", "result": "agrees"}, {"claim": "γγ is ng (ἄγγελος)", "result": "agrees", "note": "γ before γ κ χ ξ sounds n"}, {"claim": "ω said 'oh' as in tone", "result": "differs on purpose", "note": "Schwandt gives 'oa in oar' (Koine); the app's Erasmian uses oh throughout"}], "fingerprint": "ac30fa554f1d400c"}
+  "grammarCheck": {"date": "2026-11-18", "verdict": "agrees; 18 Nov 2026 wording corrections (see claims marked 18 Nov)", "claims": [{"claim": "sounds of ν–ω: n, x (fox), o, p, r, s, t, ü (French u), f, kh (loch), ps, long o", "result": "agrees"}, {"claim": "σ at the start or middle, ς at the end of a word", "result": "agrees"}, {"claim": "ο short (micro), ω long (mega)", "result": "agrees", "note": "Schwandt lesson 4: same sound, different length"}, {"claim": "Erasmian vowel pairs: ου food, αι aisle, ει eight, οι oil, αυ how, ευ feud", "result": "agrees"}, {"claim": "γγ is ng (ἄγγελος)", "result": "agrees", "note": "γ before γ κ χ ξ sounds n"}, {"claim": "ω said 'oh' as in tone", "result": "differs on purpose", "note": "Schwandt gives 'oa in oar' (Koine); the app's Erasmian uses oh throughout"}, {"claim": "γγ is said ng-g (the respelling ANG-ge-los)", "result": "fixed", "note": "18 Nov 2026: the text said 'sound ng'; corrected to match the respelling and the Letters guide (no change to what is taught in Schwandt 1)"}], "fingerprint": "a8988550b22c2fbe"}
 }

@@ -95,7 +95,7 @@ export function greekSay(text) {
       let v = NUCLEUS[s.nucleus] || "";
       if (s.nucleus === "ι" && !s.coda.length && (s.stress || (next && !next.onset.length))) v = "ee"; // KÜ-ree-os, dee-A
       if (s.nucleus === "υι" && s.rough) v = "wee";
-      const h = s.rough && i === 0 ? "h" : "";
+      const h = s.rough && i === 0 && !s.onset.length ? "h" : "";
       return h + latinConsonants(s.onset) + v + coda;
     });
     if (parts.length > 1) {
@@ -130,8 +130,9 @@ function speechVowel(nucleus, stressed, afterVowel) {
 
 /** Greek respelt so a Modern Greek voice says it the Erasmian way: "λόγος" → "λόγκος", "ἀγάπη" → "αγκάπεϊ". */
 export function erasmianSpeech(text) {
-  return unElide(text).replace(/[’'᾽ʼ]/g, "").split(/\s+/).map((w) => {
-    const punct = (w.match(/[,.;:·!?]+$/) || [""])[0].replace(/·/g, ",").replace(/;/g, "?");
+  // NFC turns the Greek question mark (U+037E) into ; and the raised dot (U+0387) into ·
+  return unElide(String(text || "").normalize("NFC")).replace(/[’'᾽ʼ()[\]⟦⟧]/g, "").split(/\s+/).map((w) => {
+    const punct = (w.match(/[,.;:·!?—–]+$/) || [""])[0].replace(/[·—–]/g, ",").replace(/;/g, "?").replace(/([.?!]),+$/, "$1").replace(/,+/g, ",");
     const syl = greekSyllables(w);
     if (!syl.length) return "";
     const one = syl.length === 1;
@@ -144,13 +145,17 @@ export function erasmianSpeech(text) {
         before = c;
         if (c === "γ" && /[γκχξ]/.test(follow)) return "γ"; // γγ, γκ: already "ng", "nk" in Modern Greek
         if (c === "γ" && prev === "γ") return "γ";
+        if (c === prev && SPEECH_CONSONANT[c]) return ""; // a doubled β or δ: μπ, ντ once (Φεννεδδώρ)
         return SPEECH_CONSONANT[c] || c;
       }).join("");
       const next = syl[i + 1];
       const onset = cons(s.onset, s.nucleus);
       if (!s.onset.length) before = "";
       const prevEndsVowel = !!out && /[αεηιουωάέήίόύώϊϋ]$/.test(out) && !s.onset.length;
-      out += onset + speechVowel(s.nucleus, s.stress || one, prevEndsVowel); // one syllable: the mark keeps "ay" one sound
+      // An unaccented one-syllable word (ὁ, ἐν, εἰς, οὐ) stays unstressed, except that a respelt pair (έι, άι, όι)
+      // needs the mark to stay one sound: without it the voice would read εϊ as two ("e-i").
+      const pair = /^(η|ει|αι|οι|ηυ)$/.test(s.nucleus);
+      out += onset + speechVowel(s.nucleus, s.stress || (one && pair), prevEndsVowel);
       before = "";
       out += cons(s.coda, next && next.onset[0]);
     });
@@ -165,13 +170,19 @@ export function erasmianSpeech(text) {
 function koineVowels(word) {
   const c = [...word];
   let out = "";
+  // ü as ιου; after a vowel as ϊου, or the ι would join that vowel into a pair (θεοί → θεϊού, not θειού "thi-u")
+  const yu = (stressed) => (/[αεουάέόύ]$/.test(out) ? "ϊ" : "ι") + (stressed ? "ού" : "ου");
   for (let i = 0; i < c.length; i++) {
     const a = c[i], b = c[i + 1] || "";
     if (/[αεηο]/.test(a) && /[υύ]/.test(b)) { out += (a === "η" ? "ε" : a) + b; i++; continue; } // αυ ευ ηυ ου
-    if (/[ου]/.test(a) && /[ιί]/.test(b)) { out += b === "ί" ? "ιού" : "ιου"; i++; continue; } // οι υι
-    if (/[υϋ]/.test(a)) { out += "ιου"; continue; }
-    if (/[ύΰ]/.test(a)) { out += "ιού"; continue; }
-    if (a === "η" || a === "ή") { out += a === "ή" ? "έ" : "ε"; continue; }
+    if (/[ου]/.test(a) && /[ιί]/.test(b)) { out += yu(b === "ί"); i++; continue; } // οι υι
+    if (/[υϋ]/.test(a)) { out += yu(false); continue; }
+    if (/[ύΰ]/.test(a)) { out += yu(true); continue; }
+    if (a === "η" || a === "ή") {
+      out += a === "ή" ? "έ" : "ε";
+      if (b === "ι" || b === "ί") { out += b === "ί" ? "ΐ" : "ϊ"; i++; } // νηί: ε then i, two sounds (not ει "i")
+      continue;
+    }
     out += a;
   }
   // a one-letter word keeps a stress mark so it is said as a vowel, not a letter name (ἡ → έ)
@@ -184,7 +195,7 @@ export function koineSpeech(text) {
   return unElide(text).replace(/[[\]()⟦⟧]/g, "").replace(/=/g, " ").normalize("NFD")
     .replace(/[̓̔ͅ]/g, "") // breathings, iota subscript
     .replace(/[̀͂]/g, "́") // grave and circumflex become acute (tonos)
-    .replace(/·/g, ",").replace(/;/g, "?").replace(/[’᾽ʼ]/g, "")
+    .replace(/·/g, ",").replace(/;/g, "?").replace(/[—–]/g, ",").replace(/([.?!]),/g, "$1").replace(/,,+/g, ",").replace(/[’᾽ʼ]/g, "")
     .normalize("NFC").toLowerCase()
     .replace(/[Ͱ-Ͽ]+/g, koineVowels);
 }
@@ -194,7 +205,6 @@ export function koineSpeech(text) {
 const POINTS = "[ְ-ׇ]*";
 const DIVINE_NAME = new RegExp("(^|[^ְ-ׇא-ת])((?:[ובכלמהש]" + POINTS + "){0,2})י" + POINTS + "ה" + POINTS + "ו" + POINTS + "ה" + POINTS + "(?![ְ-ׇא-ת])", "g");
 const ADONAI = "אֲדֹנָי";
-const KOL = /(^|\s)((?:[\u05D5\u05D1\u05DB\u05DC\u05DE\u05D4\u05E9][\u05B0-\u05C7]*){0,2})(\u05DB[\u05BC\u05BD\u05BF]*)\u05B8([\u05BC\u05BD\u05BF]*)\u05DC(?=[\u05BD\u05BF]*\u05BE)/g;
 const ELOHIM = "אֱלֹהִים";
 
 // The app teaches the said (vocal) shewa as a quick e (be-RIT, de-va-RIM, yish-me-RU); an Israeli voice usually drops
@@ -203,42 +213,339 @@ const ELOHIM = "אֱלֹהִים";
 // so after the conjunction וּ too —, hiriq or tsere with yod, a qamets with meteg); under a doubled letter (dagesh
 // after a vowel); and before the same letter (hal-le-LU). Never at the end of a word (nor before a final silent א),
 // and a plain shewa under a throat letter is silent. The other shewas (closing a syllable) stay silent, as taught.
-const SHEWA = "\u05B0", SEGOL = "\u05B6", DAGESH = "\u05BC";
-const FULL_VOWEL = /[\u05B1-\u05BB\u05C7]/;
-const THROAT = /[\u05D0\u05D4\u05D7\u05E2]/;
+const SHEWA = "ְ", SEGOL = "ֶ", DAGESH = "ּ", METEG = "ֽ", QAMATS = "ָ", HOLAM = "ֹ", QQATAN = "ׇ";
+const FULL_VOWEL = /[ֱ-ׇֻ]/;
+const THROAT = /[אהחע]/;
+const VAV_VOWEL = /^וּֽ?$/; // וּ, with or without a meteg
+const marksOnly = (c) => c.replace(/[֑-ֽֿׅ֯ׄ]/g, ""); // a cluster without accents, meteg and rafe
+
+/** A word as clusters (a letter and the marks on it), or null if it holds anything else. */
+function clusters(word) {
+  const cl = word.match(/[א-ת][֑-ׇ]*/g);
+  return cl && cl.join("") === word ? cl : null;
+}
+
+/** A shewa right after the stressed vowel closes the stressed syllable, so it is silent: take it away (accents still on). */
+function shewaAfterStress(word, joined) {
+  if (joined) return word; // a word joined by maqqef has no stress of its own
+  const cl = clusters(word);
+  if (!cl || cl.length < 3) return word;
+  const isCons = consonantal(cl);
+  const at = stressAt(cl);
+  if (!at.length) return word;
+  const s0 = Math.max(...at);
+  if (s0 === 0 && /^\u05D5\u05BC/.test(marksOnly(cl[0]))) return word; // an accent on the "and" וּ: the word's own start follows (וּ֥תְהִי u-te-HI)
+  for (let k = s0 + 1; k < cl.length - 1; k++) {
+    if (!isCons[k]) continue; // a vowel letter or quiet א after the stressed vowel
+    // (not a doubled letter, nor one before the same letter: those shewas are said — בָּ֥זְזוּ)
+    const same = cl[k + 1] && cl[k + 1][0] === cl[k][0];
+    if (cl[k].includes(SHEWA) && !FULL_VOWEL.test(cl[k]) && !cl[k].includes(DAGESH) && !same) cl[k] += SILENT;
+    break;
+  }
+  return cl.join("");
+}
+
 function saidShewa(word) {
-  const cl = word.match(/[\u05D0-\u05EA][\u05B0-\u05C7]*/g);
-  if (!cl || cl.length < 2 || cl.join("") !== word) return word; // anything unusual: leave it
+  const cl = clusters(word);
+  if (!cl || cl.length < 2) return word; // anything unusual: leave it
   return cl.map((c, i) => {
-    if (!c.includes(SHEWA) || i === cl.length - 1 || (i && THROAT.test(c[0]))) return c;
-    if (i === cl.length - 2 && cl[i + 1] === "\u05D0") return c; // before a final silent א (אַרְתַּחְשַׁסְתְּא)
+    if (!c.includes(SHEWA)) return c;
+    if (FULL_VOWEL.test(c)) return c.replace(SHEWA, ""); // a shewa beside another vowel (a slip in the source): the vowel wins
+    if (c.includes(SILENT)) return c; // known silent (after the stress, before a perfect's ending, before the ה of direction)
+    if (i === cl.length - 1 || (i && THROAT.test(c[0]))) return c;
+    if (i === cl.length - 2 && cl[i + 1] === "א") return c; // before a final silent א (אַרְתַּחְשַׁסְתְּא)
     const prev = cl[i - 1] || "";
-    const afterVowel = !!prev && !prev.includes(SHEWA) && (FULL_VOWEL.test(prev) || prev === "\u05D5\u05BC" || /^[\u05D0\u05D4\u05D5\u05D9]$/.test(prev));
+    const p0 = marksOnly(prev);
+    const afterVowel = !!prev && !prev.includes(SHEWA) && (FULL_VOWEL.test(prev) || VAV_VOWEL.test(p0) || /^[אהוי]$/.test(p0));
     // a long vowel before it: holam, tsere, shureq, hiriq or tsere with yod, a qamets with meteg (וַיֹּאמְרוּ, יָֽשְׁבוּ)
     const before = cl[i - 2] || "";
-    const v = prev === "\u05D0" ? before : prev; // a silent א: the vowel is on the letter before (וַיֹּאמְרוּ)
-    const afterLong = !!prev && !v.includes(SHEWA) && (/[\u05B5\u05B9]/.test(v) || v === "\u05D5\u05BC"
-      || (/\u05B8/.test(v) && /\u05BD/.test(v)) || (prev === "\u05D9" && /[\u05B4\u05B5]/.test(before)));
+    const v = p0 === "א" ? before : prev; // a silent א: the vowel is on the letter before (וַיֹּאמְרוּ)
+    const afterLong = !!prev && !v.includes(SHEWA) && (/[ֵֹ]/.test(v) || VAV_VOWEL.test(marksOnly(v))
+      || (v.includes(QAMATS) && (v.includes(METEG) || v.includes(KEEP))) || (p0 === "י" && /[ִֵ]/.test(before)));
     const said = i === 0 || prev.includes(SHEWA) || afterLong || (c.includes(DAGESH) && afterVowel) || cl[i + 1][0] === c[0];
     return said ? c.replace(SHEWA, SEGOL) : c;
   }).join("");
 }
 
+// accents written away from the stressed syllable: pashta, segolta, zarqa, telisha qetanna (after it); telisha
+// gedola, yetiv, dehi (before it)
+const OFF_STRESS = /[֚֭֮֙֒֩֠]/; // + dehi, written before the stressed syllable in the poetic books
+const ACCENT = /[֑-֯]/;
+
+/** The cluster holding a qamets in a word's closed last syllable (then a final consonant, not a silent ה or א), or -1. */
+function lastClosedQamets(cl) {
+  const n = cl.length;
+  if (n < 2) return -1;
+  const q = cl[n - 2], last = cl[n - 1];
+  const only = marksOnly(q).replace(/[א-תּׁׂ]/g, "") === QAMATS; // the qamets is its only vowel
+  const silent = (last[0] === "ה" && !last.includes(DAGESH)) || last[0] === "א";
+  return only && !FULL_VOWEL.test(last) && !silent ? n - 2 : -1;
+}
+/** Clusters carrying an accent written on the stressed syllable (a pashta written twice: the first one is). */
+function stressAt(cl) {
+  const at = cl.map((c, i) => (ACCENT.test(c) && !OFF_STRESS.test(c) ? i : -1)).filter((i) => i >= 0);
+  const pashta = cl.map((c, i) => (c.includes("\u0599") ? i : -1)).filter((i) => i >= 0);
+  if (pashta.length > 1) at.push(pashta[0]);
+  return at;
+}
+/** Is the word's accent on a syllable before its last one? */
+function stressedEarlier(cl) {
+  const at = stressAt(cl);
+  return at.length > 0 && Math.max(...at) < cl.length - 2;
+}
+/** Accents only off the stressed syllable (telisha qetanna, a single pashta…): the stress isn't shown. */
+const stressHidden = (cl) => !stressAt(cl).length && cl.some((c) => ACCENT.test(c));
+
 /**
- * Hebrew for the Israeli voice: no cantillation or meteg, the divine name read as Adonai (as is customary), the
- * said shewa sounded, and kol (כָּל־) and the qamets hatuf sign (ׇ) read o.
+ * Qamets hatuf the voice can't know (it reads every qamets "a"): a qamets in a closed syllable that isn't stressed is a
+ * short o. Here only the cases the spelling itself settles:
+ *  • כָּל kol (spelt with qamets it is always kol), with up to two prefixes (וּבְכָל־);
+ *  • a qamets before a hateph qamets (אָהֳלוֹ o-ho-LO, מָחֳרָת mo-cho-RAT), except the article's (בָּאֳנִי ba-o-NI);
+ *  • a wayyiqtol whose accent falls before its last syllable (וַיָּ֖מָת va-YA-mot, וַתָּ֣קָם va-TA-kom).
+ * Other verbs (זְכָר־ ze-khor, יִשְׁמָר־ yish-mor) need the word's grammar: verbHatuf(), called by audio.heVoice().
+ * A noun keeps its long qamets there (אָ֣דָם A-dam, הָעָם־ ha-am), and a qamets before a shewa can be either
+ * (qa-te-LU, chokh-MAH), so those are left to the voice. word: accents still on; joined: a maqqef follows.
+ */
+function qametsHatuf(word, joined) {
+  const cl = clusters(word);
+  if (!cl) return word;
+  const only = (c) => marksOnly(c).replace(/[א-תּׁׂ]/g, "") === QAMATS && !c.includes(KEEP);
+  // (the article's qamets before ֳ stays long, בָּאֳנִי: heVoice marks it KEEP from the word's grammar)
+  cl.forEach((c, i) => { if (only(c) && cl[i + 1] && cl[i + 1].includes("ֳ")) cl[i] = c.replace(QAMATS, QQATAN); });
+  // a qamets before a throat letter with a plain shewa: that shewa is silent (a said one would be hateph), so the
+  // syllable is closed: רָחְבּוֹ roch-BO, יָהְדָּי yoh-DAI (not when the qamets carries a meteg or the accent)
+  cl.forEach((c, i) => {
+    const next = cl[i + 1];
+    if (only(c) && !c.includes(METEG) && !ACCENT.test(c) && next && THROAT.test(next[0]) && next.includes(SHEWA) && !FULL_VOWEL.test(next) && i + 1 < cl.length - 1) cl[i] = c.replace(QAMATS, QQATAN);
+  });
+  const q = lastClosedQamets(cl);
+  if (q >= 0 && !cl[q].includes(KEEP)) {
+    const kol = cl[q][0] === "כ" && cl[q + 1][0] === "ל" && cl.length <= 4
+      && cl.slice(0, q).every((c) => /[ובכלמהש]/.test(c[0]));
+    // וַ then a prefix letter with dagesh (יּ תּ נּ), or וָא: the "and" of a wayyiqtol
+    const wayyiqtol = /^ו[֑-ֽ֯]*ַ/.test(cl[0]) && cl[1] && cl[1].includes(DAGESH) && /[יתנ]/.test(cl[1][0])
+      || (/^ו[֑-ֽ֯]*ָ/.test(cl[0]) && cl[1] && cl[1][0] === "א");
+    // a hollow verb's wayyiqtol draws the stress back (va-YA-kom) unless in pause; telisha alone doesn't show where
+    if (kol || (wayyiqtol && (joined || stressedEarlier(cl) || stressHidden(cl)))) cl[q] = cl[q].replace(QAMATS, QQATAN);
+  }
+  return cl.join("");
+}
+
+/** Which clusters are consonants, not letters standing for a vowel (וֹ וּ, a yod after i or e, a quiet א, a last ה). */
+function consonantal(cl) {
+  return cl.map((c, i) => {
+    const prev = cl[i - 1];
+    // a vav's own vowel: not the holam it carries as וֹ (that holam is the vowel the vav stands for)
+    // (after a bare א the holam is that א's vowel, written on the vav: שְׁאוֹל; the vav is then left as it was)
+    const afterAlef = prev && prev[0] === "א" && !FULL_VOWEL.test(prev) && !prev.includes(SHEWA);
+    const own = FULL_VOWEL.test(c[0] === "ו" && !afterAlef ? c.replace(HOLAM, "") : c) || c.includes(SHEWA);
+    if (c[0] === "ו" && !own && (c.includes(HOLAM) || (c.includes(DAGESH) && (i === 0 || (prev && !FULL_VOWEL.test(prev) && !prev.includes(SHEWA)))))) return false;
+    if (c[0] === "י" && !own && !c.includes(DAGESH) && prev && /[ִֵֶ]/.test(prev)) return false;
+    if (c[0] === "א" && !own && !c.includes(DAGESH) && !(cl[i + 1] && cl[i + 1][0] === "ו" && /[ֹּ]/.test(cl[i + 1]) && !FULL_VOWEL.test(cl[i + 1].replace(HOLAM, "")))) return false;
+    if (c[0] === "ה" && i === cl.length - 1 && !own && !c.includes(DAGESH)) return false;
+    return true;
+  });
+}
+/** The dictionary form's vowel at the main word's n-th consonant: "o" (holam, qamets hatuf, qibbuts), "a" (qamets, patah) or "". */
+function lemmaVowelAt(lemma, consonants, n) {
+  const parts = String(lemma || "").replace(/[֑-ֽֿ֯/]/g, "").split(/[\s־]+/).filter(Boolean);
+  const skel = (x) => x.replace(/[^א-ת]/g, "");
+  // a dictionary form of several words (a place name): the one spelt most like this word
+  const part = parts.find((x) => consonants.startsWith(skel(x).slice(0, 2))) || parts[parts.length - 1] || "";
+  const L = clusters(part);
+  if (!L) return "";
+  const cons = consonantal(L).map((ok, i) => (ok ? i : -1)).filter((i) => i >= 0);
+  const at = cons[n];
+  if (at == null) return "";
+  const x = L[at], y = L[at + 1];
+  if (/[ֳׇֹֻ]/.test(x) || (y && y[0] === "ו" && y.includes(HOLAM) && !consonantal(L)[at + 1])) return "o";
+  return /[ַָ]/.test(x) ? "a" : "";
+}
+
+const KEEP = "ׅ";
+// KEEP: set on a qamets the grammar shows is long, so no rule makes it qamets hatuf. SILENT: set on a shewa known to
+// be silent, which saidShewa leaves alone but still counts as a shewa (the second of two is said). Both are stripped.
+const SILENT = "ׄ";
+// KEEP and SILENT borrow the signs of the scribes' extraordinary dots (Num 3:39 וְׄאַׄהֲׄרֹׄןׄ), so a word carrying our marks
+// starts with an invisible word joiner; in any other word those dots are the scribes' and are taken off first.
+const MARKED = "\u2060";
+const STRESS = "֣"; // stands in for silluq, the verse's last stress, which shares its sign with meteg
+
+/**
+ * A Hebrew word with what its grammar settles for the voice (the caller knows it from the data's code):
+ *  g = { joined, final (the verse's last word), stem, form, person (STEPBible's verb letters: stem q Qal, N, p, P, h,
+ *        H Hophal, t…; form p perfect, q weqatal, i, w wayyiqtol, j, h, u, v imperative, c infinitive, a, r/s
+ *        participles), article, directional (ה of direction), prefix (letters before the main word), lemma }
+ *  • On the verse's last word the meteg sign is silluq, the stress: אָֽרְצָה is AR-tsah, not a-re-TSAH.
+ *  • The article's qamets is long: הָרְבִיעִי ha-re-vi-I, בָּאֳנִי ba-o-NI.
+ *  • A perfect's 1st/2nd person ending (-תִּי -תָּ -תְּ -נוּ -תֶּם): the shewa before it is silent (za-KHAR-ti, ya-GOR-ti).
+ *  • The ה of direction: the syllable before it is stressed and closed (QED-mah).
+ *  • A verb's closed last syllable that isn't stressed has qamets hatuf (זְכָר־ ze-khor, וַיָּ֙קָם֙ va-YA-kom), except in
+ *    a perfect or participle, where the qamets is long (שָׂם־ sam, גָּר־ gar, עָ֥שָׂהּ A-sah).
+ *  • A qamets before a shewa: long, with the shewa said (שָׁמְרוּ sha-me-RU, יִקָּבְצוּ, בָּרְכוּ, אָמְרִין, יָדְךָ ya-de-KHA),
+ *    except a Qal imperative or infinitive and the Hophal (שָׁמְרֵנִי shom-RE-ni, הָגְלוּ hog-LU), and a noun whose
+ *    dictionary form has o there (קָדְשׁוֹ kod-SHO from קֹדֶשׁ, אָזְנֵי from אֹזֶן): qamets hatuf, the shewa silent.
+ */
+export function hebrewByGrammar(word, g) {
+  const cl = clusters(String(word || "").replace(/[ׅׄ]/g, ""));
+  if (!cl) return word;
+  const n = cl.length;
+  const vowelless = (c) => !FULL_VOWEL.test(c);
+  const plainShewa = (c) => !!c && c.includes(SHEWA) && vowelless(c);
+  const onlyQamats = (c) => marksOnly(c).replace(/[א-תּׁׂ]/g, "") === QAMATS;
+  const verb = !!g.form;
+  if (g.final) for (let i = n - 1; i >= 0; i--) if (cl[i].includes(METEG)) { cl[i] = cl[i].replace(METEG, STRESS); break; }
+  if (g.article) {
+    const i = cl.findIndex((c, k) => k < (g.prefix || 1) && /[הבכל]/.test(c[0]) && onlyQamats(c));
+    if (i >= 0) cl[i] += KEEP;
+  }
+  if ((g.form === "p" || g.form === "q") && /[12]/.test(g.person || "")) {
+    for (let k = n - 1; k >= Math.max(1, n - 3); k--) {
+      if (/[תנ]/.test(cl[k][0])) { if (plainShewa(cl[k - 1])) cl[k - 1] += SILENT; break; }
+    }
+  }
+  if (g.directional && n >= 3 && cl[n - 1][0] === "ה" && cl[n - 2].includes(QAMATS) && plainShewa(cl[n - 3])) cl[n - 3] += SILENT;
+  const q = lastClosedQamets(cl);
+  if (verb && q >= 0) {
+    const mood = /[iwjhuvc]/.test(g.form) && !(g.form === "c" && g.person);
+    if (mood && !cl[q].includes(METEG) && (g.joined || stressedEarlier(cl) || (g.form === "w" && stressHidden(cl)))) cl[q] = cl[q].replace(QAMATS, QQATAN);
+    else if (!mood) cl[q] += KEEP; // שָׂם־, גָּר־, עָ֥שָׂהּ; also a verb spelt like kol (וְכָל, "measured")
+  }
+  // a qamets before a plain shewa (not the word's last consonant, not under a throat letter; a quiet א may come between)
+  const isCons = consonantal(cl);
+  const consAt = cl.map((c, i) => (isCons[i] ? i : -1)).filter((i) => i >= 0);
+  const lastCons = consAt[consAt.length - 1];
+  const stressed = stressAt(cl);
+  const mainCons = cl.slice(g.prefix || 0).filter((c, i) => isCons[i + (g.prefix || 0)]).map((c) => c[0]).join("");
+  for (let k = 0; k < n - 1; k++) {
+    const c = cl[k];
+    let j = k + 1;
+    if (cl[j] && cl[j][0] === "\u05D0" && !isCons[j]) j++; // חַטָּאתְךָ: the qamets, a quiet א, then the shewa
+    const next = cl[j];
+    // a Qal imperative or infinitive (and the Hophal) shortens the qamets of the word's first letter only (שָׁמְרֵנִי
+    // shom-RE-ni; but לִקְרָאתְךָ liq-ra-te-KHA keeps its long a on the second)
+    let shortVerb = verb && k === (g.prefix || 0) && ((g.stem === "q" && (g.form === "v" || (g.form === "c" && !g.person))) || g.stem === "H");
+    // a Qal imperfect (wayyiqtol, jussive, cohortative) or infinitive with a pronoun ending: the qamets stands for the
+    // stem's o (yish-MOR → yish-mor-KHA יִשְׁמׇרְךָ, a-khol-KHA אֲכׇלְךָ), unless a quiet א comes between (לִקְרָאתְךָ) or
+    // the shewa stands before the same letter (יְשָׁדְדֵם)
+    if (verb && g.suffix && g.stem === "q" && (/[iwjhu]/.test(g.form) || (g.form === "c" && !g.person)) && k >= (g.prefix || 0)
+      && j === k + 1 && !(cl[j + 1] && cl[j + 1][0] === cl[j][0])) shortVerb = true;
+    if (!onlyQamats(c) || c.includes(KEEP) || (c.includes(METEG) && !shortVerb) || !plainShewa(next) || next.includes(SILENT) || THROAT.test(next[0]) || j >= lastCons) continue;
+    if (!g.joined && stressed.length && k === Math.max(...stressed)) continue; // the stressed syllable, closed by the shewa (יָ֥לְדָה YAL-dah)
+    let short = null;
+    if (verb) short = shortVerb;
+    else if (g.lemma && k >= (g.prefix || 0)) {
+      const nth = consAt.filter((i) => i >= (g.prefix || 0) && i < k).length;
+      const v = lemmaVowelAt(g.lemma, mainCons, nth);
+      short = v === "o" ? true : v === "a" ? false : null;
+    }
+    if (short === true) cl[k] = c.replace(QAMATS, QQATAN);
+    else if (short === false) { cl[k] = c + KEEP; cl[j] = next.replace(SHEWA, SEGOL); }
+  }
+  // a noun from an o-word in a closed, unstressed syllable: before a doubled letter (עֹז → עׇזִּי ozzi, קָטֹן → קׇטׇנִּי)
+  // or as the last syllable of a word joined by maqqef (חֹק → חׇק־ choq, רֹב → רׇב־ rov)
+  if (!verb && g.lemma) {
+    for (let k = g.prefix || 0; k < n - 1; k++) {
+      const c = cl[k], next = cl[k + 1];
+      if (!onlyQamats(c) || c.includes(KEEP) || !isCons[k + 1]) continue;
+      if (!g.joined && stressed.length && k === Math.max(...stressed)) continue;
+      const doubled = next.includes(DAGESH) && FULL_VOWEL.test(next);
+      const closedLast = g.joined && k + 1 === n - 1 && !FULL_VOWEL.test(next); // (a last shewa is silent: כְּדׇרְ־)
+      if (!doubled && !closedLast) continue;
+      const nth = consAt.filter((i) => i >= (g.prefix || 0) && i < k).length;
+      if (lemmaVowelAt(g.lemma, mainCons, nth) === "o") cl[k] = c.replace(QAMATS, QQATAN);
+    }
+  }
+  const out = cl.join("");
+  return /[ׅׄ]/.test(out) ? MARKED + out : out; // our marks, not the scribes' dots (which were taken off above)
+}
+
+/**
+ * Words the scribes always read differently from how they are written, spelt for the voice as they are read:
+ *  • הִוא (written "hu", pointed and read hi, "she", 191 times in the Torah) → הִיא, or the voice says hu;
+ *  • a letter carrying hiriq with patah or qamets (יְרוּשָׁלִַם, read ye-ru-sha-LA-yim) → that vowel, then yod with hiriq;
+ *  • an unpointed ש inside a word (יִשָּׂשכָר, read yis-sa-KHAR) is silent → left out.
+ */
+function perpetualQere(word) {
+  return word
+    .replace(/הִ(ֽ?)וא$/, "הִ$1יא")
+    .replace(/([א-ת][ּֽֿׁׂ]*)(?:([ַָ])ֽ?ִ|ִֽ?([ַָ]))ֽ?/g, (m, l, a, b) => l + (a || b) + "יִ")
+    .replace(/([ְ-ׇ])ש(?=[א-ת])/g, "$1"); // (no look-behind: older iPhones can't read it)
+}
+
+/**
+ * Hebrew for the Israeli voice: no cantillation or meteg; the divine name read as Adonai (as is customary); the said
+ * shewa sounded; the sure cases of qamets hatuf read o; and the verse's main pauses heard — a comma at the atnah (and
+ * segolta), the verse's middle, and a full stop at sof pasuq ׃, its end.
  */
 export function hebrewSpeech(text) {
-  return String(text || "").replace(/[/[\]]/g, "") // word-part slashes; brackets round optional words
-    .replace(/[֑-֯׀׃׆]/g, "") // accents, paseq, sof pasuq, inverted nun (meteg stays for now)
-    .replace(/(^|\s)[פס](?=\s|$)/g, "$1") // paragraph letters standing alone (not a word's last letter: סוּס)
-    .replace(DIVINE_NAME, (m, start, prefix) => start + prefix + (/ִ/.test(m.slice(prefix.length)) ? ELOHIM : ADONAI))
-    // כָּל־ "kol": the qamets before a maqaf is a short o (also after prefixes: וְכָל־, וּבְכָל־, וּמִכָּל־)
-    .replace(KOL, "$1$2$3ֹ$4ל")
-    .replace(/ׇ/g, "ֹ") // the qamets hatuf sign (חׇכְמָה): o, which not every voice knows
-    .replace(/־/g, " ").replace(/\s+/g, " ").trim()
-    .split(" ").map(saidShewa).join(" ")
-    .replace(/ֽ/g, ""); // meteg: it marked a long qamets for saidShewa; the voice doesn't need it
+  const out = [];
+  String(text || "").replace(/[/[\]]/g, "").replace(/׃/g, "׃ ").split(/\s+/).forEach((token) => {
+    if (!token || /^[פס]$/.test(token)) return; // paragraph letters standing alone (not a word's last letter: סוּס)
+    const marked = token.includes(MARKED);
+    const parts = token.split("־");
+    parts.forEach((raw, k) => {
+      const joined = k < parts.length - 1;
+      const stop = /׃/.test(raw) ? "." : /[֑֒֫]/.test(raw) ? "," : ""; // + ole we-yored (poetry)
+      let w = raw.replace(/[׀׃׆]/g, ""); // paseq, sof pasuq, inverted nun
+      w = marked ? w.replace(MARKED, "") : w.replace(/[ׅׄ]/g, ""); // the scribes' dots aren't said
+      if (!/[א-ת]/.test(w)) { if (stop && out.length) out[out.length - 1] += stop; return; }
+      w = qametsHatuf(shewaAfterStress(w, joined), joined)
+        .replace(/[֑-֯]/g, ""); // accents (the meteg stays for saidShewa)
+      w = perpetualQere(w)
+        .replace(DIVINE_NAME, (m, start, prefix) => {
+          // after לַ בַּ כַּ וַ (Adonai) or לֵ (Elohim) the א is quiet: la-do-NAI; after מֵ or שֶׁ it keeps its vowel (me-a-do-NAI)
+          const elohim = /ִ/.test(m.slice(prefix.length));
+          const quiet = elohim ? /ֵ[ּֽׁׂ]*$/.test(prefix) : /ַ[ּֽׁׂ]*$/.test(prefix);
+          return start + prefix + (elohim ? ELOHIM : ADONAI).replace(quiet ? /^(א)[ֱֲ]/ : /^$/, "$1");
+        });
+      // a shewa after qamets hatuf (ׇ, short) stays silent: חׇכְמָה chokh-MAH; then ׇ becomes holam, which every voice knows
+      w = saidShewa(w).replace(/[ֽֿׅׄ]/g, "").replace(/ׇ/g, HOLAM); // meteg, rafe, the scribes' dots
+      out.push(w + stop);
+    });
+  });
+  // a word on its own needs no pause after it
+  if (out.length === 1) return out[0].replace(/[,.]$/, "");
+  return out.join(" ").replace(/,$/, ""); // nothing follows the last word: no pause to make
+}
+
+/**
+ * A Hebrew word whose pronunciation the app shows (a card's "say", e.g. "chokh-MAH"): where the respelling has o for a
+ * qamets, that qamets is qamets hatuf, so it is marked ׇ for the voice. The spelling alone can't tell qa-te-LU from
+ * chokh-MAH; the respelling, checked by hand, can.
+ */
+export function hebrewForSay(text, say) {
+  const cl = clusters(String(text || "").trim());
+  if (!cl || !say) return text;
+  const slots = [];
+  cl.forEach((c, i) => {
+    const m = marksOnly(c);
+    if (/^ו[ֹּ]$/.test(m) && i > 0 && !FULL_VOWEL.test(marksOnly(cl[i - 1])) && !cl[i - 1].includes(SHEWA)) { slots.push({ v: m.includes(HOLAM) ? "o" : "u" }); return; }
+    if (m.includes(QAMATS)) { slots.push({ v: "a", q: i }); return; }
+    const v = [["ֱ", "e"], ["ֲ", "a"], ["ֳ", "o"], ["ִ", "i"], ["ֵ", "e"], ["ֶ", "e"], ["ַ", "a"], [HOLAM, "o"], ["ֺ", "o"], ["ֻ", "u"], [QQATAN, "o"]].find(([k]) => m.includes(k));
+    if (v) slots.push({ v: v[1] });
+    else if (m.includes(SHEWA) && i < cl.length - 1) slots.push({ v: "e", opt: true, c: i });
+  });
+  const said = (String(say).toLowerCase().replace(/ch|kh|sh|ts/g, "c").replace(/([aeou])[iy](?=$|[^aeiou]|-)/g, "$1").match(/[aeiou]/g)) || [];
+  // line the vowel slots up with the respelling's vowels (both are short: plain edit distance)
+  const n = slots.length, m = said.length;
+  const D = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+  const fit = (s, v) => s.v === v || (s.q != null && v === "o");
+  for (let i = 1; i <= n; i++) D[i][0] = D[i - 1][0] + (slots[i - 1].opt ? 0 : 1);
+  for (let j = 1; j <= m; j++) D[0][j] = j;
+  for (let i = 1; i <= n; i++) for (let j = 1; j <= m; j++) {
+    D[i][j] = Math.min(D[i - 1][j - 1] + (fit(slots[i - 1], said[j - 1]) ? 0 : 1), D[i - 1][j] + (slots[i - 1].opt ? 0 : 1), D[i][j - 1] + 1);
+  }
+  for (let i = n, j = m; i > 0 && j > 0;) {
+    if (D[i][j] === D[i - 1][j - 1] + (fit(slots[i - 1], said[j - 1]) ? 0 : 1)) {
+      const s = slots[i - 1];
+      if (s.q != null && said[j - 1] === "o") cl[s.q] = cl[s.q].replace(QAMATS, QQATAN);
+      if (s.opt && said[j - 1] === "e") cl[s.c] = cl[s.c].replace(SHEWA, SEGOL); // ka-te-LU: the respelling says this shewa
+      i--; j--;
+    } else if (D[i][j] === D[i - 1][j] + (slots[i - 1].opt ? 0 : 1)) i--;
+    else j--;
+  }
+  return cl.join("");
 }
 
 /** The text a voice should read for a word or phrase, by language and pronunciation setting. */

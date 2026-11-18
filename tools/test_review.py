@@ -78,10 +78,10 @@ async def main():
           el: [s.erasmianSpeech('δ᾽ ἂν'), s.erasmianSpeech('δ᾽'), s.greekSay('δ᾽ ἂν'), s.koineSpeech('ἁμάρτανε.]]')] }; }""")
         check("Hebrew voice: a word's last ס stays (סוּס, כָּעַס); a lone paragraph ס/פ and brackets go",
               r2["he"] == ["סוּס", "כָּעַס", "וַיְהִי", "כִּי אם"], str(r2["he"]))
-        check("Greek elision: δ᾽ ἂν said as one word (ντάν, dan); δ᾽ alone said ντέ; Koine drops ]]",
-              r2["el"] == ["ντάν", "ντέ", "dan", "αμάρτανε."], str(r2["el"]))
+        check("Greek elision: δ᾽ ἂν said as one word (ντάν, dan); δ᾽ alone said ντε (unaccented, so unstressed); Koine drops ]]",
+              r2["el"] == ["ντάν", "ντε", "dan", "αμάρτανε."], str(r2["el"]))
         check("Hebrew voice: the divine name read Adonai (with prefixes) or Elohim after Adonai; no accents or sof pasuq; said shewa as e; kol",
-              r["he"] == ["אֲדֹנָי", "לַאֲדֹנָי", "אֲדֹנָי אֱלֹהִים", "בֶּרֵאשִׁית", "כֹּל הָאָרֶץ"], str(r["he"]))
+              r["he"] == ["אֲדֹנָי", "לַאדֹנָי", "אֲדֹנָי אֱלֹהִים", "בֶּרֵאשִׁית", "כֹּל הָאָרֶץ."], str(r["he"]))
 
         # 2. Nothing yet
         await fresh(pg)
@@ -227,8 +227,8 @@ async def main():
         await pg.click(".say-test [data-say-lang='grc']")
         await pg.wait_for_timeout(150)
         sp = await spoken(pg)
-        check("Settings: Try Greek follows the pronunciation choice (Erasmian respelt, then Koine with η as e)",
-              len(sp) == 2 and sp[0]["text"] == "έν αρχέι έιν ό λόγκος" and sp[1]["text"] == "εν αρχέ έν ο λόγος", str(sp))
+        check("Settings: Try Greek follows the pronunciation choice (Erasmian respelt, unaccented ἐν ὁ unstressed; then Koine with η as e)",
+              len(sp) == 2 and sp[0]["text"] == "εν αρχέι έιν ο λόγκος" and sp[1]["text"] == "εν αρχέ έν ο λόγος", str(sp))
 
         # 9. No voice on the phone: plain help; no speech at all: says so
         await pg.evaluate("window.__voices = [{name: 'Daniel', lang: 'en-GB', localService: true}]")
@@ -367,7 +367,7 @@ async def main():
         # a Hebrew verse said whole leaves out words written but not read; joined words keep their maqqef
         hv = await pg.evaluate("""async () => { const a = await import('./js/audio.js');
           return a.verseSpeech([["אֶת/", "", "", "", "", "־"], ["הַ/דָּבָר", "", "", "", "", ""], ["הַזֶּה", "", "", "", "", "", "k"], ["וַיֹּאמֶר", "", "", "", "", "׃"]], "he"); }""")
-        check("Hebrew verse for the voice: maqqef joins, a written-not-read word is left out", hv == "אֶת־הַדָּבָר וַיֹּאמֶר", hv)
+        check("Hebrew verse for the voice: maqqef joins, a written-not-read word is left out, sof pasuq kept (a full stop)", hv == "אֶת־הַדָּבָר וַיֹּאמֶר׃", hv)
         await level("medium")
 
         # 11. Small phone, largest text, dark: the card fits, choices in two rows

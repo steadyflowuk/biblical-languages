@@ -5,7 +5,7 @@ import * as data from "./data.js";
 import * as nav from "./nav.js";
 import { readingStarted } from "./activity.js";
 import * as esv from "./esv.js";
-import { wordSayButton, verseSayButton, verseSpeech, sayTapped, listenLevel } from "./audio.js";
+import { wordSayButton, verseSayButton, verseSpeech, sayTapped, listenLevel, heVoice } from "./audio.js";
 import { heLemma,
   heText, heTranslit, heEnglish, heAfter, heJoined, heParagraphAfter, isAramaic, heParts, heMainKey,
   heShortGrammar, heFriendlyGrammar,
@@ -225,7 +225,7 @@ function heWordSheetHTML(w, ctx) {
   return `
     <p class="ws-ref">${esc(ctx.ref)}</p>
     <h2 class="ws-word he" lang="he" dir="rtl" id="sheet-title">${esc(heText(w))}</h2>
-    <p class="ws-translit">${esc(heTranslit(translit))} ${wordSayButton(heText(w) + (heJoined(w[5]) ? "־" : ""), "he", { className: "small" })}</p>
+    <p class="ws-translit">${esc(heTranslit(translit))} ${wordSayButton(heVoice(w, null, heJoined(w[5]), ctx.lex) + (heJoined(w[5]) ? "־" : ""), "he", { className: "small" })}</p>
     ${ctx.listen || ""}
     ${flag ? `<p class="ws-flag">${esc(FLAG_NOTES[flag] || "")}</p>` : ""}
     <dl class="ws-facts">
@@ -293,7 +293,7 @@ function showWord(state, vi, wi, returnFocus) {
   const bsb = refs.map((r) => bsbVerse(state, r)).filter(Boolean)
     .map((b) => (own ? "" : `<sup class="bsb-ref">${b.c === state.ch ? b.n : `${b.c}:${b.n}`}</sup>`) + bsbHTML(b.text, b.notes, b.c))
     .join(" ").replace(/<button[^>]*>†<\/button>/g, "");
-  const listen = verseSayButton(verseSpeech(verse[1], state.he ? "he" : "grc"), state.he ? "he" : "grc", { label: verse[0] === 0 ? "Listen to the title" : `Listen to verse ${verse[0]}` });
+  const listen = verseSayButton(verseSpeech(verse[1], state.he ? "he" : "grc", state.lex), state.he ? "he" : "grc", { label: verse[0] === 0 ? "Listen to the title" : `Listen to verse ${verse[0]}` });
   const ctx = {
     listen: listen ? `<p class="ws-verse-listen">${listen}</p>` : "",
     lex: state.lex, morph: state.morph, ref, i: wi, n: verse[1].length, bsb,
@@ -340,13 +340,13 @@ const plainLemma = (s) => String(s || "").replace(/^\//, "").replace(/\//g, "");
 
 /** A small Listen button for a whole verse, after its last word (word by word and side by side; not on Easy). */
 function verseListenHTML(state, verse) {
-  const b = verseSayButton(verseSpeech(verse[1], state.he ? "he" : "grc"), state.he ? "he" : "grc",
+  const b = verseSayButton(verseSpeech(verse[1], state.he ? "he" : "grc", state.lex), state.he ? "he" : "grc",
     { label: "", className: "small", name: verse[0] === 0 ? "Listen to the title" : `Listen to verse ${verse[0]}` });
   return b ? `<span class="v-listen" lang="en" dir="ltr">${b}</span>` : "";
 }
 
 /** A tapped word as the voice gets it: a Hebrew word joined by a maqqef keeps it (כָּל־ is said kol). */
-const spokenWord = (state, w) => (state.he ? heText(w) + (heJoined(w[5]) ? "־" : "") : w[0]);
+const spokenWord = (state, w) => (state.he ? heVoice(w, null, heJoined(w[5]), state.lex) + (heJoined(w[5]) ? "־" : "") : w[0]);
 
 /** "and + the + noun fs"; the "and" of a wayyiqtol is part of that verb form, so it isn't repeated. */
 function heWordGrammar(w, morph) {

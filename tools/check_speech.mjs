@@ -1,6 +1,6 @@
 // Every word the app can send to a voice, checked offline (Session 10e):  node tools/check_speech.mjs
 // Hebrew: every OT word (as the Reader's Listen gives it), every Hebrew dictionary headword, the Letters guide and the
-// Hebrew lessons and list — the voice text must keep every letter (the divine name may become Adonai/Elohim).
+// Hebrew lessons and list — the voice text must keep every letter (the divine name may become Adonai/Elohim, after a prefix לַאדֹנָי).
 // Greek: every NT word, every Greek headword and every Septuagint word, in Erasmian and Restored Koine — something
 // sayable must be left, and no brackets or Latin letters may reach the voice.
 // Since 17 Nov 2026 also the sounds themselves: every accented Greek word of two or more syllables keeps a stress mark
@@ -30,8 +30,11 @@ function hebrew(where, t) {
   const out = s.hebrewSpeech(t);
   if (!HE_LETTER.test(out)) { silent.add(t); return; }
   const kept = cons(t.replace(/(^|\s)[פס](?=\s|$)/g, "$1"));
-  if (kept !== cons(out) && !/אֲדֹנָי|אֱלֹהִים/.test(out)) problems.push(`${where}: ${t} → ${out} (letters lost)`);
-  if (/[^ְ-ׇא-ת ]/.test(out)) problems.push(`${where}: ${t} → ${out} (not Hebrew)`);
+  // words the scribes read differently are spelt for the voice as read (הִוא → הִיא, Jerusalem's yod, Issachar's
+  // silent ש): compare without vav/yod and with a doubled ש once
+  const loose = (x) => x.replace(/[וי]/g, "").replace(/שש/g, "ש");
+  if (kept !== cons(out) && loose(kept) !== loose(cons(out)) && !/דֹנָי|לֹהִים/.test(out)) problems.push(`${where}: ${t} → ${out} (letters lost)`);
+  if (/[^ְ-ׇא-ת ,.]/.test(out) || /,\s*$/.test(out)) problems.push(`${where}: ${t} → ${out} (not Hebrew)`);
   if (out.split(" ").some((w) => /^[א-ת][ּׁׂ]*ְ/.test(w) && /[א-ת].*[א-ת]/.test(w))) problems.push(`${where}: ${t} → ${out} (said shewa left silent)`);
   if (/ׇ/.test(out)) problems.push(`${where}: ${t} → ${out} (qamets hatuf sign)`);
   // the divine name is never spelt out (also after two prefixes or שֶׁ), and כָּל־ is said kol (17 Nov 2026 review)

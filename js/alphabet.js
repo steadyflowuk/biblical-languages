@@ -6,7 +6,7 @@ import * as data from "./data.js";
 import { head } from "./screens.js";
 import { mixed, tableHTML } from "./lessons.js";
 import { openSheet } from "./reader.js";
-import { sayButton, verseSayButton, wordsSpeak, listenLevel } from "./audio.js";
+import { sayButton, verseSayButton, verseSpeech, wordsSpeak, listenLevel, heVoice } from "./audio.js";
 import { greekSay } from "./sound.js";
 import { heText, heAfter, heJoined } from "./hebrew.js";
 
@@ -23,7 +23,7 @@ const textAttrs = (lang) => (lang === "he" ? ' lang="he" dir="rtl"' : ' lang="gr
 
 function exampleHTML(ex, lang) {
   return `<li>
-    <span class="ls-ex-head"><span class="ls-ex-t"${textAttrs(lang)}>${esc(ex.t)}</span>${sayButton(ex.t, lang, { className: "small" })}</span>
+    <span class="ls-ex-head"><span class="ls-ex-t"${textAttrs(lang)}>${esc(ex.t)}</span>${sayButton(ex.t, lang, { className: "small", say: ex.say })}</span>
     <span class="ls-ex-say">${esc(ex.say)}</span>
     <span class="ls-ex-en">${mixed(ex.en)}</span></li>`;
 }
@@ -42,7 +42,7 @@ function letterSheetHTML(L, i, A, lang) {
   return `<p class="ws-ref">${NAME[lang]} letter ${i + 1} of ${A.letters.length}</p>
     <h2 class="ab-big" id="sheet-title"${textAttrs(lang)}>${L.forms.map(esc).join(" ")}</h2>
     <p class="ab-sheet-name"><strong>${esc(L.name)}</strong> <span${textAttrs(lang)}>${esc(L.nameT)}</span> <span class="muted">${esc(L.nameSay)}</span>
-      ${sayButton(L.nameT, lang, { className: "small" })}</p>
+      ${sayButton(L.nameT, lang, { className: "small", say: L.nameSay })}</p>
     <dl class="ws-facts">
       <div><dt>${lang === "grc" ? "Sound (Erasmian)" : "Sound"}</dt><dd>${mixed(L.sound)}${lang === "grc" && voice === "erasmian" ? ` <span class="tag">used in the app</span>` : ""}</dd></div>
       ${koine ? `<div><dt>Restored Koine</dt><dd>${mixed(L.koine)}${voice === "koine" ? ` <span class="tag">used in the app</span>` : ""}</dd></div>` : ""}
@@ -71,10 +71,17 @@ function verseText(words, lang) {
   return words.map((w) => heText(w) + (heJoined(w[5]) ? "־" : heAfter(w[5]) ? heAfter(w[5]) : "")).join(" ").replace(/־ /g, "־");
 }
 
+/** Hebrew voice text for each word of verseText, in the same order (each word's grammar settles qamets hatuf). */
+function heVoices(words, lex) {
+  return words.map((w) => heVoice(w, null, heJoined(w[5]), lex) + (heJoined(w[5]) ? "־" : heAfter(w[5]) ? heAfter(w[5]) : "")).join(" ").replace(/־ /g, "־").split(" ").filter(Boolean);
+}
+
 /** Each word a button that says it (Settings › Listening practice: Easy and Medium). Maqqef-joined words stay one. */
-function tappableWords(text, lang) {
-  return text.split(" ").filter(Boolean).map((w) => (/[\u05D0-\u05EA\u0370-\u03FF\u1F00-\u1FFF]/.test(w)
-    ? `<button type="button" class="say-w" data-say="${esc(w)}" data-say-lang="${lang === "he" ? "he" : "grc"}">${esc(w)}</button>`
+function tappableWords(text, lang, voices) {
+  const shown = text.split(" ").filter(Boolean);
+  const said = voices && voices.length === shown.length ? voices : shown;
+  return shown.map((w, i) => (/[\u05D0-\u05EA\u0370-\u03FF\u1F00-\u1FFF]/.test(w)
+    ? `<button type="button" class="say-w" data-say="${esc(said[i])}" data-say-lang="${lang === "he" ? "he" : "grc"}">${esc(w)}</button>`
     : esc(w))).join(" "); // a paseq ׀ or a dash: nothing to say
 }
 
@@ -83,10 +90,14 @@ async function practiceHTML(A, lang) {
     const [book, cv] = pr.ref.split(" ");
     const [ch, v] = cv.split(":").map(Number);
     let text = "";
+    let spoken = ""; // for the whole-verse button: with the accents, so the voice pauses at the verse's middle
+    let voices = null; // Hebrew: each word's own voice text
     try {
       const book_ = await data.original(book);
       const words = ((book_.ch.find(([c]) => c === ch) || [0, []])[1].find(([n]) => n === v) || [0, []])[1];
       text = verseText(words, lang).replace(/[֑-ֽ֯]/g, "");
+      spoken = verseSpeech(words, lang, book_.lex);
+      if (lang === "he") voices = heVoices(words, book_.lex);
     } catch (e) { /* offline: show the rest */ }
     const books = await data.books().catch(() => []);
     const b = books.find((x) => x.id === book);
@@ -94,10 +105,10 @@ async function practiceHTML(A, lang) {
     const say = lang === "grc" ? greekSay(text) : pr.say;
     return `<li class="ab-verse">
       <p class="ab-verse-ref"><a href="#/read/${book}/${ch}/${v}">${esc(name)}</a></p>
-      ${text ? `<p class="ab-verse-t"${textAttrs(lang)}>${wordsSpeak() ? tappableWords(text, lang) : esc(text)}</p>` : `<p class="muted">The verse needs a connection the first time.</p>`}
+      ${text ? `<p class="ab-verse-t"${textAttrs(lang)}>${wordsSpeak() ? tappableWords(text, lang, voices) : esc(text)}</p>` : `<p class="muted">The verse needs a connection the first time.</p>`}
       <p class="ls-ex-say">${esc(say)}</p>
       <p class="ab-verse-en">${esc(pr.en)}</p>
-      ${text && verseSayButton(text, lang) ? `<p>${verseSayButton(text, lang)}</p>` : ""}
+      ${spoken && verseSayButton(spoken, lang) ? `<p>${verseSayButton(spoken, lang)}</p>` : ""}
     </li>`;
   }));
   return out.join("");

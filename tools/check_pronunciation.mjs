@@ -463,6 +463,14 @@ function hebrewExpected(word, info) {
     const at = L.map((c, k) => k).filter((k) => Lrole[k] === "c")[nth];
     return at == null ? "" : L[at].m.includes(H.PATAH) ? "patah" : L[at].m.includes(H.QAMATS) ? "qamets" : "";
   };
+  // is this verb an a-imperfect (yiqtal)? By its dictionary form: the qamets letter is the root's middle letter and a
+  // throat letter, or the root is one of the yiqtal verbs listed (written independently of js/sound.js)
+  const aImperfect = (letter) => {
+    const root = String(I.lemma || "").split(",")[0].replace(/[^\u05D0-\u05EA]/g, "").replace(/[ךםןףץ]/g, (x) => ({ "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" })[x]);
+    if (root.length !== 3) return false;
+    if (/[אהחע]/.test(letter) && root[1] === letter) return true;
+    return ["ירש", "נשק", "פגש", "לבש", "למד", "שכב", "רכב", "גדל", "כבד", "קרב", "ישן", "יבש", "חפץ"].includes(root);
+  };
   // qamets first (it decides some shewas): q[i] = "a" | "o" | "?" ; said shewa after it: sayNext[i] = true | false | "?"
   const q = C.map(() => "");
   const sayNext = {};
@@ -488,7 +496,12 @@ function hebrewExpected(word, info) {
     if (N && ni !== lastCons && plainShewa(N) && !GUTTURAL.test(N.ch)) {
       if (ni === endingShewa || ni === directionalShewa || closedShewa(ni) || (stressed && !verb && lemmaSign(i) === "patah")) { q[i] = "a"; sayNext[ni] = false; return; }
       if (stressed) { q[i] = "a"; sayNext[ni] = true; return; } // long by nature, stressed or not (יָ֥לְדָה yā-lᵉ-dāh)
-      if (shortImperativeAt(i)) { q[i] = "o"; sayNext[ni] = false; return; } // even with a meteg (שָֽׁמְרֵנִי)
+      // a Qal imperative or infinitive: o, the syllable closed (שָׁמְרֵנִי shom-); with a meteg the syllable stays open and
+      // the shewa is said (שָֽׁמְרֵנִי sho-me-RE-ni, PSA 16:1: GKC §46 d and §48 i read šŏmerâ)
+      if (shortImperativeAt(i)) { q[i] = "o"; sayNext[ni] = !!meteg(i); return; }
+      // an a-imperfect (GKC §60 c: the root's middle letter a throat letter, or one of a few verbs such as יָרַשׁ) keeps
+      // its a, lengthened before the tone, and the shewa after it is said: יִשְׁאָלְךָ yish-a-le-KHA, אִיעָצְךָ
+      if (verb && I.suffix && I.stem === "q" && /[iwjhu]/.test(I.form) && i >= (I.prefix || 0) && ni === i + 1 && aImperfect(c.ch)) { q[i] = "a"; sayNext[ni] = true; return; }
       // Qal yiqtol-type forms and infinitives keep the stem's o before a pronoun ending (yish-mor-KHA, a-khol-KHA, from
       // yishmor, ekhol): the qamets written there is o and closes its syllable (not when a quiet letter comes between)
       if (verb && I.suffix && I.stem === "q" && (/[iwjhu]/.test(I.form) || (I.form === "c" && !I.person)) && i >= (I.prefix || 0) && ni === i + 1) { q[i] = "o"; sayNext[ni] = false; return; }
@@ -758,7 +771,7 @@ if (argv[0] === "step") { stepCompare(true); process.exit(0); }
 // as "a.e" (ka.de.Shei), leaves out the said shewa after a long vowel or before the same letter (zoe.Chim, shi.Mot),
 // says the shewa that closes a syllable (da.Ra.she.ti), drops Jerusalem's last syllable, writes "Yahweh", "o.o"…
 // A change to the model that loses agreement must be looked at: `node tools/check_pronunciation.mjs step`.
-const STEP_BASELINE = { same: 111638, stress: 99776 };
+const STEP_BASELINE = { same: 111650, stress: 99785 };
 
 for (const [key, { where, w: dw, lex: dlex, info: dinfo }] of heParts) {
   const joined = key.endsWith("־");

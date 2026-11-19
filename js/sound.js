@@ -353,6 +353,14 @@ function consonantal(cl) {
   });
 }
 /** The dictionary form's vowel at the main word's n-th consonant: "o" (holam, qamets hatuf, qibbuts), "a" (qamets, patah) or "". */
+// Qal verbs whose imperfect has a in its second syllable (GKC §60 c, §64, §65): a throat letter as the root's middle
+// letter (שָׁאַל, יָעַץ, רָחַם), or one of these (by their consonants)
+const A_VERBS = /^(ירש|נשק|פגש|לבש|למד|שכב|רכב|גדל|כבד|קרב|ישן|יבש|חפץ)$/;
+function aClassVerb(lemma, letter) {
+  const L = String(lemma || "").split(",")[0].replace(/[^א-ת]/g, "").replace(/[ךםןףץ]/g, (x) => "כמנפצ"["ךםןףץ".indexOf(x)]);
+  if (L.length !== 3) return false;
+  return (THROAT.test(letter) && L[1] === letter) || A_VERBS.test(L);
+}
 function lemmaVowelAt(lemma, consonants, n) {
   const parts = String(lemma || "").replace(/[֑-ֽֿ֯/]/g, "").split(/[\s־]+/).filter(Boolean);
   const skel = (x) => x.replace(/[^א-ת]/g, "");
@@ -400,7 +408,9 @@ const STRESS = "֣"; // stands in for silluq, the verse's last stress, which sha
  *  • A verb's closed last syllable that isn't stressed has qamets hatuf (זְכָר־ ze-khor, וַיָּ֙קָם֙ va-YA-kom), except in
  *    a perfect or participle, where the qamets is long (שָׂם־ sam, גָּר־ gar, עָ֥שָׂהּ A-sah).
  *  • A qamets before a shewa: long, with the shewa said (שָׁמְרוּ sha-me-RU, יִקָּבְצוּ, בָּרְכוּ, אָמְרִין, יָדְךָ ya-de-KHA),
- *    except a Qal imperative or infinitive and the Hophal (שָׁמְרֵנִי shom-RE-ni, הָגְלוּ hog-LU), and a noun whose
+ *    except a Qal imperative or infinitive and the Hophal (שָׁמְרֵנִי shom-RE-ni, הָגְלוּ hog-LU; with a meteg the shewa is
+ *    said: שָֽׁמְרֵנִי sho-me-RE-ni), a Qal imperfect with a pronoun ending (יִשְׁמׇרְךָ yish-mor-KHA, but an a-imperfect keeps
+ *    its long a: יִשְׁאָלְךָ yish-a-le-KHA), and a noun whose
  *    dictionary form has o there (קָדְשׁוֹ kod-SHO from קֹדֶשׁ, אָזְנֵי from אֹזֶן): qamets hatuf, the shewa silent.
  */
 export function hebrewByGrammar(word, g) {
@@ -455,7 +465,20 @@ export function hebrewByGrammar(word, g) {
     // stem's o (yish-MOR → yish-mor-KHA יִשְׁמׇרְךָ, a-khol-KHA אֲכׇלְךָ), unless a quiet א comes between (לִקְרָאתְךָ) or
     // the shewa stands before the same letter (יְשָׁדְדֵם)
     if (verb && g.suffix && g.stem === "q" && (/[iwjhu]/.test(g.form) || (g.form === "c" && !g.person)) && k >= (g.prefix || 0)
-      && j === k + 1 && !(cl[j + 1] && cl[j + 1][0] === cl[j][0])) shortVerb = true;
+      && j === k + 1 && !(cl[j + 1] && cl[j + 1][0] === cl[j][0])) {
+      // …but a verb whose imperfect has a (yish-AL, i-ATS: a throat letter in the middle of the root, and a few others)
+      // lengthens that a to a long qamets before the ending, and the shewa after it is said: יִשְׁאָלְךָ yish-a-le-KHA,
+      // אִיעָצְךָ i-a-tse-KHA (GKC §60 c)
+      if (/[iwjhu]/.test(g.form) && onlyQamats(c) && plainShewa(next) && !THROAT.test(next[0]) && aClassVerb(g.lemma, c[0])) {
+        cl[k] = c + KEEP; cl[j] = next.replace(SHEWA, SEGOL); continue;
+      }
+      shortVerb = true;
+    }
+    // a meteg on a Qal imperative's or infinitive's qamets keeps the syllable open: the vowel is o and the shewa after
+    // it is said (שָֽׁמְרֵנִי sho-me-RE-ni, PSA 16:1; GKC §46 d, §48 i "šŏmerâ")
+    const metegO = shortVerb && k === (g.prefix || 0) && g.stem === "q" && c.includes(METEG) && onlyQamats(c)
+      && plainShewa(next) && !next.includes(SILENT) && !THROAT.test(next[0]) && j === k + 1 && j < lastCons;
+    if (metegO) { cl[k] = c.replace(QAMATS, QQATAN) + KEEP; cl[j] = next.replace(SHEWA, SEGOL); continue; }
     if (!onlyQamats(c) || c.includes(KEEP) || (c.includes(METEG) && !shortVerb) || !plainShewa(next) || next.includes(SILENT) || THROAT.test(next[0]) || j >= lastCons) continue;
     if (!g.joined && stressed.length && k === Math.max(...stressed)) {
       // the stressed qamets is long, and the shewa after it said (יָ֥לְדָה), unless it is a pausal qamets standing for the

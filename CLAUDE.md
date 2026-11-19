@@ -346,6 +346,23 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
   COVERAGE 115,881 Hebrew words (the restored joins). The 12 non-qere words STEPBible transliterates with "-" have no
   maqqef in Leningrad either: left as published.
 
+- [x] Logos re-check (19 Nov 2026, Logos open): the 18 Nov list done. Wegner lessons 1–6, 18 and Schwandt 1 read
+  in the built-in browser; GKC (LLS:46.20.10, in the user's library) §46, §48, §60 for the verb questions. GKC pages
+  open by URL as /books/LLS%3A46.20.10/references/gesgram.NN (Logos turns it into gesgram.NN.x); Wegner/Schwandt via
+  their contents page and the art=CHn link. (1) Wegner lesson 5 lists "after a long vowel" (yē-le-ḵû) among the said
+  shewas with no exception for a stressed vowel: he-4 agrees; the app's closed-syllable exceptions are GKC's.
+  (2) Imperatives: Wegner pairs כָּֽתְבָה kā-ṯe-ḇâ (perfect, meteg) with כָּתְבָה koṯ-ḇâ (imperative) but says nothing of a
+  meteg on an imperative; GKC §46 d and §48 i read שָׁמְרָה šŏmerâ — so a Qal imperative/infinitive qamets WITH a meteg is
+  now o with the shewa said (שָֽׁמְרֵנִי sho-me-RE-ni PSA 16:1, PSA 86:2, 38:20, 30:3), without one still shom-. EXO 18:19
+  אִיעָ֣צְךָ was wrong: the "stem's o" rule for a Qal imperfect + pronoun ending applies only to o-imperfects; GKC §60 c:
+  a-imperfects (root's middle letter a throat letter, or A_VERBS: ירש נשק פגש and common statives) lengthen the a and say
+  the shewa (יִשְׁאָלְךָ yish-a-le-KHA, אִיעָצְךָ, אֶרְחָמְךָ, יִירָשְׁךָ; 14 forms). Both in sound.js (aClassVerb; yiqtol forms only,
+  not infinitives: כְּשָׁמְעוֹ keeps o) and, written separately, in the checker (aImperfect); proven on the 18 Nov code
+  (32 problems in 3 kinds). STEP_BASELINE 111,650 / 99,785 (STEPBible agrees with 12 more forms). (3) he-2…5 and grc-1/2
+  18 Nov sentences re-read: all agree; records updated with the 19 Nov notes (Wegner counts ר a guttural: our "almost
+  never doubled, takes a plain shewa" recorded as differing on purpose). (4) Koine ηυ: not in Schwandt (his chart has no
+  ηυ) and Buth isn't in Logos: left as ev. Listening on the devices is still the user's to do.
+
 ## Data (Session 2)
 - Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (46 checks).
 - Greek = SBLGNT text (since Session 13; see the log) tagged from TAGNT. 137,741 words, 7,939 verses, SBL verse

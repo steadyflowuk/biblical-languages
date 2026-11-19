@@ -48,7 +48,7 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
 - `js/hebrew.js` Hebrew helpers: word parts, pronunciation, punctuation, short/full grammar labels
 - `js/dictionary.js` Words tab: search + entries (routes `#/words`, `#/words/KEY`) · `js/nav.js` back/return memory
 - `js/esv.js` ESV key + API + small offline store · Septuagint screen (`#/lxx/ID/CH[/V]`) lives in `js/reader.js`
-- `js/offline.js` saving Bible data for offline use · `js/check.js` Check this device (#/check) · `js/activity.js` study days + streak · `js/progress.js` Progress screen + saveBackup · `js/media.js` Videos screen
+- `js/votd.js` Today's verse: day-seeded pick from data/votd-pool.json, built like the Reader · `js/offline.js` saving Bible data for offline use · `js/check.js` Check this device (#/check) · `js/activity.js` study days + streak · `js/progress.js` Progress screen + saveBackup · `js/media.js` Videos screen
 - `js/alphabet.js` Alphabet and sounds (`#/alphabet/grc|he`, content in `lessons/alphabet/<lang>.json`)
 - `js/lessons.js` lesson engine (route `#/lesson/LANG/ID`) · `lessons/` index + one JSON file per lesson (format: lessons/README.md)
 - `js/review.js` Review trainer (#/review) · `js/sound.js` respelling + voice text (no DOM; Node can import it) ·
@@ -362,6 +362,42 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
   18 Nov sentences re-read: all agree; records updated with the 19 Nov notes (Wegner counts ר a guttural: our "almost
   never doubled, takes a plain shewa" recorded as differing on purpose). (4) Koine ηυ: not in Schwandt (his chart has no
   ηυ) and Buth isn't in Logos: left as ev. Listening on the devices is still the user's to do.
+
+- [x] Today's verse, Septuagint, Letters guide, listening (19 Nov 2026, user's request: Today's verse random and not
+  confined to 24; the Septuagint and the Letters guide vetted as deeply as the Greek and Hebrew; the three listening
+  settings tested). Today: tools/build_votd_pool.py (run by build_data.py) → data/votd-pool.json, verses that read
+  well alone: a whole BSB sentence with paired quotes, 5–24 Greek / 3–14 Hebrew words, names ≤ a third (Npt
+  Yahweh not a name), no Aramaic, psalm titles, k/x words, ⟦ ⟧, or Greek verses whose English is split: 4,882 Greek,
+  9,668 Hebrew. js/votd.js picks by the local calendar day through a Feistel shuffle (cycle walking): no verse comes
+  back until all have had their day; Greek and Hebrew differ; same verse on every device. buildVerse() makes Today's
+  word objects from the Reader's data (Hebrew prefixes with their own form “gloss”, Greek joined words with parts,
+  w.say = the Reader's word voice, verse.spoken = audio.verseSpeech), so Today sounds exactly like the Reader.
+  Loads the shown language's book first, then the other; a book that can't load → data/votd.json's 24 (todayVoice,
+  now in js/votd.js) → js/verses.js. warmEssentials also saves today's and tomorrow's verse books. tools/
+  check_votd.mjs builds all 14,550 pool verses and checks every word, voice and the daily cycle (and that the 24
+  fallbacks sound as the Reader does). audit_content 5b checks 8 fake-clock days in the page; test_app checks the
+  day's pick and the fallback (service worker blocked).
+  Septuagint: tools/check_lxx_text.py (rules of printed Greek: grave only on the last syllable, breathing only on the
+  first vowel, no capital inside a word, accent within three syllables, a breathing on every vowel-initial word, marks
+  on the second of αυ/ευ/ου, no word printed twice with different breathings) found 244 digitisation slips; build_lxx.py
+  makes a mid-word grave acute (207) and SWETE_FIXES puts 37 right by hand (ἄυδρας → ἄνδρας, ΙΙερσῶν → Περσῶν,
+  θέλημάμου → θέλημά μου …); README's dated notice says so (GPL). ALLOWED: crasis (ταὐτά, τοὐναντίον, καλοκἀγαθ-),
+  Ἀυάθ, Ἀταφόυτ, κατεπρᾴυνεν, Αβώρ. Voice (js/audio.js): lxxTokens (a mark joins its word, a space follows it: the
+  Erasmian voice said Ὠμάρ,Σωφάρ as one word), LXX_CAPS (a book's opening capitals said with accent and breathing:
+  ΕΝ ΑΡΧΗ → ἐν ἀρχῇ), LXX_NUMBERS + LXX_NUMBER_CONTEXT (59 letter numerals said as number words in the right form:
+  NUM 29:13 ιδ᾽ δεκατέσσαρας, JDG 20:24 τῇ β᾽ δευτέρᾳ, ESG 9:19 πέμπτην καὶ δεκάτην; EZR 2:37/38 and NEH 7:70 α = 1,000;
+  EZR 2:58 τοβ᾽ said as printed, 372, where the Hebrew has 392), a run of marks said once (αὐτοί·.), an elided word
+  keeps its mark (δ᾽ isn't the letter delta). The word sheet shows a numeral's value. check_pronunciation now goes
+  through all 30,533 Septuagint verses (words in order, pauses = punctuation, nothing non-Greek) and every tapped word.
+  Letters guide: check_pronunciation also checks each Greek letter name's respelling against how it is said, the
+  Hebrew letter names as cards, and the Hebrew read-aloud verses word by word (vowels, stress against the accents,
+  consonants, and what each word's button says); proven by planted mistakes. (Letter names stay bet/chet/tet/resh:
+  the model reads tsere-yod as e, as the voice does.)
+  Listening: tools/test_listening.py (207 checks, in check_all): Today, a lesson's Read step, the Reader in all three
+  layouts, the Septuagint screen and lines, the Letters guide, each at Easy/Medium/Hard: buttons shown or hidden, and
+  the exact text the voice is given for a tapped word and a whole verse (from the Bible data, independently of the
+  screen), Enter on a word, Restored Koine, the level kept after a reload, Reader options ↔ Settings, dictionary Listen
+  at every level. Proven by mutating audio.js (Hard still speaking; Septuagint taps unconverted).
 
 ## Data (Session 2)
 - Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (46 checks).
@@ -692,6 +728,9 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
 - `node tools/check_pronunciation.mjs [--examples N] [say WORD …]` — the linguist's check (see the 17 Nov log entry):
   how each word should sound vs what a Modern voice says from the app's text, stress, shown respellings, Hebrew card
   stress, whole verses. Run after any change to js/sound.js, heVoice/verseSpeech, a lesson say or the lists.
+- `node tools/check_votd.mjs` — Today's verse pool, every verse built as Today shows it (19 Nov).
+- `python3 tools/check_lxx_text.py` — the Septuagint's spelling against the rules of printed Greek (19 Nov).
+- `python3 tools/test_listening.py` — the three listening levels everywhere, exact voice text (19 Nov).
 - `node tools/check_speech.mjs` — every OT/NT/Septuagint word, headword, lesson and Letters word through the voice
   text (Hebrew keeps every letter, said shewa sounded, no ׇ; Greek sayable, no brackets/Latin, stress kept in both
   voices, no Modern vowels left in Koine); run after any change to js/sound.js.

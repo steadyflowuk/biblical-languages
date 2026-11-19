@@ -48,4 +48,9 @@ fi
 if [ ! -d morphgnt ]; then
   git clone -q --depth 1 https://github.com/morphgnt/sblgnt morphgnt
 fi
+# The full fonts (OFL) the app's subsets are made from by tools/make_fonts.py
+if [ ! -d gfonts/ofl/gentiumplus ]; then
+  rm -rf gfonts && git clone -q --depth 1 --filter=blob:none --sparse https://github.com/google/fonts.git gfonts
+  (cd gfonts && git sparse-checkout set ofl/gentiumplus ofl/atkinsonhyperlegible ofl/notoserifhebrew)
+fi
 echo "Check sources ready: python3 tools/check_data.py $DEST/sblgnt $DEST/morphhb"

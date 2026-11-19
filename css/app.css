@@ -39,8 +39,8 @@
 
   --font-ui: "Atkinson", "Gentium", "Hebrew Serif", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-greek: "Gentium", "Gentium Plus", "Times New Roman", serif;
-  --font-hebrew: "Hebrew Serif", "Noto Serif Hebrew", "Times New Roman", serif;
-  --font-scripture: "Gentium", Georgia, serif;
+  --font-hebrew: "Hebrew Serif", "Noto Serif Hebrew", "Gentium", "Times New Roman", serif; /* Gentium: [ ] | beside Hebrew */
+  --font-scripture: "Gentium", "Hebrew Serif", Georgia, serif; /* Hebrew Serif: Psalm 119's letters in the BSB */
 
   --radius: 14px;
   --radius-sm: 10px;

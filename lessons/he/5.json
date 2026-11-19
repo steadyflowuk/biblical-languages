@@ -10,7 +10,7 @@
         { "type": "scene", "picture": "⚖️", "text": "מִשְׁפָּט", "say": "mish-PAT", "en": "justice, judgement" },
         { "type": "scene", "picture": "🍞", "text": "לֶחֶם", "say": "LE-chem", "en": "bread, food" },
         { "type": "scene", "picture": "💧", "text": "מַיִם", "say": "MA-yim", "en": "water" },
-        { "type": "scene", "picture": "🫵", "text": "אַתָּה", "say": "a-TAH", "en": "you (to a man)" },
+        { "type": "scene", "picture": "👉", "text": "אַתָּה", "say": "a-TAH", "en": "you (to a man)" },
         { "type": "scene", "picture": "🌌", "text": "הַשָּׁמַיִם", "say": "ha-sha-MA-yim", "en": "the heavens" },
         { "type": "scene", "picture": "🔗", "text": "כָּל־הָאָרֶץ", "say": "kol ha-A-rets", "en": "all the earth" }
       ]

@@ -98,6 +98,16 @@ FORM_OF = {"G3165": "G1473", "G2248": "G1473", "G2257": "G1473", "G5216": "G4771
            "G5315": "G2068", "G2046": "G2036", "G4483": "G2036"}
 
 
+CYRILLIC_LOOKALIKE = {"а": "a", "е": "e", "о": "o", "р": "p", "с": "c", "х": "x", "у": "y", "і": "i", "ї": "ï",
+                      "А": "A", "Е": "E", "О": "O", "Р": "P", "С": "C", "Х": "X", "Т": "T", "Н": "H", "К": "K", "М": "M", "В": "B"}
+
+
+def latin_lookalikes(text):
+    """A Cyrillic letter inside an English word is a typing slip in the source ("Cyrenaїc", Abbott-Smith's βουνός)."""
+    return re.sub(r"[A-Za-z]*[а-яА-ЯіїІЇ][A-Za-z]*", lambda m: "".join(CYRILLIC_LOOKALIKE.get(c, c) for c in m.group(0))
+                  if re.search("[A-Za-z]", m.group(0)) else m.group(0), text)
+
+
 def read_lexicon(pattern):
     entries = OrderedDict()
     path = glob.glob(os.path.join(STEP, "Lexicons", pattern))[0]
@@ -112,7 +122,7 @@ def read_lexicon(pattern):
             "estrong": c[0], "rel": c[1].split("=", 1)[1].strip() if "=" in c[1] else "",
             "ustrong": c[2].strip(), "lemma": nfc(c[3].strip()) if key[0] == "G" else c[3].strip(),
             "translit": c[4].strip(),
-            "morph": c[5].strip(), "gloss": c[6].strip(), "def": c[7].strip() if len(c) > 7 else "",
+            "morph": c[5].strip(), "gloss": latin_lookalikes(c[6].strip()), "def": latin_lookalikes(c[7].strip()) if len(c) > 7 else "",
         }
     return entries
 

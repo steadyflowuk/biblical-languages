@@ -464,39 +464,41 @@ async def audit_pages():
         await pg.wait_for_selector("main h1")
         check(S, "lesson Read steps: every word has its dictionary form, meaning, grammar and English", await pg.evaluate(PAGE_JS))
 
-        # 5b. Today: every word of every verse shows itself first, then where it comes from
+        # 5b. Today: the day's random verse (js/votd.js) on 8 days, both languages: it is the day's pick, and every
+        # word shows itself first, then where it comes from (every pool verse is built and checked in check_votd.mjs)
         bad = []
-        votd = load("data/votd.json")
         await pg.clock.install(time=datetime.datetime(2030, 1, 1, 12))
         await pg.goto(f"{BASE}#/settings")
-        for v in votd:
-            # Today picks its verse by the date: set the clock to a day that shows this one
-            same = [x for x in votd if x["lang"] == v["lang"]]
-            i = same.index(v)
-            day = next(datetime.date(2030, 1, 1) + datetime.timedelta(k) for k in range(400)
-                       if ((datetime.date(2030, 1, 1) + datetime.timedelta(k)) - datetime.date(1970, 1, 1)).days % len(same) == i)
+        EXPECT_JS = """async (lang) => { const m = await import('./js/votd.js');
+          const [pool, books] = await Promise.all([fetch('data/votd-pool.json').then(r => r.json()), fetch('data/books.json').then(r => r.json())]);
+          const r = m.pickRef(m.poolRefs(pool, lang, books.map(b => b.id)), lang, m.dayNumber(new Date())); return r.join('-'); }"""
+        for k in range(8):
+            day = datetime.date(2030, 1, 1) + datetime.timedelta(k)
             await pg.clock.set_fixed_time(datetime.datetime(day.year, day.month, day.day, 12))
             await pg.goto(f"{BASE}#/settings")
             await pg.reload()
             await pg.goto(f"{BASE}#/today")
-            await pg.click(f'[data-lang="{v["lang"]}"]')
-            try:
-                await pg.wait_for_function(f"document.querySelector('.verse-slot')?.dataset.verse === {json.dumps(v['id'])}", timeout=8000)
-            except Exception:
-                bad.append(f"{v['ref']}: not shown on its day")
-                continue
-            ws = pg.locator(".verse-original .w")
-            for k in range(await ws.count()):
-                await ws.nth(k).click()
-                tapped = (await ws.nth(k).text_content()) or ""
-                g = await pg.locator(".verse-gloss").inner_text()
-                form = (await pg.locator(".verse-gloss .form").text_content()) or ""
-                if form != tapped:
-                    bad.append(f"{v['ref']} {tapped}: panel leads with {form!r}")
-                if "Dictionary form:" not in g and "Joined from two words:" not in g:
-                    bad.append(f"{v['ref']} {tapped}: no dictionary form line")
-                if re.search(r"undefined|null|NaN|\[object", g):
-                    bad.append(f"{v['ref']} {tapped}: odd text {g[:60]!r}")
+            for lang in ("grc", "he"):
+                want = await pg.evaluate(EXPECT_JS, lang)
+                await pg.click(f'[data-lang="{lang}"]')
+                try:
+                    await pg.wait_for_function(f"document.querySelector('.verse-slot')?.dataset.verse === {json.dumps(want)}", timeout=10000)
+                except Exception:
+                    bad.append(f"{day} {lang}: {want} not shown (showed {await pg.get_attribute('.verse-slot', 'data-verse')})")
+                    continue
+                ref = (await pg.locator(".verse-ref").inner_text()).split("·")[-1].strip()
+                ws = pg.locator(".verse-original .w")
+                for j in range(await ws.count()):
+                    await ws.nth(j).click()
+                    tapped = (await ws.nth(j).text_content()) or ""
+                    g = await pg.locator(".verse-gloss").inner_text()
+                    form = (await pg.locator(".verse-gloss .form").text_content()) or ""
+                    if form != tapped:
+                        bad.append(f"{ref} {tapped}: panel leads with {form!r}")
+                    if "Dictionary form:" not in g and "Joined from two words:" not in g:
+                        bad.append(f"{ref} {tapped}: no dictionary form line")
+                    if re.search(r"\bundefined\b|\bnull\b|\bNaN\b|\[object", g):
+                        bad.append(f"{ref} {tapped}: odd text {g[:60]!r}")
         check(S, "Today: every tapped word shows itself, its meaning here and its dictionary form", bad)
 
         # 5c. Reader notes for the chapters with special cases, in all three layouts: the same notes, true ones

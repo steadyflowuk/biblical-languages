@@ -58,6 +58,7 @@ export function meaningOf(lang, key, gloss) {
 
 export const books = () => getJSON("data/books.json");
 export const verseOfTheDay = () => getJSON("data/votd.json");
+export const votdPool = () => getJSON("data/votd-pool.json");
 // Spelling slips in the source's grammar explanations, put right once when the labels load (we restyle these;
 // the Bible text and glosses are left as published).
 const MORPH_FIXES = [[/belonginging/g, "belonging"], [/malemembers/g, "male members"], [/shouldor/g, "should or"],

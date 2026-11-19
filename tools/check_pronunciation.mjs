@@ -24,7 +24,7 @@ const R = path.join(path.dirname(fileURLToPath(import.meta.url)), "..") + "/";
 const S = await import(R + "js/sound.js");
 const audio = await import(R + "js/audio.js").catch((e) => { console.log("js/audio.js couldn't load in Node: " + e.message); return null; });
 const heVoice = audio && audio.heVoice;
-const { heText, heJoined } = await import(R + "js/hebrew.js");
+const { heText, heJoined, heMainKey } = await import(R + "js/hebrew.js");
 const json = (f) => JSON.parse(fs.readFileSync(R + f, "utf8"));
 const argv = process.argv.slice(2);
 const EXAMPLES = argv.includes("--examples") ? Number(argv[argv.indexOf("--examples") + 1]) : 4;
@@ -463,13 +463,14 @@ function hebrewExpected(word, info) {
     const at = L.map((c, k) => k).filter((k) => Lrole[k] === "c")[nth];
     return at == null ? "" : L[at].m.includes(H.PATAH) ? "patah" : L[at].m.includes(H.QAMATS) ? "qamets" : "";
   };
-  // is this verb an a-imperfect (yiqtal)? By its dictionary form: the qamets letter is the root's middle letter and a
-  // throat letter, or the root is one of the yiqtal verbs listed (written independently of js/sound.js)
+  // is this verb an a-imperfect (yiqtal)? Read from the Bible itself (19 Nov 2026, after the review: a word list copied
+  // from js/sound.js would share its mistakes): the vowel before the last letter of the verb's Qal imperfects without an
+  // ending (יִשְׁאַל, יִירַשׁ: a; יִשְׁמֹר: o). With no such form in the text, a throat letter as the root's middle letter.
   const aImperfect = (letter) => {
+    const m = qalTheme(I.lemma);
+    if (m && m.a + m.o > 0) return m.a > m.o;
     const root = String(I.lemma || "").split(",")[0].replace(/[^\u05D0-\u05EA]/g, "").replace(/[ךםןףץ]/g, (x) => ({ "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" })[x]);
-    if (root.length !== 3) return false;
-    if (/[אהחע]/.test(letter) && root[1] === letter) return true;
-    return ["ירש", "נשק", "פגש", "לבש", "למד", "שכב", "רכב", "גדל", "כבד", "קרב", "ישן", "יבש", "חפץ"].includes(root);
+    return root.length === 3 && /[אהחע]/.test(letter) && root[1] === letter;
   };
   // qamets first (it decides some shewas): q[i] = "a" | "o" | "?" ; said shewa after it: sayNext[i] = true | false | "?"
   const q = C.map(() => "");
@@ -585,7 +586,10 @@ function israeliVowels(word) {
 }
 
 // Checked by hand: forms too rare to write a rule for, with what they should be
+const sortedMarks = (x) => (String(x).match(/[\u05D0-\u05EA][\u05B0-\u05C7]*/g) || []).map((c) => c[0] + [...c.slice(1)].sort().join("")).join("");
 const VOWELS_OK = {
+  "אֶצָּרְךָ": "JER 1:5, the o (ʾeṣ-ṣor-KHA) is the one the written form אצורך shows (GKC §71); other imperfects of יָצַר differ",
+  "יִפְגָּשְׁךָ": "GEN 32:17, read yif-ga-she-KHA as GKC §60 Rem. 1 reads it (and STEPBible), though פָּגַשׁ's other imperfect (וַתִּפְגֹּשׁ) has o",
   "הַיְחָבְרְךָ": "PSA 94:20, a Pual with qamets hatuf (ha-ye-chov-re-KHA); the voice gets the qamets as a",
 };
 
@@ -657,6 +661,18 @@ for (const w of greekWords) {
   if (pairs.some(([e, g]) => e && g && !!e.s !== !!g.s) && exp.filter((x) => x.nuc).length > 1) note(problems, "Shown pronunciation stresses the wrong syllable", `${w}: shown ${S.greekSay(w)}`);
 }
 
+// ---- Letters guide (19 Nov 2026): each Greek letter's name as the guide respells it (AL-fa, ee-OH-ta) = how the name
+// is said (Erasmian model of the name as written); the guide's own examples and verses are in the checks above
+for (const L of GA.letters) {
+  const exp = greekExpected(L.nameT, "erasmian").map((x) => ({ ...x }));
+  const firstStress = exp.findIndex((x) => x.s);
+  exp.forEach((x, i) => { if (i !== firstStress) x.s = false; });
+  const shown = respellingSounds(L.nameSay.replace(/\s*\(.*\)$/, "")); // (a note after it: "tau (rhymes with how)")
+  const pairs = align(exp, shown);
+  if (pairs.some(([e, g]) => !(e && g && e.p === g.p))) note(problems, "Letters guide: a Greek letter's name is respelt differently from how it is said", `${L.nameT}: shown ${L.nameSay} = ${show(shown)}, said ${show(exp)}`);
+  else if (pairs.some(([e, g]) => !!e.s !== !!g.s) && exp.filter((x) => x.nuc).length > 1) note(problems, "Letters guide: a Greek letter's name stresses the wrong syllable", `${L.nameT}: shown ${L.nameSay}`);
+}
+
 // ---- Hebrew words: every OT word as a tap gives it, headwords, lists, lessons, Letters
 const otBooks = fs.readdirSync(R + "data/hot").map((f) => json("data/hot/" + f));
 const heSeen = new Map();
@@ -668,6 +684,29 @@ function grammarOf(code) {
   const main = parts.findIndex((x) => !/^(C|c|R|Rd|Td|Ti|Tr)$/.test(x)); // one-letter prefixes (c: wayyiqtol's vav; Ti הֲ; Tr שֶׁ)
   return { stem: v ? v[1] : "", form: v ? v[2] : "", person: v && v[3] ? v[3] : "", gn: v && v[4] ? v[4] : "", article: parts.includes("Td") || parts.includes("Rd"),
     directional: parts.includes("Sd"), suffix: parts.some((x) => x.startsWith("Sp")), prefix: main > 0 ? main : 0 };
+}
+// a verb's imperfect vowel, counted over its Qal imperfects, wayyiqtols and jussives without an ending: { a, o }
+var qalThemes = null; // (var: the say command below can reach it before this line runs)
+function qalTheme(lemma) {
+  if (!lemma) return null;
+  if (!qalThemes) {
+    qalThemes = new Map();
+    for (const f of fs.readdirSync(R + "data/hot")) for (const B of [json("data/hot/" + f)]) for (const [, vs] of B.ch) for (const v of vs) for (const w of v[1]) {
+      const g = grammarOf(w[4]);
+      if (g.stem !== "q" || !/^[iwj]$/.test(g.form) || g.suffix || !/^(3ms|2ms|3fs|1cs|1cp)$/.test(g.person + g.gn)) continue;
+      const mk = (String(w[3] || "").match(/\{(H\d+[A-Za-z]?)/) || [])[1];
+      const lem = mk && B.lex[mk] ? String(B.lex[mk][0] || "").split(",")[0] : "";
+      if (!lem) continue;
+      // the last full vowel of the word is the stem's (וַיִּשַּׁק a, יִשְׁמֹר o; וַיִּיצֶר e: neither)
+      const vowels = heText(w).replace(/[\u0591-\u05AF\u05BD]/g, "").match(/[\u05B4-\u05BB\u05C7]/g) || [];
+      const last = vowels[vowels.length - 1];
+      if (!last || !/[\u05B7\u05B8\u05B9\u05BA]/.test(last)) continue;
+      const c = qalThemes.get(lem) || { a: 0, o: 0 };
+      if (/[\u05B9\u05BA]/.test(last)) c.o++; else c.a++;
+      qalThemes.set(lem, c);
+    }
+  }
+  return qalThemes.get(lemma) || null;
 }
 const heWord = (t, joined, where, w, lex) => {
   const final = /\u05C3/.test(String(w[5] || ""));
@@ -802,7 +841,8 @@ for (const [key, { where, w: dw, lex: dlex, info: dinfo }] of heParts) {
   if (/ִוא(\s|$)/.test(voice)) note(problems, "Hebrew: הִוא handed to the voice as written (read hi)", `${word} (${where}) → ${voice}`);
   if (/ִ[ַָ]|[ַָ]ִ/.test(voice)) note(problems, "Hebrew: two vowels on one letter handed to the voice (read a-yi)", `${word} (${where}) → ${voice}`);
   if (/[ְ-ׇ]ש[א-ת]/.test(voice)) note(problems, "Hebrew: a silent unpointed ש handed to the voice", `${word} (${where}) → ${voice}`);
-  if (VOWELS_OK[word.replace(/[\u0591-\u05AF\u05BD]/g, "")]) { note(limits, "Hebrew: a rare form left to the voice", `${word} (${where}): ${VOWELS_OK[word.replace(/[\u0591-\u05AF\u05BD]/g, "")]}`); continue; }
+  const okKey = Object.keys(VOWELS_OK).find((k) => sortedMarks(k) === sortedMarks(word.replace(/[\u0591-\u05AF\u05BD]/g, "")));
+  if (okKey) { note(limits, "Hebrew: a rare form left to the voice", `${word} (${where}): ${VOWELS_OK[okKey]}`); continue; }
   const pairs = align(exp.vowels, heard.map((p) => ({ p })));
   for (const [e, g] of pairs) {
     if (e && g && (e.p === g.p || (e.alt && e.alt.includes(g.p)))) continue;
@@ -835,8 +875,37 @@ for (const f of fs.readdirSync(R + "lessons/he")) walk(json("lessons/he/" + f), 
 const walkSay = (o, where) => { if (Array.isArray(o)) o.forEach((x) => walkSay(x, where)); else if (o && typeof o === "object") { if (typeof o.t === "string" && typeof o.say === "string" && /[א-ת]/.test(o.t) && !/a-do-nai|e-lo-him/i.test(o.say)) heCards.push([where, o.t, o.say, o.k || ""]); Object.values(o).forEach((v) => walkSay(v, where)); } };
 for (const f of fs.readdirSync(R + "lessons/he")) walkSay(json("lessons/he/" + f), "lesson he-" + f.replace(".json", ""));
 walkSay(json("lessons/alphabet/he.json"), "Letters guide");
+// the Letters guide's letter names (the review's letter cards show and say them too) and its read-aloud verses, word by
+// word: each word's shown pronunciation is checked like a card (vowels, stress against the text's accent, consonants),
+// and what its button says (audio.heVoice, as in the Reader) against what it shows
+const HA = json("lessons/alphabet/he.json");
+HA.letters.forEach((L) => heCards.push(["Letters guide (letter name)", L.nameT, L.nameSay, ""]));
+const lettersVerseWords = [];
+for (const pr of HA.practice || []) {
+  const [bk, cv] = pr.ref.split(" ");
+  const [c, v] = cv.split(":").map(Number);
+  const B = otBooks.find((b) => b.id === bk);
+  const words = (((B && B.ch.find(([x]) => x === c)) || [0, []])[1].find(([x]) => x === v) || [0, []])[1].filter((w) => w[6] !== "k");
+  const units = [];
+  words.forEach((w, i) => { if (i && heJoined(words[i - 1][5])) units[units.length - 1].push(w); else units.push([w]); });
+  const parts = String(pr.say || "").split(" ").filter(Boolean);
+  if (units.length !== parts.length) { note(problems, "Letters guide: a read-aloud verse's pronunciation doesn't have one part per word", `${pr.ref}: ${parts.length} parts, ${units.length} words`); continue; }
+  units.forEach((u, i) => {
+    if (/a-do-nai|e-lo-him/i.test(parts[i])) return; // the divine name: said as Adonai (checked with the verses)
+    const t = u.map((w) => heText(w).replace(/[\u0591-\u05AF]/g, "")).join("־");
+    heCards.push([`Letters guide verse ${pr.ref}`, t, parts[i], heMainKey(u[u.length - 1])]);
+    lettersVerseWords.push([pr.ref, u, parts[i], B.lex]);
+  });
+}
+for (const [ref, u, say, lex] of lettersVerseWords) {
+  const voice = u.map((w) => (heVoice ? heVoice(w, null, heJoined(w[5]), lex) : heText(w)) + (heJoined(w[5]) ? "־" : "")).join("");
+  const heard = israeliVowels(S.hebrewSpeech(voice).replace(/[,.]/g, "")).map((p) => ({ p }));
+  const shown = sayVowels(say).map((p) => ({ p }));
+  if (heard.map((x) => x.p).join("") !== shown.map((x) => x.p).join("")) note(problems, "Letters guide: a read-aloud word's button doesn't say what the guide shows", `${ref}: ${u.map((w) => heText(w)).join("־")} shows ${say} (${shown.map((x) => x.p).join(" ")}), the button says ${heard.map((x) => x.p).join(" ")}`);
+}
 for (const [where, t, say] of heCards) {
   if (/\s/.test(t.trim()) || /־/.test(t)) continue; // phrases: their respellings join words
+  if (/^Letters guide verse/.test(where)) continue; // a verse's word buttons say it as the Reader does: checked above
   const heard = israeliVowels(S.hebrewSpeech((S.hebrewForSay || ((x) => x))(t, say)).replace(/[,.]/g, "")).map((p) => ({ p })); // as the app's Listen gives it
   const shown = sayVowels(say).map((p) => ({ p }));
   if (heard.map((x) => x.p).join("") !== shown.map((x) => x.p).join("")) note(problems, "Hebrew: Listen doesn't say what the card shows", `${where}: ${t} shows ${say} (${shown.map((x) => x.p).join(" ")}), Listen says ${heard.map((x) => x.p).join(" ")}`);
@@ -1053,6 +1122,68 @@ if (verseSpeech) {
   }
 }
 
+// ---- the Septuagint (Swete; 19 Nov 2026): every verse as its "Listen to the verse" gives it, every word as a tap
+// gives it. The words themselves are in the word check above (every Septuagint form); here: what reaches the voice.
+// Swete's text has no word data, so the verse is its words joined (js/reader.js showLxxWord), capitals at a book's
+// start said as the words they are (audio.lxxSpeech), elided words kept with their mark for the voice.
+let nLxx = 0;
+if (audio && audio.lxxSpeech) {
+  const { lxxSpeech, lxxTapWord, lxxCapsKey, LXX_CAPS, lxxIsNumeral, LXX_NUMBERS, lxxTokens, LXX_NUMBER_CONTEXT } = audio;
+  const bareTok = (t) => String(t || "").replace(/[.,;:·()\[\]]/g, "").replace(/’/g, "᾽").trim();
+  // (the same word comes back thousands of times: say each one once per pronunciation)
+  const memo = { erasmian: new Map(), koine: new Map() };
+  const sayAs = (sys, x) => { const m = memo[sys]; if (!m.has(x)) m.set(x, sys === "erasmian" ? S.erasmianSpeech(x) : S.koineSpeech(x)); return m.get(x); };
+  const contextSeen = new Set();
+  const bareCaps = (w) => String(w).normalize("NFD").replace(/[\u0300-\u036f\u1fbd\u2019]/g, "").normalize("NFC").toUpperCase().replace(/Σ/g, "Σ");
+  for (const [k, form] of Object.entries(LXX_CAPS)) if (bareCaps(form).replace(/ς/g, "Σ") !== k) note(problems, "Septuagint: a capitals entry isn't the same word", `${k} → ${form}`);
+  const gLetter = /[\u0370-\u03FF\u1F00-\u1FFF]/;
+  for (const f of fs.readdirSync(R + "data/lxx/text")) {
+    const B = json("data/lxx/text/" + f);
+    for (const [c, vs] of B.ch) for (const [v, raw] of vs) {
+      nLxx++;
+      const where = `Septuagint ${B.id} ${c}:${v}`;
+      const tokens = lxxTokens(raw); // as the Reader shows them (js/audio.js lxxTokens)
+      // each word as a tap gives it
+      tokens.forEach((tok, ti) => {
+        const t = lxxTapWord(tok, tokens[ti - 1], tokens[ti + 1]);
+        if (!gLetter.test(t.show)) return;
+        if (lxxIsNumeral(tok) && !t.number) note(problems, "Septuagint: a number written with letters that the voice would spell out", `${where}: ${tok}`);
+        if (/^[α-ω]$/.test(bareTok(tok)) && !t.number) note(problems, "Septuagint: a lone letter (a number whose mark the source lost?) said as a letter", `${where}: ${tokens.slice(Math.max(0, ti - 2), ti + 3).join(" ")}`);
+        const ck = `${bareTok(tokens[ti - 1])}|${bareTok(tok)}|${bareTok(tokens[ti + 1])}`;
+        if (LXX_NUMBER_CONTEXT[ck]) contextSeen.add(ck);
+        const key = t.number ? "" : lxxCapsKey(t.look);
+        if (key && !LXX_CAPS[key]) note(problems, "Septuagint: a word in capitals the voice would say without its accent", `${where}: ${tok}`);
+        for (const sys of ["erasmian", "koine"]) {
+          const said = sayAs(sys, t.say);
+          if (!/[αεηιουωάέήίόύώϊϋΐΰ]/i.test(said.normalize("NFC").toLowerCase())) note(problems, "Septuagint: a tapped word gives the voice no vowel (it would spell out a letter)", `${where} (${sys}): ${tok} → ${said}`);
+          if (/[^\u0370-\u03FF\u1F00-\u1FFF ,.?!]/.test(said)) note(problems, "Septuagint: something that isn't Greek reaches the voice from a tapped word", `${where} (${sys}): ${tok} → ${said}`);
+          if (key && LXX_CAPS[key] && /[\u0301\u0300\u0342]/.test(LXX_CAPS[key].normalize("NFD")) && !/[άέήίόύώΐΰ]/.test(said.normalize("NFC"))) note(problems, "Septuagint: a word in capitals is said without stress", `${where} (${sys}): ${tok} → ${said}`);
+        }
+      });
+      // the whole verse, both pronunciations
+      const text = lxxSpeech(tokens.join(" "));
+      for (const sys of ["erasmian", "koine"]) {
+        const said = sys === "erasmian" ? S.erasmianSpeech(text) : S.koineSpeech(text);
+        const label = `${where} (${sys === "erasmian" ? "Erasmian" : "Koine"})`;
+        if (/[^\u0370-\u03FF\u1F00-\u1FFF ,.?!]/.test(said)) note(problems, "Septuagint verses: something that isn't Greek reaches the voice", `${label}: ${said.slice(0, 120)}`);
+        if (/\s{2,}|^\s|\s$/.test(said)) note(problems, "Septuagint verses: stray spaces", label);
+        const words = tokens.map((tok, ti) => [tok, ti]).filter(([tok]) => gLetter.test(lxxTapWord(tok).show));
+        const alone = words.flatMap(([tok, ti]) => sayAs(sys, lxxTapWord(tok, tokens[ti - 1], tokens[ti + 1]).say).replace(/[,.?!]/g, "").split(" "));
+        const inVerse = said.replace(/[,.?!]/g, "").split(" ").filter(Boolean);
+        const elided = words.filter(([tok]) => !lxxIsNumeral(tok) && /^[βγδθκλμνπρστφχ][’'᾽ʼ]$/.test(tok.normalize("NFC").toLowerCase()) && /^[βγδθκλμνπρστφχ][’'᾽ʼ]$/.test(lxxTapWord(tok).show.normalize("NFC").toLowerCase().replace(/[\u0300-\u036f]/g, ""))).length;
+        if (inVerse.length !== alone.filter(Boolean).length - elided) note(problems, "Septuagint verses: a word is lost or added in the whole verse", `${label}: ${inVerse.length} said, ${alone.length} words`);
+        else if (!elided && inVerse.join(" ") !== alone.filter(Boolean).join(" ")) note(problems, "Septuagint verses: a word sounds different in the verse from on its own", `${label}: ${inVerse.find((x, i) => x !== alone.filter(Boolean)[i])}`);
+        const strongest = (run) => (/;/.test(run) ? ";" : /\./.test(run) ? "." : /·/.test(run) ? "·" : run ? "," : "");
+        const marks = tokens.map((tok) => strongest((tok.normalize("NFC").match(/[,.·;]+[\])]*$/) || [""])[0].replace(/[\])]/g, ""))).filter(Boolean).map((m) => PUNCT_G[m]);
+        const heard = said.match(/[,.?]/g) || [];
+        if (marks.join("") !== heard.join("")) note(problems, "Septuagint verses: pauses don't match the punctuation", `${label}: text ${marks.join("")} voice ${heard.join("")}`);
+      }
+    }
+  }
+  // every word-form-by-context entry still matches the text (a correction to the text once left one dead: ἄυδρας)
+  for (const k of Object.keys(LXX_NUMBER_CONTEXT)) if (!contextSeen.has(k)) note(problems, "Septuagint: a number's context entry matches no verse", k);
+} else note(problems, "Septuagint: js/audio.js has no lxxSpeech", "");
+
 // ---- the model against an independent source: STEPBible's transliteration of every word (see STEP_BASELINE)
 const step = stepCompare(false);
 if (step.same < STEP_BASELINE.same - 20 || step.stressSame < STEP_BASELINE.stress - 20) {
@@ -1061,7 +1192,7 @@ if (step.same < STEP_BASELINE.same - 20 || step.stressSame < STEP_BASELINE.stres
 }
 
 // ================================================================ report
-console.log(`Pronunciation check: ${nGreek.toLocaleString("en-GB")} Greek words (Erasmian and Restored Koine), ${nHebrew.toLocaleString("en-GB")} Hebrew words, ${nVerses.toLocaleString("en-GB")} verses.`);
+console.log(`Pronunciation check: ${nGreek.toLocaleString("en-GB")} Greek words (Erasmian and Restored Koine), ${nHebrew.toLocaleString("en-GB")} Hebrew words, ${nVerses.toLocaleString("en-GB")} verses, ${nLxx.toLocaleString("en-GB")} Septuagint verses.`);
 if (limits.size) {
   console.log("\nKnown limits of a Modern voice (accepted):");
   for (const [cat, r] of [...limits].sort((a, b) => b[1].n - a[1].n)) {

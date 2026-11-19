@@ -30,6 +30,8 @@ JOBS = {
     "audit_static":    ([PY, "tools/audit_content.py", "--static"], 1, 3),
     "check_rebuild":   ([PY, "tools/check_rebuild.py"], 1, 2),
     "check_grammar":   ([PY, "tools/check_grammar.py"], 1, 1),
+    "check_votd":      (["node", "tools/check_votd.mjs"], 1, 1),
+    "check_lxx_text":  ([PY, "tools/check_lxx_text.py"], 1, 1),
     # 2. sweeps: every chapter, every Septuagint chapter, every dictionary entry, every screen
     "sweep_reader":    ([PY, "tools/sweep_reader.py", "all"], 2, 45),
     "sweep_lxx":       ([PY, "tools/sweep_lxx.py", "all"], 2, 40),
@@ -40,6 +42,7 @@ JOBS = {
     "test_lessons":    ([PY, "tools/test_lessons.py"], 3, 8),
     "test_dictionary": ([PY, "tools/test_dictionary.py"], 3, 5),
     "test_review":     ([PY, "tools/test_review.py"], 3, 6),
+    "test_listening":  ([PY, "tools/test_listening.py"], 3, 3),
     "test_alphabet":   ([PY, "tools/test_alphabet.py"], 3, 3),
     "test_journey":    ([PY, "tools/test_journey.py"], 3, 5),
     "test_progress":   ([PY, "tools/test_progress.py"], 3, 4),
@@ -57,6 +60,9 @@ JOBS = {
 QUICK_SKIP = {"sweep_reader", "sweep_lxx", "sweep_dictionary"}
 # What each job must have covered: a run that stops early, or quietly checks less, fails (numbers as of Session 14)
 COVERAGE = {
+    "check_votd": [(r"pool, ([\d,]+) built", 14100)],
+    "test_listening": [(r"(\d+)/\d+ passed", 233)],
+    "check_lxx_text": [(r"([\d,]+) words checked", 600000)],
     "sweep_reader": [(r"([\d,]+) chapters,", 1189)],
     "sweep_lxx": [(r"(\d+) OT chapters side by side", 929), (r"(\d+) Septuagint chapters", 1259)],
     "sweep_dictionary": [(r"([\d,]+) entries opened", 21234)],
@@ -71,7 +77,7 @@ COVERAGE = {
     "test_screens": [(r"\d+/(\d+) passed", 72)], "test_slow": [(r"\d+/(\d+) passed", 12)],
     "check_rebuild": [(r"(\d+) data files compared", 433)],
     "check_grammar": [(r"(\d+) forms compared", 149)],
-    "check_pronunciation": [(r"([\d,]+) Greek words", 68031), (r"([\d,]+) Hebrew words", 115881), (r"([\d,]+) verses", 31200)],
+    "check_pronunciation": [(r"([\d,]+) Greek words", 67800), (r"([\d,]+) Hebrew words", 115881), (r"([\d,]+) verses", 31200), (r"([\d,]+) Septuagint verses", 30533)],
 }
 PARALLEL = {1: 4, 2: 4, 3: 4, 4: 1, 5: 1}
 

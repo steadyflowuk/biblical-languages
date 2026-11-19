@@ -5,8 +5,8 @@ import * as data from "./data.js";
 import * as nav from "./nav.js";
 import { readingStarted } from "./activity.js";
 import * as esv from "./esv.js";
-import { wordSayButton, verseSayButton, verseSpeech, sayTapped, listenLevel, heVoice } from "./audio.js";
-import { heLemma,
+import { wordSayButton, verseSayButton, verseSpeech, sayTapped, listenLevel, heVoice, lxxTapWord, lxxSpeech, lxxTokens } from "./audio.js";
+import { heLemma, hePartGloss,
   heText, heTranslit, heEnglish, heAfter, heJoined, heParagraphAfter, isAramaic, heParts, heMainKey,
   heShortGrammar, heFriendlyGrammar,
 } from "./hebrew.js";
@@ -234,7 +234,10 @@ function heWordSheetHTML(w, ctx) {
       ${parts.length > 1 ? row("Word parts", `<ul class="ws-parts">${parts.map((p) => {
         const l = ctx.lex[p.key];
         const label = heShortGrammar((ctx.morph[p.code] || [p.code])[0]);
-        return `<li${p.main ? ' class="main"' : ""}><span lang="he" dir="rtl" class="ws-lemma">${esc(p.text)}</span> ${esc(l ? plainGloss(l[2]) : "")} <span class="muted">(${esc(label)})</span></li>`;
+        // a prefix's meaning, unless its label already says it (וַ "and (narrative)", הַ "the")
+        const g = p.main ? (l ? plainGloss(l[2]) : "") : hePartGloss(p.key, l ? l[2] : "");
+        const meaning = !p.main && g && label.toLowerCase().indexOf(g.toLowerCase()) === 0 ? "" : g;
+        return `<li${p.main ? ' class="main"' : ""}><span lang="he" dir="rtl" class="ws-lemma">${esc(p.text)}</span> ${esc(meaning)} <span class="muted">(${esc(label)})</span></li>`;
       }).join("")}</ul>`) : ""}
       ${row("In this verse", englishHTML(heEnglish(english)) || "—")}
       ${row("Dictionary form", mains.map((p) => {
@@ -636,7 +639,7 @@ function fillEsv(holder, state) {
   });
 }
 
-const lxxWordsHTML = (text) => String(text || "").split(" ").filter(Boolean)
+const lxxWordsHTML = (text) => lxxTokens(text)
   .map((w) => `<span class="lw" role="button" tabindex="0">${esc(w)}</span>`).join(" ");
 
 /** "22:1" when the Septuagint numbers a verse differently from the English Bible, else "". */
@@ -768,29 +771,32 @@ function parallelHTML(state) {
 
 /** A tapped Septuagint word: likely dictionary entries (the Septuagint isn't tagged word by word yet). */
 async function showLxxWord(el, where) {
-  const word = el.textContent.replace(/[.,;:·()\[\]᾽’]/g, "").trim();
+  // the words either side decide a numeral's form (τῇ β᾽ → δευτέρᾳ)
+  const sib = (d) => { const x = el[d]; return x && x.classList && x.classList.contains("lw") ? x.textContent : ""; };
+  const { show: word, look, say, number, value } = lxxTapWord(el.textContent, sib("previousElementSibling"), sib("nextElementSibling"));
   // the whole Septuagint verse this word is in (its own screen: .lv; beside the Hebrew: .lxx, .col-lxx)
   const line = el.closest(".lv, .lxx, .col-lxx");
   const lxxText = line ? [...line.querySelectorAll(".lw")].map((x) => x.textContent.trim()).join(" ") : "";
-  const lxxListen = lxxText ? verseSayButton(lxxText, "grc", { label: "Listen to the verse" }) : "";
-  sayTapped(word, "grc"); // at once, inside the tap (Easy and Medium)
+  const lxxListen = lxxText ? verseSayButton(lxxSpeech(lxxText), "grc", { label: "Listen to the verse" }) : "";
+  sayTapped(say, "grc"); // at once, inside the tap (Easy and Medium)
   const body = openSheet(`<p class="ws-ref">${esc(where || "Septuagint")}</p>
     <h2 class="ws-word" lang="grc" id="sheet-title">${esc(word)}</h2>
-    ${wordSayButton(word, "grc", { className: "small" }) || lxxListen ? `<p class="ws-translit">${wordSayButton(word, "grc", { className: "small" })}${lxxListen}</p>` : ""}
+    ${wordSayButton(say, "grc", { className: "small" }) || lxxListen ? `<p class="ws-translit">${wordSayButton(say, "grc", { className: "small" })}${lxxListen}</p>` : ""}
+    ${number ? `<p>A number written with ${word.replace(/[᾽’]/g, "").length > 1 ? "letters" : "a letter"}: <strong>${value.toLocaleString("en-GB")}</strong>, read as <span lang="grc">${esc(number)}</span>.</p>` : ""}
     <p class="muted">The Septuagint isn't tagged word by word yet, so these are the dictionary forms that most likely match this word, found by its spelling.</p>
     <div class="lxx-look"><p class="muted">Looking it up…</p></div>`, { label: `Look up ${word}`, returnFocus: el });
   document.querySelectorAll(".lw.on").forEach((x) => x.classList.remove("on"));
   el.classList.add("on");
   try {
     const dict = await import("./dictionary.js");
-    const found = await dict.lookupForm(word);
+    const found = await dict.lookupForm(look);
     const box = body.querySelector(".lxx-look");
     if (!box) return;
     box.innerHTML = (found.length
       ? `${found.some((e) => e.guess) ? `<p class="muted">No exact match. These look closest; check the meaning fits the verse:</p>` : ""}<ul class="rows">${found.map((e) => dict.entryRowHTML(e)).join("")}</ul>`
       : `<p>No dictionary word matches this spelling exactly.</p>`) +
-      `<p><button type="button" class="btn secondary" data-lxx-search>Search the dictionary for ${esc(word)}</button></p>`;
-    box.querySelector("[data-lxx-search]").addEventListener("click", () => { dict.setQuery(word); location.hash = "#/words"; });
+      `<p><button type="button" class="btn secondary" data-lxx-search>Search the dictionary for ${esc(look)}</button></p>`;
+    box.querySelector("[data-lxx-search]").addEventListener("click", () => { dict.setQuery(look); location.hash = "#/words"; });
   } catch {
     const box = body.querySelector(".lxx-look");
     if (box) box.innerHTML = `<p>The dictionary couldn't load. Connect to the internet once and it will be saved for offline use.</p>`;

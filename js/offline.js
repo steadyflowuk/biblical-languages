@@ -5,6 +5,7 @@
 // - saveEverything(): Settings › "Save it all for offline use" fetches every file in data/files.json.
 // Files go through the service worker, which keeps them in its data cache (data-v3).
 import * as data from "./data.js";
+import { poolRefs, pickRef, dayNumber } from "./votd.js";
 
 const CACHE = "data-v3";
 const has = async (cache, url) => !!(cache && await cache.match(new URL(url, location.href).href));
@@ -44,7 +45,16 @@ export async function essentialFiles() {
     const text = JSON.stringify(await data.getJSON(f).catch(() => ({})));
     (text.match(/"ref":"([0-9A-Z]{3}) \d+:\d+/g) || []).forEach((m) => ids.add(m.slice(7, 10)));
   }
-  const out = ["data/lex/greek-index.json", "data/lex/hebrew-index.json"];
+  const out = ["data/lex/greek-index.json", "data/lex/hebrew-index.json", "data/votd.json", "data/votd-pool.json"];
+  // Today's verse for today and tomorrow, both languages, so it still shows after a night offline
+  const pool = await data.votdPool().catch(() => null);
+  if (pool) {
+    const order = books.map((b) => b.id);
+    for (const lang of ["grc", "he"]) {
+      const refs = poolRefs(pool, lang, order);
+      for (const d of [0, 1]) { const r = pickRef(refs, lang, dayNumber() + d); if (r) ids.add(r[0]); }
+    }
+  }
   ids.forEach((id) => {
     const b = books.find((x) => x.id === id);
     if (!b) return;

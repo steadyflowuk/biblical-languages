@@ -61,6 +61,8 @@ async def main():
                     await pg.goto(f"{BASE}#/today")
                     await pg.goto(f"{BASE}#/{route}")
                     await pg.wait_for_selector(ready, timeout=15000)
+                    if name == "today":  # the day's verse replaces "Loading today's verse…" when its book arrives
+                        await pg.wait_for_function("(document.querySelector('.verse-slot')?.dataset.verse || '').length > 0", timeout=15000)
                     await pg.evaluate("document.fonts.ready")
                     await pg.wait_for_timeout(700)
                     # hide what changes on its own: caret, focus rings, the install tip

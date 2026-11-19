@@ -204,7 +204,11 @@ async def main():
         fonts = await page.evaluate("document.fonts.ready.then(() => [...document.fonts].filter(f => f.status === 'loaded').map(f => f.family))")
         check("works offline (all screens, after reload)", ok_all, ",".join(detail))
         check("fonts available offline", {"Atkinson", "Gentium"} <= set(fonts), str(fonts))
-        await page.click('[data-lang="he"]'); await page.wait_for_timeout(400)
+        await page.click('[data-lang="he"]')
+        try:
+            await page.wait_for_function("(document.querySelector('.verse-slot')?.dataset.verse || '').length > 0", timeout=6000)
+        except Exception:
+            pass
         vid = await page.get_attribute(".verse-slot", "data-verse")
         check("today's verse (from data) shows offline", vid and "-" in vid and vid != "gen-1-1", vid)
         hf = await page.evaluate("document.fonts.ready.then(() => [...document.fonts].some(f => f.family === 'Hebrew Serif' && f.status === 'loaded'))")

@@ -248,6 +248,7 @@ export const today = {
       return loading[l];
     }
     fetchVerse(lang);
+    data.verseOfTheDay().catch(() => {}); // (small: kept for offline days, when a day's book was never opened)
   },
 };
 

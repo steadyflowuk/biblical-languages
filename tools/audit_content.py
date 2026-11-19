@@ -104,12 +104,13 @@ def audit_copyright():
     about = read("js/screens.js")
     readme = read("README.md")
     credit = {"STEPBible-Data": "STEPBible", "LXX-Swete-1930": "Swete", "HebrewLexicon": "Open Scriptures",
-              "SBLGNT": "SBL Greek New Testament", "communityofbrothers": "Berean Standard Bible", "ebible.org": "eBible.org"}
+              "SBLGNT": "SBL Greek New Testament", "communityofbrothers": "Berean Standard Bible", "ebible.org": "eBible.org",
+              "fonts.git": "Atkinson Hyperlegible"}
     bad = []
     for url in re.findall(r"https://(?:github.com|ebible.org)/\S+", read("tools/fetch_sources.sh")):
         name = "ebible.org" if "ebible.org" in url else url.rstrip("/").split("/")[-1]
-        if name == "morphhb":
-            continue  # used only by tools/check_data.py, not shipped
+        if name == "morphhb" or "/morphgnt/" in url:
+            continue  # used only by the checks (check_data, check_hebrew_text, check_greek_tags), not shipped
         want = credit.get(name) or credit.get(url.split("/")[3])
         if not want:
             bad.append(f"{url}: no expected credit known — add it to audit_content.py and to the credits")

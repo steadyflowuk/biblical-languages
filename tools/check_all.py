@@ -42,6 +42,7 @@ JOBS = {
     "test_lessons":    ([PY, "tools/test_lessons.py"], 3, 8),
     "test_dictionary": ([PY, "tools/test_dictionary.py"], 3, 5),
     "test_review":     ([PY, "tools/test_review.py"], 3, 6),
+    "test_listening":  ([PY, "tools/test_listening.py"], 3, 3),
     "test_alphabet":   ([PY, "tools/test_alphabet.py"], 3, 3),
     "test_journey":    ([PY, "tools/test_journey.py"], 3, 5),
     "test_progress":   ([PY, "tools/test_progress.py"], 3, 4),
@@ -60,6 +61,7 @@ QUICK_SKIP = {"sweep_reader", "sweep_lxx", "sweep_dictionary"}
 # What each job must have covered: a run that stops early, or quietly checks less, fails (numbers as of Session 14)
 COVERAGE = {
     "check_votd": [(r"pool, ([\d,]+) built", 14000)],
+    "test_listening": [(r"(\d+)/\d+ passed", 207)],
     "check_lxx_text": [(r"([\d,]+) words checked", 600000)],
     "sweep_reader": [(r"([\d,]+) chapters,", 1189)],
     "sweep_lxx": [(r"(\d+) OT chapters side by side", 929), (r"(\d+) Septuagint chapters", 1259)],

@@ -239,7 +239,7 @@ def read_lexicon(pattern):
     path = glob.glob(os.path.join(STEP, "Lexicons", pattern))[0]
     for line in open(path, encoding="utf-8-sig"):
         c = line.rstrip("\n").split("\t")
-        if len(c) < 7 or not re.match(r"^[GH]\d{4}[A-Za-z]?$", c[0]):
+        if len(c) < 7 or not (re.match(r"^[GH]\d{4}[A-Za-z]?$", c[0]) or c[0] in LEX_EXTRA_KEYS):
             continue
         key = c[1].split(" ")[0].strip()
         if key[0] == "G":
@@ -538,6 +538,8 @@ TAG_FIXES = {
 }
 
 TAG_FIXES_USED = set()
+# STEPBible's five-digit keys (words without a Strong's number) are read only when a fix above tags a word with one
+LEX_EXTRA_KEYS = {v[1] for v in TAG_FIXES.values() if isinstance(v, tuple) and re.match(r"^[GH]\d{5}$", v[1])}
 
 GREEK_LATIN = {"α": "a", "β": "b", "γ": "g", "δ": "d", "ε": "e", "ζ": "z", "η": "ē", "θ": "th", "ι": "i", "κ": "k",
                "λ": "l", "μ": "m", "ν": "n", "ξ": "x", "ο": "o", "π": "p", "ρ": "r", "σ": "s", "ς": "s", "τ": "t",

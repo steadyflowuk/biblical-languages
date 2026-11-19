@@ -247,7 +247,7 @@ def build():
                 ks = None if split else text_forms.get(greek_norm(e[1] if len(e) > 1 else ""))  # a sense or person: no
                 target = next((k for k, _ in ks.most_common() if counts.get(k) and k != e[0]), None) if ks else None
             if target and counts.get(target):
-                e[:] = (e + ["", "", "", "", 0, ""])[:6] + [target]
+                e[:] = (e + [""] * 4)[:4] + [0, e[5] if len(e) > 5 else "", target]  # count 0, keywords, under
         dump(f"lex/{name}-index.json", index)
         # Written forms that differ from every dictionary form they belong to, so a word copied from a verse
         # (ἠγάπησεν, בְּרֵאשִׁית) still finds its entry: lex/<greek|hebrew>-forms.json = {normalised form: [keys]}

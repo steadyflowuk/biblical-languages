@@ -419,7 +419,7 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
   change) reshuffles every later day's verse; devices agree again once both have the new pool.
 
 - [x] Accuracy checkers (19 Nov 2026, user's request: "a detailed series of checkers … multiple checkers with specific
-  tasks"). Eleven new checkers, each with --self-test (planted mistakes; tools/run_selftests.py runs them all, 68/68),
+  tasks"). Eleven new checkers, each with --self-test (planted mistakes; tools/run_selftests.py runs them all, 71/71),
   all in check_all. What each found and what was fixed:
   check_greek_tags.py — every NT word against MorphGNT (CC BY-SA, src/morphgnt, check-only): 137,554 lined up, words
   identical; 13 TAGNT tags the printed form can't carry fixed (TAG_FIXES: φοβηθῆτε subj., ζητεῖ pres., ἀσθενὴς nom.,
@@ -470,6 +470,22 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
   check_offline.py — SHELL_FILES and data/files.json against every request made on 37 screens; maskable icon added.
   Left: Septuagint look-up accuracy has no ground truth here (no tagged Septuagint); REV 21:9 γεμόντων "feminine"
   (form masc./neut.) and similar judgement calls kept as STEPBible publishes them.
+  Full check + reviewer; fixed: FORM_OF entries (μέ, εἶναι, ὅτου …) said "Not in the New Testament" — index rows get a
+  7th field "under" (183 Greek, 73 Hebrew entries: a Form/Spelling/Name of a counted key, or a Greek headword whose
+  spelling the text tags under another key); the entry says "listed under X" with a link, search rows "see another
+  entry"; check_dictionary_integrity fails on a zero-count Greek entry spelt like a text word with no "under".
+  fix_greek_slips turned crasis into a mid-word breathing slip (ταὐτά → ταῦτά): words whose only slip is a breathing
+  within three letters of a first τ κ χ θ, and rules.ALLOWED, are left alone (build assert). TAG_FIXES: JAS 1:25
+  ποιήσει noun "doing" (GLOSS_FIX G4162), JHN 4:5 πλησίον adverb, ACT 27:29 που, 1TI 6:5 διαπαρατριβαί, ACT 21:6
+  ἀπησπασάμεθα → ἀπασπάζομαι G20093 (MorphGNT's ἀποσπάω approved as a difference; STEPBible's five-digit keys are read
+  only when a tag fix uses one: LEX_EXTRA_KEYS), with their English (ENGLISH_FIXES_AT: HEB 11:11 "[with] herself … he considered", MAT 18:12 "seeks",
+  ACT 21:6 "we said farewell to"). HEADWORD_FIX Ὦ, Κεδρών. Greek imperative explanations worded as commands ("should
+  or must …"; check_grammar_labels fails on an imperative without should/must/let, or a command-like non-imperative,
+  and on a Hebrew 2nd-person example whose number disagrees: AVup2ms). check_greek_tags: verb pairs no longer count
+  as the same part of speech; dictionary-form match tightened (≥ .85, no dropped ν/θ→τ); LEFT lists TAGNT keys with no
+  TBESG entry of their own (φιμόω|κημόω, ἀπολείχω|ἐπιλείχω, Εὐροκλύδων …), reported apart. ". . ." → "…" in
+  definitions. Left: σύμφορον's dictionary form συμφέρω (as STEPBible), ROM 16:4 "for it", G3672 "ὁμ ολογέω" spacing
+  in a source line.
 
 ## Data (Session 2)
 - Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (46 checks).
@@ -821,7 +837,7 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
 - `python3 tools/check_lessons.py` — validates every lesson (run after any lesson change).
 - `python3 tools/test_lessons.py` — 77 lesson engine checks (drills, retries, resume, scores, review list, Hebrew RTL,
   keyboard, offline, 320px; every written lesson, Greek and Hebrew, finished with right answers at 320px; largest text at 320px).
-- `python3 tools/test_dictionary.py` — 51 Dictionary checks (search, entries, links both ways, offline, 320px).
+- `python3 tools/test_dictionary.py` — 56 Dictionary checks (search, entries, links both ways, offline, 320px).
 - `python3 tools/test_translations.py` — 70 ESV/Septuagint/side-by-side checks (ESV API mocked with real verse counts;
   ~12 min).
 - `python3 tools/sweep_lxx.py [ot|lxx|all]` — every OT chapter side by side with the Septuagint + every Septuagint

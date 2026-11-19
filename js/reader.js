@@ -55,7 +55,7 @@ const ABBR = [
   [/\bnominative\b/gi, "nom."], [/\bgenitive\b/gi, "gen."], [/\bdative\b/gi, "dat."], [/\baccusative\b/gi, "acc."],
   [/\bvocative\b/gi, "voc."], [/\bsingular\b/gi, "sg."], [/\bplural\b/gi, "pl."], [/\bmasculine\b/gi, "masc."],
   [/\bfeminine\b/gi, "fem."], [/\bneuter\b/gi, "neut."], [/\bpresent\b/gi, "pres."], [/\bimperfect\b/gi, "impf."],
-  [/\b2nd aorist\b/gi, "aor."], [/\baorist\b/gi, "aor."], [/\bfuture\b/gi, "fut."], [/\bpluperfect\b/gi, "plupf."],
+  [/\b2nd aorist\b/gi, "aor."], [/\b2nd perfect\b/gi, "perf."], [/\b2nd pluperfect\b/gi, "plupf."], [/\b2nd future\b/gi, "fut."], [/\baorist\b/gi, "aor."], [/\bfuture\b/gi, "fut."], [/\bpluperfect\b/gi, "plupf."],
   [/\bperfect\b/gi, "perf."], [/\bactive\b/gi, "act."], [/\bmiddle deponent\b/gi, "mid."], [/\bpassive deponent\b/gi, "pass."],
   [/\bmiddle or passive deponent\b/gi, "mid./pass."], [/\bmiddle or passive\b/gi, "mid./pass."], [/\bmiddle\b/gi, "mid."],
   [/\bpassive\b/gi, "pass."], [/\bindicative\b/gi, "ind."], [/\bsubjunctive\b/gi, "subj."], [/\bimperative\b/gi, "impv."],
@@ -75,7 +75,8 @@ export function friendlyGrammar(desc) {
   const seen = new Set();
   let s = String(desc || "").split(" ").filter((w) => {
     const k = w.toLowerCase();
-    if (seen.has(k) && !/^(or|of|a|singular|plural)$/.test(k)) return false;
+    // 1st/2nd/3rd stay: "2nd aorist … 2nd singular" names the tense and then the person
+    if (seen.has(k) && !/^(or|of|a|singular|plural|1st|2nd|3rd)$/.test(k)) return false;
     seen.add(k);
     return true;
   }).join(" ");

@@ -202,6 +202,32 @@ def tidy_desc(desc):
     return " ".join(out)
 
 
+# STEPBible's wording for a few codes names another case or mood than the code itself (found by
+# tools/check_grammar_labels.mjs, 19 Nov 2026): our wording, in the same style
+MORPH_FIX = {
+    "V-PEP-ASM": ["Verb present middle or passive participle accusative singular masculine",
+                  "an action that is done to or for a male person or thing that is having something done to them",
+                  "give them a man that is taught (by himself?)"],  # STEPBible: "… participle dative …"
+    "V-RMM-2P": ["Verb perfect middle imperative 2nd plural", None, None],  # STEPBible: "… indicative …"
+    "V-2AOM-2P": [None, "an action that certainly happens – by persons being spoken or written to", None],  # "done by persons"
+    "V-2FAI-1S": [None, "an action that will happen - by a person or thing that is speaking or writing", None],  # "being discussed"
+    "V-2FDI-2S": [None, "an action that will happen - by a person or thing being spoken or written to", None],  # "spoken to written to"
+    "HVtj2ms": [None, "intensifying or achieving an action or activity that may be done incompletely in the future or present to or for themself by a male person or thing being addressed", None],  # "themselves"
+    "AVup2ms": [None, "intensifying or achieving an action or activity that is done completely in the past or present to a male person or thing being addressed", None],  # "male people"
+    "AVvi3mp": ["Verb: ishtaphel (causative/declarative, reflexive/iterative) imperfect (future/present indicative) third plural masculine",
+                "causing or confirming an action or activity that will be done in the future or present to or for themselves by male people or things being discussed",
+                "they (males) will exalt themselves"],  # STEPBible: "… perfect …" for יִשְׁתַּכְלְלוּן (Ezra 4:13, 16)
+}
+
+
+def fix_morph(table):
+    for code, (desc, expl, ex) in MORPH_FIX.items():
+        if code in table:
+            row = list(table[code]) + ["", ""]
+            table[code] = trim([desc if desc is not None else row[0], expl if expl is not None else row[1], ex if ex is not None else row[2]])
+    return table
+
+
 def read_morph(pattern, codes_used, lang_prefix_ok=True):
     path = glob.glob(os.path.join(STEP, "Morphology codes", pattern))[0]
     table, block = {}, []
@@ -945,8 +971,8 @@ def main():
                         lang = segs[0][:1]
                         hcodes.add(segs[0])
                         hcodes.update(lang + s for s in segs[1:] if s)
-    gmorph = read_morph("TEGMC*.txt", gcodes)
-    hmorph = read_morph("TEHMC*.txt", hcodes)
+    gmorph = fix_morph(read_morph("TEGMC*.txt", gcodes))
+    hmorph = fix_morph(read_morph("TEHMC*.txt", hcodes))
 
     # write
     for d in ("gnt", "hot", "bsb", "lex", "morph"):

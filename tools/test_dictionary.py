@@ -94,6 +94,19 @@ async def main():
         check("Filter: choice remembered after reopening", True)
         await pg.click('[data-lang="both"]')
 
+        # An entry whose words the text lists under another (με, μου → ἐγώ; ὅτου → ὅστις): never "Not in the NT"
+        for key, under in (("G3165", "ἐγώ"), ("G1511", "εἰμί"), ("G3755", "ὅστις")):
+            await pg.goto(f"{BASE}#/words/{key}")
+            await pg.wait_for_selector(".entry-count")
+            t = await pg.text_content(".entry-count")
+            href = await pg.get_attribute(".entry-count a", "href") if await pg.locator(".entry-count a").count() else ""
+            check(f"Entry {key}: says it is listed under {under}, with a link", "listed under" in t and under in t
+                  and "Not in the New Testament" not in t and href.startswith("#/words/G"), t)
+        await pg.goto(f"{BASE}#/words")
+        r = await search(pg, "εἶναι")
+        check("Search εἶναι: the εἶναι row says 'see another entry', not 'not in the NT'", any("see another entry" in x for x in r)
+              and not any("εἶναι" in x and "not in the NT" in x for x in r), r[:4])
+
         # 4. An entry: λόγος
         await pg.goto(f"{BASE}#/words/G3056")
         await pg.wait_for_selector(".occ-books")

@@ -59,9 +59,10 @@ const prepared = {};
 function index(letter) {
   if (!prepared[letter]) {
     prepared[letter] = data.getJSON(`data/lex/${LANGS[letter].name}-index.json`).then((list) => list.map((e) => {
-      const [key, lemma = "", translit = "", gloss = "", count = 0, kw = ""] = e;
+      const [key, lemma = "", translit = "", gloss = "", count = 0, kw = "", under = ""] = e;
       return {
         key, lemma: plain(lemma) || translit || key, translit, gloss, count, letter, // a few entries have no headword (G2199H)
+        under, // the entry its words are listed under, when the text tags them there (μέ → ἐγώ)
         num: parseInt(key.slice(1), 10),
         lemmaN: letter === "G" ? greekNorm(lemma) : hebrewNorm(lemma),
         trN: latinNorm(translit),
@@ -343,7 +344,8 @@ const lemmaHTML = (e, cls = "dict-lemma") =>
 const timesText = (n, where) => (n === 1 ? `Once in the ${where}` : `${n.toLocaleString("en-GB")} times in the ${where}`);
 const showStrongs = (key) => (/^H90\d\d/.test(key) ? "" : strongs(key));
 
-const notInText = (e) => (/^H90\d\d/.test(e.key) ? "joined to words" : e.letter === "G" ? "not in the NT" : "not in this text");
+const notInText = (e) => (/^H90\d\d/.test(e.key) ? "joined to words" : e.under ? "see another entry"
+  : e.letter === "G" ? "not in the NT" : "not in this text");
 
 function rowHTML(e, asForm = false) {
   const tr = e.letter === "H" ? heTranslit(e.translit) : e.translit;
@@ -627,6 +629,7 @@ async function renderEntry(main, rawKey) {
   const bookList = books.filter((b) => occ[b.id]);
   const total = bookList.reduce((n, b) => n + occ[b.id].split(" ").length, 0);
   const siblings = all.filter((x) => x.num === e.num && x.key !== e.key);
+  const underEntry = e.under ? all.find((x) => x.key === e.under) : null;
   const grammarLabel = (code) => {
     const d = (morph[code] || [code])[0];
     return e.letter === "H" ? heShortGrammar(d) : shortGrammar(d);
@@ -648,7 +651,9 @@ async function renderEntry(main, rawKey) {
       </p>
     </header>
     <p class="entry-gloss">${esc(compact(e.gloss) || "—")}</p>
-    <p class="entry-count">${total ? `${timesText(total, L.where)}${bookList.length > 1 ? `, in ${bookList.length} books` : ""}` : /^H90\d\d/.test(e.key)
+    <p class="entry-count">${total ? `${timesText(total, L.where)}${bookList.length > 1 ? `, in ${bookList.length} books` : ""}` : underEntry
+      ? `In the ${L.where} this word is listed under <a href="#/words/${encodeURIComponent(underEntry.key)}" lang="${L.lang}" dir="${L.dir}">${esc(e.letter === "H" ? heLemma(underEntry.lemma) : underEntry.lemma)}</a>: see there for where it appears.`
+      : /^H90\d\d/.test(e.key)
       ? "This is joined to the front or end of other words, so it isn't listed word by word."
       : e.letter === "G" ? "Not in the New Testament. It is in the lexicon because it appears in other Greek writings, such as the Septuagint."
       : "Not tagged in the Hebrew text used here; the lexicon lists it as a related form or spelling."}</p>

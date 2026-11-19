@@ -70,6 +70,11 @@ function checkGreek(code, desc, explain, example) {
     if (!explain.includes(PERSON_EXPLAIN[pf.value])) bad.push(`explanation doesn't fit the ${pf.value} person: ${explain}`);
     if (example && nf && !PERSON_EXAMPLE[`${pf.value} ${nf.value}`].test(example)) bad.push(`example doesn't fit ${pf.value} ${nf.value}: ${example}`);
   }
+  const mood = greekFeatures(code).find((f) => f.name === "mood");
+  if (mood && explain && code[0] === "V") {  // the explanation's wording follows the mood
+    if (mood.value === "imperative" && !/should or must|must|let /.test(explain)) bad.push(`explanation doesn't read as a command: ${explain}`);
+    if (mood.value !== "imperative" && /should or must/.test(explain) && mood.value !== "subjunctive") bad.push(`explanation reads as a command for a ${mood.value}: ${explain}`);
+  }
   const feats = greekFeatures(code);
   if (feats.some((f) => f.name === "bad")) bad.push(`code not understood: ${code}`);
   const friendly = reader.friendlyGrammar(desc);
@@ -151,6 +156,8 @@ function checkHebrew(code, desc, explain, example) {
     if (nn === "s" && /\bpeople\b|\bthemselves\b/.test(explain)) bad.push(`explanation is plural for a singular: ${explain}`);
     const exw = { "1s": /^I\b/, "1p": /^we\b/i, "2s": /^you\b/i, "2p": /^you\b/i, "3s": /^(he|she|it)\b/i, "3p": /^they\b/i }[pp + nn];
     if (example && exw && !exw.test(example)) bad.push(`example doesn't fit ${pp}${nn}: ${example}`);
+    if (example && pp === "2" && nn === "s" && /\((fe)?males\)/.test(example)) bad.push(`example is plural for a singular: ${example}`);
+    if (example && pp === "2" && nn === "p" && /\((fe)?male\)/.test(example)) bad.push(`example is singular for a plural: ${example}`);
   }
   const segs = code.slice(1).split("/");
   const s = hebrewSegment(segs[0]);
@@ -211,6 +218,8 @@ if (process.argv.includes("--self-test")) {
     ["Greek wording with the wrong case", () => run({ "N-GSM": ["Noun dative singular masculine"] }, {})],
     ["Greek label losing the person after a 2nd aorist", () => run({ "V-2AAI-2S": ["Verb 2nd aorist active indicative singular"] }, {})],
     ["Greek explanation for the wrong person", () => run({ "V-FAI-1S": ["Verb future active indicative 1st singular", "an action that will happen - by a person or thing being discussed", "I will teach"] }, {})],
+    ["Greek imperative explained as a statement", () => run({ "V-AOM-2P": ["Verb aorist passive deponent imperative 2nd plural", "an action that certainly happens – by persons being spoken or written to", "you all must teach"] }, {})],
+    ["Hebrew example plural for a singular", () => run({}, { AVup2ms: ["Verb: hitpael perfect second singular masculine", "intensifying an action that is done completely to a male person or thing being addressed", "you (males) were or are raised"] })],
     ["Greek wording with the wrong gender", () => run({ "A-NSF": ["Adjective nominative singular masculine"] }, {})],
     ["Hebrew wording with the wrong number", () => run({}, { HNcmpa: ["Noun (singular masculine, absolute)"] })],
     ["Hebrew wording with the wrong person", () => run({}, { HVqp3ms: ["Verb: Qal (simple, active) perfect (past/present indicative) first singular masculine"] })],

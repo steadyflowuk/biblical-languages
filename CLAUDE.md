@@ -453,7 +453,7 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
   check_text_hygiene.py — Greek words everywhere by the rules of printed Greek (+ σ/ς, iota subscript, diaeresis),
   Hebrew by the pointing rules, every string for control/zero-width characters, look-alike letters, entities, spacing,
   pairs. fix_greek_slips() in build_data puts right TBESG's scanned-text slips by the one known spelling with the same
-  letters (άμαρτίας → ἁμαρτίας, ὃτι, πoρνεύω, κρυΦῇ: 74), latin_lookalikes (Cyrenaїc), tidy_def_spacing (no space before
+  letters (άμαρτίας → ἁμαρτίας, δὴλος → δῆλος, πoρνεύω, κρυΦῇ; words under 4 letters and crasis like ταὐτά are left alone), latin_lookalikes (Cyrenaїc), tidy_def_spacing (no space before
   , ; : . ) in definitions). Remaining source oddities approved in tools/fixtures/text_hygiene_baseline.json.
   check_references.py — every Bible reference in lessons, guides, screens and README exists (88).
   check_spelling.py — English against the BSB's vocabulary + definitions (edit distance 1, rare): ENGLISH_FIXES for

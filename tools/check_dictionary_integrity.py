@@ -132,6 +132,23 @@ def check(words, entries, index):
                 problems["a card's count ≠ its entries' counts"].append(f"{f} {k} {w[1]}: card {w[3]}, entries {want}")
             if not idx:
                 problems["a card with no dictionary entry"].append(f"{f} {k}")
+    # "Not in the New Testament" must be true: a Greek entry with no places, and no entry it is listed under, whose
+    # headword is spelt exactly like a word of the text would tell a learner something false (μέ, εἶναι once did)
+    nt_forms = {}
+    for p, w in words.items():
+        if w[0] == "G":
+            nt_forms.setdefault(plain(w[1], "G"), p)
+    for key, e in entries.items():
+        idx = index.get(key)
+        if key[0] != "G" or not idx or (len(idx) > 4 and idx[4]) or (len(idx) > 6 and idx[6]):
+            continue
+        if any(k != key and num(k) == num(key) and len(r) > 4 and r[4] for k, r in index.items() if k[0] == "G"):
+            continue  # one sense or person of a word whose other senses are in the text (G2501K, a Joseph not in the NT)
+        for alt in str(e[0]).split(",")[:1]:  # the headword itself (Βηθαβαρά, not the other spelling it lists)
+            f = plain(alt, "G")
+            if len(f) > 2 and f in nt_forms:
+                problems["\"not in the NT\", yet the word is in the text"].append(f"{key} {e[0]} — e.g. {nt_forms[f]}")
+                break
     # every word (part) listed exactly once
     for p, w in words.items():
         if w[4]:

@@ -231,6 +231,23 @@ def build():
             e[:] = (e + [""] * 4)[:4] + [n, kw]  # [key, lemma, translit, gloss, count, definition keywords]
             while e and e[-1] in ("", 0):
                 e.pop()
+        # An entry the text never uses because its words are tagged with the entry it is "a Form of" (μέ → ἐγώ,
+        # εἶναι → εἰμί): index field 7 names that entry, so the app says "listed under ἐγώ", not "not in the NT"
+        counts = {e[0]: (e[4] if len(e) > 4 and isinstance(e[4], int) else 0) for e in index}
+        for e in index:
+            if counts[e[0]]:
+                continue
+            m = re.search(r"\b(?:Form|Spelling|Combination|Name|Meaning) of ([GH]\d{4,5}[A-Za-z]?)", str((full.get(e[0]) or [""] * 6)[5:6]))
+            target = m and m.group(1)
+            if not (target and counts.get(target)) and letter == "G":
+                # no "Form of" link, but the headword itself is a word of the text, tagged under another entry
+                # (ὅτου under ὅστις, ὑμέτερος under σύ): point to the entry most of those words go under
+                digits = re.sub(r"\D", "", e[0])
+                split = any(re.sub(r"\D", "", k) == digits and n for k, n in counts.items() if k != e[0] and k[0] == "G")
+                ks = None if split else text_forms.get(greek_norm(e[1] if len(e) > 1 else ""))  # a sense or person: no
+                target = next((k for k, _ in ks.most_common() if counts.get(k) and k != e[0]), None) if ks else None
+            if target and counts.get(target):
+                e[:] = (e + ["", "", "", "", 0, ""])[:6] + [target]
         dump(f"lex/{name}-index.json", index)
         # Written forms that differ from every dictionary form they belong to, so a word copied from a verse
         # (ἠγάπησεν, בְּרֵאשִׁית) still finds its entry: lex/<greek|hebrew>-forms.json = {normalised form: [keys]}

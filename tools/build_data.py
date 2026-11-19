@@ -72,12 +72,16 @@ def trim(arr):
 
 # Headwords as TBESG prints them that would show oddly as a "Dictionary form" (found by tools/check_text_hygiene.py):
 # "Ἕλλην=Ἕλλην" (a link to the base word), "Κιλικία, Κιλικία" (the same spelling twice), letters without an accent
-HEADWORD_FIX = {"G0001G": ("ἄλφα", "alpha"), "G5598": ("ὦ", "ō"),
+HEADWORD_FIX = {"G0001G": ("ἄλφα", "alpha"), "G5598": ("Ὦ", "Ō"),
                 "G5441": ("φύλαξ", "phulax"),  # Strong's G5441; TBESG prints φυλακτήριος (a phylactery) over "guard"
-                "G2491K": ("Ἰωάννης, Ἰωνᾶς", "Iōannēs, Iōnas"),
+                "G2491K": ("Ἰωάννης, Ἰωνᾶς", "Iōannēs, Iōnas"),  # Peter's father: the SBL text calls him Ἰωάννης
                 "G3801": ("ὁ ὢν καὶ ὁ ἦν καὶ ὁ ἐρχόμενος", "ho ōn kai ho ēn kai ho erchomenos"),  # TBESG: unaccented
                 "G7724": ("Ἰουδαϊστί", "Ioudaisti"),  # TBESG: Ιοὐδαϊστί (breathing on the υ)
-                "G7886": ("καταπανουργεύω", "katapanourgeuō")}  # TBESG: καταπανουργέυω (accent on the ε)  # Peter's father: the SBL text calls him Ἰωάννης
+                "G7886": ("καταπανουργεύω", "katapanourgeuō"),  # TBESG: καταπανουργέυω (accent on the ε)
+                "G2748": ("Κεδρών", "Kedrōn")}  # the brook Kidron (JHN 18:1); TBESG heads it κέδρος "cedar"
+
+
+GLOSS_FIX = {"G4162": "doing"}  # ποίησις: TBESG's gloss is "he did" (from ποιέω)
 
 
 def tidy_headword(key, lemma, translit):
@@ -166,7 +170,12 @@ def fix_greek_slips(text, stats=None):
             w = "".join(GREEK_IN_LATIN.get(c, c) for c in w)
         if re.search("[\u0370-\u03FF\u1F00-\u1FFF]", w) and not re.search("[A-Za-z]", w):
             nfc = unicodedata.normalize("NFC", w)
-            if rules.problems_of(nfc):
+            probs = rules.problems_of(nfc)
+            # crasis (ταὐτά = τὰ αὐτά, τοὔνομα): two words run together keep their breathing inside; ταῦτά is another word
+            first = rules.marks(nfc)
+            crasis = probs == ["breathing inside a word"] and first and first[0][0].lower() in "τκχθ" and any(
+                re.search("[\u0313\u0314]", x[1]) for x in first[1:4])
+            if probs and not crasis and nfc not in rules.ALLOWED:
                 cands = sorted(known_greek_forms().get(greek_base(nfc), set()))
                 if len(cands) > 1:  # ἀδικία / ἀδικίᾳ: the one whose marks agree most with what was printed
                     score = {c: sum(a == b for a, b in zip(rules.marks(c), rules.marks(nfc))) for c in cands}
@@ -183,8 +192,12 @@ def fix_greek_slips(text, stats=None):
     return re.sub(r"[A-Za-z\u0370-\u03FF\u1F00-\u1FFF][A-Za-z\u0370-\u03FF\u1F00-\u1FFF\u0300-\u036F\u0345]*", one, text)
 
 
+assert fix_greek_slips("ταὐτά τοὔνομα τοὐναντίον") == "ταὐτά τοὔνομα τοὐναντίον" or not os.path.isdir(STEP), "crasis changed"
+
+
 def tidy_def_spacing(html):
     """No space before , ; : . ) ] (the source's " <b>ἔα</b> ," leaves "ἔα ,") nor after ( [."""
+    html = re.sub(r"\.\s+\.\s+\.", "…", html)  # "μέν . . ., δέ": an ellipsis, kept apart from its word
     html = re.sub(r"\s+(?=(?:</?(?:b|i)>)*[,;:.)\]])", "", html)
     return re.sub(r"([(\[])\s+", r"\1", html)
 
@@ -197,7 +210,11 @@ ENGLISH_FIXES = {"thatr": "that", "thorugh": "through", "untill": "until", "sorr
                  "Isaachar": "Issachar", "Ciaphas": "Caiaphas", "Barnabus": "Barnabas", "hight": "height"}
 ENGLISH_FIXES_AT = {("HEB", 8, 5, "minster"): "minister",
                     ("1CH", 23, 31, "and/ to/ every of"): "and/ to/ every", ("1CH", 23, 31, "ering up of"): "offering up of",
-                    ("EZR", 1, 6, "all of"): "all", ("EZR", 1, 6, "ering of freewill offerings"): "offering of freewill offerings"}
+                    ("EZR", 1, 6, "all of"): "all", ("EZR", 1, 6, "ering of freewill offerings"): "offering of freewill offerings",
+                    # English that followed another reading's tag (with TAG_FIXES above)
+                    ("HEB", 11, 11, "herself"): "[with] herself", ("HEB", 11, 11, "she considered"): "he considered",
+                    ("MAT", 18, 12, "will seek"): "seeks", ("JAS", 1, 25, "work to be done"): "doing",
+                    ("ACT", 21, 6, "we greeted"): "we said farewell to"}
 ENGLISH_RE = re.compile(r"\b(" + "|".join(ENGLISH_FIXES) + r")\b")
 
 
@@ -227,8 +244,13 @@ def read_lexicon(pattern):
         key = c[1].split(" ")[0].strip()
         if key[0] == "G":
             c[3], c[4] = tidy_headword(key, fix_greek_slips(c[3], LEX_STATS), c[4])
+        if key in GLOSS_FIX:
+            c[6] = GLOSS_FIX[key]
         entries[key] = {
-            "estrong": c[0], "rel": c[1].split("=", 1)[1].strip() if "=" in c[1] else "",
+            # "a Form of G1473": the entry this one is a form, spelling or combination of (c[2], its first key)
+            "estrong": c[0], "rel": ((c[1].split("=", 1)[1].strip() + (" " + re.match(r"[GH]\d{4,5}[A-Za-z]?", c[2].strip()).group(0)
+                                      if re.match(r"[GH]\d{4,5}[A-Za-z]?", c[2].strip()) and c[2].strip().split()[0] != key else "")).strip()
+                                     if "=" in c[1] else ""),
             "ustrong": c[2].strip(), "lemma": nfc(c[3].strip()) if key[0] == "G" else c[3].strip(),
             "translit": c[4].strip(),
             "morph": c[5].strip(), "gloss": fix_english(re.sub(r"\s+", " ", latin_lookalikes(c[6].strip()))),
@@ -330,11 +352,13 @@ MORPH_FIX = {
                   "an action that is done to or for a male person or thing that is having something done to them",
                   "give them a man that is taught (by himself?)"],  # STEPBible: "… participle dative …"
     "V-RMM-2P": ["Verb perfect middle imperative 2nd plural", None, None],  # STEPBible: "… indicative …"
-    "V-2AOM-2P": [None, "an action that certainly happens – by persons being spoken or written to", None],  # "done by persons"
+    "V-2AOM-2P": [None, "an action that certainly should or must happen - by persons being spoken or written to", None],  # "done by persons"
     "V-2FAI-1S": [None, "an action that will happen - by a person or thing that is speaking or writing", None],  # "being discussed"
     "V-2FDI-2S": [None, "an action that will happen - by a person or thing being spoken or written to", None],  # "spoken to written to"
     "HVtj2ms": [None, "intensifying or achieving an action or activity that may be done incompletely in the future or present to or for themself by a male person or thing being addressed", None],  # "themselves"
-    "AVup2ms": [None, "intensifying or achieving an action or activity that is done completely in the past or present to a male person or thing being addressed", None],  # "male people"
+    "AVup2ms": [None, "intensifying or achieving an action or activity that is done completely in the past or present to a male person or thing being addressed",
+                "you (male) were or are raised"],  # "male people", "you (males)"
+    "V-AOM-2P": [None, "an action that certainly should or must happen - by persons being spoken or written to", None],  # "certainly happens"
     "AVvi3mp": ["Verb: ishtaphel (causative/declarative, reflexive/iterative) imperfect (future/present indicative) third plural masculine",
                 "causing or confirming an action or activity that will be done in the future or present to or for themselves by male people or things being discussed",
                 "they (males) will exalt themselves"],  # STEPBible: "… perfect …" for יִשְׁתַּכְלְלוּן (Ezra 4:13, 16)
@@ -342,6 +366,15 @@ MORPH_FIX = {
 
 
 def fix_morph(table):
+    # Greek imperatives: STEPBible's sentence for the middle and passive ones says "an action that certainly happens",
+    # as for a statement; the active ones say "certainly should or must happen". All read as commands now.
+    for code, row in table.items():
+        if re.match(r"V-2?[PIFARL][A-Z]M-", code) and len(row) > 1 and row[1] and not re.search(r"should or must|must", row[1]):
+            row = list(row)
+            row[1] = re.sub(r"certainly (?:happens|happen)\b", "certainly should or must happen", row[1])
+            row[1] = re.sub(r"certainly is done\b", "certainly should or must be done", row[1])
+            row[1] = re.sub(r"certainly has been done\b", "certainly should or must have been done", row[1])
+            table[code] = row
     for code, (desc, expl, ex) in MORPH_FIX.items():
         if code in table:
             row = list(table[code]) + ["", ""]
@@ -496,6 +529,12 @@ TAG_FIXES = {
     ("HEB", 11, 11, "Σάρρᾳ"): "N-DSF-P",
     ("MAT", 5, 32, "ἀπολελυμένην"): ("V-RPP-ASF", "G0630H"),  # from ἀπολύω "divorce", not ἀπολείπω
     ("LUK", 16, 18, "ἀπολελυμένην"): ("V-RPP-ASF", "G0630H"),
+    # from the reviewer of 19 Nov 2026: the article or the SBL word settles it
+    ("JAS", 1, 25, "ποιήσει"): ("N-DSF", "G4162"),             # ἐν τῇ ποιήσει: the noun ποίησις, not ποιέω "he will do"
+    ("JHN", 4, 5, "πλησίον"): "ADV",                           # "near": an adverb (TAGNT: noun nom. fem.)
+    ("ACT", 27, 29, "που"): ("ADV", "G4225"),                  # SBL που "somewhere", not πως
+    ("1TI", 6, 5, "διαπαρατριβαὶ"): ("N-NPF", "G6856"),         # SBL's διαπαρατριβή, not TR's παραδιατριβή
+    ("ACT", 21, 6, "ἀπησπασάμεθα"): ("V-AMI-1P", "G20093"),     # ἀπασπάζομαι "take leave of", not ἀσπάζομαι
 }
 
 TAG_FIXES_USED = set()

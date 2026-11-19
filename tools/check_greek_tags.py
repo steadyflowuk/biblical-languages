@@ -128,11 +128,11 @@ POS_SAME = {
     ("correl", "dem"), ("correl", "interr"), ("indef", "interr"), ("interr", "interr"), ("rel", "rel"),
     ("adj", "noun"), ("noun", "adj"), ("adj", "interr"), ("interr", "adj"), ("adj", "dem"), ("adj", "pron"),
     ("noun", "pron"), ("pron", "adj"), ("adv", "adj"), ("adj", "adv"), ("noun", "adv"), ("adv", "noun"),
-    ("foreign", "noun"), ("foreign", "verb"), ("foreign", "adj"), ("foreign", "prt"), ("foreign", "adv"), ("foreign", "inj"),
+    ("foreign", "noun"), ("foreign", "adj"), ("foreign", "prt"), ("foreign", "adv"), ("foreign", "inj"),
     ("noun", "inj"), ("inj", "noun"), ("conj", "rel"), ("adv", "rel"), ("rel", "adv"), ("interr", "adv"), ("adv", "interr"),
     ("indef", "adv"), ("prt", "interr"), ("interr", "prt"), ("dem", "adv"), ("adj", "prt"), ("prt", "adj"),
     ("noun", "prt"), ("dem", "adj"), ("pron", "dem"), ("rel", "pron"), ("indef", "adj"), ("prep", "conj"), ("conj", "prep"),
-    ("prep", "prt"), ("verb", "inj"), ("inj", "verb"), ("verb", "adv"), ("noun", "verb"), ("verb", "noun"),
+    ("prep", "prt"),
 }
 
 
@@ -141,7 +141,7 @@ def compare(o, m):
     out = []
     if o["pos"] in ("joined", "verb?"):
         return out
-    if o["pos"] != m["pos"]:
+    if o["pos"] != m["pos"]:  # a verb on one side only is never a convention (JAS 1:25 ποιήσει once passed so)
         if (o["pos"], m["pos"]) not in POS_SAME:
             out.append(f"pos {o['pos']}→{m['pos']}")
         if "verb" not in (o["pos"], m["pos"]):
@@ -169,17 +169,18 @@ def lemma_ok(our_lemma, mg_lemma):
     a, b = strip(our_lemma), strip(mg_lemma)
     if a == b:
         return True
-    # usual conventions: -ω/-ομαι deponents, ει/ι, assimilation, movable ν, -ττ/-σσ, names with/without endings
+    # usual conventions: -ω/-ομαι deponents, ει/ι, assimilation, -ττ/-σσ (kept tight: ν and θ count, ratio ≥ .85, so a
+    # different word with a similar spelling, πως/πού, shows up)
     def fold(x):
         x = re.sub(r"ομαι$", "ω", x)
         x = re.sub(r"(ειμι|ημι|υμι)$", "μι", x)
         x = x.replace("ει", "ι").replace("ττ", "σσ").replace("γγ", "νγ").replace("γκ", "νκ").replace("μπ", "νπ")
         x = x.replace("μμ", "νμ").replace("λλ", "νλ").replace("ρρ", "ρ").replace("η", "ε").replace("ω", "ο")
-        x = x.replace("υ", "ι").replace("θ", "τ").replace("ν", "")
+        x = x.replace("υ", "ι")
         return x
     if fold(a) == fold(b):
         return True
-    return difflib.SequenceMatcher(None, a, b).ratio() >= 0.8
+    return difflib.SequenceMatcher(None, a, b).ratio() >= 0.85
 
 
 def load_ours():
@@ -265,10 +266,17 @@ REASONS = {
     "pos poss→pron": "TAGNT tags emphatic ἐμοῦ (\"of me\") as a possessive under ἐγώ; MorphGNT as the personal pronoun",
     "voice mid→pass": "TAGNT's 'deponent' on -θη- aorists and futures (ἀπεκρίθη); MorphGNT calls them passive",
     "tense pres→perf": "οἶδα: present in meaning (TAGNT), perfect in form (MorphGNT)",
+    "pos noun→verb": "1 Cor 16:22 Μαράνα θά: TAGNT tags the Aramaic phrase as one name-like noun; MorphGNT parses θά as an imperative",
     "*": "a form that allows both readings (gender of ὅτου, mood of contracted -ῶσι, πλήρης for any case …), or MorphGNT's slip where the printed form settles it for us (κρεμάμενος, παρακαλέσῃ, βασιλεύουσιν); each looked at on 19 Nov 2026",
     "lemmas": "the dictionaries' headword conventions: Strong's/TBESG list εἶπον, εἴδω, εὐθέως, δεῖ, the possessives under ἐγώ/σύ; MorphGNT follows BDAG (λέγω, ὁράω, εὐθύς, δέω, ἐμός)",
+    "lemmas-left": "known slips, left: SBL's word has no entry of its own in TBESG, so TAGNT's tag (another reading's word) stays: "
+                   "1CO 9:9 κημώσεις (φιμόω), LUK 16:21 ἐπέλειχον (ἀπολείχω), ACT 21:15 ἐπισκευασάμενοι (ἀποσκευάζω), "
+                   "ACT 27:14 Εὐρακύλων (Εὐροκλύδων), REV 22:11 ῥυπαρευθήτω (ῥυπόω), ACT 24:2 διορθωμάτων (διόρθωσις), "
+                   "1CO 9:13 παρεδρεύοντες (προσεδρεύω)",
     "verse missing on one side": "MorphGNT leaves out John 7:53-8:11, which SBLGNT prints in double brackets",
 }
+LEFT = {"φιμόω|κημόω", "ἀπολείχω|ἐπιλείχω", "ἀποσκευάζω|ἐπισκευάζομαι", "Εὐροκλύδων|εὐρακύλων", "ῥυπόω|ῥυπαρεύω",
+        "διόρθωσις|διόρθωμα", "προσεδρεύω|παρεδρεύω"}
 KNOWN = json.load(open(BASELINE_FILE)) if os.path.exists(BASELINE_FILE) else {"kinds": {}, "lemmas": {}, "problems": {}}
 
 
@@ -314,8 +322,11 @@ def main():
     for k in sorted(set(by_kind) | set(KNOWN["kinds"]), key=lambda k: -len(by_kind.get(k, []))):
         against(k, by_kind.get(k, []), KNOWN["kinds"].get(k, []), REASONS.get(k, "judgement call (see REASONS['*'])"))
     print("\nDictionary forms that differ beyond spelling conventions:")
-    against(f"{len(lem)} pairs, {sum(lem.values()):,} words", [f"{k} ×{n}" for k, n in lem.items()],
-            [f"{k} ×{n}" for k, n in KNOWN["lemmas"].items()], REASONS["lemmas"])
+    left = {k for k in lem if k in LEFT}
+    against(f"{len(lem) - len(left)} pairs, {sum(n for k, n in lem.items() if k not in left):,} words",
+            [f"{k} ×{n}" for k, n in lem.items() if k not in left],
+            [f"{k} ×{n}" for k, n in KNOWN["lemmas"].items() if k not in LEFT], REASONS["lemmas"])
+    against(f"{len(left)} known slips left as published", sorted(left), sorted(k for k in KNOWN["lemmas"] if k in LEFT), REASONS["lemmas-left"])
     print(f"\n{fails} problems" if fails else "\n0 problems")
     sys.exit(1 if fails else 0)
 
@@ -337,6 +348,7 @@ def self_test(ours, lexicon, mgnt):
     plant("wrong tense", ("JHN", 1, 1), 2, lambda w: w.__setitem__(4, "V-PAI-3S"))
     plant("wrong row (all features)", ("JHN", 3, 16), 1, lambda w: w.__setitem__(4, "V-FPI-1P"))
     plant("wrong word", ("JHN", 1, 1), 3, lambda w: w.__setitem__(0, "λόγου"))
+    plant("a verb's tag on a noun (JAS 1:25 ποιήσει)", ("JHN", 1, 1), 3, lambda w: w.__setitem__(4, "V-FAI-3S"))
     plant("wrong accent", ("ROM", 8, 28), 0, lambda w: w.__setitem__(0, w[0].replace("ί", "ι").replace("ἴ", "ἰ") + ""))
     plant("wrong dictionary form", ("MAT", 5, 3), 0, lambda w: w.__setitem__(3, "G4160"))
     for desc, ref, o in tests:

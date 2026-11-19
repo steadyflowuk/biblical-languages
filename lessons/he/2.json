@@ -95,7 +95,7 @@
           "prompt": "Which letter says sh?",
           "options": ["שׁ", "שׂ", "ס", "צ"],
           "answer": 0,
-          "explain": "With the dot on the right it is shin, sh. With the dot on the left (שׂ) it is sin, s."
+          "explain": "With the dot on the right (שׁ) it is shin, sh. With the dot on the left (שׂ) it is sin, s."
         },
         {
           "type": "match",

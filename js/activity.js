@@ -8,7 +8,10 @@ const KEEP = 400;
 
 /** The study day a moment belongs to ("2026-10-28"). */
 export function dayKey(d) {
-  const x = new Date((d || new Date()).getTime() - DAY_START * 3600 * 1000);
+  // by the clock on the wall, not 4 hours of elapsed time: on the mornings the clocks change, the day still turns
+  // at 4am (subtracting 4 hours made it turn at 5am in spring and 3am in autumn)
+  const x = new Date((d || new Date()).getTime());
+  if (x.getHours() < DAY_START) x.setDate(x.getDate() - 1);
   return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`;
 }
 

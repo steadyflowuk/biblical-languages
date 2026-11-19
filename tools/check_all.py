@@ -32,6 +32,18 @@ JOBS = {
     "check_grammar":   ([PY, "tools/check_grammar.py"], 1, 1),
     "check_votd":      (["node", "tools/check_votd.mjs"], 1, 1),
     "check_lxx_text":  ([PY, "tools/check_lxx_text.py"], 1, 1),
+    # focused accuracy checkers (19 Nov 2026), each proven on planted mistakes by run_selftests
+    "check_greek_tags": ([PY, "tools/check_greek_tags.py", SRC], 1, 1),
+    "check_hebrew_text": ([PY, "tools/check_hebrew_text.py", SRC], 1, 1),
+    "check_grammar_labels": (["node", "tools/check_grammar_labels.mjs"], 1, 1),
+    "check_text_hygiene": ([PY, "tools/check_text_hygiene.py"], 1, 1),
+    "check_references": ([PY, "tools/check_references.py"], 1, 1),
+    "check_spelling":  ([PY, "tools/check_spelling.py"], 1, 1),
+    "check_dictionary_integrity": ([PY, "tools/check_dictionary_integrity.py"], 1, 1),
+    "check_dates":     (["node", "tools/check_dates.mjs"], 1, 1),
+    "check_drills":    ([PY, "tools/check_drills.py"], 1, 1),
+    "check_fonts":     ([PY, "tools/check_fonts.py"], 1, 1),
+    "run_selftests":   ([PY, "tools/run_selftests.py"], 1, 1),
     # 2. sweeps: every chapter, every Septuagint chapter, every dictionary entry, every screen
     "sweep_reader":    ([PY, "tools/sweep_reader.py", "all"], 2, 45),
     "sweep_lxx":       ([PY, "tools/sweep_lxx.py", "all"], 2, 40),
@@ -52,6 +64,7 @@ JOBS = {
     "test_a11y":       ([PY, "tools/test_a11y.py"], 3, 4),
     "test_backups":    ([PY, "tools/test_backups.py"], 3, 1),
     "test_screens":    ([PY, "tools/test_screens.py"], 3, 3),
+    "check_offline":   ([PY, "tools/check_offline.py"], 3, 1),
     # 4. what a learner sees: tapped words, Reader notes in every layout, dictionary senses, credits
     "audit_content":   ([PY, "tools/audit_content.py"], 4, 10),
     # 5. timing, on its own so other jobs don't slow it down
@@ -60,6 +73,18 @@ JOBS = {
 QUICK_SKIP = {"sweep_reader", "sweep_lxx", "sweep_dictionary"}
 # What each job must have covered: a run that stops early, or quietly checks less, fails (numbers as of Session 14)
 COVERAGE = {
+    "check_greek_tags": [(r"([\d,]+) Greek words lined up", 137000)],
+    "check_hebrew_text": [(r"([\d,]+) Hebrew words lined up", 305000)],
+    "check_grammar_labels": [(r"([\d,]+) grammar codes checked", 1860)],
+    "check_text_hygiene": [(r"([\d,]+) pieces of text checked", 650000)],
+    "check_references": [(r"([\d,]+) references checked", 85)],
+    "check_spelling": [(r"([\d,]+) different English words", 15000)],
+    "check_dictionary_integrity": [(r"([\d,]+) dictionary entries checked", 21234)],
+    "check_dates": [(r"([\d,]+) checks in", 1200000)],
+    "check_drills": [(r"(\d+) cards checked", 383)],
+    "check_fonts": [(r"(\d+) characters drawn", 750)],
+    "check_offline": [(r"(\d+) screens opened", 37)],
+    "run_selftests": [(r"\d+/(\d+) passed", 68)],
     "check_votd": [(r"pool, ([\d,]+) built", 14100)],
     "test_listening": [(r"(\d+)/\d+ passed", 233)],
     "check_lxx_text": [(r"([\d,]+) words checked", 600000)],
@@ -133,7 +158,8 @@ def main():
     os.makedirs(OUT, exist_ok=True)
 
     # sources for check_data
-    if "check_data" in names and not os.path.isdir(os.path.join(SRC, "sblgnt")):
+    if ({"check_data", "check_greek_tags", "check_hebrew_text"} & set(names)) and not all(
+            os.path.isdir(os.path.join(SRC, d)) for d in ("sblgnt", "morphgnt", "morphhb", "gfonts")):
         print(f"Fetching the data sources into {SRC} …")
         subprocess.run(["bash", "tools/fetch_sources.sh", SRC], check=False)
     # the local server

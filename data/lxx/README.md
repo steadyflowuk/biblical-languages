@@ -13,13 +13,17 @@ because they are derived from a GPL-3.0 database. The rest of this repository is
 - Verse alignment with the Hebrew/English Bible uses STEPBible's TVTMS versification data (CC BY 4.0,
   STEPBible.org / Tyndale House Cambridge).
 
-## Changes (27 October 2026, Aleph to Omega)
+## Changes (27 October 2026, updated 19 November 2026, Aleph to Omega)
 
 These files were produced from the source by `tools/build_lxx.py` in this repository (the full method is there):
 
 - `text/<BOOK>.json`: the words joined into verses, grouped by book and chapter, in Swete's numbering.
   Swete's editorial marks ⸂ ⸃ ⸆ and subsection numbers such as [1] are left out, and accents are stored in
-  standard Unicode form (NFC). The words themselves are unchanged.
+  standard Unicode form (NFC).
+- 19 November 2026: digitisation slips put right (the printed edition can't have them): a grave accent standing
+  before a word's last syllable is made acute (207 words, e.g. δὺναμιν → δύναμιν), and 37 words listed in
+  `SWETE_FIXES` in tools/build_lxx.py are corrected by hand (a breathing printed for an accent, a missing breathing,
+  two words run together, letters misread, e.g. ἄυδρας → ἄνδρας, ΙΙερσῶν → Περσῶν). Every other word is as in the source.
 - `ot/<BOOK>.json`: each verse of the Hebrew/English Old Testament matched to the Swete verse(s) it corresponds to.
 - `books.json`: the list of books and chapters, and which Hebrew chapter each Septuagint chapter mostly matches.
 

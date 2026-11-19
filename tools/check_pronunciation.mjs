@@ -1053,6 +1053,58 @@ if (verseSpeech) {
   }
 }
 
+// ---- the Septuagint (Swete; 19 Nov 2026): every verse as its "Listen to the verse" gives it, every word as a tap
+// gives it. The words themselves are in the word check above (every Septuagint form); here: what reaches the voice.
+// Swete's text has no word data, so the verse is its words joined (js/reader.js showLxxWord), capitals at a book's
+// start said as the words they are (audio.lxxSpeech), elided words kept with their mark for the voice.
+let nLxx = 0;
+if (audio && audio.lxxSpeech) {
+  const { lxxSpeech, lxxTapWord, lxxCapsKey, LXX_CAPS, lxxIsNumeral, LXX_NUMBERS, lxxTokens } = audio;
+  const bareCaps = (w) => String(w).normalize("NFD").replace(/[\u0300-\u036f\u1fbd\u2019]/g, "").normalize("NFC").toUpperCase().replace(/Σ/g, "Σ");
+  for (const [k, form] of Object.entries(LXX_CAPS)) if (bareCaps(form).replace(/ς/g, "Σ") !== k) note(problems, "Septuagint: a capitals entry isn't the same word", `${k} → ${form}`);
+  const gLetter = /[\u0370-\u03FF\u1F00-\u1FFF]/;
+  for (const f of fs.readdirSync(R + "data/lxx/text")) {
+    const B = json("data/lxx/text/" + f);
+    for (const [c, vs] of B.ch) for (const [v, raw] of vs) {
+      nLxx++;
+      const where = `Septuagint ${B.id} ${c}:${v}`;
+      const tokens = lxxTokens(raw); // as the Reader shows them (js/audio.js lxxTokens)
+      // each word as a tap gives it
+      tokens.forEach((tok, ti) => {
+        const t = lxxTapWord(tok, tokens[ti - 1], tokens[ti + 1]);
+        if (!gLetter.test(t.show)) return;
+        if (lxxIsNumeral(tok) && !t.number) note(problems, "Septuagint: a number written with letters that the voice would spell out", `${where}: ${tok}`);
+        const key = t.number ? "" : lxxCapsKey(t.look);
+        if (key && !LXX_CAPS[key]) note(problems, "Septuagint: a word in capitals the voice would say without its accent", `${where}: ${tok}`);
+        for (const sys of ["erasmian", "koine"]) {
+          const said = sys === "erasmian" ? S.erasmianSpeech(t.say) : S.koineSpeech(t.say);
+          if (!/[αεηιουωάέήίόύώϊϋΐΰ]/i.test(said.normalize("NFC").toLowerCase())) note(problems, "Septuagint: a tapped word gives the voice no vowel (it would spell out a letter)", `${where} (${sys}): ${tok} → ${said}`);
+          if (/[^\u0370-\u03FF\u1F00-\u1FFF ,.?!]/.test(said)) note(problems, "Septuagint: something that isn't Greek reaches the voice from a tapped word", `${where} (${sys}): ${tok} → ${said}`);
+          if (key && LXX_CAPS[key] && /[\u0301\u0300\u0342]/.test(LXX_CAPS[key].normalize("NFD")) && !/[άέήίόύώΐΰ]/.test(said.normalize("NFC"))) note(problems, "Septuagint: a word in capitals is said without stress", `${where} (${sys}): ${tok} → ${said}`);
+        }
+      });
+      // the whole verse, both pronunciations
+      const text = lxxSpeech(tokens.join(" "));
+      for (const sys of ["erasmian", "koine"]) {
+        const said = sys === "erasmian" ? S.erasmianSpeech(text) : S.koineSpeech(text);
+        const label = `${where} (${sys === "erasmian" ? "Erasmian" : "Koine"})`;
+        if (/[^\u0370-\u03FF\u1F00-\u1FFF ,.?!]/.test(said)) note(problems, "Septuagint verses: something that isn't Greek reaches the voice", `${label}: ${said.slice(0, 120)}`);
+        if (/\s{2,}|^\s|\s$/.test(said)) note(problems, "Septuagint verses: stray spaces", label);
+        const words = tokens.map((tok, ti) => [tok, ti]).filter(([tok]) => gLetter.test(lxxTapWord(tok).show));
+        const alone = words.flatMap(([tok, ti]) => { const x = lxxTapWord(tok, tokens[ti - 1], tokens[ti + 1]).say; return (sys === "erasmian" ? S.erasmianSpeech(x) : S.koineSpeech(x)).replace(/[,.?!]/g, "").split(" "); });
+        const inVerse = said.replace(/[,.?!]/g, "").split(" ").filter(Boolean);
+        const elided = words.filter(([tok]) => !lxxIsNumeral(tok) && /^[βγδθκλμνπρστφχ][’'᾽ʼ]$/.test(tok.normalize("NFC").toLowerCase()) && /^[βγδθκλμνπρστφχ][’'᾽ʼ]$/.test(lxxTapWord(tok).show.normalize("NFC").toLowerCase().replace(/[\u0300-\u036f]/g, ""))).length;
+        if (inVerse.length !== alone.filter(Boolean).length - elided) note(problems, "Septuagint verses: a word is lost or added in the whole verse", `${label}: ${inVerse.length} said, ${alone.length} words`);
+        else if (!elided && inVerse.join(" ") !== alone.filter(Boolean).join(" ")) note(problems, "Septuagint verses: a word sounds different in the verse from on its own", `${label}: ${inVerse.find((x, i) => x !== alone.filter(Boolean)[i])}`);
+        const strongest = (run) => (/;/.test(run) ? ";" : /\./.test(run) ? "." : /·/.test(run) ? "·" : run ? "," : "");
+        const marks = tokens.map((tok) => strongest((tok.normalize("NFC").match(/[,.·;]+[\])]*$/) || [""])[0].replace(/[\])]/g, ""))).filter(Boolean).map((m) => PUNCT_G[m]);
+        const heard = said.match(/[,.?]/g) || [];
+        if (marks.join("") !== heard.join("")) note(problems, "Septuagint verses: pauses don't match the punctuation", `${label}: text ${marks.join("")} voice ${heard.join("")}`);
+      }
+    }
+  }
+} else note(problems, "Septuagint: js/audio.js has no lxxSpeech", "");
+
 // ---- the model against an independent source: STEPBible's transliteration of every word (see STEP_BASELINE)
 const step = stepCompare(false);
 if (step.same < STEP_BASELINE.same - 20 || step.stressSame < STEP_BASELINE.stress - 20) {
@@ -1061,7 +1113,7 @@ if (step.same < STEP_BASELINE.same - 20 || step.stressSame < STEP_BASELINE.stres
 }
 
 // ================================================================ report
-console.log(`Pronunciation check: ${nGreek.toLocaleString("en-GB")} Greek words (Erasmian and Restored Koine), ${nHebrew.toLocaleString("en-GB")} Hebrew words, ${nVerses.toLocaleString("en-GB")} verses.`);
+console.log(`Pronunciation check: ${nGreek.toLocaleString("en-GB")} Greek words (Erasmian and Restored Koine), ${nHebrew.toLocaleString("en-GB")} Hebrew words, ${nVerses.toLocaleString("en-GB")} verses, ${nLxx.toLocaleString("en-GB")} Septuagint verses.`);
 if (limits.size) {
   console.log("\nKnown limits of a Modern voice (accepted):");
   for (const [cat, r] of [...limits].sort((a, b) => b[1].n - a[1].n)) {

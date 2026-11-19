@@ -63,6 +63,68 @@ OVERRIDES = {
 }
 
 
+# Digitisation slips in the source (19 Nov 2026), found by tools/check_lxx_text.py's spelling rules (a grave accent
+# can only stand on a word's last syllable; a breathing only on its first vowel or pair; no capital inside a word;
+# no accent further back than the third syllable from the end; every word starting with a vowel has a breathing) and
+# each put right by hand from the same word elsewhere in Swete or the context. Keyed by Swete reference (app ids):
+# [what the source has, what Swete prints]. Every grave accent standing before a word's last syllable is also made
+# acute, in place (δὺναμιν → δύναμιν: 207 words), which needs no list: a grave is only ever written on the last.
+SWETE_FIXES = {
+    "1CH 2:54": [["Μαλαθεἰ", "Μαλαθεί"]], "1CH 5:13": [["ΣέΒεε", "Σέβεε"]],
+    "1ES 2:2": [["ἐκήωυξεν", "ἐκήρυξεν"], ["ὅλῇ", "ὅλῃ"], ["τῃ", "τῇ"]], "1ES 5:20": [["τετρακὀσιοι", "τετρακόσιοι"]],
+    "1ES 5:53": [["ΙΙερσῶν", "Περσῶν"]], "1ES 8:47": [["καἱ", "καὶ"]], "1ES 1:25": [["ἑμοῦ ἐμοῦ", "ἐμοῦ"]],
+    "1KI 5:9": [["θέλημάμου", "θέλημά μου"]], "1SA 1:21": [["ἐνΣηλὼμ", "ἐν Σηλὼμ"]], "1SA 14:48": [["ἐπάταξεντὸν", "ἐπάταξεν τὸν"]],
+    "1SA 30:21": [["Δαυεἰδ", "Δαυεὶδ"]], "1SA 31:2": [["Σαοὐλ", "Σαοὺλ"]], "2CH 16:14": [["Δαυεἰδ", "Δαυεὶδ"]],
+    "2CH 35:19": [["ἐνεπύριοεν", "ἐνεπύρισεν"]], "DAG 7:1": [["Δανιἠλ", "Δανιὴλ"]], "EZR 10:42": [["Σαλοὑμ", "Σαλούμ"]],
+    "HAB 3:11": [["πορεὔσονται", "πορεύσονται"]], "JDG 1:27": [["θυγατἐρας", "θυγατέρας"]], "JER 43:2": [["πρὀς", "πρὸς"]],
+    "PRO 24:52": [["καταφἅγοισαν", "καταφάγοισαν"]], "ESG 8:12": [["τρίσαλιτηρίου", "τρισαλιτηρίου"]],
+    "ISA 28:13": [["κινδυνεύσουσιυ", "κινδυνεύσουσιν"]], "PSS 2:18": [["ἀνέκαλυψας", "ἀνεκάλυψας"]],
+    "TBS 14:11": [["ἔθηκαναὐτὸν", "ἔθηκαν αὐτὸν"]], "JDG 3:31": [["ἄυδρας", "ἄνδρας"]], "JOS 21:14": [["ἀυτῇ", "αὐτῇ"]],
+    "1CH 2:33": [["Ιωναθάν", "Ἰωναθάν"]], "2CH 17:12": [["Ιωσαφὰτ", "Ἰωσαφὰτ"]], "2KI 9:14": [["Ιωσαφὰθ", "Ἰωσαφὰθ"]],
+    "2MA 8:1": [["Ιούδας", "Ἰούδας"]], "JOS 13:3": [["Ακκαρωνείτῃ", "Ἀκκαρωνείτῃ"]], "JDG 1:14": [["Εῖς", "Εἰς"]],
+    "1MA 10:74": [["δε", "δὲ"]], "GEN 25:32": [["δε", "δὲ"]], "JOS 18:14": [["το", "τὸ"]],
+}
+
+
+def acute_graves(word):
+    """A grave accent anywhere but on a word's last vowel (or last pair) is a slip for an acute (δὺναμιν → δύναμιν)."""
+    d = unicodedata.normalize("NFD", word)
+    letters = [i for i, ch in enumerate(d) if unicodedata.category(ch).startswith("L")]
+    vowels = [i for i in letters if d[i].lower() in "αεηιουω"]
+    if "\u0300" not in d or not vowels:
+        return word
+    last = vowels[-1]
+    # the last syllable's nucleus: the last vowel, and the one before it when they make a pair (αι, ευ, ου …)
+    pair = len(vowels) > 1 and vowels[-2] == last - 1 or (len(vowels) > 1 and vowels[-2] < last and
+            all(not unicodedata.category(d[k]).startswith("L") for k in range(vowels[-2] + 1, last)))
+    first_of_last = vowels[-2] if pair and (d[vowels[-2]].lower() + d[last].lower()) in ("αι", "ει", "οι", "αυ", "ευ", "ου", "υι", "ηυ") else last
+    out = list(d)
+    for i, ch in enumerate(d):
+        if ch == "\u0300":
+            owner = max(k for k in letters if k < i)
+            if owner < first_of_last:
+                out[i] = "\u0301"
+    return unicodedata.normalize("NFC", "".join(out))
+
+
+def fix_verse(ref, words, log):
+    """The source's words for one verse, with the slips above put right (log counts them)."""
+    out = []
+    for w in words:
+        a = acute_graves(w)
+        if a != w:
+            log["grave made acute"] += 1
+        out.append(a)
+    for wrong, right in SWETE_FIXES.get(ref, []):
+        text = " ".join(out)
+        pat = r"(?<![\w\u0300-\u036f])" + re.escape(wrong) + r"(?![\w\u0300-\u036f])"
+        if not re.search(pat, text):
+            raise SystemExit(f"SWETE_FIXES: {ref} has no {wrong!r} (the source changed?)")
+        out = re.sub(pat, right, text, count=1).split(" ")
+        log["by hand"] += 1
+    return out
+
+
 def load(path):
     with open(path, encoding="utf-8") as f:
         return json.load(f)
@@ -106,6 +168,16 @@ def build(src, report=None):
         end = int(rows[i + 1][0]) if i + 1 < len(rows) else len(words) + 1
         verses[ref] = [w for w in words[start - 1:end - 1] if w]
         order.append(ref)
+    # the source's digitisation slips put right (see SWETE_FIXES)
+    app_id = {code: bid for code, bid, _, _ in BOOKS}
+    fixed = collections.Counter()
+    for ref in order:
+        m = re.match(r"^(.+?)\.(\d+):(\d+)$", ref)
+        verses[ref] = fix_verse(f"{app_id.get(m.group(1), m.group(1))} {m.group(2)}:{m.group(3)}", verses[ref], fixed)
+    unused = [r for r in SWETE_FIXES if r not in {f"{app_id.get(re.match(r'^(.+?)[.]', x).group(1))} {x.split('.', 1)[1]}" for x in order}]
+    if unused:
+        raise SystemExit(f"SWETE_FIXES: no such verse {unused}")
+    print("Septuagint slips put right:", dict(fixed))
     text = {ref: " ".join(ws) for ref, ws in verses.items()}
     gw = {ref: {x for x in (gnorm(w) for w in ws) if len(x) > 2} for ref, ws in verses.items()}
 
@@ -404,13 +476,17 @@ because they are derived from a GPL-3.0 database. The rest of this repository is
 - Verse alignment with the Hebrew/English Bible uses STEPBible's TVTMS versification data (CC BY 4.0,
   STEPBible.org / Tyndale House Cambridge).
 
-## Changes (27 October 2026, Aleph to Omega)
+## Changes (27 October 2026, updated 19 November 2026, Aleph to Omega)
 
 These files were produced from the source by `tools/build_lxx.py` in this repository (the full method is there):
 
 - `text/<BOOK>.json`: the words joined into verses, grouped by book and chapter, in Swete's numbering.
   Swete's editorial marks ⸂ ⸃ ⸆ and subsection numbers such as [1] are left out, and accents are stored in
-  standard Unicode form (NFC). The words themselves are unchanged.
+  standard Unicode form (NFC).
+- 19 November 2026: digitisation slips put right (the printed edition can't have them): a grave accent standing
+  before a word's last syllable is made acute (207 words, e.g. δὺναμιν → δύναμιν), and 37 words listed in
+  `SWETE_FIXES` in tools/build_lxx.py are corrected by hand (a breathing printed for an accent, a missing breathing,
+  two words run together, letters misread, e.g. ἄυδρας → ἄνδρας, ΙΙερσῶν → Περσῶν). Every other word is as in the source.
 - `ot/<BOOK>.json`: each verse of the Hebrew/English Old Testament matched to the Swete verse(s) it corresponds to.
 - `books.json`: the list of books and chapters, and which Hebrew chapter each Septuagint chapter mostly matches.
 

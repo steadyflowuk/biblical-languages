@@ -158,6 +158,89 @@ export function verseSpeech(words, lang, lex) {
   return (words || []).map((w) => w[0] + String(w[5] || "").replace(/[¶¬]/g, "")).join(" ");
 }
 
+/**
+ * The Septuagint (Swete) prints a book's first word or two in capitals without accents or breathings (ΕΝ ΑΡΧΗ,
+ * ΟΡΑΣΙΣ, Ο ΔΕ). Shown as printed; said as the word it is, so the voice gets the stress and the rough breathing
+ * (Erasmian h): keyed by the bare capitals. tools/check_pronunciation.mjs fails on any capitals not listed here.
+ */
+export const LXX_CAPS = {
+  ΑΔΑΜ: "Ἀδάμ", ΚΑΙ: "καὶ", ΤΟΙΣ: "τοῖς", Ο: "ὁ", ΔΕ: "δὲ", ΦΙΛΟΣΟΦΩΤΑΤΟΝ: "φιλοσοφώτατον", ΛΟΓΟΙ: "λόγοι",
+  ΕΠΙ: "ἐπὶ", ΕΝ: "ἐν", ΟΥΤΟΙ: "οὗτοι", ΡΗΜΑΤΑ: "ῥήματα", ΛΟΓΟΣ: "λόγος", ΕΤΟΥΣ: "ἔτους", ΤΑΥΤΑ: "ταῦτα",
+  ΑΡΧΗ: "ἀρχῇ", ΤΟ: "τὸ", ΟΡΑΣΙΣ: "ὅρασις", ΑΝΘΡΩΠΟΣ: "ἄνθρωπος", ΑΝΤΙΓΡΑΦΟΝ: "ἀντίγραφον", ΛΗΜΜΑ: "λῆμμα",
+  ΑΣΩΜΕΝ: "ᾄσωμεν", ΠΑΡΟΙΜΙΑΙ: "παροιμίαι", ΜΑΚΑΡΙΟΣ: "μακάριος", ΕΒΟΗΣΑ: "ἐβόησα", ΠΟΛΛΩΝ: "πολλῶν",
+  ΠΑΣΑ: "πᾶσα", ΑΣΜΑ: "ᾆσμα", ΒΙΒΛΟΣ: "βίβλος", ΑΓΑΠΗΣΑΤΕ: "ἀγαπήσατε",
+};
+/** A word written in capitals only (two letters or more, or Ο), as its bare capitals; else "". */
+export const lxxCapsKey = (word) => {
+  const bare = String(word || "").normalize("NFD").replace(/[\u0300-\u036f\u1fbd\u2019]/g, "").normalize("NFC");
+  return /^[Α-Ω]+$/.test(bare) && (bare.length > 1 || bare === "Ο") ? bare : "";
+};
+/**
+ * Swete writes some numbers as letters with a mark (ιβ᾽ 12, ρ᾽ 100, βυ᾽ 2,400), the same mark as an elided word.
+ * Said as the number words, in the form the sentence needs (NUM 29:13 ἀμνοὺς … ιδ᾽ → δεκατέσσαρας; JDG 20:24 τῇ
+ * ἡμέρᾳ τῇ β᾽ → δευτέρᾳ). Keyed by the bare token; LXX_NUMBER_CONTEXT ("previous|token|next") for the few whose
+ * form depends on the words around them. Every one of the 59 in the text was read in its verse (19 Nov 2026); the
+ * pronunciation check fails on any numeral not listed. EZR 2:58 τοβ᾽ is said as printed (372; the Hebrew has 392).
+ */
+export const LXX_NUMBERS = {
+  "β᾽": "δύο", "γ᾽": "τρεῖς", "ε᾽": "πέντε", "ζ᾽": "ἑπτά", "η᾽": "ὀκτώ", "ι᾽": "δέκα", "ια᾽": "ἕνδεκα", "ιβ᾽": "δώδεκα",
+  "ιγ᾽": "δεκατρεῖς", "ιδ᾽": "δεκατέσσαρας", "κ᾽": "εἴκοσι", "κθ᾽": "εἴκοσι ἐννέα", "μ᾽": "τεσσεράκοντα", "ν᾽": "πεντήκοντα",
+  "ξβ᾽": "ἑξήκοντα δύο", "ρ᾽": "ἑκατόν", "σν᾽": "διακοσίους πεντήκοντα", "φ᾽": "πεντακόσιοι", "χ᾽": "ἑξακόσιοι",
+  "τοβ᾽": "τριακόσιοι ἑβδομήκοντα δύο", "ας᾽": "χίλιοι διακόσιοι", "βυ᾽": "δισχίλιαι τετρακόσιαι",
+};
+/** Their values, for the word sheet (ας᾽ is 1,200 and βυ᾽ 2,400: a thousands letter, then hundreds). */
+export const LXX_NUMBER_VALUES = { "β᾽": 2, "γ᾽": 3, "ε᾽": 5, "ζ᾽": 7, "η᾽": 8, "ι᾽": 10, "ια᾽": 11, "ιβ᾽": 12, "ιγ᾽": 13, "ιδ᾽": 14,
+  "κ᾽": 20, "κθ᾽": 29, "μ᾽": 40, "ν᾽": 50, "ξβ᾽": 62, "ρ᾽": 100, "σν᾽": 250, "φ᾽": 500, "χ᾽": 600, "τοβ᾽": 372, "ας᾽": 1200, "βυ᾽": 2400 };
+export const LXX_NUMBER_CONTEXT = {
+  "τῇ|β᾽|": "δευτέρᾳ", // JDG 20:24, 20:25 ἐν τῇ ἡμέρᾳ τῇ β᾽ (the second day; the verse ends there)
+  "τὸ|ζ᾽|καὶ": "ἕβδομον", // NEH 10:31 τὸ ἔτος τὸ ζ᾽ (the seventh year)
+  "τὴν|ε᾽|καὶ": "πέμπτην", "καὶ|ι᾽|τοῦ": "δεκάτην", // ESG 9:19 τὴν ε᾽ καὶ ι᾽ τοῦ Ἀδάρ (the fifteenth of Adar)
+  "εἰς|χ᾽|ἄυδρας": "ἑξακοσίους", // JDG 3:31 εἰς χ᾽ ἄυδρας (six hundred men, after εἰς)
+};
+const bareToken = (tok) => String(tok || "").replace(/[.,;:·()\[\]]/g, "").replace(/’/g, "᾽").trim();
+/** Is this token one of Swete's letter numerals (letters only, no accent or breathing, then the mark)? */
+export const lxxIsNumeral = (tok) => /^[α-ωϛϙϡς]{1,4}᾽$/.test(bareToken(tok)) && !/^(μετ|μεθ|κατ|καθ|παρ|δι|δ|τ|ποτ|γ|μηδ)᾽$/.test(bareToken(tok)) || !!LXX_NUMBERS[bareToken(tok)];
+/** The number words for a numeral token between prev and next (tokens as written), or "" if it isn't one. */
+export function lxxNumber(tok, prev, next) {
+  const t = bareToken(tok);
+  if (!LXX_NUMBERS[t] && !lxxIsNumeral(t)) return "";
+  const key = `${bareToken(prev)}|${t}|${bareToken(next)}`;
+  return LXX_NUMBER_CONTEXT[key] || LXX_NUMBERS[t] || "";
+}
+/** One word as the voice gets it: capitals said as the word they are, numerals as number words. */
+function lxxSayToken(tok, prev, next) {
+  const n = lxxNumber(tok, prev, next);
+  if (n) { const p = String(tok).match(/[.,;:·)\]]+$/); return n + (p ? p[0].replace(/[)\]]/g, "") : ""); }
+  const m = String(tok).match(/^([^\u0370-\u03FF\u1F00-\u1FFF]*)(.*?)([^\u0370-\u03FF\u1F00-\u1FFF]*)$/);
+  const k = m && lxxCapsKey(m[2]);
+  return k && LXX_CAPS[k] ? m[1] + LXX_CAPS[k] + m[3] : tok;
+}
+/**
+ * A Septuagint verse's words as the Reader shows them and the voice reads them. The digital Swete sometimes puts a
+ * space before a mark (ἀνομίᾳ , καὶ) or none after one (Ὠμάρ,Σωφάρ; ὀπίσω;διότι): the mark joins its word and a space
+ * follows it, so no mark stands alone as a "word" and no two words run together (the Erasmian voice once said
+ * Ὠμάρ,Σωφάρ as one word).
+ */
+export const lxxTokens = (text) => String(text || "").replace(/\s+([,.;·])/g, "$1")
+  .replace(/([,.;·])(?=[\u0370-\u03FF\u1F00-\u1FFF])/g, "$1 ").split(" ").filter(Boolean);
+/** The strongest of a run of marks (αὐτοί·. → .), so the voice pauses once. */
+const oneMark = (run) => (/;/.test(run) ? ";" : /\./.test(run) ? "." : /·/.test(run) ? "·" : ",");
+/** A Septuagint verse as the voice gets it. */
+export const lxxSpeech = (text) => {
+  const toks = lxxTokens(text);
+  return toks.map((tok, i) => lxxSayToken(tok, toks[i - 1], toks[i + 1]).replace(/[,.;·]{2,}$/, oneMark)).join(" ");
+};
+/**
+ * A tapped Septuagint word (with the words either side of it): what the sheet shows (punctuation off, an elision
+ * mark kept: δ᾽), what the dictionary looks up (without the mark) and what the voice says (the voice restores an
+ * elided vowel: δ᾽ is de, not the letter delta; a numeral is its number words).
+ */
+export function lxxTapWord(token, prev, next) {
+  const show = String(token || "").replace(/[.,;:·()\[\]]/g, "").trim();
+  const number = lxxNumber(show, prev, next);
+  return { show, look: number ? number.split(" ")[0] : show.replace(/[᾽’]/g, ""), say: lxxSayToken(show, prev, next), number, value: number ? LXX_NUMBER_VALUES[bareToken(show)] : 0 };
+}
+
 /** One handler for every listen button (they can sit inside links and rows: the click stays with the button). */
 export function bindAudio(root) {
   (root || document).addEventListener("click", (e) => {

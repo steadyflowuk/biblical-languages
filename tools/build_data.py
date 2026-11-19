@@ -189,6 +189,34 @@ def tidy_def_spacing(html):
     return re.sub(r"([(\[])\s+", r"\1", html)
 
 
+# Typing slips in STEPBible's English (found by tools/check_spelling.py, 19 Nov 2026): whole-word replacements, and two
+# glosses split across words (1 Chr 23:31 "every of" + "ering up of" = "every" + "offering up of")
+ENGLISH_FIXES = {"thatr": "that", "thorugh": "through", "untill": "until", "sorrounding": "surrounding",
+                 "suffe": "suffer", "opressors": "oppressors", "writen": "written", "becasue": "because",
+                 "comong": "coming", "hapening": "happening", "iniquire": "commit iniquity", "govenors": "governors",
+                 "Isaachar": "Issachar", "Ciaphas": "Caiaphas", "Barnabus": "Barnabas", "hight": "height"}
+ENGLISH_FIXES_AT = {("HEB", 8, 5, "minster"): "minister",
+                    ("1CH", 23, 31, "and/ to/ every of"): "and/ to/ every", ("1CH", 23, 31, "ering up of"): "offering up of",
+                    ("EZR", 1, 6, "all of"): "all", ("EZR", 1, 6, "ering of freewill offerings"): "offering of freewill offerings"}
+ENGLISH_RE = re.compile(r"\b(" + "|".join(ENGLISH_FIXES) + r")\b")
+
+
+def fix_english(text):
+    return ENGLISH_RE.sub(lambda m: ENGLISH_FIXES[m.group(1)], text) if text else text
+
+
+def fix_english_in(books, stats):
+    for uid, chapters in books.items():
+        for ch, verses in chapters.items():
+            for vs, words in verses.items():
+                for w in words:
+                    if len(w) > 2 and isinstance(w[2], str):
+                        new = ENGLISH_FIXES_AT.get((uid, ch, vs, w[2]), fix_english(w[2]))
+                        if new != w[2]:
+                            w[2] = new
+                            stats["english_slips_fixed"] += 1
+
+
 def read_lexicon(pattern):
     entries = OrderedDict()
     path = glob.glob(os.path.join(STEP, "Lexicons", pattern))[0]
@@ -203,7 +231,7 @@ def read_lexicon(pattern):
             "estrong": c[0], "rel": c[1].split("=", 1)[1].strip() if "=" in c[1] else "",
             "ustrong": c[2].strip(), "lemma": nfc(c[3].strip()) if key[0] == "G" else c[3].strip(),
             "translit": c[4].strip(),
-            "morph": c[5].strip(), "gloss": re.sub(r"\s+", " ", latin_lookalikes(c[6].strip())),
+            "morph": c[5].strip(), "gloss": fix_english(re.sub(r"\s+", " ", latin_lookalikes(c[6].strip()))),
             "def": tidy_def_spacing(fix_greek_slips(latin_lookalikes(c[7].strip()), LEX_STATS)) if len(c) > 7 and key[0] == "G"
             else (latin_lookalikes(c[7].strip()) if len(c) > 7 else ""),
         }
@@ -1050,6 +1078,8 @@ def main():
     print("Greek slips in TBESG's headwords and definitions put right:", LEX_STATS["greek_slips_fixed"])
     gnt, gstats, gcounts, gfallback, gen_refs = build_greek(glex)
     hot, hstats, hcounts, heb_refs = build_hebrew(hlex)
+    fix_english_in(gnt, gstats)
+    fix_english_in(hot, hstats)
     index, bsb, bsb_verses = build_bsb()
 
     # grammar codes actually used

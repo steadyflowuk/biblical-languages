@@ -418,6 +418,59 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
   בֵּית "beit" example notes the letter is usually called bet. Note: rebuilding the pool (a BSB update or a filter
   change) reshuffles every later day's verse; devices agree again once both have the new pool.
 
+- [x] Accuracy checkers (19 Nov 2026, user's request: "a detailed series of checkers … multiple checkers with specific
+  tasks"). Eleven new checkers, each with --self-test (planted mistakes; tools/run_selftests.py runs them all, 68/68),
+  all in check_all. What each found and what was fixed:
+  check_greek_tags.py — every NT word against MorphGNT (CC BY-SA, src/morphgnt, check-only): 137,554 lined up, words
+  identical; 13 TAGNT tags the printed form can't carry fixed (TAG_FIXES: φοβηθῆτε subj., ζητεῖ pres., ἀσθενὴς nom.,
+  τοῦ βάτου masc., πρώτη, ἐπιστρέφειν pres., ROM 16:4 τὸν acc., σύμφορον adj., HEB 11:11 dative, ἀπολελυμένην → ἀπολύω);
+  build bug: ties in spelling matches took the LATER record (JHN 5:23 τιμῶσι subj./ind. swapped, 2CO 7:11 ἀλλά
+  glosses) — now the earlier. FORM_OF: STEPBible tags με/μου/ἡμῶν… G3165 "μέ", εἶναι G1511, φαγεῖν G5315, ἐρῶ/ἐρέω
+  as "a Form of" entries: those words now take the headword's key (Dictionary form ἐγώ, εἰμί, ἐσθίω, εἶπον); deck 312
+  (μέ, εἶναι, φαγεῖν cards folded in; alias so old cards follow); review.plan moves an old card to its new key.
+  Judgement differences (vocative articles, deponents, οἶδα, ὅτου …) approved instance by instance in
+  tools/fixtures/greek_tags_baseline.json. HEADWORD_FIX: Ἕλλην=Ἕλλην, Κιλικία ×2, α/ω letters, φύλαξ (TBESG had
+  φυλακτήριος), Peter's father Ἰωάννης, ὁ ὢν καί…, Ἰουδαϊστί, καταπανουργεύω.
+  Found by the new tests: progress.js and review.js both kept "byKey" on the same cached deck (Progress: counts; Review:
+  whole rows) — opening Progress/Today before Review emptied list cards' word and meaning whenever the list changed.
+  Progress now uses countByKey; review checks Array.isArray; such cards repair themselves on the next Review.
+  check_hebrew_text.py — every OT word against OSHB (whole books lined up, so verse divisions don't matter): letters,
+  vowels, accents, Strong's, verb grammar (TAHOT's finer forms folded), plus the rules of pointing (one vowel per letter,
+  dagesh/shin dots on the right letters, final letters only at the end, maqqef splits). Source differences approved in
+  tools/fixtures/hebrew_text_baseline.json (TAHOT slips worth reporting to STEPBible: 2KI 10:2 בְּבֹא for כְּבֹא, 2KI 15:2 and
+  24:8 Jerusalem with a sin dot, GEN 31:42 יְגִיַע, GEN 12:8 qere אָהְָלוֹ with two vowels).
+  check_grammar_labels.mjs — every grammar code in use (1,869) decoded independently and compared with STEPBible's
+  wording and the app's labels: friendlyGrammar dropped the person after a 2nd aorist ("2nd aorist … 2nd singular" →
+  "… singular": ~480 words) — ordinals now kept; short labels "2nd perf./fut./plupf." → "perf." etc.; MORPH_FIX for
+  wording that names another case/mood/person (V-PEP-ASM said dative, V-RMM-2P indicative, AVvi3mp perfect for an
+  imperfect, explanations of V-2AOM-2P, V-2FAI-1S, V-2FDI-2S, HVtj2ms, AVup2ms).
+  check_fonts.py — every character the app shows is in the font that draws it, then each drawn alone in Chromium with
+  the app's CSS (CDP getPlatformFontsForNode): ō/Ō (29,000 transliterations), ē, ⟦ ⟧ fell back to phone fonts.
+  tools/make_fonts.py remakes the subsets from google/fonts (src/gfonts): Atkinson + Latin Extended-A and ō Ō made as
+  composites (Atkinson Hyperlegible lacks them; OFL, no Reserved Font Name), Gentium + Latin Ext-A, ⟦ ⟧, ˈ, arrows.
+  --font-hebrew falls back to Gentium ([ ] | beside Hebrew), --font-scripture to Hebrew Serif (Psalm 119's letters).
+  🫵 (Unicode 14, iOS 15.4+) → 👉 in he-5.
+  check_text_hygiene.py — Greek words everywhere by the rules of printed Greek (+ σ/ς, iota subscript, diaeresis),
+  Hebrew by the pointing rules, every string for control/zero-width characters, look-alike letters, entities, spacing,
+  pairs. fix_greek_slips() in build_data puts right TBESG's scanned-text slips by the one known spelling with the same
+  letters (άμαρτίας → ἁμαρτίας, ὃτι, πoρνεύω, κρυΦῇ: 74), latin_lookalikes (Cyrenaїc), tidy_def_spacing (no space before
+  , ; : . ) in definitions). Remaining source oddities approved in tools/fixtures/text_hygiene_baseline.json.
+  check_references.py — every Bible reference in lessons, guides, screens and README exists (88).
+  check_spelling.py — English against the BSB's vocabulary + definitions (edit distance 1, rare): ENGLISH_FIXES for
+  STEPBible gloss slips (thorugh, becasue, untill, thatr, comong, hapening, sorrounding, suffe, minster (HEB 8:5),
+  opressors, writen, govenors, Isaachar, Ciaphas, Barnabus, hight; 1CH 23:31 and EZR 1:6 "offering" split across
+  two words). Real words and names approved in tools/fixtures/spelling_baseline.json.
+  check_dictionary_integrity.py — each entry's places, counts, forms and index row recomputed from the text, both ways;
+  word-list counts = entries' counts.
+  check_dates.mjs — ten time zones (London, New York, Sydney, Kolkata, Chatham, Santiago, Tehran, Apia, St John's,
+  UTC), every 10 minutes of 2026–27: dayKey subtracted 4 hours of elapsed time, so on the mornings the clocks change the
+  study/review day turned at 5am (spring) or 3am (autumn) while dayEnd said 4am. dayKey now goes by the clock (both
+  files); dayEnd, Today's verse day and shiftDay agree; a year of study = 365-day streak.
+  check_drills.py — every practice card answerable one way only (383 cards): he-2's shin/sin explanation now shows שׁ.
+  check_offline.py — SHELL_FILES and data/files.json against every request made on 37 screens; maskable icon added.
+  Left: Septuagint look-up accuracy has no ground truth here (no tagged Septuagint); REV 21:9 γεμόντων "feminine"
+  (form masc./neut.) and similar judgement calls kept as STEPBible publishes them.
+
 ## Data (Session 2)
 - Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (46 checks).
 - Greek = SBLGNT text (since Session 13; see the log) tagged from TAGNT. 137,741 words, 7,939 verses, SBL verse
@@ -719,6 +772,13 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
 - New in 12b: `tools/check_grammar.py` (paradigm check + Logos cross-check records; `status`, `record ID FILE`),
   `tools/test_a11y.py`, `tools/test_slow.py`, `tools/test_backups.py`, `tools/check_rebuild.py [--fresh]`,
   `tools/test_screens.py [--approve]` — all run by check_all.
+- Accuracy checkers (19 Nov 2026; each has --self-test, all run by `python3 tools/run_selftests.py`):
+  `check_greek_tags.py` (vs MorphGNT), `check_hebrew_text.py` (vs OSHB + pointing rules), `check_grammar_labels.mjs`,
+  `check_fonts.py [--static]` (fonts' character lists, then Chromium's actual fonts), `check_text_hygiene.py`,
+  `check_references.py`, `check_spelling.py`, `check_dictionary_integrity.py`, `check_dates.mjs` (10 time zones),
+  `check_drills.py`, `check_offline.py` (server). Baselines with every approved difference: tools/fixtures/*_baseline.json
+  (`--write-baseline` after a deliberate change; a new instance fails, a vanished one too). `tools/make_fonts.py`
+  remakes the font subsets (src/gfonts).
 - **The full check (use this): `python3 tools/check_all.py`** (~60–75 min; `quick` skips the whole-Bible sweeps,
   ~20 min; `only <job> …` runs chosen jobs). Starts the server, fetches sources if missing, runs every job below plus
   `tools/audit_content.py`, retries a failed suite once alone, writes `tools/reports/<time>/SUMMARY.md`. Then hand

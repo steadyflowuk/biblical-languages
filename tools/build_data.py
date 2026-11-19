@@ -70,6 +70,34 @@ def trim(arr):
 
 # ---------------------------------------------------------------- lexicons
 
+# Headwords as TBESG prints them that would show oddly as a "Dictionary form" (found by tools/check_text_hygiene.py):
+# "Ἕλλην=Ἕλλην" (a link to the base word), "Κιλικία, Κιλικία" (the same spelling twice), letters without an accent
+HEADWORD_FIX = {"G0001G": ("ἄλφα", "alpha"), "G5598": ("ὦ", "ō"),
+                "G5441": ("φύλαξ", "phulax"),  # Strong's G5441; TBESG prints φυλακτήριος (a phylactery) over "guard"
+                "G2491K": ("Ἰωάννης, Ἰωνᾶς", "Iōannēs, Iōnas")}  # Peter's father: the SBL text calls him Ἰωάννης
+
+
+def tidy_headword(key, lemma, translit):
+    if key in HEADWORD_FIX:
+        return HEADWORD_FIX[key]
+    lemma = lemma.split("=")[0].strip()
+
+    def dedupe(text):
+        out = []
+        for part in (x.strip() for x in text.split(",")):
+            if part and nfc(part) not in [nfc(x) for x in out]:
+                out.append(part)
+        return ", ".join(out)
+    return dedupe(lemma), dedupe(translit)
+
+
+# STEPBible tags most 1st person pronouns (με, μου, ἡμῶν …) G3165, which TBESG lists as "a Form of" ἐγώ, and a few
+# other inflected forms (εἶναι, φαγεῖν, ἐρῶ) likewise; TAGNT's own dictionary-form column gives the true headword.
+# Such words take that headword's key, so a learner sees "Dictionary form: ἐγώ", not "μέ" (19 Nov 2026).
+FORM_OF = {"G3165": "G1473", "G2248": "G1473", "G2257": "G1473", "G5216": "G4771", "G1511": "G1510",
+           "G5315": "G2068", "G2046": "G2036", "G4483": "G2036"}
+
+
 def read_lexicon(pattern):
     entries = OrderedDict()
     path = glob.glob(os.path.join(STEP, "Lexicons", pattern))[0]
@@ -78,6 +106,8 @@ def read_lexicon(pattern):
         if len(c) < 7 or not re.match(r"^[GH]\d{4}[A-Za-z]?$", c[0]):
             continue
         key = c[1].split(" ")[0].strip()
+        if key[0] == "G":
+            c[3], c[4] = tidy_headword(key, c[3], c[4])
         entries[key] = {
             "estrong": c[0], "rel": c[1].split("=", 1)[1].strip() if "=" in c[1] else "",
             "ustrong": c[2].strip(), "lemma": nfc(c[3].strip()) if key[0] == "G" else c[3].strip(),
@@ -302,6 +332,27 @@ SBL_TAGS = {
     ("1CO", 16, 22, "θά"): ("G3134", "N-NSM-ARAM", "come!", True),  # True: second half of one word (counted once)
 }
 
+# TAGNT tags that the printed SBL word can't carry (found by tools/check_greek_tags.py against MorphGNT, 19 Nov 2026).
+# Only where the form itself (ending, accent, iota under the letter) or its own article settles it; judgement calls
+# (deponents, vocative articles, οἶδα as present) stay as STEPBible publishes them. Listed in README's change notes.
+TAG_FIXES = {
+    ("MAT", 10, 26, "φοβηθῆτε"): "V-AOS-2P",   # circumflex: subjunctive (μή + aorist subjunctive), not imperative
+    ("MAT", 18, 12, "ζητεῖ"): "V-PAI-3S",      # present; the future would be ζητήσει
+    ("MAT", 25, 43, "ἀσθενὴς"): "A-NSM",       # -ης is nominative; the accusative is ἀσθενῆ
+    ("MRK", 12, 26, "βάτου"): "N-GSM",         # τοῦ βάτου: masculine here (feminine in Luke 20:37)
+    ("ACT", 16, 12, "πρώτη"): "A-NSF",         # SBL prints πρώτη (TAGNT's tag is NA27's πρώτης)
+    ("ACT", 26, 20, "ἐπιστρέφειν"): "V-PAN",    # present; the aorist would be ἐπιστρέψαι
+    ("ROM", 16, 4, "τὸν"): "T-ASM",            # τὸν … τράχηλον: accusative masculine
+    ("1CO", 7, 35, "σύμφορον"): "A-ASN",       # an adjective (τὸ … σύμφορον); a participle would be συμφέρον
+    ("1CO", 10, 33, "σύμφορον"): "A-ASN",
+    ("HEB", 11, 11, "αὐτῇ"): "P-DSF",          # SBL prints the dative (TAGNT's tag is NA28's αὐτὴ)
+    ("HEB", 11, 11, "Σάρρᾳ"): "N-DSF-P",
+    ("MAT", 5, 32, "ἀπολελυμένην"): ("V-RPP-ASF", "G0630H"),  # from ἀπολύω "divorce", not ἀπολείπω
+    ("LUK", 16, 18, "ἀπολελυμένην"): ("V-RPP-ASF", "G0630H"),
+}
+
+TAG_FIXES_USED = set()
+
 GREEK_LATIN = {"α": "a", "β": "b", "γ": "g", "δ": "d", "ε": "e", "ζ": "z", "η": "ē", "θ": "th", "ι": "i", "κ": "k",
                "λ": "l", "μ": "m", "ν": "n", "ξ": "x", "ο": "o", "π": "p", "ρ": "r", "σ": "s", "ς": "s", "τ": "t",
                "υ": "u", "φ": "ph", "χ": "ch", "ψ": "ps", "ω": "ō"}
@@ -461,7 +512,7 @@ def build_greek(glex):
                 if pick is None:
                     near = [(SequenceMatcher(None, a[i], b[j]).ratio(), j) for j in pool]
                     near = [x for x in near if x[0] >= 0.75]
-                    pick = max(near)[1] if near else None
+                    pick = max(near, key=lambda x: (x[0], -x[1]))[1] if near else None  # ties: the earlier record (JHN 5:23 τιμῶσι)
                 if pick is not None:
                     match[i] = pick
                     used.add(pick)
@@ -484,7 +535,8 @@ def build_greek(glex):
                     pool = reserve.get((uid, ch, vs), [])
                     r = next((x for x in pool if x["key"] == a[i]), None)
                     if r is None:
-                        near = sorted(((SequenceMatcher(None, a[i], x["key"]).ratio(), k) for k, x in enumerate(pool)), reverse=True)
+                        near = sorted(((SequenceMatcher(None, a[i], x["key"]).ratio(), -k) for k, x in enumerate(pool)), reverse=True)
+                        near = [(q, -k) for q, k in near]  # ties: the earlier record
                         r = pool[near[0][1]] if near and near[0][0] >= 0.75 else None
                     if r is None:
                         if (uid, ch, vs, text) not in SBL_TAGS:
@@ -496,6 +548,14 @@ def build_greek(glex):
                     st, mo, gl = SBL_TAGS[(uid, ch, vs, text)][:3]
                     r = dict(r, strong=st, morph=mo, en=gl, form=text, key=a[i], tr="", cont=len(SBL_TAGS[(uid, ch, vs, text)]) > 3)
                     stats["tagged_here"] += 1
+                if any(k in FORM_OF for k in r["strong"].split("+")):
+                    r = dict(r, strong="+".join(FORM_OF.get(k, k) for k in r["strong"].split("+")))
+                    stats["form_of_redirected"] += 1
+                if (uid, ch, vs, text) in TAG_FIXES:
+                    fix = TAG_FIXES[(uid, ch, vs, text)]
+                    r = dict(r, morph=fix) if isinstance(fix, str) else dict(r, morph=fix[0], strong=fix[1])
+                    TAG_FIXES_USED.add((uid, ch, vs, text))
+                    stats["tags_corrected"] += 1
                 if r["key"] != a[i]:
                     stats["spelling_differs_from_tagnt"] += 1
                     SPELLING_LOG.append((f"{uid} {ch}:{vs}", text, r["form"], r["strong"], r["morph"]))
@@ -523,6 +583,8 @@ def build_greek(glex):
                     if k:
                         counts[lookup(glex, k) or k] += 1
     stats["unmatched"] = len(unmatched)
+    if set(TAG_FIXES) - TAG_FIXES_USED:
+        sys.exit(f"TAG_FIXES not used (text changed?): {sorted(set(TAG_FIXES) - TAG_FIXES_USED)}")
     stats["fallback_lexicon_entries"] = len(fallback)
     if unmatched:
         print("Greek words with no TAGNT tagging:", len(unmatched), "; ".join(unmatched[:40]))

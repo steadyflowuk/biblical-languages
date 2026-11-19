@@ -91,7 +91,8 @@ export async function languageSummary(l, now) {
   let total = 0;
   if (d) {
     total = d.total || 0;
-    const counts = d.byKey || (d.byKey = new Map(d.words.map((w) => [w[0], w[3]])));
+    // its own name: Review keeps d.byKey (key → whole entry) on the same cached deck (a shared name once wiped cards)
+    const counts = d.countByKey || (d.countByKey = new Map(d.words.map((w) => [w[0], w[3]])));
     words.filter(known).forEach((c) => {
       const k = (d.alias && d.alias[c.k]) || c.k;
       covered += c.n || counts.get(k) || 0;

@@ -43,4 +43,9 @@ if [ ! -d morphhb ]; then
   git clone -q --depth 1 --filter=blob:none --no-checkout https://github.com/openscriptures/morphhb morphhb
   (cd morphhb && git sparse-checkout init --no-cone && git sparse-checkout set --no-cone '/wlc/*.xml' && git checkout -q HEAD)
 fi
+# MorphGNT (CC BY-SA): an independent tagging of the SBLGNT text, used only by tools/check_greek_tags.py (never copied
+# into the app)
+if [ ! -d morphgnt ]; then
+  git clone -q --depth 1 https://github.com/morphgnt/sblgnt morphgnt
+fi
 echo "Check sources ready: python3 tools/check_data.py $DEST/sblgnt $DEST/morphhb"

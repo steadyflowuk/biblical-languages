@@ -110,6 +110,22 @@ export async function plan(lang, now) {
     }
   }));
   const all = cards();
+  // a card whose word now goes by another key (με, μου, ἡμῶν were "μέ", now ἐγώ: 19 Nov 2026) joins that key's card;
+  // if both exist, the one practised more is kept
+  let moved = false;
+  Object.keys(all).forEach((id) => {
+    const c = all[id];
+    const d = decks[c.lang];
+    const to = d && d.alias && c.src !== "abc" ? d.alias[c.k] : "";
+    if (!to || `${c.lang}:${to}` === id) return;
+    const target = `${c.lang}:${to}`;
+    const other = all[target];
+    const reps = (x) => (x && x.f && x.f.reps) || 0;
+    if (!other || reps(c) > reps(other)) all[target] = Object.assign({}, c, { id: target, k: to });
+    delete all[id];
+    moved = true;
+  });
+  if (moved) saveCards(all);
   const end = dayEnd(at).getTime();
   const due = Object.values(all).filter((c) => c.f && want(c.lang) && new Date(c.f.due).getTime() <= end)
     .sort((a, b) => new Date(a.f.due) - new Date(b.f.due));
@@ -145,7 +161,7 @@ export async function plan(lang, now) {
     }
     if (c.src !== "deck" || !decks[c.lang]) return;
     const w = (decks[c.lang].byKey || (decks[c.lang].byKey = new Map(decks[c.lang].words.map((x) => [x[0], x])))).get(c.k);
-    if (w && (c.en !== w[2] || (c.say || "") !== (w[4] || "") || c.n !== w[3])) {
+    if (Array.isArray(w) && (c.en !== w[2] || (c.say || "") !== (w[4] || "") || c.n !== w[3])) {
       Object.assign(c, { t: w[1], en: w[2], say: w[4] || "", n: w[3] });
       upgraded = true;
     }

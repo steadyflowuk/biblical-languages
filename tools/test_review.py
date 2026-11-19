@@ -168,7 +168,7 @@ async def main():
         check("Changing it to 20 shows all 8", True)
         await pg.check("[data-deck='grc']")
         await pg.wait_for_function("document.querySelector('.rv-summary').textContent.includes('20 new')", timeout=5000)
-        check("Greek list on: lesson words first, then the commonest words, up to 20", "315 most common Greek words" in await pg.locator(".rv-lists").inner_text())
+        check("Greek list on: lesson words first, then the commonest words, up to 20", "312 most common Greek words" in await pg.locator(".rv-lists").inner_text())
         await pg.click("[data-start]")
         order = []
         for _ in range(10):
@@ -190,6 +190,26 @@ async def main():
         fresh_words = await pg.locator(".rv-summary").inner_text()
         check("A lesson word for another sense (G2962H) joins the list's card, taking the lesson's wording",
               list(cards) == ["grc:G2962G"] and cards["grc:G2962G"]["en"] == "lord, Lord; master" and cards["grc:G2962G"]["src"] == "lesson", str(cards))
+
+        # a card made when με/μου went by "μέ" (G3165) becomes the ἐγώ card, keeping its progress (19 Nov 2026)
+        await fresh(pg, None, {"reviewDecks": {"grc": True, "he": False}})
+        await pg.evaluate("""() => { localStorage.setItem('ao:cards', JSON.stringify({ 'grc:G3165': { id: 'grc:G3165', lang: 'grc', k: 'G3165', t: 'μέ', say: '', en: 'me', n: 1936, src: 'deck',
+            f: { due: new Date(Date.now() + 9 * 86400000).toISOString(), stability: 9, difficulty: 5, elapsed_days: 0, scheduled_days: 9, reps: 3, lapses: 0, learning_steps: 0, state: 2 } } })); }""")
+        await open_review(pg)
+        cards = await pg.evaluate("JSON.parse(localStorage.getItem('ao:cards'))")
+        check("An old μέ card becomes the ἐγώ card with its progress", list(cards) == ["grc:G1473"]
+              and cards["grc:G1473"].get("t") == "ἐγώ" and cards["grc:G1473"].get("k") == "G1473" and cards["grc:G1473"]["f"]["reps"] == 3, str(cards))
+        # Progress first, then Review: a list card whose wording changed is refreshed, not emptied (both screens once
+        # kept a "byKey" map on the same cached deck, Progress's holding counts)
+        await fresh(pg, None, {"reviewDecks": {"grc": True, "he": False}})
+        await pg.evaluate("""() => { localStorage.setItem('ao:cards', JSON.stringify({ 'grc:G2316': { id: 'grc:G2316', lang: 'grc', k: 'G2316', t: 'θεός', say: '', en: 'old wording', n: 1, src: 'deck',
+            f: { due: new Date(Date.now() + 9 * 86400000).toISOString(), stability: 30, difficulty: 5, elapsed_days: 0, scheduled_days: 30, reps: 4, lapses: 0, learning_steps: 0, state: 2 } } })); }""")
+        await pg.evaluate("location.hash = '#/progress'")
+        await pg.wait_for_timeout(1200)
+        await open_review(pg)
+        cards = await pg.evaluate("JSON.parse(localStorage.getItem('ao:cards'))")
+        c = cards.get("grc:G2316", {})
+        check("Progress then Review: a list card is refreshed from the list, never emptied", c.get("t") == "θεός" and c.get("en") not in (None, "old wording") and c.get("n", 0) > 1000, str(c))
 
         # 7. Both languages: a switch; Hebrew cards right to left with the Israeli voice
         await fresh(pg, lesson_words("grc", 0) + lesson_words("he", 0))
@@ -398,7 +418,7 @@ async def main():
         await pg.goto(f"{BASE}#/review")
         await pg.wait_for_selector(".rv-summary")
         t = await pg.locator(".screen").inner_text()
-        check("Offline: both word lists still load (saved with the app)", "need a connection" not in t and "315 most common" in t and bool(re.search(r"7\d\d most common Hebrew", t)), t[:200])
+        check("Offline: both word lists still load (saved with the app)", "need a connection" not in t and "312 most common" in t and bool(re.search(r"7\d\d most common Hebrew", t)), t[:200])
         await ctx.set_offline(False)
 
         # 12. Lists can't load (offline, first time): the page still works

@@ -221,6 +221,14 @@ def build(lang):
         words.append([key, lemma, g, total, say])
         for s in senses[1:]:
             alias[s[1]] = key
+    if lang == "grc":  # words that now go by their headword's key (μέ → ἐγώ): a card made before follows them
+        import sys as _sys
+        _sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from build_data import FORM_OF
+        have = {w[0] for w in words}
+        for k, target in FORM_OF.items():
+            if target in have:
+                alias[k] = target
     words.sort(key=lambda w: (-w[3], w[0]))
     # every counted word in the text (Hebrew: main parts, as the counts are): the Progress screen's "share of the text"
     total = sum(r[4] for r in index if len(r) > 4 and isinstance(r[4], int)

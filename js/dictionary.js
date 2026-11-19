@@ -369,7 +369,7 @@ let lastQuery = "";
 let lastScroll = 0;
 
 const COMMON = {
-  G: { n: 25, note: "The 25 most common words make up about half of the Greek New Testament (48%), and 315 words appear 50 times or more." },
+  G: { n: 25, note: "The 25 most common words make up about half of the Greek New Testament (49%), and 312 words appear 50 times or more." },
   H: { n: 25, note: "These are the 25 most common. The 100 most common words make up nearly half of the Hebrew Old Testament (47%), not counting the little words joined to the front, such as “and” and “the”." },
 };
 

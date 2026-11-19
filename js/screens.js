@@ -108,8 +108,9 @@ export const today = {
   title: "Today",
   render(main) {
     // Show the built-in verses at once; swap in today's verses when the data arrives.
-    let todays = { grc: STARTER.find((v) => v.lang === "grc"), he: STARTER.find((v) => v.lang === "he") };
-    let lang = "grc";
+    // the day's verse for each language, once it has loaded (a placeholder shows until then)
+    const todays = { grc: null, he: null };
+    let lang = store.get("learnLang") === "he" ? "he" : "grc";
     const dateText = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
     const run = streak();
     main.innerHTML = `<div class="screen">
@@ -117,8 +118,8 @@ export const today = {
       ${run.current ? `<p class="today-streak"><a href="#/progress"><strong>${run.current} ${run.current === 1 ? "day" : "days"} in a row</strong> · ${run.today ? "you've studied today" : "keep it going today"}</a></p>` : ""}
       ${installTip()}
       <div class="switch" role="group" aria-label="Verse language">
-        <button type="button" data-lang="grc" aria-pressed="true">Greek</button>
-        <button type="button" data-lang="he" aria-pressed="false">Hebrew</button>
+        <button type="button" data-lang="grc" aria-pressed="${lang === "grc"}">Greek</button>
+        <button type="button" data-lang="he" aria-pressed="${lang === "he"}">Hebrew</button>
       </div>
       <div class="verse-slot"></div>
 
@@ -199,6 +200,11 @@ export const today = {
     const slot = main.querySelector(".verse-slot");
     const draw = () => {
       const verse = todays[lang];
+      if (!verse) {
+        slot.innerHTML = `<section class="verse" aria-busy="true"><p class="verse-ref">Verse for today</p><p class="verse-english">Loading today's verse…</p></section>`;
+        slot.dataset.verse = "";
+        return;
+      }
       slot.innerHTML = verseHTML(verse);
       slot.dataset.verse = verse.id;
       showGloss(slot, verse, verse.focus);
@@ -216,28 +222,32 @@ export const today = {
     // our wording for common words (the decks) arrives a moment later: show the tapped word again with it
     Promise.all([data.loadMeanings("grc"), data.loadMeanings("he")]).then(() => {
       const on = slot.querySelector('.verse-original .w[aria-pressed="true"]');
-      if (main.contains(slot) && on) showGloss(slot, todays[lang], Number(on.dataset.i));
+      if (main.contains(slot) && on && todays[lang]) showGloss(slot, todays[lang], Number(on.dataset.i));
     });
     main.querySelectorAll("[data-lang]").forEach((b) =>
       b.addEventListener("click", () => {
         lang = b.dataset.lang;
         main.querySelectorAll("[data-lang]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
         draw();
+        fetchVerse(lang);
       })
     );
-    // the day's verses: random picks built from the Bible data; data/votd.json's 24 if a book can't be loaded,
-    // the built-in verses if that can't either (first open while offline)
-    const fallback = data.verseOfTheDay().then((verses) => data.pickForDay(verses));
-    // (one language after the other, the one on screen first: the books are large on a slow connection)
-    const fetchVerse = (l) => verseForDay(l)
-      .catch(() => fallback.then((f) => f[l]))
-      .then((verse) => {
-        if (!verse || !main.contains(slot)) return; // the person has moved to another screen
-        todays[l] = verse;
-        if (l === lang) draw();
-      })
-      .catch(() => { /* offline before the data was ever loaded: keep the built-in verses */ });
-    fetchVerse("grc").then(() => { if (main.contains(slot)) fetchVerse("he"); });
+    // the day's verse: a random pick built from the Bible data; data/votd.json's 24 if its book can't be loaded, the
+    // built-in verses if that can't either (first open while offline). Only the language on screen is fetched (a book
+    // is large on mobile data); the other when the person switches to it.
+    const loading = {};
+    function fetchVerse(l) {
+      if (loading[l]) return loading[l];
+      loading[l] = verseForDay(l)
+        .catch(() => data.verseOfTheDay().then((verses) => data.pickForDay(verses)[l]))
+        .catch(() => STARTER.find((v) => v.lang === l))
+        .then((verse) => {
+          todays[l] = verse || STARTER.find((v) => v.lang === l);
+          if (main.contains(slot) && l === lang) draw(); // (unless the person has moved to another screen)
+        });
+      return loading[l];
+    }
+    fetchVerse(lang);
   },
 };
 

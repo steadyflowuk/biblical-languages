@@ -6,7 +6,7 @@ import * as nav from "./nav.js";
 import { readingStarted } from "./activity.js";
 import * as esv from "./esv.js";
 import { wordSayButton, verseSayButton, verseSpeech, sayTapped, listenLevel, heVoice, lxxTapWord, lxxSpeech, lxxTokens } from "./audio.js";
-import { heLemma,
+import { heLemma, hePartGloss,
   heText, heTranslit, heEnglish, heAfter, heJoined, heParagraphAfter, isAramaic, heParts, heMainKey,
   heShortGrammar, heFriendlyGrammar,
 } from "./hebrew.js";
@@ -234,7 +234,10 @@ function heWordSheetHTML(w, ctx) {
       ${parts.length > 1 ? row("Word parts", `<ul class="ws-parts">${parts.map((p) => {
         const l = ctx.lex[p.key];
         const label = heShortGrammar((ctx.morph[p.code] || [p.code])[0]);
-        return `<li${p.main ? ' class="main"' : ""}><span lang="he" dir="rtl" class="ws-lemma">${esc(p.text)}</span> ${esc(l ? plainGloss(l[2]) : "")} <span class="muted">(${esc(label)})</span></li>`;
+        // a prefix's meaning, unless its label already says it (וַ "and (narrative)", הַ "the")
+        const g = p.main ? (l ? plainGloss(l[2]) : "") : hePartGloss(p.key, l ? l[2] : "");
+        const meaning = !p.main && g && label.toLowerCase().indexOf(g.toLowerCase()) === 0 ? "" : g;
+        return `<li${p.main ? ' class="main"' : ""}><span lang="he" dir="rtl" class="ws-lemma">${esc(p.text)}</span> ${esc(meaning)} <span class="muted">(${esc(label)})</span></li>`;
       }).join("")}</ul>`) : ""}
       ${row("In this verse", englishHTML(heEnglish(english)) || "—")}
       ${row("Dictionary form", mains.map((p) => {

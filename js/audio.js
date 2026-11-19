@@ -190,12 +190,15 @@ export const LXX_NUMBERS = {
 };
 /** Their values, for the word sheet (ας᾽ is 1,200 and βυ᾽ 2,400: a thousands letter, then hundreds). */
 export const LXX_NUMBER_VALUES = { "β᾽": 2, "γ᾽": 3, "ε᾽": 5, "ζ᾽": 7, "η᾽": 8, "ι᾽": 10, "ια᾽": 11, "ιβ᾽": 12, "ιγ᾽": 13, "ιδ᾽": 14,
-  "κ᾽": 20, "κθ᾽": 29, "μ᾽": 40, "ν᾽": 50, "ξβ᾽": 62, "ρ᾽": 100, "σν᾽": 250, "φ᾽": 500, "χ᾽": 600, "τοβ᾽": 372, "ας᾽": 1200, "βυ᾽": 2400 };
+  "κ᾽": 20, "κθ᾽": 29, "μ᾽": 40, "ν᾽": 50, "ξβ᾽": 62, "ρ᾽": 100, "σν᾽": 250, "φ᾽": 500, "χ᾽": 600, "τοβ᾽": 372, "ας᾽": 1200, "βυ᾽": 2400, "α": 1000 };
 export const LXX_NUMBER_CONTEXT = {
-  "τῇ|β᾽|": "δευτέρᾳ", // JDG 20:24, 20:25 ἐν τῇ ἡμέρᾳ τῇ β᾽ (the second day; the verse ends there)
+  "τῇ|β᾽|": "δευτέρᾳ", // JDG 20:24 ἐν τῇ ἡμέρᾳ τῇ β᾽ (the second day; the verse ends there)
   "τὸ|ζ᾽|καὶ": "ἕβδομον", // NEH 10:31 τὸ ἔτος τὸ ζ᾽ (the seventh year)
   "τὴν|ε᾽|καὶ": "πέμπτην", "καὶ|ι᾽|τοῦ": "δεκάτην", // ESG 9:19 τὴν ε᾽ καὶ ι᾽ τοῦ Ἀδάρ (the fifteenth of Adar)
-  "εἰς|χ᾽|ἄυδρας": "ἑξακοσίους", // JDG 3:31 εἰς χ᾽ ἄυδρας (six hundred men, after εἰς)
+  "εἰς|χ᾽|ἄνδρας": "ἑξακοσίους", // JDG 3:31 εἰς χ᾽ ἄνδρας (six hundred men, after εἰς; the source's ἄυδρας is put right)
+  "τῇ|β᾽|καὶ": "δευτέρᾳ", // JDG 20:25 ἐν τῇ ἡμέρᾳ τῇ β᾽. καὶ … (the second day)
+  // a thousand written α with its mark lost in the source (EZR 2:37, 2:38 υἱοὶ …, α πεντήκοντα δύο; NEH 7:70 χρυσοῦς, α)
+  "Ἐμμήρ|α|πεντήκοντα": "χίλιοι", "Φασσούρ|α|διακόσιοι": "χίλιοι", "χρυσοῦς|α|φιάλας": "χιλίους",
 };
 const bareToken = (tok) => String(tok || "").replace(/[.,;:·()\[\]]/g, "").replace(/’/g, "᾽").trim();
 /** Is this token one of Swete's letter numerals (letters only, no accent or breathing, then the mark)? */
@@ -203,9 +206,10 @@ export const lxxIsNumeral = (tok) => /^[α-ωϛϙϡς]{1,4}᾽$/.test(bareToken(
 /** The number words for a numeral token between prev and next (tokens as written), or "" if it isn't one. */
 export function lxxNumber(tok, prev, next) {
   const t = bareToken(tok);
-  if (!LXX_NUMBERS[t] && !lxxIsNumeral(t)) return "";
   const key = `${bareToken(prev)}|${t}|${bareToken(next)}`;
-  return LXX_NUMBER_CONTEXT[key] || LXX_NUMBERS[t] || "";
+  if (LXX_NUMBER_CONTEXT[key]) return LXX_NUMBER_CONTEXT[key];
+  if (!LXX_NUMBERS[t] && !lxxIsNumeral(t)) return "";
+  return LXX_NUMBERS[t] || "";
 }
 /** One word as the voice gets it: capitals said as the word they are, numerals as number words. */
 function lxxSayToken(tok, prev, next) {

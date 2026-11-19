@@ -463,13 +463,14 @@ function hebrewExpected(word, info) {
     const at = L.map((c, k) => k).filter((k) => Lrole[k] === "c")[nth];
     return at == null ? "" : L[at].m.includes(H.PATAH) ? "patah" : L[at].m.includes(H.QAMATS) ? "qamets" : "";
   };
-  // is this verb an a-imperfect (yiqtal)? By its dictionary form: the qamets letter is the root's middle letter and a
-  // throat letter, or the root is one of the yiqtal verbs listed (written independently of js/sound.js)
+  // is this verb an a-imperfect (yiqtal)? Read from the Bible itself (19 Nov 2026, after the review: a word list copied
+  // from js/sound.js would share its mistakes): the vowel before the last letter of the verb's Qal imperfects without an
+  // ending (יִשְׁאַל, יִירַשׁ: a; יִשְׁמֹר: o). With no such form in the text, a throat letter as the root's middle letter.
   const aImperfect = (letter) => {
+    const m = qalTheme(I.lemma);
+    if (m && m.a + m.o > 0) return m.a > m.o;
     const root = String(I.lemma || "").split(",")[0].replace(/[^\u05D0-\u05EA]/g, "").replace(/[ךםןףץ]/g, (x) => ({ "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" })[x]);
-    if (root.length !== 3) return false;
-    if (/[אהחע]/.test(letter) && root[1] === letter) return true;
-    return ["ירש", "נשק", "פגש", "לבש", "למד", "שכב", "רכב", "גדל", "כבד", "קרב", "ישן", "יבש", "חפץ"].includes(root);
+    return root.length === 3 && /[אהחע]/.test(letter) && root[1] === letter;
   };
   // qamets first (it decides some shewas): q[i] = "a" | "o" | "?" ; said shewa after it: sayNext[i] = true | false | "?"
   const q = C.map(() => "");
@@ -585,7 +586,10 @@ function israeliVowels(word) {
 }
 
 // Checked by hand: forms too rare to write a rule for, with what they should be
+const sortedMarks = (x) => (String(x).match(/[\u05D0-\u05EA][\u05B0-\u05C7]*/g) || []).map((c) => c[0] + [...c.slice(1)].sort().join("")).join("");
 const VOWELS_OK = {
+  "אֶצָּרְךָ": "JER 1:5, the o (ʾeṣ-ṣor-KHA) is the one the written form אצורך shows (GKC §71); other imperfects of יָצַר differ",
+  "יִפְגָּשְׁךָ": "GEN 32:17, read yif-ga-she-KHA as GKC §60 Rem. 1 reads it (and STEPBible), though פָּגַשׁ's other imperfect (וַתִּפְגֹּשׁ) has o",
   "הַיְחָבְרְךָ": "PSA 94:20, a Pual with qamets hatuf (ha-ye-chov-re-KHA); the voice gets the qamets as a",
 };
 
@@ -680,6 +684,29 @@ function grammarOf(code) {
   const main = parts.findIndex((x) => !/^(C|c|R|Rd|Td|Ti|Tr)$/.test(x)); // one-letter prefixes (c: wayyiqtol's vav; Ti הֲ; Tr שֶׁ)
   return { stem: v ? v[1] : "", form: v ? v[2] : "", person: v && v[3] ? v[3] : "", gn: v && v[4] ? v[4] : "", article: parts.includes("Td") || parts.includes("Rd"),
     directional: parts.includes("Sd"), suffix: parts.some((x) => x.startsWith("Sp")), prefix: main > 0 ? main : 0 };
+}
+// a verb's imperfect vowel, counted over its Qal imperfects, wayyiqtols and jussives without an ending: { a, o }
+var qalThemes = null; // (var: the say command below can reach it before this line runs)
+function qalTheme(lemma) {
+  if (!lemma) return null;
+  if (!qalThemes) {
+    qalThemes = new Map();
+    for (const f of fs.readdirSync(R + "data/hot")) for (const B of [json("data/hot/" + f)]) for (const [, vs] of B.ch) for (const v of vs) for (const w of v[1]) {
+      const g = grammarOf(w[4]);
+      if (g.stem !== "q" || !/^[iwj]$/.test(g.form) || g.suffix || !/^(3ms|2ms|3fs|1cs|1cp)$/.test(g.person + g.gn)) continue;
+      const mk = (String(w[3] || "").match(/\{(H\d+[A-Za-z]?)/) || [])[1];
+      const lem = mk && B.lex[mk] ? String(B.lex[mk][0] || "").split(",")[0] : "";
+      if (!lem) continue;
+      // the last full vowel of the word is the stem's (וַיִּשַּׁק a, יִשְׁמֹר o; וַיִּיצֶר e: neither)
+      const vowels = heText(w).replace(/[\u0591-\u05AF\u05BD]/g, "").match(/[\u05B4-\u05BB\u05C7]/g) || [];
+      const last = vowels[vowels.length - 1];
+      if (!last || !/[\u05B7\u05B8\u05B9\u05BA]/.test(last)) continue;
+      const c = qalThemes.get(lem) || { a: 0, o: 0 };
+      if (/[\u05B9\u05BA]/.test(last)) c.o++; else c.a++;
+      qalThemes.set(lem, c);
+    }
+  }
+  return qalThemes.get(lemma) || null;
 }
 const heWord = (t, joined, where, w, lex) => {
   const final = /\u05C3/.test(String(w[5] || ""));
@@ -814,7 +841,8 @@ for (const [key, { where, w: dw, lex: dlex, info: dinfo }] of heParts) {
   if (/ִוא(\s|$)/.test(voice)) note(problems, "Hebrew: הִוא handed to the voice as written (read hi)", `${word} (${where}) → ${voice}`);
   if (/ִ[ַָ]|[ַָ]ִ/.test(voice)) note(problems, "Hebrew: two vowels on one letter handed to the voice (read a-yi)", `${word} (${where}) → ${voice}`);
   if (/[ְ-ׇ]ש[א-ת]/.test(voice)) note(problems, "Hebrew: a silent unpointed ש handed to the voice", `${word} (${where}) → ${voice}`);
-  if (VOWELS_OK[word.replace(/[\u0591-\u05AF\u05BD]/g, "")]) { note(limits, "Hebrew: a rare form left to the voice", `${word} (${where}): ${VOWELS_OK[word.replace(/[\u0591-\u05AF\u05BD]/g, "")]}`); continue; }
+  const okKey = Object.keys(VOWELS_OK).find((k) => sortedMarks(k) === sortedMarks(word.replace(/[\u0591-\u05AF\u05BD]/g, "")));
+  if (okKey) { note(limits, "Hebrew: a rare form left to the voice", `${word} (${where}): ${VOWELS_OK[okKey]}`); continue; }
   const pairs = align(exp.vowels, heard.map((p) => ({ p })));
   for (const [e, g] of pairs) {
     if (e && g && (e.p === g.p || (e.alt && e.alt.includes(g.p)))) continue;
@@ -1100,7 +1128,12 @@ if (verseSpeech) {
 // start said as the words they are (audio.lxxSpeech), elided words kept with their mark for the voice.
 let nLxx = 0;
 if (audio && audio.lxxSpeech) {
-  const { lxxSpeech, lxxTapWord, lxxCapsKey, LXX_CAPS, lxxIsNumeral, LXX_NUMBERS, lxxTokens } = audio;
+  const { lxxSpeech, lxxTapWord, lxxCapsKey, LXX_CAPS, lxxIsNumeral, LXX_NUMBERS, lxxTokens, LXX_NUMBER_CONTEXT } = audio;
+  const bareTok = (t) => String(t || "").replace(/[.,;:·()\[\]]/g, "").replace(/’/g, "᾽").trim();
+  // (the same word comes back thousands of times: say each one once per pronunciation)
+  const memo = { erasmian: new Map(), koine: new Map() };
+  const sayAs = (sys, x) => { const m = memo[sys]; if (!m.has(x)) m.set(x, sys === "erasmian" ? S.erasmianSpeech(x) : S.koineSpeech(x)); return m.get(x); };
+  const contextSeen = new Set();
   const bareCaps = (w) => String(w).normalize("NFD").replace(/[\u0300-\u036f\u1fbd\u2019]/g, "").normalize("NFC").toUpperCase().replace(/Σ/g, "Σ");
   for (const [k, form] of Object.entries(LXX_CAPS)) if (bareCaps(form).replace(/ς/g, "Σ") !== k) note(problems, "Septuagint: a capitals entry isn't the same word", `${k} → ${form}`);
   const gLetter = /[\u0370-\u03FF\u1F00-\u1FFF]/;
@@ -1115,10 +1148,13 @@ if (audio && audio.lxxSpeech) {
         const t = lxxTapWord(tok, tokens[ti - 1], tokens[ti + 1]);
         if (!gLetter.test(t.show)) return;
         if (lxxIsNumeral(tok) && !t.number) note(problems, "Septuagint: a number written with letters that the voice would spell out", `${where}: ${tok}`);
+        if (/^[α-ω]$/.test(bareTok(tok)) && !t.number) note(problems, "Septuagint: a lone letter (a number whose mark the source lost?) said as a letter", `${where}: ${tokens.slice(Math.max(0, ti - 2), ti + 3).join(" ")}`);
+        const ck = `${bareTok(tokens[ti - 1])}|${bareTok(tok)}|${bareTok(tokens[ti + 1])}`;
+        if (LXX_NUMBER_CONTEXT[ck]) contextSeen.add(ck);
         const key = t.number ? "" : lxxCapsKey(t.look);
         if (key && !LXX_CAPS[key]) note(problems, "Septuagint: a word in capitals the voice would say without its accent", `${where}: ${tok}`);
         for (const sys of ["erasmian", "koine"]) {
-          const said = sys === "erasmian" ? S.erasmianSpeech(t.say) : S.koineSpeech(t.say);
+          const said = sayAs(sys, t.say);
           if (!/[αεηιουωάέήίόύώϊϋΐΰ]/i.test(said.normalize("NFC").toLowerCase())) note(problems, "Septuagint: a tapped word gives the voice no vowel (it would spell out a letter)", `${where} (${sys}): ${tok} → ${said}`);
           if (/[^\u0370-\u03FF\u1F00-\u1FFF ,.?!]/.test(said)) note(problems, "Septuagint: something that isn't Greek reaches the voice from a tapped word", `${where} (${sys}): ${tok} → ${said}`);
           if (key && LXX_CAPS[key] && /[\u0301\u0300\u0342]/.test(LXX_CAPS[key].normalize("NFD")) && !/[άέήίόύώΐΰ]/.test(said.normalize("NFC"))) note(problems, "Septuagint: a word in capitals is said without stress", `${where} (${sys}): ${tok} → ${said}`);
@@ -1132,7 +1168,7 @@ if (audio && audio.lxxSpeech) {
         if (/[^\u0370-\u03FF\u1F00-\u1FFF ,.?!]/.test(said)) note(problems, "Septuagint verses: something that isn't Greek reaches the voice", `${label}: ${said.slice(0, 120)}`);
         if (/\s{2,}|^\s|\s$/.test(said)) note(problems, "Septuagint verses: stray spaces", label);
         const words = tokens.map((tok, ti) => [tok, ti]).filter(([tok]) => gLetter.test(lxxTapWord(tok).show));
-        const alone = words.flatMap(([tok, ti]) => { const x = lxxTapWord(tok, tokens[ti - 1], tokens[ti + 1]).say; return (sys === "erasmian" ? S.erasmianSpeech(x) : S.koineSpeech(x)).replace(/[,.?!]/g, "").split(" "); });
+        const alone = words.flatMap(([tok, ti]) => sayAs(sys, lxxTapWord(tok, tokens[ti - 1], tokens[ti + 1]).say).replace(/[,.?!]/g, "").split(" "));
         const inVerse = said.replace(/[,.?!]/g, "").split(" ").filter(Boolean);
         const elided = words.filter(([tok]) => !lxxIsNumeral(tok) && /^[βγδθκλμνπρστφχ][’'᾽ʼ]$/.test(tok.normalize("NFC").toLowerCase()) && /^[βγδθκλμνπρστφχ][’'᾽ʼ]$/.test(lxxTapWord(tok).show.normalize("NFC").toLowerCase().replace(/[\u0300-\u036f]/g, ""))).length;
         if (inVerse.length !== alone.filter(Boolean).length - elided) note(problems, "Septuagint verses: a word is lost or added in the whole verse", `${label}: ${inVerse.length} said, ${alone.length} words`);
@@ -1144,6 +1180,8 @@ if (audio && audio.lxxSpeech) {
       }
     }
   }
+  // every word-form-by-context entry still matches the text (a correction to the text once left one dead: ἄυδρας)
+  for (const k of Object.keys(LXX_NUMBER_CONTEXT)) if (!contextSeen.has(k)) note(problems, "Septuagint: a number's context entry matches no verse", k);
 } else note(problems, "Septuagint: js/audio.js has no lxxSpeech", "");
 
 // ---- the model against an independent source: STEPBible's transliteration of every word (see STEP_BASELINE)

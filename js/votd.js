@@ -3,7 +3,7 @@
 // exactly as the Reader shows it, so its words, grammar and voice are the Reader's. The pick depends only on the
 // date, so every device shows the same verse that day. If the book can't be loaded (offline, never opened), the
 // screen falls back to data/votd.json's 24 verses, then to the built-in ones (js/verses.js).
-import { heText, heAfter, heJoined, heLemma, heParts, heMainKey } from "./hebrew.js";
+import { heText, heAfter, heJoined, heLemma, heParts, heMainKey, hePartGloss } from "./hebrew.js";
 import { heVoice, verseSpeech } from "./audio.js";
 
 /** Today's verses from data/votd.json and js/verses.js (the fallbacks) have no Reader word arrays: */
@@ -94,8 +94,8 @@ export function buildVerse({ lang, bookId, ch, v, name, words, lex, morph, engli
         const d = (morph[p.code] || [p.code])[0];
         if (p.main) return d;
         const e = lex[p.key] || [];
-        const g = String(e[2] || "").split(": ").pop();
-        return `${d} ${heLemma(e[0] || "")} “${g}”`.trim();
+        const g = hePartGloss(p.key, e[2]);
+        return `${d} ${heLemma(e[0] || "")}${g ? ` “${g}”` : ""}`.trim();
       }).join(" + ");
       const k = heMainKey(w);
       const e = lex[k] || [];

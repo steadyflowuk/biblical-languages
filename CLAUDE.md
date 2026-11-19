@@ -368,11 +368,11 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
   settings tested). Today: tools/build_votd_pool.py (run by build_data.py) → data/votd-pool.json, verses that read
   well alone: a whole BSB sentence with paired quotes, 5–24 Greek / 3–14 Hebrew words, names ≤ a third (Npt
   Yahweh not a name), no Aramaic, psalm titles, k/x words, ⟦ ⟧, or Greek verses whose English is split: 4,882 Greek,
-  9,668 Hebrew. js/votd.js picks by the local calendar day through a Feistel shuffle (cycle walking): no verse comes
+  9,668 Hebrew (after the review 4,778 / 9,404). js/votd.js picks by the local calendar day through a Feistel shuffle (cycle walking): no verse comes
   back until all have had their day; Greek and Hebrew differ; same verse on every device. buildVerse() makes Today's
   word objects from the Reader's data (Hebrew prefixes with their own form “gloss”, Greek joined words with parts,
   w.say = the Reader's word voice, verse.spoken = audio.verseSpeech), so Today sounds exactly like the Reader.
-  Loads the shown language's book first, then the other; a book that can't load → data/votd.json's 24 (todayVoice,
+  (Since the review: only the shown language's book is fetched; see below.) A book that can't load → data/votd.json's 24 (todayVoice,
   now in js/votd.js) → js/verses.js. warmEssentials also saves today's and tomorrow's verse books. tools/
   check_votd.mjs builds all 14,550 pool verses and checks every word, voice and the daily cycle (and that the 24
   fallbacks sound as the Reader does). audit_content 5b checks 8 fake-clock days in the page; test_app checks the
@@ -393,11 +393,30 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
   Hebrew letter names as cards, and the Hebrew read-aloud verses word by word (vowels, stress against the accents,
   consonants, and what each word's button says); proven by planted mistakes. (Letter names stay bet/chet/tet/resh:
   the model reads tsere-yod as e, as the voice does.)
-  Listening: tools/test_listening.py (207 checks, in check_all): Today, a lesson's Read step, the Reader in all three
+  Listening: tools/test_listening.py (207 checks, 233 after the review, in check_all): Today, a lesson's Read step, the Reader in all three
   layouts, the Septuagint screen and lines, the Letters guide, each at Easy/Medium/Hard: buttons shown or hidden, and
   the exact text the voice is given for a tapped word and a whole verse (from the Bible data, independently of the
   screen), Enter on a word, Restored Koine, the level kept after a reload, Reader options ↔ Settings, dictionary Listen
   at every level. Proven by mutating audio.js (Hard still speaking; Septuagint taps unconverted).
+  Full check + reviewer; fixed: JDG 3:31 χ᾽ context key still said ἄυδρας after the text fix (now ἄνδρας; the checker
+  fails on any LXX_NUMBER_CONTEXT key that matches no verse), JDG 20:25 τῇ β᾽ καὶ → δευτέρᾳ, the lone α (= 1,000) of EZR
+  2:37/38 and NEH 7:70 now said χίλιοι/χιλίους (context entries; the checker fails on a lone letter said as a letter);
+  1ES 1:25: the source's misplaced ἐμοῦ is moved back (… μετ᾽ ἐμοῦ ἐπισπεύδων), not deleted, and the README notice says
+  so; ESG 8:12 τεταγμένεν → τεταγμένων. Pool: ‘ ’ and ( ) must pair too (144 + 7 fragments out; check_votd has its own
+  left-to-right quote reader), UNSETTLING (graphic violence, sexual or bodily detail: 209 verses kept out of the daily
+  pick, not out of the Bible) and ALWAYS (well-known verses let in whatever their length: John 3:16): 4,778 Greek,
+  9,404 Hebrew. Today shows "Loading today's verse…" until the day's verse arrives (no built-in verse swapped out
+  under a tap), opens on the learner's language (learnLang) and fetches only that book (the other on switching).
+  Hebrew prefixes read plainly (hePartGloss: וַ "and", הַ "the", -ה "towards", ן "an added ending", הֲ "a question")
+  on Today and in the Reader's word parts (a meaning the label already gives isn't repeated). The checker's
+  a-imperfect test now reads each verb's class from the Bible (its Qal imperfects without an ending) instead of a
+  copied list; it showed אכל and אמר (יֹאכַל, יֹאמַר) are a-imperfects: added to A_VERBS (JOB 20:26 תְּאָכְלֵהוּ te-a-khe-
+  LE-hu); חפץ taken out (often יַחְפֹּץ); VOWELS_OK: GEN 32:17 יִפְגָּשְׁךָ (GKC §60 Rem. 1, a) and JER 1:5 אֶצָּרְךָ (ketiv
+  אצורך: o). test_listening (233): numbers in context against words written out in the test, the side-by-side Septuagint
+  column, Today's fallback verse, review cards, service worker blocked. check_pronunciation memoises the Septuagint's
+  speech (3 min → 1 min); Greek word COVERAGE 67,800 (the grave fixes merged 183 Septuagint spellings). Letters guide:
+  בֵּית "beit" example notes the letter is usually called bet. Note: rebuilding the pool (a BSB update or a filter
+  change) reshuffles every later day's verse; devices agree again once both have the new pool.
 
 ## Data (Session 2)
 - Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (46 checks).
@@ -710,8 +729,8 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
   keys), data (Greek translit/English/capitals/τῇ, Today's verses = Bible text, js/verses.js = data, Hebrew definition
   markup and links, search keywords, list sizes quoted in text, lesson review words), wording (British spelling,
   doubled words, sentence case), shell (SHELL_FILES, one data cache name and old ones deleted, VERSION bumped vs
-  origin/main, files.json, iOS 13.4 syntax, https links), pages (every lesson-verse word, every word of all 24 Today
-  verses on a fake clock, Reader notes in all three layouts for ROM 16, MRK 16, JHN 7–8, ACT 19, 2CO 13 …, shared
+  origin/main, files.json, iOS 13.4 syntax, https links), pages (every lesson-verse word, every word of Today's verse on 8
+  fake-clock days in both languages, Reader notes in all three layouts for ROM 16, MRK 16, JHN 7–8, ACT 19, 2CO 13 …, shared
   Strong's numbers, About credits, console errors). Proven to catch the 13b Reader bugs. Add a check here whenever a
   review finds a new kind of mistake.
 - `python3 tools/test_check.py` — 29 checks: device check (device descriptions, voices, no voice, no speech, report,

@@ -75,7 +75,7 @@ def first_read(lang):
 async def main():
     async with async_playwright() as p:
         b = await p.chromium.launch(executable_path=CHROME)
-        ctx = await b.new_context(viewport={"width": 390, "height": 844}, has_touch=True)
+        ctx = await b.new_context(viewport={"width": 390, "height": 844}, has_touch=True, service_workers="block")
         await ctx.add_init_script(VOICES)
         await ctx.add_init_script(HELPERS)
         pg = await ctx.new_page()
@@ -201,11 +201,13 @@ async def main():
             await pg.evaluate("localStorage.setItem('ao:readLayout', JSON.stringify('words'))")
 
             # ---------------- the Septuagint: its own screen (capitals, a numeral) and its lines in the Reader
-            for where, url, sel in (("Septuagint screen GEN 1", "#/lxx/GEN/1", ".lv .lw"),
-                                    ("Septuagint screen NUM 7 (numerals)", "#/lxx/NUM/7", "#v84 .lw"),
-                                    ("Reader GEN 1 with Septuagint lines", "#/read/GEN/1", ".lxx .lw")):
+            for where, url, sel, layout in (("Septuagint screen GEN 1", "#/lxx/GEN/1", ".lv .lw", "words"),
+                                            ("Septuagint screen NUM 7 (numerals)", "#/lxx/NUM/7", "#v84 .lw", "words"),
+                                            ("Reader GEN 1 with Septuagint lines", "#/read/GEN/1", ".lxx .lw", "words"),
+                                            ("Reader GEN 1 side by side, Septuagint column", "#/read/GEN/1", ".col-lxx .lw", "parallel")):
                 await pg.goto(f"{BASE}#/settings")
                 await pg.evaluate("localStorage.setItem('ao:showLXX', JSON.stringify(true))")
+                await pg.evaluate(f"localStorage.setItem('ao:readLayout', JSON.stringify('{layout}'))")
                 await pg.goto(f"{BASE}{url}")
                 await pg.wait_for_selector(sel, timeout=10000)
                 # the 1st word (GEN 1:1 ΕΝ in capitals), the 2nd, and in NUM 7:84 the numeral ιβ᾽
@@ -228,8 +230,22 @@ async def main():
                     want_verse = await pg.evaluate("async (t) => { const a = await import('./js/audio.js'); return __x.conv(a.lxxSpeech(t.join(' ')), 'grc'); }", toks)
                     await verse_button(f"{where} word sheet", level, ".sheet .ws-translit .say-btn.with-label", want_verse)
                     await pg.keyboard.press("Escape")
-            numeral = await pg.evaluate("async () => { const a = await import('./js/audio.js'); return a.lxxTapWord('ιβ᾽,', 'ἀργυραῖ', 'θυίσκαι').say; }")
-            check(f"{level.title()}, Septuagint: a number written with letters is said as its number word (ιβ᾽ → δώδεκα)", numeral == "δώδεκα", numeral)
+            await pg.goto(f"{BASE}#/settings")
+            await pg.evaluate("localStorage.setItem('ao:readLayout', JSON.stringify('words'))")
+
+            # ---------------- review cards keep their Listen button at every level
+            L = json.load(open(f"{ROOT}lessons/grc/4.json"))
+            item = next(dict(it, lang="grc", lesson=L["id"], added="2026-10-27") for st in L["steps"] for c in st["cards"] if c["type"] == "words" for it in c["items"])
+            await pg.evaluate(f"localStorage.setItem('ao:reviewQueue', JSON.stringify([{json.dumps(item, ensure_ascii=False)}]))")
+            await pg.goto(f"{BASE}#/today")
+            await pg.goto(f"{BASE}#/review")
+            await pg.wait_for_selector(".rv-summary, .rv-listen", timeout=10000)
+            if await pg.locator(".rv-start, [data-start]").count():
+                await pg.locator(".rv-start, [data-start]").first.click()
+            await pg.wait_for_timeout(300)
+            check(f"{level.title()}: a review card keeps its Listen button", await pg.locator(".rv-listen [data-say]").count() == 1,
+                  str(await pg.locator(".rv-listen [data-say]").count()))
+            await pg.evaluate("localStorage.removeItem('ao:reviewQueue'); localStorage.removeItem('ao:cards')")
 
             # ---------------- the Letters guide's verses, both languages
             for lang in ("grc", "he"):
@@ -256,6 +272,51 @@ async def main():
             await pg.goto(f"{BASE}#/words/G3056")
             await pg.wait_for_selector(".entry-listen [data-say]", timeout=10000)
             check(f"{level.title()}: the dictionary entry keeps its Listen button", await pg.locator(".entry-listen [data-say]").count() == 1)
+
+        # ---------------- Septuagint numbers in context, against words written out here (not from js/audio.js)
+        await set_level("medium")
+        NUMBERS = [("JDG/3", 31, "χ᾽", "ἑξακοσίους"), ("JDG/20", 24, "β᾽", "δευτέρᾳ"), ("JDG/20", 25, "β᾽", "δευτέρᾳ"),
+                   ("EZR/2", 37, "α", "χίλιοι"), ("EZR/2", 38, "α", "χίλιοι"), ("NEH/7", 70, "α", "χιλίους"),
+                   ("NUM/29", 13, "ιδ᾽", "δεκατέσσαρας"), ("ESG/9", 19, "ε᾽", "πέμπτην"), ("ESG/9", 19, "ι᾽", "δεκάτην"),
+                   ("NUM/7", 84, "ιβ᾽", "δώδεκα"), ("1ES/2", 12, "βυ᾽", "δισχίλιαι τετρακόσιαι"), ("AMO/5", 3, "ρ᾽", "ἑκατόν")]
+        for bc, v, tok, word in NUMBERS:
+            await pg.goto(f"{BASE}#/lxx/{bc}")
+            await pg.wait_for_selector(f"#v{v} .lw", timeout=10000)
+            toks = await pg.locator(f"#v{v} .lw").all_inner_texts()
+            i = next((k for k, t in enumerate(toks) if t.strip().rstrip(",.·;") == tok), -1)
+            got = []
+            if i >= 0:
+                await pg.evaluate("window.__spoken = []")
+                await pg.locator(f"#v{v} .lw").nth(i).click()
+                got = await said()
+                await pg.keyboard.press("Escape")
+            want = await pg.evaluate("w => __x.conv(w, 'grc')", word)
+            check(f"Septuagint {bc.replace('/', ' ')}:{v}: {tok} is said {word}", got == [want], f"said {got}, wanted {want}")
+
+        # ---------------- Today's fallback verse (the day's book can't load) follows the level too
+        for level in ("medium", "hard"):
+            await set_level(level)
+            fctx = await b.new_context(viewport={"width": 390, "height": 844}, has_touch=True, service_workers="block")
+            await fctx.add_init_script(VOICES)
+            await fctx.add_init_script(HELPERS)
+            fp = await fctx.new_page()
+            await fp.goto(f"{BASE}#/settings")
+            await fp.evaluate(f"localStorage.setItem('ao:listenLevel', JSON.stringify('{level}'))")
+            await fp.route("**/data/gnt/*.json", lambda r: r.abort())
+            await fp.goto(f"{BASE}#/today")
+            await fp.click('[data-lang="grc"]')
+            await fp.wait_for_function("(document.querySelector('.verse-slot')?.dataset.verse || '').length > 0", timeout=10000)
+            vid = await fp.get_attribute(".verse-slot", "data-verse")
+            fb = await fp.evaluate("""async (id) => { const m = await import('./js/votd.js'); const v = (await fetch('data/votd.json').then(r => r.json())).find(x => x.id === id);
+              return v ? [await __x.conv(m.todayVoice(v, v.words[1]), 'grc'), v.words.length] : null; }""", vid)
+            await fp.evaluate("window.__spoken = []")
+            await fp.locator(".verse-original .w").nth(1).click()
+            await fp.wait_for_timeout(150)
+            got = [x["text"] for x in await fp.evaluate("window.__spoken")]
+            verse_btn = await fp.locator(".verse-listen [data-say]").count()
+            check(f"{level.title()}, Today's fallback verse ({vid}): a tap {'says the word' if level != 'hard' else 'is silent'}, the verse button is there",
+                  fb is not None and got == ([fb[0]] if level != "hard" else []) and verse_btn == 1, f"{got} {fb} {verse_btn}")
+            await fctx.close()
 
         # ---------------- Restored Koine: the same buttons give the Koine voice its own text
         await set_level("medium", "koine")

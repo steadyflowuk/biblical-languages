@@ -354,8 +354,8 @@ function consonantal(cl) {
 }
 /** The dictionary form's vowel at the main word's n-th consonant: "o" (holam, qamets hatuf, qibbuts), "a" (qamets, patah) or "". */
 // Qal verbs whose imperfect has a in its second syllable (GKC §60 c, §64, §65): a throat letter as the root's middle
-// letter (שָׁאַל, יָעַץ, רָחַם), or one of these (by their consonants)
-const A_VERBS = /^(ירש|נשק|פגש|לבש|למד|שכב|רכב|גדל|כבד|קרב|ישן|יבש|חפץ)$/;
+// letter (שָׁאַל, יָעַץ, רָחַם), or one of these (by their consonants; אכל and אמר: יֹאכַל, יֹאמַר. חפץ left out: often יַחְפֹּץ)
+const A_VERBS = /^(ירש|נשק|פגש|לבש|למד|שכב|רכב|גדל|כבד|קרב|ישן|יבש|אכל|אמר)$/;
 function aClassVerb(lemma, letter) {
   const L = String(lemma || "").split(",")[0].replace(/[^א-ת]/g, "").replace(/[ךםןףץ]/g, (x) => "כמנפצ"["ךםןףץ".indexOf(x)]);
   if (L.length !== 3) return false;

@@ -107,6 +107,18 @@ for (const lang of ["grc", "he"]) {
       if (/\u0001|\(\w+ \d+:\d+|[[\]]/.test(en)) bad("English carries a note marker, cross-reference or bracket", `${key}: ${en.slice(0, 60)}`);
       if (!/^[“‘"'(]?[A-Z]/.test(en) || !/[.!?][”’"')]*$/.test(en)) bad("English isn't a whole sentence", `${key}: ${en.slice(0, 60)}`);
       if ((en.match(/“/g) || []).length !== (en.match(/”/g) || []).length) bad("English quotation marks don't pair", `${key}: ${en.slice(0, 60)}`);
+      if ((en.match(/\(/g) || []).length !== (en.match(/\)/g) || []).length) bad("English brackets don't pair", `${key}: ${en.slice(0, 60)}`);
+      // single quotes, read left to right: ‘ opens; ’ closes an open one unless a letter follows (Lord’s); a ’ after a
+      // mark with nothing open is a quote closing that opened in another verse (…Canaan.’)
+      let open = 0, stray = false;
+      for (let i = 0; i < en.length; i++) {
+        if (en[i] === "‘") open++;
+        else if (en[i] === "’" && !/\p{L}/u.test(en[i + 1] || "")) {
+          if (open) open--;
+          else if (/[.,!?;:—–]/.test(en[i - 1] || "")) stray = true;
+        }
+      }
+      if (open || stray) bad("English single quotes don't pair", `${key}: ${en.slice(0, 70)}`);
     }
     if (!new RegExp(`^${verse.ref.split(" ").slice(0, -1).join(" ").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} ${ch}:${v}$`).test(verse.ref)) bad("reference label", `${key}: ${verse.ref}`);
   }

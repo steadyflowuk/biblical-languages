@@ -21,9 +21,11 @@ These files were produced from the source by `tools/build_lxx.py` in this reposi
   Swete's editorial marks ⸂ ⸃ ⸆ and subsection numbers such as [1] are left out, and accents are stored in
   standard Unicode form (NFC).
 - 19 November 2026: digitisation slips put right (the printed edition can't have them): a grave accent standing
-  before a word's last syllable is made acute (207 words, e.g. δὺναμιν → δύναμιν), and 37 words listed in
+  before a word's last syllable is made acute (207 words, e.g. δὺναμιν → δύναμιν), and the words listed in
   `SWETE_FIXES` in tools/build_lxx.py are corrected by hand (a breathing printed for an accent, a missing breathing,
-  two words run together, letters misread, e.g. ἄυδρας → ἄνδρας, ΙΙερσῶν → Περσῶν). Every other word is as in the source.
+  two words run together, letters misread, e.g. ἄυδρας → ἄνδρας, ΙΙερσῶν → Περσῶν, τεταγμένεν → τεταγμένων), and in
+  1 Esdras 1:25 a word the source had in the wrong place (ἐμοῦ, printed twice after the first μετ᾽ and missing after
+  the second) is put back. Every other word is as in the source.
 - `ot/<BOOK>.json`: each verse of the Hebrew/English Old Testament matched to the Swete verse(s) it corresponds to.
 - `books.json`: the list of books and chapters, and which Hebrew chapter each Septuagint chapter mostly matches.
 

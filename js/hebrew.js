@@ -108,6 +108,17 @@ function verbForm(d) {
   return "";
 }
 
+/**
+ * The meaning shown for a prefix or ending (STEPBible's labels H9001+ carry glosses meant for its own tables: "&",
+ * "[the]", "[emph.?]", "[?]", "[to]"). Other parts keep their gloss, without the brackets.
+ */
+const PART_MEANING = { H9001: "and", H9008: "a question", H9009: "the", H9011: "towards", H9012: "an added ending", H9013: "an added ending" };
+export function hePartGloss(key, gloss) {
+  const k = String(key || "").replace(/[{}]/g, "");
+  if (PART_MEANING[k]) return PART_MEANING[k];
+  return String(gloss || "").split(": ").pop().replace(/^\[(.*)\]$/, "$1").trim();
+}
+
 /** Short label for under a word, e.g. "Qal wayyiqtol 3ms", "noun fs", "suffix 3ms", "prep.". */
 export function heShortGrammar(desc) {
   const s = String(desc || "");

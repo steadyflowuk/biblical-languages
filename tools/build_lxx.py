@@ -72,12 +72,15 @@ OVERRIDES = {
 SWETE_FIXES = {
     "1CH 2:54": [["Μαλαθεἰ", "Μαλαθεί"]], "1CH 5:13": [["ΣέΒεε", "Σέβεε"]],
     "1ES 2:2": [["ἐκήωυξεν", "ἐκήρυξεν"], ["ὅλῇ", "ὅλῃ"], ["τῃ", "τῇ"]], "1ES 5:20": [["τετρακὀσιοι", "τετρακόσιοι"]],
-    "1ES 5:53": [["ΙΙερσῶν", "Περσῶν"]], "1ES 8:47": [["καἱ", "καὶ"]], "1ES 1:25": [["ἑμοῦ ἐμοῦ", "ἐμοῦ"]],
+    "1ES 5:53": [["ΙΙερσῶν", "Περσῶν"]], "1ES 8:47": [["καἱ", "καὶ"]],
+    # 1ES 1:25: the source has "μετ᾽ ἑμοῦ ἐμοῦ ἐστιν … μετ᾽ ἐπισπεύδων": the second ἐμοῦ belongs after the second μετ᾽
+    "1ES 1:25": [["ἑμοῦ ἐμοῦ", "ἐμοῦ"], ["μετ᾽ ἐπισπεύδων", "μετ᾽ ἐμοῦ ἐπισπεύδων"]],
+    "ESG 8:12": [["τρίσαλιτηρίου", "τρισαλιτηρίου"], ["τεταγμένεν", "τεταγμένων"]],
     "1KI 5:9": [["θέλημάμου", "θέλημά μου"]], "1SA 1:21": [["ἐνΣηλὼμ", "ἐν Σηλὼμ"]], "1SA 14:48": [["ἐπάταξεντὸν", "ἐπάταξεν τὸν"]],
     "1SA 30:21": [["Δαυεἰδ", "Δαυεὶδ"]], "1SA 31:2": [["Σαοὐλ", "Σαοὺλ"]], "2CH 16:14": [["Δαυεἰδ", "Δαυεὶδ"]],
     "2CH 35:19": [["ἐνεπύριοεν", "ἐνεπύρισεν"]], "DAG 7:1": [["Δανιἠλ", "Δανιὴλ"]], "EZR 10:42": [["Σαλοὑμ", "Σαλούμ"]],
     "HAB 3:11": [["πορεὔσονται", "πορεύσονται"]], "JDG 1:27": [["θυγατἐρας", "θυγατέρας"]], "JER 43:2": [["πρὀς", "πρὸς"]],
-    "PRO 24:52": [["καταφἅγοισαν", "καταφάγοισαν"]], "ESG 8:12": [["τρίσαλιτηρίου", "τρισαλιτηρίου"]],
+    "PRO 24:52": [["καταφἅγοισαν", "καταφάγοισαν"]],
     "ISA 28:13": [["κινδυνεύσουσιυ", "κινδυνεύσουσιν"]], "PSS 2:18": [["ἀνέκαλυψας", "ἀνεκάλυψας"]],
     "TBS 14:11": [["ἔθηκαναὐτὸν", "ἔθηκαν αὐτὸν"]], "JDG 3:31": [["ἄυδρας", "ἄνδρας"]], "JOS 21:14": [["ἀυτῇ", "αὐτῇ"]],
     "1CH 2:33": [["Ιωναθάν", "Ἰωναθάν"]], "2CH 17:12": [["Ιωσαφὰτ", "Ἰωσαφὰτ"]], "2KI 9:14": [["Ιωσαφὰθ", "Ἰωσαφὰθ"]],
@@ -484,9 +487,11 @@ These files were produced from the source by `tools/build_lxx.py` in this reposi
   Swete's editorial marks ⸂ ⸃ ⸆ and subsection numbers such as [1] are left out, and accents are stored in
   standard Unicode form (NFC).
 - 19 November 2026: digitisation slips put right (the printed edition can't have them): a grave accent standing
-  before a word's last syllable is made acute (207 words, e.g. δὺναμιν → δύναμιν), and 37 words listed in
+  before a word's last syllable is made acute (207 words, e.g. δὺναμιν → δύναμιν), and the words listed in
   `SWETE_FIXES` in tools/build_lxx.py are corrected by hand (a breathing printed for an accent, a missing breathing,
-  two words run together, letters misread, e.g. ἄυδρας → ἄνδρας, ΙΙερσῶν → Περσῶν). Every other word is as in the source.
+  two words run together, letters misread, e.g. ἄυδρας → ἄνδρας, ΙΙερσῶν → Περσῶν, τεταγμένεν → τεταγμένων), and in
+  1 Esdras 1:25 a word the source had in the wrong place (ἐμοῦ, printed twice after the first μετ᾽ and missing after
+  the second) is put back. Every other word is as in the source.
 - `ot/<BOOK>.json`: each verse of the Hebrew/English Old Testament matched to the Swete verse(s) it corresponds to.
 - `books.json`: the list of books and chapters, and which Hebrew chapter each Septuagint chapter mostly matches.
 

@@ -74,7 +74,10 @@ def trim(arr):
 # "Ἕλλην=Ἕλλην" (a link to the base word), "Κιλικία, Κιλικία" (the same spelling twice), letters without an accent
 HEADWORD_FIX = {"G0001G": ("ἄλφα", "alpha"), "G5598": ("ὦ", "ō"),
                 "G5441": ("φύλαξ", "phulax"),  # Strong's G5441; TBESG prints φυλακτήριος (a phylactery) over "guard"
-                "G2491K": ("Ἰωάννης, Ἰωνᾶς", "Iōannēs, Iōnas")}  # Peter's father: the SBL text calls him Ἰωάννης
+                "G2491K": ("Ἰωάννης, Ἰωνᾶς", "Iōannēs, Iōnas"),
+                "G3801": ("ὁ ὢν καὶ ὁ ἦν καὶ ὁ ἐρχόμενος", "ho ōn kai ho ēn kai ho erchomenos"),  # TBESG: unaccented
+                "G7724": ("Ἰουδαϊστί", "Ioudaisti"),  # TBESG: Ιοὐδαϊστί (breathing on the υ)
+                "G7886": ("καταπανουργεύω", "katapanourgeuō")}  # TBESG: καταπανουργέυω (accent on the ε)  # Peter's father: the SBL text calls him Ἰωάννης
 
 
 def tidy_headword(key, lemma, translit):
@@ -108,6 +111,84 @@ def latin_lookalikes(text):
                   if re.search("[A-Za-z]", m.group(0)) else m.group(0), text)
 
 
+# ---------------------------------------------------------------- Greek slips in the dictionaries' text
+# TBESG's headwords and Abbott-Smith/Middle Liddell definitions came from scanned pages: an accent read where a
+# breathing stood (άμαρτίας), a grave inside a word (ὃτι), a Latin o or v inside a Greek word (πoρνεύω, αἰώνιωv),
+# a capital inside a word (κρυΦῇ). tools/check_text_hygiene.py finds them; here a word that breaks the rules of
+# printed Greek (tools/check_lxx_text.py) becomes the one known spelling with the same letters (SBL New Testament,
+# headwords), when there is exactly one; else Latin look-alikes become Greek and a capital inside a
+# word lower case. Counted (greek_slips_fixed in the build output); the rest are approved in the hygiene baseline.
+LATIN_IN_GREEK = {"o": "ο", "v": "ν", "n": "ν", "a": "α", "k": "κ", "i": "ι", "u": "υ", "x": "χ", "p": "ρ", "e": "ε"}
+GREEK_IN_LATIN = {"Η": "H", "Ο": "O", "ο": "o", "Α": "A", "Β": "B", "Ε": "E", "Ι": "I", "Κ": "K", "Μ": "M", "Ν": "N",
+                  "Ρ": "P", "Τ": "T", "Χ": "X", "α": "a", "ι": "i", "κ": "k", "ν": "v"}
+_GREEK_FORMS = {}
+LEX_STATS = Counter()
+
+
+def greek_base(w):
+    d = unicodedata.normalize("NFD", w)
+    return "".join(c for c in d if not unicodedata.combining(c)).lower().replace("ς", "σ")
+
+
+def known_greek_forms():
+    """{letters without marks: {spellings}} from the SBL New Testament and TBESG's headwords (those that keep the rules)."""
+    if _GREEK_FORMS:
+        return _GREEK_FORMS
+    words = set()
+    for d in (os.path.join(SRC, "sblgnt", "data", "sblgnt", "text"),):
+        for f in glob.glob(os.path.join(d, "*.txt")):
+            words.update(re.findall(r"[\u0370-\u03FF\u1F00-\u1FFF\u0300-\u036F]+", open(f, encoding="utf-8").read()))
+    for line in open(glob.glob(os.path.join(STEP, "Lexicons", "TBESG*"))[0], encoding="utf-8-sig"):
+        c = line.split("\t")
+        if len(c) > 3:
+            words.update(re.findall(r"[\u0370-\u03FF\u1F00-\u1FFF\u0300-\u036F]+", c[3]))
+    import check_lxx_text as rules
+    for w in words:
+        w = unicodedata.normalize("NFC", w.replace("\u0300", "\u0301"))
+        if len(w) > 1 and not rules.problems_of(w):
+            _GREEK_FORMS.setdefault(greek_base(w), set()).add(w)
+    return _GREEK_FORMS
+
+
+def fix_greek_slips(text, stats=None):
+    import check_lxx_text as rules
+
+    def one(m):
+        w = m.group(0)
+        before, after = m.string[m.start() - 1:m.start()], m.string[m.end():m.end() + 1]
+        if (before and not re.match(r"[\s(\[“‘—>]", before)) or after == "-" or len(w) < 4:
+            return w  # a stem or an ending (δι-αγγέλω, -ου), or glued to something: written so on purpose
+        nG = len(re.findall("[\u0370-\u03FF\u1F00-\u1FFF]", w))
+        nL = len(re.findall("[A-Za-z]", w))
+        if nL == 1 and nG >= 3 and re.search("[ovn]", w[:-1]):  # a Latin o/v/n inside a Greek word (πoρνεύω)
+            w = "".join(LATIN_IN_GREEK.get(c, c) for c in w)
+        elif nG == 1 and nL >= 3:  # one Greek look-alike in an English word (cοntradict)
+            w = "".join(GREEK_IN_LATIN.get(c, c) for c in w)
+        if re.search("[\u0370-\u03FF\u1F00-\u1FFF]", w) and not re.search("[A-Za-z]", w):
+            nfc = unicodedata.normalize("NFC", w)
+            if rules.problems_of(nfc):
+                cands = sorted(known_greek_forms().get(greek_base(nfc), set()))
+                if len(cands) > 1:  # ἀδικία / ἀδικίᾳ: the one whose marks agree most with what was printed
+                    score = {c: sum(a == b for a, b in zip(rules.marks(c), rules.marks(nfc))) for c in cands}
+                    best = max(score.values())
+                    cands = [c for c in cands if score[c] == best]
+                if len(cands) == 1:
+                    w = cands[0]
+                elif any(x.isupper() for x in nfc[1:]) and not nfc.isupper():
+                    w = nfc[0] + nfc[1:].lower()
+        if w != m.group(0) and stats is not None:
+            stats["greek_slips_fixed"] += 1
+        return w
+    # words: runs of letters and marks (Greek, Latin), never across tags or spaces
+    return re.sub(r"[A-Za-z\u0370-\u03FF\u1F00-\u1FFF][A-Za-z\u0370-\u03FF\u1F00-\u1FFF\u0300-\u036F\u0345]*", one, text)
+
+
+def tidy_def_spacing(html):
+    """No space before , ; : . ) ] (the source's " <b>ἔα</b> ," leaves "ἔα ,") nor after ( [."""
+    html = re.sub(r"\s+(?=(?:</?(?:b|i)>)*[,;:.)\]])", "", html)
+    return re.sub(r"([(\[])\s+", r"\1", html)
+
+
 def read_lexicon(pattern):
     entries = OrderedDict()
     path = glob.glob(os.path.join(STEP, "Lexicons", pattern))[0]
@@ -117,12 +198,14 @@ def read_lexicon(pattern):
             continue
         key = c[1].split(" ")[0].strip()
         if key[0] == "G":
-            c[3], c[4] = tidy_headword(key, c[3], c[4])
+            c[3], c[4] = tidy_headword(key, fix_greek_slips(c[3], LEX_STATS), c[4])
         entries[key] = {
             "estrong": c[0], "rel": c[1].split("=", 1)[1].strip() if "=" in c[1] else "",
             "ustrong": c[2].strip(), "lemma": nfc(c[3].strip()) if key[0] == "G" else c[3].strip(),
             "translit": c[4].strip(),
-            "morph": c[5].strip(), "gloss": latin_lookalikes(c[6].strip()), "def": latin_lookalikes(c[7].strip()) if len(c) > 7 else "",
+            "morph": c[5].strip(), "gloss": re.sub(r"\s+", " ", latin_lookalikes(c[6].strip())),
+            "def": tidy_def_spacing(fix_greek_slips(latin_lookalikes(c[7].strip()), LEX_STATS)) if len(c) > 7 and key[0] == "G"
+            else (latin_lookalikes(c[7].strip()) if len(c) > 7 else ""),
         }
     return entries
 
@@ -964,6 +1047,7 @@ def main():
     glex = read_lexicon("TBESG*.txt")
     hlex = read_lexicon("TBESH*.txt")
     print("Hebrew definitions from Strong's:", strongs_hebrew_definitions(hlex), "of", len(hlex))
+    print("Greek slips in TBESG's headwords and definitions put right:", LEX_STATS["greek_slips_fixed"])
     gnt, gstats, gcounts, gfallback, gen_refs = build_greek(glex)
     hot, hstats, hcounts, heb_refs = build_hebrew(hlex)
     index, bsb, bsb_verses = build_bsb()

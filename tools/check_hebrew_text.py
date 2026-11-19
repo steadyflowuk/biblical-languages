@@ -128,7 +128,9 @@ FINALS = set("ךםןףץ")
 
 
 def pointing_problems(word):
-    """What is wrong with how a word is pointed (empty if nothing)."""
+    """What is wrong with how a word is pointed (empty if nothing). A maqqef joins two words: each is checked."""
+    if "\u05be" in word:
+        return [p for part in word.split("\u05be") if part for p in pointing_problems(part)]
     out = []
     w = re.sub(r"[/\\־\s]", "", word)
     if re.search("[A-Za-z0-9]", w):

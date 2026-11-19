@@ -24,7 +24,7 @@ const R = path.join(path.dirname(fileURLToPath(import.meta.url)), "..") + "/";
 const S = await import(R + "js/sound.js");
 const audio = await import(R + "js/audio.js").catch((e) => { console.log("js/audio.js couldn't load in Node: " + e.message); return null; });
 const heVoice = audio && audio.heVoice;
-const { heText, heJoined } = await import(R + "js/hebrew.js");
+const { heText, heJoined, heMainKey } = await import(R + "js/hebrew.js");
 const json = (f) => JSON.parse(fs.readFileSync(R + f, "utf8"));
 const argv = process.argv.slice(2);
 const EXAMPLES = argv.includes("--examples") ? Number(argv[argv.indexOf("--examples") + 1]) : 4;
@@ -657,6 +657,18 @@ for (const w of greekWords) {
   if (pairs.some(([e, g]) => e && g && !!e.s !== !!g.s) && exp.filter((x) => x.nuc).length > 1) note(problems, "Shown pronunciation stresses the wrong syllable", `${w}: shown ${S.greekSay(w)}`);
 }
 
+// ---- Letters guide (19 Nov 2026): each Greek letter's name as the guide respells it (AL-fa, ee-OH-ta) = how the name
+// is said (Erasmian model of the name as written); the guide's own examples and verses are in the checks above
+for (const L of GA.letters) {
+  const exp = greekExpected(L.nameT, "erasmian").map((x) => ({ ...x }));
+  const firstStress = exp.findIndex((x) => x.s);
+  exp.forEach((x, i) => { if (i !== firstStress) x.s = false; });
+  const shown = respellingSounds(L.nameSay.replace(/\s*\(.*\)$/, "")); // (a note after it: "tau (rhymes with how)")
+  const pairs = align(exp, shown);
+  if (pairs.some(([e, g]) => !(e && g && e.p === g.p))) note(problems, "Letters guide: a Greek letter's name is respelt differently from how it is said", `${L.nameT}: shown ${L.nameSay} = ${show(shown)}, said ${show(exp)}`);
+  else if (pairs.some(([e, g]) => !!e.s !== !!g.s) && exp.filter((x) => x.nuc).length > 1) note(problems, "Letters guide: a Greek letter's name stresses the wrong syllable", `${L.nameT}: shown ${L.nameSay}`);
+}
+
 // ---- Hebrew words: every OT word as a tap gives it, headwords, lists, lessons, Letters
 const otBooks = fs.readdirSync(R + "data/hot").map((f) => json("data/hot/" + f));
 const heSeen = new Map();
@@ -835,8 +847,37 @@ for (const f of fs.readdirSync(R + "lessons/he")) walk(json("lessons/he/" + f), 
 const walkSay = (o, where) => { if (Array.isArray(o)) o.forEach((x) => walkSay(x, where)); else if (o && typeof o === "object") { if (typeof o.t === "string" && typeof o.say === "string" && /[א-ת]/.test(o.t) && !/a-do-nai|e-lo-him/i.test(o.say)) heCards.push([where, o.t, o.say, o.k || ""]); Object.values(o).forEach((v) => walkSay(v, where)); } };
 for (const f of fs.readdirSync(R + "lessons/he")) walkSay(json("lessons/he/" + f), "lesson he-" + f.replace(".json", ""));
 walkSay(json("lessons/alphabet/he.json"), "Letters guide");
+// the Letters guide's letter names (the review's letter cards show and say them too) and its read-aloud verses, word by
+// word: each word's shown pronunciation is checked like a card (vowels, stress against the text's accent, consonants),
+// and what its button says (audio.heVoice, as in the Reader) against what it shows
+const HA = json("lessons/alphabet/he.json");
+HA.letters.forEach((L) => heCards.push(["Letters guide (letter name)", L.nameT, L.nameSay, ""]));
+const lettersVerseWords = [];
+for (const pr of HA.practice || []) {
+  const [bk, cv] = pr.ref.split(" ");
+  const [c, v] = cv.split(":").map(Number);
+  const B = otBooks.find((b) => b.id === bk);
+  const words = (((B && B.ch.find(([x]) => x === c)) || [0, []])[1].find(([x]) => x === v) || [0, []])[1].filter((w) => w[6] !== "k");
+  const units = [];
+  words.forEach((w, i) => { if (i && heJoined(words[i - 1][5])) units[units.length - 1].push(w); else units.push([w]); });
+  const parts = String(pr.say || "").split(" ").filter(Boolean);
+  if (units.length !== parts.length) { note(problems, "Letters guide: a read-aloud verse's pronunciation doesn't have one part per word", `${pr.ref}: ${parts.length} parts, ${units.length} words`); continue; }
+  units.forEach((u, i) => {
+    if (/a-do-nai|e-lo-him/i.test(parts[i])) return; // the divine name: said as Adonai (checked with the verses)
+    const t = u.map((w) => heText(w).replace(/[\u0591-\u05AF]/g, "")).join("־");
+    heCards.push([`Letters guide verse ${pr.ref}`, t, parts[i], heMainKey(u[u.length - 1])]);
+    lettersVerseWords.push([pr.ref, u, parts[i], B.lex]);
+  });
+}
+for (const [ref, u, say, lex] of lettersVerseWords) {
+  const voice = u.map((w) => (heVoice ? heVoice(w, null, heJoined(w[5]), lex) : heText(w)) + (heJoined(w[5]) ? "־" : "")).join("");
+  const heard = israeliVowels(S.hebrewSpeech(voice).replace(/[,.]/g, "")).map((p) => ({ p }));
+  const shown = sayVowels(say).map((p) => ({ p }));
+  if (heard.map((x) => x.p).join("") !== shown.map((x) => x.p).join("")) note(problems, "Letters guide: a read-aloud word's button doesn't say what the guide shows", `${ref}: ${u.map((w) => heText(w)).join("־")} shows ${say} (${shown.map((x) => x.p).join(" ")}), the button says ${heard.map((x) => x.p).join(" ")}`);
+}
 for (const [where, t, say] of heCards) {
   if (/\s/.test(t.trim()) || /־/.test(t)) continue; // phrases: their respellings join words
+  if (/^Letters guide verse/.test(where)) continue; // a verse's word buttons say it as the Reader does: checked above
   const heard = israeliVowels(S.hebrewSpeech((S.hebrewForSay || ((x) => x))(t, say)).replace(/[,.]/g, "")).map((p) => ({ p })); // as the app's Listen gives it
   const shown = sayVowels(say).map((p) => ({ p }));
   if (heard.map((x) => x.p).join("") !== shown.map((x) => x.p).join("")) note(problems, "Hebrew: Listen doesn't say what the card shows", `${where}: ${t} shows ${say} (${shown.map((x) => x.p).join(" ")}), Listen says ${heard.map((x) => x.p).join(" ")}`);

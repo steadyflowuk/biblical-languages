@@ -60,12 +60,25 @@ async def main():
         await page.goto(f"{BASE}#/today")
         votd = json.loads(await page.evaluate("fetch('data/votd.json').then(r => r.text())"))
         ids = {v["id"] for v in votd}
-        await page.wait_for_function("document.querySelector('.verse-slot')?.dataset.verse?.includes('-')")
+        expect_js = """async (lang) => { const m = await import('./js/votd.js');
+          const [pool, books] = await Promise.all([fetch('data/votd-pool.json').then(r => r.json()), fetch('data/books.json').then(r => r.json())]);
+          return m.pickRef(m.poolRefs(pool, lang, books.map(b => b.id)), lang, m.dayNumber(new Date())).join('-'); }"""
+        want = await page.evaluate(expect_js, "grc")
+        try:
+            await page.wait_for_function(f"document.querySelector('.verse-slot')?.dataset.verse === {json.dumps(want)}", timeout=10000)
+        except Exception:
+            pass
         shown = await page.get_attribute(".verse-slot", "data-verse")
-        check("Today shows a verse from the Bible data", shown in ids, shown)
+        check("Today shows the day's verse, picked from the whole-Bible pool (not the 24 fallbacks)", shown == want, f"{shown} (wanted {want})")
         for lang in ["grc", "he"]:
             await page.click(f'[data-lang="{lang}"]')
+            want = await page.evaluate(expect_js, lang)
+            try:
+                await page.wait_for_function(f"document.querySelector('.verse-slot')?.dataset.verse === {json.dumps(want)}", timeout=10000)
+            except Exception:
+                pass
             vid = await page.get_attribute(".verse-slot", "data-verse")
+            check(f"Today's {'Hebrew' if lang == 'he' else 'Greek'} verse is the day's pick", vid == want, f"{vid} (wanted {want})")
             n = await page.locator(".verse-original .w").count()
             bad = []
             for i in range(n):
@@ -81,8 +94,19 @@ async def main():
             check(f"{vid}: text direction", dir_ == ("rtl" if lang == "he" else "ltr"), dir_)
         # every curated verse renders a complete gloss
         empty = [f"{v['id']} word {i}" for v in votd for i, w in enumerate(v["words"]) if not w.get("gloss") or not w.get("lemma") or not w.get("parse") or not w.get("en")]
-        check("all 24 curated verses have the English in the verse, a meaning, form and grammar for every word", len(votd) == 24 and not empty, "; ".join(empty[:5]))
-        check("all curated verses have their English", all(v["english"] for v in votd))
+        check("all 24 fallback verses have the English in the verse, a meaning, form and grammar for every word", len(votd) == 24 and not empty, "; ".join(empty[:5]))
+        check("all fallback verses have their English", all(v["english"] for v in votd))
+        # the day's book can't load (offline, never opened): Today falls back to data/votd.json's verse for the day
+        # (a context of its own without the service worker, which would serve the book from its cache)
+        blocked = want.split("-")[0]
+        fctx = await b.new_context(viewport={"width": 390, "height": 844}, service_workers="block")
+        fpage = await fctx.new_page()
+        await fpage.route(f"**/data/hot/{blocked}.json", lambda r: r.abort())
+        await fpage.goto(f"{BASE}#/today")
+        await fpage.click('[data-lang="he"]'); await fpage.wait_for_timeout(2500)
+        fb = await fpage.get_attribute(".verse-slot", "data-verse")
+        check("a day's book that can't load: Today shows a fallback verse instead", fb in ids, fb)
+        await fctx.close()
         await page.click('[data-lang="grc"]')
         await page.locator(".verse-original .w").nth(1).focus()
         await page.keyboard.press("Enter")

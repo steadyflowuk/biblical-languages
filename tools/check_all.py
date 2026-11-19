@@ -30,6 +30,7 @@ JOBS = {
     "audit_static":    ([PY, "tools/audit_content.py", "--static"], 1, 3),
     "check_rebuild":   ([PY, "tools/check_rebuild.py"], 1, 2),
     "check_grammar":   ([PY, "tools/check_grammar.py"], 1, 1),
+    "check_votd":      (["node", "tools/check_votd.mjs"], 1, 1),
     # 2. sweeps: every chapter, every Septuagint chapter, every dictionary entry, every screen
     "sweep_reader":    ([PY, "tools/sweep_reader.py", "all"], 2, 45),
     "sweep_lxx":       ([PY, "tools/sweep_lxx.py", "all"], 2, 40),
@@ -57,6 +58,7 @@ JOBS = {
 QUICK_SKIP = {"sweep_reader", "sweep_lxx", "sweep_dictionary"}
 # What each job must have covered: a run that stops early, or quietly checks less, fails (numbers as of Session 14)
 COVERAGE = {
+    "check_votd": [(r"pool, ([\d,]+) built", 14000)],
     "sweep_reader": [(r"([\d,]+) chapters,", 1189)],
     "sweep_lxx": [(r"(\d+) OT chapters side by side", 929), (r"(\d+) Septuagint chapters", 1259)],
     "sweep_dictionary": [(r"([\d,]+) entries opened", 21234)],

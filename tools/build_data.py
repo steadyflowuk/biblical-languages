@@ -937,6 +937,9 @@ def main():
     build_dictionary.build()
     import build_decks
     build_decks.main()
+    # 19 Nov 2026: Today's verse pool (a random verse a day, built in the app from these books)
+    import build_votd_pool
+    build_votd_pool.main()
 
     # Session 6: the Septuagint (Swete), lined up with the Hebrew/English verse numbers
     if os.path.isdir(os.path.join(SRC, "lxx-swete")):

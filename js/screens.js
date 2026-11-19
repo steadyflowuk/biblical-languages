@@ -5,8 +5,9 @@ import { installTip, bindInstallTip } from "./install.js";
 import * as esv from "./esv.js";
 import * as lessons from "./lessons.js";
 import * as review from "./review.js";
-import { sayButton, wordSayButton, verseSayButton, sayTapped, listenLevel, heVoice } from "./audio.js";
-import { englishHTML, friendlyGrammar } from "./reader.js";
+import { sayButton, wordSayButton, verseSayButton, sayTapped, listenLevel } from "./audio.js";
+import { englishHTML, friendlyGrammar, bsbChapter } from "./reader.js";
+import { buildVerse, poolRefs, pickRef, dayNumber, todayVoice } from "./votd.js";
 import { heEnglish, heFriendlyGrammar } from "./hebrew.js";
 import { streak } from "./activity.js";
 import { saveBackup, backupDue, languageSummary } from "./progress.js";
@@ -41,27 +42,23 @@ const SOURCE = {
   he: "Hebrew: Leningrad Codex from STEPBible (Tyndale House)",
 };
 
+/** What the voice says for one of Today's words: a verse built from the Bible data carries the Reader's own text. */
+const wordVoice = (v, w) => (w.say != null ? w.say : todayVoice(v, w) + (String(w.p || "").endsWith("\u05be") ? "\u05be" : ""));
+
 /**
- * A Today word as the voice gets it. Hebrew: Today's words carry a description of their grammar ("Conjunction וְ
- * “and” + Verb: Qal … perfect … third singular"), not the Reader's code, so the code is rebuilt from it for
- * audio.heVoice, with the dictionary form, so qamets and shewa come out as in the Reader.
+ * Today's verse for a language: the pool's pick for the day (js/votd.js), built from the book like the Reader.
+ * Rejects when the book can't be loaded (offline and never opened); Today then uses data/votd.json.
  */
-const STEMS = { Qal: "q", Niphal: "N", Piel: "p", Pual: "P", Hiphil: "h", Hophal: "H", Hithpael: "t" };
-function todayVoice(v, w) {
-  if (v.lang !== "he") return w.t;
-  const p = String(w.parse || "");
-  const parts = p.split(" + ");
-  const main = parts.findIndex((x) => !/^(Conjunction|Preposition|Definite article)/.test(x));
-  const prefix = parts.slice(0, main < 0 ? 0 : main).map((x) => (/^Definite article/.test(x) ? "Td" : /^Preposition/.test(x) ? "R" : "C"));
-  const m = p.match(/Verb: (\w+)[^+]*?(sequential perfect|consecutive perfect|perfect|sequential imperfect|consecutive imperfect|imperfect|jussive|cohortative|imperative|infinitive construct|infinitive absolute|participle)/);
-  const form = m ? { "sequential perfect": "q", "consecutive perfect": "q", perfect: "p", "sequential imperfect": "w", "consecutive imperfect": "w", imperfect: "i", jussive: "j", cohortative: "h", imperative: "v", "infinitive construct": "c", "infinitive absolute": "a", participle: "r" }[m[2]] : "";
-  const who = (parts.find((x) => /^Verb:/.test(x)) || "").match(/\b(first|second|third)\b/); // the verb's own person, not a suffix's
-  const person = m && who ? { first: "1", second: "2", third: "3" }[who[1]] : "";
-  const gnm = (parts.find((x) => /^Verb:/.test(x)) || "").match(/\b(singular|plural|dual)\b[ ,]*(masculine|feminine|either gender)?/);
-  const gn = person && gnm ? ({ masculine: "m", feminine: "f", "either gender": "c" }[gnm[2]] || "") + gnm[1][0] : "";
-  const word = m ? `V${STEMS[m[1]] || "x"}${form}${person}${gn}` : "N";
-  const code = "H" + [...prefix, word, /directional/.test(p) ? "Sd" : "", parts.some((x) => /^Suffix/.test(x)) ? "Sp" : ""].filter(Boolean).join("/");
-  return heVoice(["", "", "", "", code, w.p || ""], w.t, String(w.p || "").endsWith("\u05be"), w.lemma || undefined);
+async function verseForDay(lang, date = new Date()) {
+  const [pool, list] = await Promise.all([data.votdPool(), data.books()]);
+  const ref = pickRef(poolRefs(pool, lang, list.map((b) => b.id)), lang, dayNumber(date));
+  if (!ref) throw new Error("No verses in the pool");
+  const [id, ch, v] = ref;
+  const [original, morph, bsbBook] = await Promise.all([data.original(id), data.morph(lang), data.bsb(id), data.loadMeanings(lang)]);
+  const words = ((original.ch.find(([c]) => c === ch) || [0, []])[1].find(([n]) => n === v) || [0, []])[1];
+  if (!words.length) throw new Error(`No words for ${id} ${ch}:${v}`);
+  const book = list.find((b) => b.id === id);
+  return buildVerse({ lang, bookId: id, ch, v, name: book.name, words, lex: original.lex, morph, english: bsbChapter(bsbBook, ch).verses.get(v) });
 }
 
 /** What tapping a word does, by Settings › Listening practice. */
@@ -74,7 +71,7 @@ function verseHTML(v) {
     .map((w, i) => `${w.pre ? esc(w.pre) : ""}<span class="w" role="button" tabindex="0" data-i="${i}" aria-pressed="${i === v.focus}">${esc(w.t)}</span>${w.p ? esc(String(w.p).replace(/[\u00b6\u00ac]/g, "")) : ""}`)
     .reduce((out, html, i) => out + (i && !String(v.words[i - 1].p || "").endsWith("\u05be") ? " " : "") + html, "");
   // the whole verse for the voice: the words with their punctuation, maqqef-joined words kept together
-  const spoken = v.words.map((w) => todayVoice(v, w) + String(w.p || "").replace(/[\u00b6\u00ac]/g, ""))
+  const spoken = v.spoken || v.words.map((w) => todayVoice(v, w) + String(w.p || "").replace(/[\u00b6\u00ac]/g, ""))
     .reduce((out, t, i) => out + (i && !String(v.words[i - 1].p || "").endsWith("\u05be") ? " " : "") + t, "");
   const listen = verseSayButton(spoken, v.lang);
   return `<section class="verse" aria-labelledby="verse-ref">
@@ -99,7 +96,7 @@ function showGloss(root, v, i) {
   const here = englishHTML(he ? heEnglish(w.en) : w.en);
   const meaning = data.meaningOf(v.lang, w.k, w.gloss);
   root.querySelector(".verse-gloss").innerHTML =
-    `<span class="form" lang="${v.lang}"${he ? ' dir="rtl"' : ""}>${esc(w.t)}</span>${wordSayButton(todayVoice(v, w) + (String(w.p || "").endsWith("\u05be") ? "\u05be" : ""), v.lang, { className: "small" })}
+    `<span class="form" lang="${v.lang}"${he ? ' dir="rtl"' : ""}>${esc(w.t)}</span>${wordSayButton(wordVoice(v, w), v.lang, { className: "small" })}
      <span class="meaning">${here || esc(meaning)}</span>
      <span class="hint">${esc(he ? heFriendlyGrammar(w.parse) : friendlyGrammar(w.parse))}</span>
      ${w.parts ? `<span class="from">Joined from two words: ${w.parts.map(([l, g, k]) => `<span class="lemma" lang="${v.lang}">${esc(l)}</span> · ${esc(data.meaningOf(v.lang, k, g))}`).join(" + ")}</span>`
@@ -208,7 +205,7 @@ export const today = {
       slot.querySelectorAll(".verse-original .w").forEach((el) => {
         const pick = () => {
           const w = verse.words[Number(el.dataset.i)];
-          sayTapped(todayVoice(verse, w) + (String(w.p || "").endsWith("\u05be") ? "\u05be" : ""), verse.lang); // at once, inside the tap (כָּל־ said kol)
+          sayTapped(wordVoice(verse, w), verse.lang); // at once, inside the tap (כָּל־ said kol)
           showGloss(slot, verse, Number(el.dataset.i));
         };
         el.addEventListener("click", pick);
@@ -228,13 +225,19 @@ export const today = {
         draw();
       })
     );
-    data.verseOfTheDay()
-      .then((verses) => {
-        if (!main.contains(slot)) return; // the person has moved to another screen
-        todays = data.pickForDay(verses);
-        draw();
+    // the day's verses: random picks built from the Bible data; data/votd.json's 24 if a book can't be loaded,
+    // the built-in verses if that can't either (first open while offline)
+    const fallback = data.verseOfTheDay().then((verses) => data.pickForDay(verses));
+    // (one language after the other, the one on screen first: the books are large on a slow connection)
+    const fetchVerse = (l) => verseForDay(l)
+      .catch(() => fallback.then((f) => f[l]))
+      .then((verse) => {
+        if (!verse || !main.contains(slot)) return; // the person has moved to another screen
+        todays[l] = verse;
+        if (l === lang) draw();
       })
       .catch(() => { /* offline before the data was ever loaded: keep the built-in verses */ });
+    fetchVerse("grc").then(() => { if (main.contains(slot)) fetchVerse("he"); });
   },
 };
 

@@ -28,6 +28,7 @@ const SHELL_FILES = [
   "js/media.js",
   "js/check.js",
   "js/offline.js",
+  "js/votd.js",
   "js/audio.js",
   "js/sound.js",
   "js/vendor/ts-fsrs.js",

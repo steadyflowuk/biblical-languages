@@ -79,7 +79,7 @@ def texts():
         elif isinstance(x, list):
             for v in x:
                 yield from strings(v)
-    for f in sorted(glob.glob("lessons/**/*.json", recursive=True)):
+    for f in sorted(glob.glob("lessons/**/*.json", recursive=True)) + ["guide/guide.json"]:
         for s in strings(json.load(open(f))):
             if not re.search(r"https?://", s):
                 yield f, s

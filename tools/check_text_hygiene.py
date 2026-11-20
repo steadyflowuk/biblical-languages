@@ -63,7 +63,7 @@ def sources():
         for w in json.load(open(f))["words"]:
             yield f"{f} {w[0]}", w[1], lang
             yield f"{f} {w[0]} gloss", w[2], "en"
-    for f in sorted(glob.glob("lessons/**/*.json", recursive=True)) + ["data/votd.json"]:
+    for f in sorted(glob.glob("lessons/**/*.json", recursive=True)) + ["data/votd.json", "guide/guide.json"]:
         for path, s in strings(json.load(open(f))):
             yield f"{f}{path}", s, "mixed"
     for f in sorted(glob.glob("data/gnt/*.json")):

@@ -6,6 +6,8 @@
 import * as store from "./store.js";
 import * as data from "./data.js";
 import { friendlyGrammar, bsbChapter, englishHTML } from "./reader.js";
+import { loadGuide } from "./guide.js";
+import { explainLink } from "./guide-text.js";
 import { sayButton, wordSayButton, verseSayButton, verseSpeech, sayTapped, heVoice } from "./audio.js";
 import { heText, heEnglish, heAfter, heJoined, heMainKey, heParts, heFriendlyGrammar, heLemma } from "./hebrew.js";
 import { logActivity } from "./activity.js";
@@ -154,6 +156,15 @@ function alongsideHTML(videos) {
     </div>`;
 }
 
+function guideLinksHTML(entries) {
+  return `<div class="ls-guide">
+      <h3>Go further in the guide</h3>
+      <ul class="rows">${entries.map((e) => `<li><a class="row" href="#/guide/${esc(e.id)}">
+        <span class="row-main"><span class="row-title">${esc(e.title)}</span></span>
+        <span class="row-end" aria-hidden="true">›</span></a></li>`).join("")}</ul>
+    </div>`;
+}
+
 function videoHTML(c) {
   return `<div class="ls-video">
       <h2 class="ls-title" tabindex="-1">${mixed(c.title)}</h2>
@@ -298,7 +309,7 @@ async function verseView(card, lang, known) {
     const here = englishHTML(he ? heEnglish(w[2]) : w[2]);
     return `<p><span class="ls-gl-form"${ga}>${esc(form)}</span> ${wordSayButton(he ? heVoice(w, form, heJoined(w[5]), original.lex) + (heJoined(w[5]) ? "־" : "") : form, he ? "he" : "grc", { className: "small" })}
       <span class="ls-gl-en">${here || esc(data.meaningOf(lang, keys[0], (original.lex[keys[0]] || [])[2]))}</span></p>
-      <p class="muted">${esc(grammar)}</p>
+      <p class="muted">${esc(grammar)}${explainLink(he ? "he" : "grc", w[4])}</p>
       ${from.length ? `<p class="ls-gl-from">${from.length > 1 ? "Joined from two words" : "Dictionary form"}: ${from.join(" + ")}</p>` : ""}
       ${keys.map((k) => `<p><a class="verse-link" href="#/words/${encodeURIComponent(k)}">${keys.length > 1 ? `Look up <span${ga}>${esc((original.lex[k] || [k])[0])}</span> in the dictionary` : "Look it up in the dictionary"}</a></p>`).join("")}`;
   };
@@ -456,6 +467,13 @@ export const lesson = {
           const extra = vids.filter((v) => !own.has(String(v.href).split("&")[0]));
           if (extra.length && seq[p.pos] === item && !box.querySelector(".ls-alongside")) box.insertAdjacentHTML("beforeend", alongsideHTML(extra));
         });
+      }
+      // the last card of Notice: the guide's entries that go further on this lesson's topics
+      if (item.step === "notice" && !item.retry && (!nextItem || nextItem.step !== "notice")) {
+        loadGuide().then((g) => {
+          const mine = g.entries.filter((e) => (e.lessons || []).indexOf(id) >= 0);
+          if (mine.length && seq[p.pos] === item && !box.querySelector(".ls-guide")) box.insertAdjacentHTML("beforeend", guideLinksHTML(mine));
+        }).catch(() => {});
       }
       const title = box.querySelector(".ls-title, .ls-big");
       if (title && document.activeElement && document.activeElement !== document.body && main.contains(document.activeElement)) {

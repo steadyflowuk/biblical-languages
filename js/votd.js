@@ -102,7 +102,7 @@ export function buildVerse({ lang, bookId, ch, v, name, words, lex, morph, engli
       const text = heText(w);
       const joined = heJoined(w[5]);
       return { t: text, p: joined ? "־" : heAfter(w[5]), lemma: heLemma(e[0] || ""), gloss: String(e[2] || "").split(": ").pop(),
-        parse, en: w[2], k, say: heVoice(w, text, joined, lex) + (joined ? "־" : "") };
+        parse, en: w[2], k, say: heVoice(w, text, joined, lex) + (joined ? "־" : ""), code: w[4] };
     }
     let keys = String(w[3] || "").split("+").filter(Boolean);
     let codes = String(w[4] || "").split("+");
@@ -114,7 +114,7 @@ export function buildVerse({ lang, bookId, ch, v, name, words, lex, morph, engli
     }
     const e = lex[keys[0]] || [];
     const item = { t: w[0], p: String(w[5] || "").replace(/[¶¬]/g, ""), pre: w[6] || "", lemma: e[0] || "",
-      gloss: String(e[2] || "").split(": ").pop(), parse: codes.map((c) => (morph[c] || [c])[0]).join(" + "), en: w[2], k: keys[0] || "", say: w[0] };
+      gloss: String(e[2] || "").split(": ").pop(), parse: codes.map((c) => (morph[c] || [c])[0]).join(" + "), en: w[2], k: keys[0] || "", say: w[0], code: w[4] };
     if (keys.length > 1) item.parts = keys.map((key) => [(lex[key] || [])[0] || "", String((lex[key] || [])[2] || "").split(": ").pop(), key]);
     return item;
   });

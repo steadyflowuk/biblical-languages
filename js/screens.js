@@ -7,6 +7,7 @@ import * as lessons from "./lessons.js";
 import * as review from "./review.js";
 import { sayButton, wordSayButton, verseSayButton, sayTapped, listenLevel } from "./audio.js";
 import { englishHTML, friendlyGrammar, bsbChapter } from "./reader.js";
+import { explainLink } from "./guide-text.js";
 import { buildVerse, poolRefs, pickRef, dayNumber, todayVoice } from "./votd.js";
 import { heEnglish, heFriendlyGrammar } from "./hebrew.js";
 import { streak } from "./activity.js";
@@ -98,7 +99,7 @@ function showGloss(root, v, i) {
   root.querySelector(".verse-gloss").innerHTML =
     `<span class="form" lang="${v.lang}"${he ? ' dir="rtl"' : ""}>${esc(w.t)}</span>${wordSayButton(wordVoice(v, w), v.lang, { className: "small" })}
      <span class="meaning">${here || esc(meaning)}</span>
-     <span class="hint">${esc(he ? heFriendlyGrammar(w.parse) : friendlyGrammar(w.parse))}</span>
+     <span class="hint">${esc(he ? heFriendlyGrammar(w.parse) : friendlyGrammar(w.parse))}${explainLink(v.lang, w.code)}</span>
      ${w.parts ? `<span class="from">Joined from two words: ${w.parts.map(([l, g, k]) => `<span class="lemma" lang="${v.lang}">${esc(l)}</span> · ${esc(data.meaningOf(v.lang, k, g))}`).join(" + ")}</span>`
        : w.lemma ? `<span class="from">Dictionary form: <span class="lemma" lang="${v.lang}"${he ? ' dir="rtl"' : ""}>${esc(w.lemma)}</span>${meaning ? ` · ${esc(meaning)}` : ""}</span>` : ""}
      ${w.k ? `<a class="verse-link verse-dict" href="#/words/${encodeURIComponent(w.k)}">Look it up in the dictionary</a>` : ""}`;
@@ -286,6 +287,9 @@ export const learn = {
       <ul class="rows learn-abc"><li><a class="row" href="#/alphabet/${lang}">
         <span class="row-glyph" aria-hidden="true">${lang === "he" ? "א" : "α"}</span>
         <span class="row-main"><span class="row-title">Alphabet and sounds</span><span class="row-sub">Every letter, the marks that change a sound, and verses to read aloud</span></span>
+      </a></li><li><a class="row" href="#/guide/s/basics">
+        <span class="row-glyph" aria-hidden="true">?</span>
+        <span class="row-main"><span class="row-title">New to grammar?</span><span class="row-sub">The Guide explains noun, verb, case, tense and every other word, from the start</span></span>
       </a></li></ul>
       <div class="path-slot"><p class="muted">Loading the lessons…</p></div>
       <p class="btn-row learn-more"><a class="btn secondary" href="#/media">Videos to watch alongside</a> <a class="btn secondary" href="#/progress">Your progress</a></p>
@@ -407,6 +411,9 @@ export const settings = {
       <ul class="rows"><li><a class="row" href="#/check">
         <span class="row-glyph" aria-hidden="true">✓</span>
         <span class="row-main"><span class="row-title">Check this device</span><span class="row-sub">Voices, offline use and display, with a report you can send</span></span>
+      </a></li><li><a class="row" href="#/guide">
+        <span class="row-glyph" aria-hidden="true">?</span>
+        <span class="row-main"><span class="row-title">Guide</span><span class="row-sub">What every grammar word, sign and setting in the app means</span></span>
       </a></li></ul>
 
       <h2>About</h2>

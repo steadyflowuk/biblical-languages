@@ -43,6 +43,8 @@ JOBS = {
     "check_dates":     (["node", "tools/check_dates.mjs"], 1, 1),
     "check_drills":    ([PY, "tools/check_drills.py"], 1, 1),
     "check_fonts":     ([PY, "tools/check_fonts.py"], 1, 1),
+    "check_guide":     ([PY, "tools/check_guide.py"], 1, 1),
+    "check_guide_app": (["node", "tools/check_guide.mjs"], 1, 1),
     "run_selftests":   ([PY, "tools/run_selftests.py"], 1, 1),
     # 2. sweeps: every chapter, every Septuagint chapter, every dictionary entry, every screen
     "sweep_reader":    ([PY, "tools/sweep_reader.py", "all"], 2, 45),
@@ -65,6 +67,7 @@ JOBS = {
     "test_backups":    ([PY, "tools/test_backups.py"], 3, 1),
     "test_screens":    ([PY, "tools/test_screens.py"], 3, 3),
     "check_offline":   ([PY, "tools/check_offline.py"], 3, 1),
+    "test_guide":      ([PY, "tools/test_guide.py"], 3, 6),
     # 4. what a learner sees: tapped words, Reader notes in every layout, dictionary senses, credits
     "audit_content":   ([PY, "tools/audit_content.py"], 4, 10),
     # 5. timing, on its own so other jobs don't slow it down
@@ -84,6 +87,8 @@ COVERAGE = {
     "check_drills": [(r"(\d+) cards checked", 383)],
     "check_fonts": [(r"(\d+) characters drawn", 750)],
     "check_offline": [(r"(\d+) screens opened", 37)],
+    "check_guide_app": [(r"(\d+) grammar codes read", 1860), (r"(\d+) examples said", 250)],
+    "test_guide": [(r"\d+/(\d+) passed", 33)],
     "run_selftests": [(r"\d+/(\d+) passed", 68)],
     "check_votd": [(r"pool, ([\d,]+) built", 14100)],
     "test_listening": [(r"(\d+)/\d+ passed", 233)],

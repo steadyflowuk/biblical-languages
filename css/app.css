@@ -124,7 +124,7 @@ a { color: inherit; }
 
 .tabs {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
-  display: grid; grid-template-columns: repeat(6, 1fr);
+  display: grid; grid-template-columns: repeat(7, 1fr);
   height: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
   padding: 0 max(env(safe-area-inset-left), 4px) env(safe-area-inset-bottom) max(env(safe-area-inset-right), 4px);
   background: var(--navy);
@@ -134,7 +134,7 @@ a { color: inherit; }
   position: relative;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
   color: #C9D2C6; text-decoration: none;
-  font-size: .75rem; font-size: min(.75rem, 3.9vw); letter-spacing: .01em; /* six labels fit at 320px, largest text */
+  font-size: .75rem; font-size: min(.75rem, 3.4vw); letter-spacing: 0; /* seven labels fit at 320px, largest text */
   -webkit-tap-highlight-color: transparent;
 }
 .tabs svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
@@ -1066,3 +1066,71 @@ button.row:hover { background: var(--surface-soft); }
 .about-links { list-style: none; margin: 0; padding: 0; }
 .about-links li + li { border-top: 1px solid var(--line); }
 .about-links a { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 4px 2px; }
+
+/* ---------- Guide (19 Nov 2026) ---------- */
+.guide { line-height: 1.55; }
+.g-crumb { margin: 0 0 4px; font-size: .92rem; }
+.g-crumb a, .g-body a, .g-short a, .g-intro a, .g-see a, .g-lessons a, .g-code a, .g-ex-ref a, .g-explain { color: var(--accent-ink); text-underline-offset: .2em; }
+.g-title { margin: 6px 0 4px; font-size: 1.7rem; line-height: 1.25; }
+.g-aka { margin: 0 0 12px; color: var(--muted); font-size: .95rem; }
+.g-short { font-size: 1.12rem; font-weight: 700; margin: 0 0 14px; }
+.g-body p, .g-intro p { margin: 0 0 12px; }
+.g-h { font-size: 1.1rem; margin: 26px 0 10px; }
+.g-list { margin: 0 0 12px; padding-left: 1.3em; }
+.g-list li + li { margin-top: 6px; }
+.g-table-wrap { overflow-x: auto; margin: 0 0 14px; -webkit-overflow-scrolling: touch; }
+.g-table { border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); min-width: 60%; }
+.g-table caption { text-align: left; color: var(--muted); font-size: .92rem; padding: 0 2px 6px; }
+.g-table th, .g-table td { text-align: left; vertical-align: top; padding: 8px 10px; border-top: 1px solid var(--line); }
+.g-table thead th { border-top: 0; font-size: .92rem; color: var(--muted); }
+.g-table tbody th { font-weight: 700; }
+.g-count { color: var(--muted); font-size: .95rem; }
+/* a Greek or Hebrew word in the text: tap to hear it */
+.g-say { border: 0; background: none; padding: 0 1px; margin: 0; font: inherit; color: inherit; cursor: pointer; text-decoration: underline dotted; text-underline-offset: .25em; -webkit-tap-highlight-color: transparent; }
+.g-say:lang(grc), .g-grc { font-family: var(--font-greek); font-size: 1.08em; }
+.g-say:lang(he), .g-he { font-family: var(--font-hebrew); font-size: 1.15em; }
+.g-say.playing { color: var(--accent-ink); }
+.g-examples { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.g-ex { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 16px; }
+.g-ex p { margin: 0; }
+.g-ex-ref { font-weight: 700; font-size: .92rem; }
+.g-ex-verse { font-size: 1.3rem; line-height: 1.6; margin: 6px 0 !important; overflow-wrap: anywhere; }
+.g-ex-verse:lang(grc) { font-family: var(--font-greek); }
+.g-ex-verse:lang(he) { font-family: var(--font-hebrew); font-size: 1.45rem; }
+.g-hit { background: rgba(196,160,82,.28); border-radius: 4px; box-shadow: 0 0 0 2px rgba(196,160,82,.28); }
+.g-ex-en { color: var(--muted); font-size: .95rem; }
+.g-ex-word { border-top: 1px solid var(--line); margin-top: 10px; padding-top: 10px; display: grid; gap: 4px; }
+.g-ex-form { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.g-ex-form > span:first-child { font-size: 1.35rem; }
+.g-ex-form > span:first-child:lang(grc) { font-family: var(--font-greek); }
+.g-ex-form > span:first-child:lang(he) { font-family: var(--font-hebrew); }
+.g-ex-mean { font-weight: 700; }
+.g-ex-gram { font-size: .95rem; }
+.g-explain { display: inline-block; min-height: 44px; line-height: 44px; font-weight: 700; font-size: .95rem; }
+.g-ex-note { font-size: .95rem; }
+.g-ex-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; margin-top: 6px !important; }
+.g-ex-actions .verse-link { margin-top: 0; color: var(--accent-ink); }
+.g-see { margin: 0; padding-left: 1.3em; }
+.g-see li a, .g-lessons a { display: inline-block; min-height: 44px; line-height: 44px; }
+.g-pager { display: flex; justify-content: space-between; gap: 10px; margin-top: 28px; flex-wrap: wrap; }
+.g-pager .btn { max-width: 100%; }
+.g-code-parts { margin: 0; padding-left: 1.2em; }
+.g-code-part + .g-code-part { margin-top: 18px; }
+.g-code-label { font-size: 1.05rem; }
+.g-code-desc { color: var(--muted); }
+.g-sections h2:first-child { margin-top: 18px; }
+.g-more { white-space: nowrap; font-weight: 700; color: var(--accent-ink); }
+.verse-gloss .g-explain { color: var(--gold); display: block; }
+.ls-gloss .g-explain, .ws-facts .g-explain { display: inline-block; }
+.ab-guide { color: var(--muted); }
+.ab-guide a { color: var(--accent-ink); display: inline-block; min-height: 44px; line-height: 44px; }
+.ls-guide { margin-top: 22px; }
+.ls-guide h3 { font-size: 1rem; margin: 0 0 8px; }
+.dict-guide h2 { font-size: 1rem; margin: 6px 0 8px; }
+.dict-guide { margin-bottom: 14px; }
+.g-code-parts.single { list-style: none; padding-left: 0; }
+.g-terms .row-end { font-size: .85rem; max-width: 40%; text-align: right; color: var(--accent-ink); }
+.g-examples { grid-template-columns: minmax(0, 1fr); }
+.g-ex { min-width: 0; overflow-wrap: anywhere; }
+.opt-guide { margin: -4px 0 8px; }
+.opt-guide a { color: var(--accent-ink); display: inline-block; min-height: 44px; line-height: 44px; font-size: .95rem; }

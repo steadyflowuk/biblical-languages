@@ -93,7 +93,7 @@ def collect():
             + sorted(glob.glob("data/decks/*.json")) + ["data/books.json", "data/votd.json"]:
         for s in strings(json.load(open(f))):
             add("ui", re.sub(r"<[^>]+>", "", s), f)
-    for f in sorted(glob.glob("lessons/**/*.json", recursive=True)):
+    for f in sorted(glob.glob("lessons/**/*.json", recursive=True)) + ["guide/guide.json"]:
         for s in strings(json.load(open(f))):
             add("ui", s, f)
     for f in sorted(glob.glob("js/*.js")) + ["index.html", "manifest.webmanifest"]:

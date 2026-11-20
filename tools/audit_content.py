@@ -49,7 +49,7 @@ def greek_verses():
                     yield b["id"], c, v
 
 
-USER_TEXT = sorted(glob.glob("js/*.js") + glob.glob("lessons/**/*.json", recursive=True) + ["index.html", "manifest.webmanifest"])
+USER_TEXT = sorted(glob.glob("js/*.js") + glob.glob("lessons/**/*.json", recursive=True) + ["index.html", "manifest.webmanifest", "guide/guide.json"])
 USER_TEXT = [p for p in USER_TEXT if "/vendor/" not in p]
 
 

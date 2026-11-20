@@ -36,8 +36,8 @@ def strings(x, path=""):
         for k, v in x.items():
             yield from strings(v, f"{path}.{k}")
     elif isinstance(x, list):
-        for i, v in enumerate(x):
-            yield from strings(v, f"{path}[{i}]")
+        for i, v in enumerate(x):  # guide entries by id, so adding one doesn't renumber the approved list
+            yield from strings(v, f"{path}[{v['id']}]" if path.endswith(".entries") and isinstance(v, dict) and "id" in v else f"{path}[{i}]")
 
 
 def untag(html):

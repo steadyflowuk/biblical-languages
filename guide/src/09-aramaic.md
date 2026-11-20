@@ -7,9 +7,9 @@ lang: arc
 aka: Aramaic stems, Peal, Pael, Haphel, Aramaic verbs
 see: stems, aramaic-language, peal, pael, haphel, hitpeel
 find: arc (^|/)V n=2
-short: Aramaic verbs use [[stems]] like Hebrew ones, under different names: [[peal]] is the simple stem (like [[qal]]), [[pael]] doubles the middle letter (like [[piel]]), and [[haphel|Haphel]] is causative (like [[hiphil]]).
+short: Aramaic verbs use [[stems]] like Hebrew ones, with different names: the [[peal]] is the plain one, the [[pael]] doubles a letter, and the [[haphel|Haphel]] means “make someone do”.
 
-Aramaic builds its verbs the same way as Hebrew: a [[root]] fitted into a pattern called a stem. The patterns match closely, but grammars use Aramaic names for them, made from the Aramaic root פעל, “to do”, as Hebrew names come from פעל too.
+Aramaic builds its verbs the same way as Hebrew: a [[root]] fitted into a pattern called a stem. The patterns match closely, but grammars use Aramaic names for them. Both sets of names are made by fitting the model verb פעל, “to do”, into each pattern: the Hebrew [[piel|Piel]] and the Aramaic Pael are that verb in the doubling pattern of each language.
 
 Table: Aramaic stems and their Hebrew partners
 | Aramaic stem | like Hebrew | usual kind of action |
@@ -59,7 +59,7 @@ see: aramaic-stems, hiphil
 find: arc (^|/)V[hae] n=2
 short: The causative stems of Aramaic: “to make someone do”. The Haphel starts with ה, the Aphel with א, and the rare Shaphel with שׁ.
 
-These match the Hebrew [[hiphil]]: הַשְׁפִּיל, “he humbled”, Haphel. The Aphel is the same stem with א in place of the ה, a later spelling. The Shaphel starts with שׁ and is used by a few verbs, especially שֵׁיזִב, “he rescued”. The ishtaphel is a rare reflexive form of it.
+These match the Hebrew [[hiphil]]: הַשְׁפֵּלְתְּ, “you have humbled” ([DAN 5:22]), is Haphel. The Aphel is the same stem with א in place of the ה, a later spelling. The Shaphel starts with שׁ and is used by a few verbs, especially שֵׁיזִב, “he rescued”. The ishtaphel is a rare reflexive form of it.
 
 Their passive is the [[hophal]], which STEPBible labels with the Hebrew name.
 

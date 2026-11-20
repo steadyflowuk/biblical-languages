@@ -177,7 +177,18 @@ def read_sources(src=SRC):
                         f = v.split()
                         if len(f) < 2 or f[0] not in ("grc", "he", "arc"):
                             raise SourceError(f"{name}:{n}: find: LANG PATTERN [n=3]")
-                        entry["find"].append({"lang": f[0], "pattern": f[1], "n": int(f[2][2:]) if len(f) > 2 and f[2].startswith("n=") else 3})
+                        spec = {"lang": f[0], "pattern": f[1], "n": 3}
+                        for opt in f[2:]:  # n=2, key=REGEX (only these dictionary entries), nokey=REGEX (not these)
+                            k2, _, v2 = opt.partition("=")
+                            if k2 == "n":
+                                spec["n"] = int(v2)
+                            elif k2 in ("key", "nokey"):
+                                spec[k2] = v2
+                            elif k2 == "avoid":  # verses not to pick: avoid=JHN2:5,MRK9:16
+                                spec["avoid"] = v2.split(",")
+                            else:
+                                raise SourceError(f"{name}:{n}: find option {opt}: n=, key=, nokey= or avoid=")
+                        entry["find"].append(spec)
                     elif k == "count":
                         f = v.split()
                         if len(f) != 3 or f[1] not in ("grc", "he", "arc"):
@@ -249,8 +260,19 @@ class Bible:
             cache[key] = bsb_verses(self.bsb[bk], c)
         return cache[key].get(v, "")
 
-    def matching(self, lang, pattern):
-        """Every word whose code matches: (book, ch, v, wi), in Bible order. Greek codes joined with + match by part."""
+    def matching(self, lang, pattern, key=None, nokey=None):
+        """Every word whose code matches: (book, ch, v, wi), in Bible order. Greek codes joined with + match by part.
+        key / nokey: keep only words whose dictionary entry matches (or doesn't match) this pattern."""
+        places = self._matching(lang, pattern)
+        if key or nokey:
+            krx, nrx = re.compile(key) if key else None, re.compile(nokey) if nokey else None
+            def keys_of(p):
+                w = self.verse(*p[:3])[p[3]]
+                return re.findall(r"\{([GH]\d{4,5}[A-Za-z]?)\}", w[3]) if lang != "grc" else w[3].split("+")
+            places = [p for p in places if (not krx or any(krx.search(k) for k in keys_of(p))) and not (nrx and any(nrx.search(k) for k in keys_of(p)))]
+        return places
+
+    def _matching(self, lang, pattern):
         if pattern.startswith("flag="):  # Hebrew words by their note: q read differently, k not read, x supplied
             return [p for code, places in self.codes[lang].items() for p in places
                     if (lambda w: len(w) > 6 and w[6] == pattern[5:])(self.verse(*p[:3])[p[3]])]
@@ -295,7 +317,27 @@ def main_key(w):
     return keys[0] if keys else w[3]
 
 
-def pick(bible, lang, places, n, taken):
+# verses a beginner shouldn't meet as a grammar example (on top of the daily verse's UNSETTLING list)
+GUIDE_AVOID = re.compile(r"drunk|sorcer|put to death|pregnant|naked|harlot|prostitut|uncovered|whore|adulter|rape|slaughter", re.I)
+NEGATIVE_GREEK = re.compile(r"^PRT-N$")
+
+
+def example_ok(words, wi, lang, negated_ok=False):
+    """A word worth showing on its own: its English is real English (not <the> or <obj.>, which aren't translated),
+    and it isn't the verb of “do not …”, whose English on its own says the opposite (μὴ φοβεῖσθε, “do fear”)."""
+    w = words[wi]
+    en = str(w[2] if len(w) > 2 else "").strip()
+    if not en or re.fullmatch(r"(\[[^\]]*\]\s*)?<[^>]*>(\s*\[[^\]]*\])?", en):
+        return False
+    if not negated_ok and wi > 0:
+        prev = words[wi - 1]
+        code = prev[4] if len(prev) > 4 else ""
+        if (lang == "grc" and any(NEGATIVE_GREEK.match(c) for c in code.split("+"))) or (lang != "grc" and re.search(r"(^|/)Tn$", code[1:])):
+            return False
+    return True
+
+
+def pick(bible, lang, places, n, taken, negated_ok=False):
     """n examples: well-known and daily-pool verses first, then short verses in famous books; different books and
     dictionary forms; not a word written but not read (k), supplied (x), or inside ⟦ ⟧; nothing unsettling."""
     lo, hi = (4, 18) if lang == "grc" else (3, 12)
@@ -308,6 +350,8 @@ def pick(bible, lang, places, n, taken):
         if not known and not lo <= len(words) <= hi:
             continue
         if len(w) > 6 and w[6] in ("k", "x"):
+            continue
+        if not example_ok(words, wi, lang, negated_ok):
             continue
         if any("⟦" in str(x[5:7]) or "⟧" in str(x[5:7]) for x in words):
             continue
@@ -322,7 +366,7 @@ def pick(bible, lang, places, n, taken):
             if (bk, c, v) in taken or (strict and (bk in books or k in keys)):
                 continue
             en = bible.english(bk, c, v)  # checked only for the verses that come up, best first
-            if not en or UNSETTLING_RX.search(en):
+            if not en or UNSETTLING_RX.search(en) or GUIDE_AVOID.search(en):
                 continue
             out.append((bk, c, v, wi))
             taken.add((bk, c, v))
@@ -352,6 +396,7 @@ def find_word(bible, ex, where):
 
 
 _BIBLE = None
+NEGATED_OK = {"negative", "prohibition"}  # entries about “not”, whose examples may be the words after it
 
 
 def fmt(n):
@@ -379,14 +424,15 @@ def build(src=SRC):
             taken.add((ex["book"], ex["ch"], ex["v"]))
         e["count"] = []
         for f in e["find"]:
-            places = bible.matching(f["lang"], f["pattern"])
+            places = bible.matching(f["lang"], f["pattern"], f.get("key"), f.get("nokey"))
             if not places:
                 raise SourceError(f"{where}: find {f['lang']} {f['pattern']} matches no word")
             e["count"].append({"lang": f["lang"], "n": len(places)})
             have = {(x["book"], x["ch"], x["v"]) for x in exs}
             mine = sum(1 for x in exs if x["lang"] == ("grc" if f["lang"] == "grc" else "he"))
-            for bk, c, v, wi in pick(bible, "grc" if f["lang"] == "grc" else "he", [p for p in places if p[:3] not in have],
-                                     max(0, f["n"] - mine), taken):
+            avoid = set(f.get("avoid", []))
+            for bk, c, v, wi in pick(bible, "grc" if f["lang"] == "grc" else "he", [p for p in places if p[:3] not in have and f"{p[0]}{p[1]}:{p[2]}" not in avoid],
+                                     max(0, f["n"] - mine), taken, negated_ok=e["id"] in NEGATED_OK):
                 exs.append(make_example(bible, bk, c, v, wi))
         e["countValues"] = {}
         for key, cnt in e["counts"].items():

@@ -186,7 +186,7 @@ async function codeHTML(g, asked, code) {
         const e = t.id && g.byId[t.id];
         return e ? `<li><a class="row" href="#/guide/${esc(e.id)}"><span class="row-main"><span class="row-title">${esc(t.text)}</span>
           <span class="row-sub">${t.note ? esc(t.note.charAt(0).toUpperCase() + t.note.slice(1)) + "." : renderPlain(e.short, g)}</span></span>
-          <span class="row-end">${esc(linkText(e))} ›</span></a></li>`
+          <span class="row-end">${linkText(e).toLowerCase() === t.text.toLowerCase() ? "" : `${esc(linkText(e))} `}›</span></a></li>`
           : `<li><span class="row"><span class="row-main"><span class="row-title">${esc(t.text)}</span></span></span></li>`;
       }).join("")}</ul>
       ${m[1] ? `<p class="g-code-desc">Put together: ${esc(m[1])}${/\p{L}/u.test(m[2] || "") ? `, as in “${esc(m[2])}”` : ""}.</p>` : ""}

@@ -37,7 +37,7 @@ aka: nouns, naming word, n., substantive
 match: noun
 see: proper-noun, case, gender, number, construct-state
 find: grc ^N-[NGDAV][SP][MFN]$
-find: he (^|/)Nc..a$
+find: he (^|/)Nc..a$ nokey=^H0259
 short: A word that names a person, place, thing or idea: “shepherd”, “city”, “love”.
 
 Nouns are naming words. Anything you can put “the” in front of is probably a noun: the shepherd, the city, the word, the love of God. Names of particular people and places, such as Peter or Galilee, are nouns too: see [[proper-noun]].
@@ -81,8 +81,8 @@ lang: both
 aka: verbs, doing word, action word, v.
 match: verb
 see: tense, aspect, voice, mood, person, greek-verb, hebrew-verb
-find: grc ^V- n=2
-find: he (^|/)V n=2
+find: grc ^V-2?[PIFARL][A-Z]I- n=2
+find: he (^|/)V[a-zA-Z][pqiw] n=2
 short: A word for what happens or what someone does or is: “runs”, “said”, “will save”, “is”.
 
 Verbs are the doing and being words. In “Jesus wept”, the verb is “wept”. Every complete sentence has one, though Hebrew and Greek can leave out “is” where English needs it: see [[verbless-clause]].
@@ -151,7 +151,7 @@ find: grc ^CONJ$ n=2
 find: he (^|/)C/ n=2
 short: A word that joins words or sentences together: “and”, “but”, “for”, “because”, “if”.
 
-Conjunctions are the joints of a sentence. καί, “and”, is the commonest word in the New Testament after “the”. Hebrew joins almost every sentence of a story with “and”, written as a one-letter prefix: see [[conjunction-vav]].
+Conjunctions are the joints of a sentence. καί, “and”, is the commonest word in the New Testament after “the”. Hebrew joins almost every sentence of a story with “and”, written as a one-letter prefix: see [[conjunction-vav|the entry on וְ]].
 
 [[translations|English translations]] often leave these “and”s out or turn them into “then”, “so” or “but”, because English doesn't like starting every sentence with “and”.
 
@@ -193,11 +193,11 @@ short: The person or thing an action is done to. In “the shepherd calls the sh
 
 Ask “whom or what?” after the verb: “calls whom? the sheep”. That is the direct object. Some verbs also have an indirect object, the person something is given to or done for: in “he gave *them* bread”, “them” is the indirect object.
 
-In Greek the direct object usually has the [[accusative]] ending and the indirect object the [[dative]]. In Hebrew a definite direct object often has the small word אֵת in front of it: see [[object-marker]].
+In Greek the direct object usually has the [[accusative]] ending and the indirect object the [[dative]]. In Hebrew a direct object that is a particular, known one (a name, or a noun with “the” or “my”) often has the small word אֵת in front of it: see [[object-marker|the object marker]].
 
 ## sentence-parts | Sentences, clauses and phrases
 aka: sentence, clause, phrase, main clause
-see: subject, verb, conjunction, verbless-clause
+see: subject, verb, conjunction, verbless-clause, hebrew-word-order
 short: A sentence is a complete thought; a clause is a part of a sentence with its own verb; a phrase is a group of words without one.
 
 “When the Sabbath was over, they bought spices” is one sentence with two clauses: “when the Sabbath was over” and “they bought spices”. Each clause has its own [[verb]]. A phrase is a group of words that belongs together but has no verb of its own: “in the beginning”, “the word of God”.
@@ -220,7 +220,7 @@ Grammar counts three “persons”:
 
 Greek and Hebrew verbs show the person with their ending or prefix, so “I” or “they” is usually not written as a separate word. A label such as “3rd singular” means “he, she or it”; “2nd plural” means “you”, speaking to more than one person. Hebrew labels write the words out, “third singular”, and under each word the app shortens it further: see [[pgn]].
 
-English “you” is the same for one person or many. Greek and Hebrew are not, so the label tells you which: the app writes “you (one)” and “you (more than one)”, or older English Bibles' “thou” and “ye”.
+English “you” is the same for one person or many. Greek and Hebrew are not, so the label tells you which: the app writes “you (one)” and “you (more than one)”. Older English Bibles kept the difference with “thou” (one) and “ye” (more than one).
 
 ## number | Number: singular, plural and dual
 lang: both
@@ -234,7 +234,7 @@ English shows number with endings such as “word, words” or “child, childre
 
 A verb also has a number, to match its [[subject]]: “he says” is singular, “they say” is plural.
 
-Hebrew has a third number, the dual, for things that come in twos, especially pairs of body parts: יָדַיִם, “two hands”. See [[dual]].
+Hebrew has a third number, the dual, for things that come in twos, especially pairs of body parts: יָדַיִם, “hands” (a pair). See [[dual]].
 
 ## gender | Gender: masculine, feminine and neuter
 lang: both
@@ -248,7 +248,7 @@ In English only people and animals have a gender (“he”, “she”), and thin
 
 Grammatical gender is mostly about word shapes, not about meaning: Greek λόγος, “word”, is masculine; ἀλήθεια, “truth”, is feminine; and τέκνον, “child”, is neuter. For people, though, the gender usually matches.
 
-Gender matters because words that go together must match: an [[adjective]], the [[article|article]] “the” and a pronoun take the same gender as their noun. Verbs show gender too in Hebrew: “you said” is a different word when speaking to a man or to a woman. Where one form serves for both, Hebrew labels say “either gender”, which the app writes as “male or female”; grammar books call it “common” (c in 3cp).
+Gender matters because words that go together must match: an [[adjective]], the [[article|article]] “the” and a pronoun take the same gender as their noun. Verbs show gender too in Hebrew: “you said” is a different word when speaking to a man or to a woman. Where one form serves for both, the label says “male or female”. Grammar books call this “common”, and the short labels write it c, as in 3cp, “they” (see [[pgn]]).
 
 ## agreement | Agreement: words that match
 aka: agree, concord, matching
@@ -256,7 +256,7 @@ see: gender, number, case, adjective
 short: Words that belong together take matching forms: an adjective matches its noun, and a verb matches its subject.
 lessons: he-10
 
-In English we say “he walks” but “they walk”: the verb agrees with its subject. Greek and Hebrew do much more of this. An adjective and “the” take the same [[gender]], [[number]] and (in Greek) [[case]] as the noun they belong with: ὁ ποιμὴν ὁ καλός, “the good shepherd”, has three masculine, singular, [[nominative]] words.
+In English we say “he walks” but “they walk”: the verb agrees with its subject. Greek and Hebrew do much more of this. An adjective and “the” take the same [[gender]], [[number]] and (in Greek) [[case]] as the noun they belong with: ὁ ποιμὴν ὁ καλός, “the good shepherd” (literally “the shepherd, the good one”: see [[greek-adjective]]), has four masculine, singular, [[nominative]] words, “the” twice.
 
 Agreement helps you read: it shows which words belong together, even when they are far apart in the sentence.
 
@@ -275,7 +275,7 @@ The part of the word that carries its meaning is the [[stem]]. What is added to 
 aka: stem, base, verb stem
 see: root, inflection, dictionary-form
 unattested: λύεις, λύομεν
-short: The part of a word that carries its meaning, to which endings are added: λυ- in λύω, λύεις, λύομεν.
+short: The part of a word that carries its meaning, to which endings are added: walk- in walks, walked, walking; λυ- in λύω, λύεις, λύομεν.
 
 Take away the ending from a word, and what is left is its stem. In λόγος, “word”, the stem is λογ- and the ending is -ος. Different endings on the same stem give different forms: λόγου, “of a word”, λόγῳ, “to a word”.
 
@@ -289,7 +289,7 @@ short: The form of a verb that shows when something happens: in the past, the pr
 
 In English, “I go”, “I went” and “I will go” differ in tense. Greek grammar uses the word tense for each set of verb forms ([[present]], [[imperfect-greek|imperfect]], [[future]], [[aorist]], [[perfect-greek|perfect]], [[pluperfect]]), but these forms show more than time: they also show how the action is viewed, which is called [[aspect]].
 
-Hebrew verbs are even less about time. Their two main forms (see [[perfect-hebrew]] and [[imperfect-hebrew]]) mostly show whether an action is seen as complete or not. The time comes from the context. That is why STEPBible's Hebrew labels say “past/present” or “future/present”: either may be right.
+Hebrew verbs are even less about time. Their two main forms (see [[perfect-hebrew]] and [[imperfect-hebrew]]) mostly show whether an action is seen as complete or not. The time comes from the context. That is why STEPBible's Hebrew labels say “past/present” or “future/present”: [[time-in-labels|either may be right]].
 
 ## aspect | Aspect: how an action is viewed
 aka: verbal aspect, perfective, imperfective, complete, incomplete, ongoing
@@ -316,10 +316,10 @@ lang: both
 aka: active voice, act.
 match: active=the subject does the action
 see: voice, passive, middle
-find: grc ^V-[2]?[PIFARL]A n=2
+find: grc ^V-[2]?[PIFARL]AI- n=2 nokey=^G1163
 short: The subject does the action: “he taught”, “they see”.
 
-Most verbs, most of the time, are active. In “God loved the world”, God does the loving. In Hebrew labels, “active” is part of the [[stems|stem]] name: [[qal]] is “simple, active”, [[hiphil]] “causative, active”. Its partner is the [[passive]].
+Most verbs, most of the time, are active. In “God loved the world”, God does the loving. In Hebrew labels, “active” is part of the [[stems|stem]] description: [[qal]] is “simple, active”, and [[hiphil]] “causative/declarative, active” (making someone do something, or declaring something so). Its partner is the [[passive]].
 
 ## passive | Passive
 lang: both
@@ -340,7 +340,7 @@ short: The form of a verb that shows how the speaker presents the action: as a f
 
 “You go” states a fact. “Go!” is a command. “If you were to go” is a possibility. These differences are called mood.
 
-Greek has four moods with endings that show a [[person]]: [[indicative]] (statements and questions), [[subjunctive]] (what may happen), [[optative]] (wishes) and [[imperative]] (commands). [[grammar-labels|Grammar labels]] also list the [[infinitive]] (“to go”) and the [[participle]] (“going”) in the same place, though they are not moods in the strict sense. Hebrew has forms for commands and wishes too: [[imperative]], [[jussive]] and [[cohortative]].
+Greek has four moods: [[indicative]] (statements and questions), [[subjunctive]] (what may happen), [[optative]] (wishes) and [[imperative]] (commands). [[grammar-labels|Grammar labels]] also put the [[infinitive]] (“to go”) and the [[participle]] (“going”) in the same place, although they work differently: they have no [[person]] (“I”, “you”, “he”). Hebrew has forms for commands and wishes too: [[imperative]], [[jussive]] and [[cohortative]].
 
 ## indicative | Indicative
 lang: both
@@ -372,9 +372,9 @@ Hebrew imperatives are always 2nd person. Hebrew commands for “let him” or �
 ## prohibition | Commands not to do something
 aka: prohibition, negative command, do not, don't
 see: imperative, jussive, subjunctive, negative
-short: “Do not…”. Greek uses μή with an [[imperative]] or [[subjunctive]]; Hebrew uses לֹא or אַל with the [[imperfect-hebrew|imperfect]].
+short: “Do not…”. Greek says it with μή, Hebrew with לֹא or אַל, each with particular verb forms.
 
-In Greek, “do not” is μή, never οὐ. With a [[present]] imperative it often means “stop doing” or “don't make a habit of it”: μὴ φοβοῦ, “do not be afraid”. With an [[aorist]] [[subjunctive]] it means “don't start”: μὴ φοβηθῇς.
+In Greek, “do not” is μή, never οὐ, with a [[present]] [[imperative]] or an [[aorist]] [[subjunctive]]. With the present imperative it sometimes means “stop doing” or “don't make a habit of it”: μὴ φοβοῦ, “do not be afraid”. With the aorist subjunctive it forbids the action as a whole: μὴ φοβηθῇς.
 
 In Hebrew, לֹא with the [[imperfect-hebrew|imperfect]] gives a lasting command: לֹא תִּרְצָח, “you shall not murder”. אַל with the [[jussive]] gives a more immediate “don't”.
 
@@ -384,9 +384,9 @@ aka: infinitive, inf., to-form, verbal noun
 match: infinitive=the “to …” form of a verb
 see: participle, greek-infinitive, infinitive-construct, infinitive-absolute
 find: grc ^V-[2]?[PIFARL][A-Z]N n=2
-short: The form of a verb that names the action itself, without a person: “to go”, “to love”, “going”.
+short: The form of a verb that names the action itself, without a person: “to go”, “to love”.
 
-“I want *to go*” and “*To love* is to give” use infinitives. An infinitive has no [[person]] or [[number]]: it names the action, a little like a noun.
+“I want *to go*” and “*To love* is to give” use infinitives. (English “going”, in “going is hard”, can do the same job.) An infinitive has no [[person]] or [[number]]: it names the action, a little like a noun.
 
 [[greek-infinitive|Greek infinitives]] have their own endings, such as -ειν or -σαι, and can even take “the” in front of them. Hebrew has two infinitives with different uses: the [[infinitive-construct]], used like “to go” or “when he went”, and the [[infinitive-absolute]], often used to strengthen another verb.
 
@@ -414,12 +414,12 @@ English adds “-er” and “-est”, or “more” and “most”: great, grea
 
 Hebrew has no separate forms for this. It says “greater than” with the preposition מִן, “from”: “good *from* him” means “better than him”.
 
-## numbers-words | Numbers
+## numbers-words | Number words: one, two, first
 lang: both
 aka: number words, numeral, numerals, cardinal, ordinal, numerical, numerical position, first, second, two, three
 match: numeral=a number word; numerical=a number word (one, two, three); numerical position=a number for position in order (first, second, third)
 see: adjective, indeclinable, dual
-find: he (^|/)A[co] n=2
+find: he (^|/)A[co] n=2 key=^H(0259|8147|7969|0702|2568|8337|7651|8083|8672|6235|6240|6242|7970|0705|2572|8346|7657|8084|8673|3967|0505|7233|7239|7223|8145|7992|7243|2549|8345|7637|8066|8671|6224)[A-Z]?$
 short: Words for numbers. Cardinal numbers count (one, two, three); ordinal numbers put things in order (first, second, third).
 
 Number words are a kind of [[adjective]]. In Greek, one to four change their endings; most larger numbers never change ([[indeclinable]]). In Hebrew, numbers behave in surprising ways: from three to ten, a masculine noun takes a number word with a feminine-looking ending, and the other way round.
@@ -435,7 +435,7 @@ find: grc ^PRT-N n=2
 find: he (^|/)Tn n=2
 short: Words for “not”, “no” and “never”. Greek has two, οὐ and μή; Hebrew has לֹא and אַל among others.
 
-Greek has two ways of saying “not”. οὐ (οὐκ before a vowel, οὐχ before a rough breathing) denies a fact: “he is not here”. μή is used with wishes, commands, conditions and most forms that are not the [[indicative]]: “do not be afraid”. A question that begins with οὐ expects the answer “yes”; one that begins with μή expects “no”.
+Greek has two ways of saying “not”. οὐ (οὐκ before a vowel, οὐχ before a [[breathing|rough breathing]], an h sound) denies a fact: “he is not here”. μή is used with wishes, commands, conditions and most forms that are not the [[indicative]]: “do not be afraid”. A question that begins with οὐ expects the answer “yes”; one that begins with μή expects “no”.
 
 Hebrew uses לֹא for most statements and lasting commands, and אַל for urgent ones (see [[prohibition]]). Other words such as אֵין, “there is not”, and בְּלִי, “without”, also say “not”.
 

@@ -20,7 +20,7 @@ see: hebrew-alphabet
 lessons: he-2
 short: Five letters change shape at the end of a word: כ becomes ך, מ becomes ם, נ becomes ן, פ becomes ף, and צ becomes ץ. The sound stays the same.
 
-The final shapes mostly reach down below the line, or close up. They only mark the end of a word: מֶלֶךְ, “king”, ends in ך; the plural מְלָכִים has the ordinary כ in the middle and ם at the end. When you search the Words tab, the app treats each letter and its final form as the same letter.
+The final shapes mostly reach down below the line, or close up. They only mark the end of a word: מֶלֶךְ, “king”, ends in ך; the plural מְלָכִים has the ordinary כ in the middle and ם at the end. When you search the [[words-tab|Words tab]], the app treats each letter and its final form as the same letter.
 
 ## vowel-points | Vowel points
 lang: he
@@ -53,7 +53,7 @@ aka: matres lectionis, mater lectionis, vowel letters, full spelling, defective 
 see: vowel-points, hebrew-alphabet
 short: The letters ה, ו and י sometimes stand for a vowel instead of a consonant: וֹ is o, וּ is u, ִי is i, and a final ה after a vowel is silent.
 
-Before vowel marks existed, scribes used a few letters to hint at vowels, and they still do the job: in טוֹב, “good”, the ו is the vowel o; in דָּוִד, “David”, the second ו is a consonant. A ה at the end of a word after a vowel is silent, as in תּוֹרָה, “law”, unless it has a dot ([[dagesh|mappiq]]).
+Before vowel marks existed, scribes used a few letters to hint at vowels, and they still do the job: in טוֹב, “good”, the ו is the vowel o; in דָּוִד, “David”, the ו is a consonant, v. A ה at the end of a word after a vowel is silent, as in תּוֹרָה, “law”, unless it has a dot ([[dagesh|mappiq]]).
 
 The same word may be spelt with or without the vowel letter: לֹא and לוֹא are both “not”. Grammars call these full and short (or plene and defective) spellings. The meaning is the same.
 
@@ -67,10 +67,10 @@ short: A dot inside a letter. In ב, כ and פ it makes the hard sound (b, k, p)
 The same dot does three jobs:
 
 - in the six letters ב ג ד כ פ ת at the start of a word or after a consonant, it marks the hard sound: בּ is b, without the dot ב is v. This is the dagesh lene (“light”); see [[begadkefat]];
-- after a vowel, it doubles the letter: הַשָּׁמַיִם is ha-sh-shamayim, “the heavens”. This is the dagesh forte (“strong”), and it often shows that something has been added, such as the article “the”, or that a letter has dropped out;
+- after a vowel, it doubles the letter: הַשָּׁמַיִם is hash-sha-MA-yim, “the heavens”. This is the dagesh forte (“strong”), and it often shows that something has been added, such as the article “the”, or that a letter has dropped out;
 - in a final ה it shows the ה is sounded, not silent: לָהּ, “to her”. This dot is called mappiq.
 
-In a few manuscripts a small line over a letter, called rafe, marks that a letter has no dagesh. The Leningrad Codex has it in some places, and the Reader shows it.
+A small line over a letter, called rafe, marks that a letter has no dagesh. The Leningrad Codex uses it often, and the Reader shows it.
 
 ## begadkefat | The six letters with two sounds: ב ג ד כ פ ת
 lang: he
@@ -88,25 +88,26 @@ lang: he
 aka: shewa, sheva, schwa, vocal shewa, silent shewa, said shewa, ְ
 see: vowel-points, hateph, syllables, hebrew-pronunciation
 lessons: he-4
-short: Two dots under a letter, one above the other (ְ). At the start of a syllable it is said as a very short e; at the end of one it is silent.
+short: Two dots under a letter, one above the other (בְ). At the start of a syllable it is said as a very short e; at the end of one it is silent.
 
-The shewa marks a letter with either a very short vowel or none at all. The rule of thumb: it is said (“vocal”) where it starts a syllable, and silent where it closes one.
+The shewa marks a letter with either a very short vowel or none at all. The rule of thumb: it is said (“vocal”) where it starts a [[syllables|syllable]], and silent where it closes one.
 
-- At the start of a word it is said: בְּרִית, be-REET, “covenant”.
+- At the start of a word it is said: בְּרִית, be-RIT, “covenant”.
 - After a short vowel, closing the syllable, it is silent: יִשְׁמֹר, yish-MOR.
 - Of two shewas in a row, the second is said: יִשְׁמְרוּ, yish-me-RU.
-- Under a doubled letter, it is said: הַמְּלָכִים, ham-me-la-KHEEM.
+- Under a doubled letter, it is said: הַמְּלָכִים, ham-me-la-KHIM.
+- After a long vowel, it is said: יָלְדָה, ya-le-DAH, “she bore”.
 
-In everyday Israeli Hebrew many said shewas are dropped (brit instead of be-REET). The app follows the academic pronunciation and says them, and its Hebrew voice is given a short e wherever the shewa is said. Under the [[gutturals|throat letters]], a said shewa is replaced by a [[hateph|hateph]] vowel.
+In everyday Israeli Hebrew many said shewas are dropped (brit instead of be-RIT). The app follows the academic pronunciation and says them, and its Hebrew voice is given a short e wherever the shewa is said. Under the [[gutturals|throat letters]], a said shewa is replaced by a [[hateph|hateph]] vowel.
 
-## hateph | Hateph vowels: ֲ ֱ ֳ
+## hateph | Hateph vowels: a quick a, e or o
 lang: he
 aka: hateph, hatef, hateph patah, hateph segol, hateph qamets, composite shewa, half vowel, reduced vowel
 see: shewa, gutturals, vowel-points
 lessons: he-4
-short: A [[shewa]] joined to another vowel (ֲ ֱ ֳ) makes a very quick a, e or o. They are used mostly under the [[gutturals|throat letters]], which can't take an ordinary said shewa.
+short: A [[shewa]] joined to another vowel makes a very quick a, e or o: אֲנִי, a-NI; אֱלֹהִים, e-lo-HIM; חֳלִי, cho-LI. They are used mostly under the [[gutturals|throat letters]], which can't take an ordinary said shewa.
 
-Where another letter would have a said shewa, the throat letters א ה ח ע usually take a hateph (“hurried”) vowel instead: אֱלֹהִים, e-lo-HEEM, “God”; אֲנִי, a-NEE, “I”; חֳלִי, cho-LEE, “sickness”. Say them like the full vowel, but quickly.
+Where another letter would have a said shewa, the throat letters א ה ח ע usually take a hateph (“hurried”) vowel instead: אֱלֹהִים, e-lo-HIM, “God”; אֲנִי, a-NI, “I”; חֳלִי, cho-LI, “sickness”. Say them like the full vowel, but quickly.
 
 ## gutturals | Throat letters: א ה ח ע
 lang: he
@@ -146,9 +147,9 @@ see: stress, cantillation, shewa, qamets-hatuf
 lessons: he-5
 short: Most Hebrew words are stressed on the last syllable: da-VAR, “word”. Some, such as מֶלֶךְ, ME-lekh, are stressed on the one before.
 
-A Hebrew syllable starts with a consonant and has one vowel: בָּרָא, “he created”, is two syllables, ba and RA. A syllable that ends in a vowel is open; one that ends in a consonant is closed.
+A Hebrew syllable almost always starts with a consonant and has one vowel: בָּרָא, “he created”, is two syllables, ba and RA. A syllable that ends in a vowel is open; one that ends in a consonant is closed.
 
-Most words are stressed on the last syllable. A large group of nouns, called segolates because many have two segols, are stressed on the one before: מֶלֶךְ, ME-lekh, “king”; אֶרֶץ, E-rets, “land”; נַעַר, NA-ar, “young man”. Some verb endings are unstressed too.
+Most words are stressed on the last syllable. A large group of nouns, called segolates because many have two segols, are stressed on the one before: מֶלֶךְ, ME-lekh, “king”; אֶרֶץ, E-rets, “land”; נַעַר, NA-ar, “young man” (a, not e, because of the [[gutturals|throat letter]] ע). Some verb endings are unstressed too. Grammars call stress on the last syllable milra and stress on the one before milel, from Aramaic words for “below” and “above”.
 
 The [[cantillation|accent marks]] show which syllable is stressed. In the app's respellings the stressed syllable is in capitals.
 
@@ -179,15 +180,15 @@ short: Small marks above and below Hebrew words that show the stressed syllable,
 
 Almost every word in the Hebrew Bible has one of about thirty accent marks. They do three jobs at once. They show the stressed syllable, because most sit on it. They work as punctuation: some divide the verse (disjunctive accents, like commas and semicolons) and others join a word to the next (conjunctive accents). And they are a musical notation for chanting the text in the synagogue.
 
-You don't need to learn them all. The most useful are the two strongest dividers: atnah (֑), under the word that ends the first half of a verse, and silluq (ֽ), on the last word, before the [[sof-pasuq]]. The app's Hebrew voice pauses at both. The Letters tab shows how they look.
+You don't need to learn them all. The most useful are the two strongest dividers: atnah (ב֑), under the word that ends the first half of a verse, and silluq (בֽ), on the last word, before the [[sof-pasuq]]. The app's Hebrew voice pauses at both. The [[letters-tab|Letters tab]] shows how they look.
 
 ## meteg | Meteg
 lang: he
 aka: meteg, metheg, gaya, secondary stress, ֽ
 see: cantillation, syllables, qamets-hatuf
-short: A small upright line beside a vowel (ֽ) that slows the syllable down. It can show that a qamets is a long a, not an o.
+short: A small upright line beside a vowel (בָֽ) that slows the syllable down. It can show that a qamets is a long a, not an o.
 
-The meteg (“bridle”) marks a syllable that should not be rushed, often two syllables before the stress: הָֽאָדָם. Because a long a is said slowly and a short o is not, a meteg beside a qamets is a clue that it is a long a: שָֽׁמְרוּ is sha-me-RU, “they kept”. It looks exactly like silluq ([[cantillation]]), which only comes on the last word of a verse.
+The meteg (“bridle”) marks a syllable that should not be rushed, often two syllables before the stress: הָֽאָדָם, ha-a-DAM, “the man”. Because a long a is said slowly and a short o is not, a meteg beside a qamets is usually a clue that it is a long a: שָֽׁמְרוּ is sha-me-RU, “they kept”. Commands are the exception: in שָֽׁמְרֵנִי, “keep me” ([PSA 16:1]), the qamets is a short o said slowly, sho-me-RE-ni. It looks exactly like silluq ([[cantillation]]), which only comes on the last word of a verse.
 
 ## sof-pasuq | Sof pasuq: the end of a verse
 lang: he
@@ -220,7 +221,7 @@ unattested: פְּתוּחָה, סְתוּמָה
 lang: he
 aka: ketiv, kethiv, qere, kere, written and read, °, ketib, ketiv-qere, read differently
 see: divine-name, not-read, masoretes
-short: In about a thousand places the [[masoretes]] noted that a word is written one way (ketiv) but read another (qere). The app shows the read form, marked °, and gives the written form when you tap it.
+short: In over a thousand places the [[masoretes]] noted that a word is written one way (ketiv) but read another (qere). The app shows the read form, marked °, and gives the written form when you tap it.
 
 The Masoretes would not change a letter of the text they had received, even where it seemed wrong or where the tradition read it differently. Instead they wrote the vowels of the word to be read (the qere, “what is read”) under the letters as written (the ketiv, “what is written”), and noted the reading in the margin.
 
@@ -233,9 +234,9 @@ count: qere he flag=q
 lang: he
 aka: YHWH, Yahweh, Jehovah, LORD, tetragrammaton, divine name, Adonai, Elohim, the Name
 see: ketiv-qere, hebrew-pronunciation
-short: God's name, written with four letters, יהוה. By long Jewish custom it is not said aloud: readers say Adonai, “the Lord”, which is why English Bibles print LORD.
+short: God's name, written with four letters, יהוה. By long Jewish custom it is not said aloud: readers say Adonai, “my Lord”, which is why English Bibles print LORD.
 
-The four letters יהוה (Y-H-W-H) are the personal name of God, used thousands of times in the Old Testament. Out of reverence, Jewish readers stopped saying it aloud long before the time of Jesus, and read אֲדֹנָי, Adonai, “my Lord”, instead. The [[septuagint]] and the New Testament likewise write κύριος, “Lord”.
+The four letters יהוה (Y-H-W-H) are the personal name of God, used thousands of times in the Old Testament. Out of reverence, Jewish readers had stopped saying it aloud by the time of Jesus, and read אֲדֹנָי, Adonai, “my Lord”, instead. The New Testament and most copies of the [[septuagint]] likewise write κύριος, “Lord”, though a few early Septuagint copies keep the four Hebrew letters.
 
 The [[masoretes]] wrote יהוה with vowels taken from Adonai, as a permanent [[ketiv-qere|qere]], so that nobody would say the name. The form “Jehovah” came about when later Christian readers combined those vowels with the letters. Scholars think the name was originally said something like Yahweh.
 
@@ -256,7 +257,7 @@ aka: supplied, [brackets], not in Leningrad, missing words, x
 see: hebrew-text, manuscripts, not-read
 short: A few words missing from the Leningrad Codex are added from other manuscripts or old translations. The Reader shows them in square brackets.
 
-Every manuscript has its faults. Where the Leningrad Codex seems to have lost a word or phrase that other Hebrew manuscripts, or early translations such as the [[septuagint]], have, STEPBible supplies it and marks it. The app shows these words in [square brackets] and explains them when tapped. A well-known example is [GEN 4:8], where Cain's words to Abel, “let us go out to the field”, are missing from the Hebrew.
+Every manuscript has its faults. Where the Leningrad Codex seems to have lost a word or phrase that other Hebrew manuscripts, the Samaritan Pentateuch or early translations such as the [[septuagint]] have, STEPBible supplies it and marks it. The app shows these words in [square brackets] and explains them when tapped. A well-known example is [GEN 4:8], where Cain's words to Abel, “let us go out to the field”, are missing from the Hebrew.
 
 ## extraordinary-points | Extraordinary dots over letters
 lang: he
@@ -279,6 +280,6 @@ The inverted nun appears around the “Song of the Ark” in Numbers and several
 lang: he
 aka: psalm title, superscription, title, heading of a psalm, verse 0
 see: verse-numbers
-short: Many psalms begin with a title, such as “A Psalm of David”. Hebrew Bibles count it as verse one; English Bibles don't number it. The Reader shows it as “title”.
+short: Many psalms begin with a title, such as “A Psalm of David”. Hebrew Bibles number it as part of the verses; English Bibles don't number it. The Reader shows it as “title”.
 
-The titles name an author, an occasion, a tune or a musical direction, and they are part of the Hebrew text. In Hebrew Bibles they are verse one, so a psalm's verses are numbered one higher than in English Bibles. The app follows English numbering, shows the title at the start labelled “title”, and puts the Hebrew number beside each verse where it differs: see [[verse-numbers]].
+The titles name an author, an occasion, a tune or a musical direction, and they are part of the Hebrew text. In Hebrew Bibles a short title shares verse one with the psalm's first line, so the numbers agree with English Bibles. A longer title is verse one on its own, or even verses one and two ([PSA 51:1|Psalm 51]), and then the psalm's verses are numbered one or two higher than in English Bibles. The app follows English numbering, shows the title at the start labelled “title”, and puts the Hebrew number beside each verse where it differs: see [[verse-numbers]].

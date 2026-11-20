@@ -322,7 +322,7 @@ def audit_wording():
                 w = m.group(0)
                 if w in ALLOWED_AMERICAN or w.lower() in ("color", "center", "size") and re.search(w + r"\s*:", t):
                     continue
-                if w.lower() in ("authorization", "normalize", "autocapitalize", "license"):
+                if w.lower() in ("authorization", "normalize", "autocapitalize", "license", "size", "sizes", "sized", "seize", "seized", "prize", "prizes", "capsize"):
                     continue
                 if w[0].isupper() and re.search(r"[A-Z][a-z]+\s+$", t[:m.start()]):
                     continue  # part of a name (Biblical Language Center)

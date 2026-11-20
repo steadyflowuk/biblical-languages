@@ -35,7 +35,7 @@ see: number, hebrew-noun
 find: he ^N..d n=2
 short: A Hebrew noun form for two of something, ending -ַיִם: יָדַיִם, “two hands”. It is used mostly for things that come in pairs.
 
-Hebrew has a special ending, -ַיִם, for two of something. It is used for pairs of body parts, such as עֵינַיִם, “eyes”, and רַגְלַיִם, “feet”, and for a few words of time and number: יוֹמַיִם, “two days”, שְׁנַיִם, “two”. For more than two of a pair, the dual is often used anyway: “his eyes”.
+Hebrew has a special ending, -ַיִם, for two of something. It is used for pairs of body parts, such as עֵינַיִם, “eyes”, and רַגְלַיִם, “feet”, and for a few words of time and number: יוֹמַיִם, “two days”, שְׁנַיִם, “two”. Things that come in pairs keep the dual even when there are more than two: the seraphim each had שֵׁשׁ כְּנָפַיִם, “six wings” ([ISA 6:2]).
 
 Two common words only look dual and are really ordinary words: שָׁמַיִם, “heaven”, and מַיִם, “water”.
 
@@ -74,7 +74,7 @@ unattested: לְהַמֶּלֶךְ
 find: he (^|/)Td
 short: Hebrew “the” is a prefix, הַ, joined to the front of a word, usually with a dot doubling the next letter: הַשָּׁמַיִם, “the heavens”.
 
-The article is ה with a patah, and a [[dagesh]] that doubles the first letter of the word: מֶלֶךְ, “king”, הַמֶּלֶךְ, “the king”. Before the [[gutturals|throat letters]], which can't be doubled, the vowel changes instead: הָאָרֶץ, “the earth”, הָעָם, “the people”.
+The article is ה with a patah, and a [[dagesh]] that doubles the first letter of the word: מֶלֶךְ, “king”, הַמֶּלֶךְ, “the king”. Before the [[gutturals|throat letters]] and ר, which can't be doubled, the vowel changes instead. Before א, ע and ר it usually becomes הָ: הָאָרֶץ, “the earth”, הָעָם, “the people”. Before ה and ח it usually stays הַ, without the dot: הַחֹשֶׁךְ, “the darkness”. And before a ח with a qamets it becomes הֶ: הֶחָכָם, “the wise man”.
 
 After the one-letter prepositions ב, כ and ל, the ה drops out and its vowel moves under the preposition: לַמֶּלֶךְ, “to the king”, instead of לְהַמֶּלֶךְ. STEPBible labels such a word “Preposition (definite)”.
 
@@ -106,7 +106,7 @@ lessons: he-9
 find: he ^C/ n=2
 short: The letter ו joined to the front of a word means “and”, “but”, “so” or “then”. It is the commonest word in the Hebrew Bible.
 
-וְ is written as part of the next word. Its vowel changes with the sound after it: וּ before ב, מ or פ, or before a [[shewa]] (וּמֶלֶךְ, “and a king”); and in a few other places וַ or וָ.
+The letter ו is called vav (grammars also spell it waw). As “and”, וְ is written as part of the next word. Its vowel changes with the sound after it: וּ before ב, מ or פ, or before a [[shewa]] (וּמֶלֶךְ, “and a king”); and in a few other places וַ or וָ.
 
 Hebrew stories join almost every sentence with “and”, which is why older English Bibles start so many verses with “And”. Modern translations often use “then”, “so”, “but” or nothing at all.
 
@@ -138,14 +138,14 @@ Instead of separate words for “my” and “his”, Hebrew adds an ending to t
 
 Table: the commonest endings, on סוּס, “horse”
 | meaning | ending | example |
-| my | -ִי | סוּסִי |
-| your (a man) | -ְךָ | סוּסְךָ |
-| your (a woman) | -ֵךְ | סוּסֵךְ |
-| his | -וֹ | סוּסוֹ |
-| her | -ָהּ | סוּסָהּ |
-| our | -ֵנוּ | סוּסֵנוּ |
-| your (more than one) | -ְכֶם | סוּסְכֶם |
-| their | -ָם | סוּסָם |
+| my | -i | סוּסִי |
+| your (a man) | -kha | סוּסְךָ |
+| your (a woman) | -ekh | סוּסֵךְ |
+| his | -o | סוּסוֹ |
+| her | -ah | סוּסָהּ |
+| our | -enu | סוּסֵנוּ |
+| your (more than one) | -khem | סוּסְכֶם |
+| their | -am | סוּסָם |
 
 unattested: סוּסִי, סוּסְךָ, סוּסֵךְ, סוּסוֹ, סוּסָהּ, סוּסֵנוּ, סוּסְכֶם, סוּסָם
 
@@ -163,9 +163,12 @@ short: An unstressed -ָה at the end of a place word, meaning “towards” or 
 
 Hebrew can show direction with an ending instead of a preposition. It is the vowel and ה, -ָה, added to a word for a place or a direction: מִצְרַיְמָה, “to Egypt”, צָפוֹנָה, “northwards”. Unlike the feminine ending -ָה, it is never stressed. The app shows it as “towards (ending)”.
 
+> GEN 15:5 הַשָּׁמַיְמָה | הַשָּׁמַיְמָה, “towards the heavens”: “look up to the sky”
+> GEN 12:5 אַרְצָה | אַרְצָה כְּנַעַן, “to the land of Canaan”
+
 ## paragogic | Added endings: paragogic hé and nun
 lang: he
-aka: paragogic, paragogic he, paragogic nun, added ending, energic, extra ending, hé
+aka: paragogic, paragogic he, paragogic nun, added ending, extra ending, hé
 match: paragogic hé=an extra ה on the end of a word; paragogic nun=an extra נ on the end of a verb; paragogic=added on the end
 see: cohortative, imperative, directional-he
 find: he /S[hn] n=2
@@ -178,8 +181,8 @@ lang: he
 aka: et, object marker, object indicator, direct object marker, accusative marker, אֵת, אֶת
 match: object indicator=the small word אֵת, marking the object
 see: object, accusative, hebrew-prepositions
-find: he (^|/)To n=2
-short: The small word אֵת (or אֶת־) marks the definite direct object of a verb. It has no English translation.
+find: he (^|/)To n=2 key=^H0853
+short: The small word אֵת (or אֶת־) marks the direct object of a verb when it is a particular, known person or thing. It has no English translation.
 
 In [GEN 1:1], “God created *the heavens* and *the earth*”, the two objects each have אֵת in front of them: אֵת הַשָּׁמַיִם וְאֵת הָאָרֶץ. It shows which noun is the [[object]], since Hebrew word order is freer than English. It is used only when the object is definite: a name, a noun with “the”, or a noun with a “my”-type ending.
 
@@ -227,7 +230,7 @@ short: The Hebrew word that joins a clause to a noun: “the land *which* I will
 
 Unlike Greek [[relative|ὅς]], אֲשֶׁר has no endings. Hebrew often adds a pronoun later in the clause to show how it fits: “the land which you are lying on it” means “the land on which you are lying”. English leaves that extra word out.
 
-A short form, שֶׁ, is joined to the next word, mostly in later books such as Ecclesiastes and the Song of Songs.
+A short form, שֶׁ, is joined to the next word, mostly in poetry and later books, such as Ecclesiastes and the Song of Songs.
 
 ## interrogative-particle | Question markers
 lang: both
@@ -237,7 +240,7 @@ see: interrogative, prefixes, negative
 find: he (^|/)Ti n=2
 short: A word that turns a sentence into a question. In Hebrew it is the prefix הֲ: הֲשֹׁמֵר אָחִי אָנֹכִי, “Am I my brother's keeper?”.
 
-Hebrew writes no question mark. A question is shown by a question word such as מִי, “who?”, or by the prefix הֲ on the first word of a yes-or-no question. Don't confuse הֲ with the article הַ: the vowel is different, and the question הֲ doesn't double the next letter.
+Hebrew writes no question mark. A question is shown by a question word such as מִי, “who?”, or by the prefix הֲ on the first word of a yes-or-no question. Don't confuse הֲ with the article הַ: the vowel is usually different, and the question הֲ doesn't double the next letter. Before a [[shewa]] or a [[gutturals|throat letter]] it is written הַ, and then only the missing dot tells them apart.
 
 Greek has question particles too, and STEPBible labels them the same way, but a Greek question is usually shown by the question mark ; at the end (see [[greek-punctuation]]).
 
@@ -260,7 +263,7 @@ see: interjection, demonstrative-particle
 find: he key=^H2009 n=3
 short: הִנֵּה, “look!”, “here is”, “behold”, draws attention to what follows. STEPBible labels it an interjection.
 
-Older English Bibles translate it “behold”. Modern ones use “look”, “see”, “here is”, or show its sense with a word such as “suddenly” or “now”. It can take a pronoun ending: הִנְנִי, “here I am”, is Abraham's and Samuel's answer when God calls.
+Older English Bibles translate it “behold”. Modern ones use “look”, “see”, “here is”, or show its sense with a word such as “suddenly” or “now”. It can take a pronoun ending: הִנֵּנִי, “here I am”, is Abraham's and Samuel's answer when God calls ([GEN 22:1], [1SA 3:4]), and Isaiah's answer is הִנְנִי ([ISA 6:8]).
 
 ## conditional-particle | כִּי and אִם: “if”, “for”, “that”
 lang: he

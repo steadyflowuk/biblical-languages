@@ -27,7 +27,7 @@ match: present=an action seen as going on: present
 see: aspect, imperfect-greek, tense
 lessons: grc-4
 find: grc ^V-P
-short: The verb form for an action seen as going on or repeated. In a statement it usually means now: λύω, “I loose” or “I am loosing”.
+short: The verb form for an action seen as going on or repeated. In a statement it usually means now: λύω, “I loose” (set free) or “I am loosing”.
 
 The present views an action from the inside, as it unfolds, or as something that happens again and again. In statements it usually refers to now: λέγει, “he says”, or “he is saying”. In commands it often means “keep doing”: see [[imperative]].
 
@@ -39,7 +39,7 @@ aka: imperfect tense, impf., Greek imperfect
 match: imperfect=an action going on in the past: “was doing”
 see: present, aorist, augment, aspect
 find: grc ^V-I
-short: The past form of the present: an action going on, repeated or begun in the past: “he was teaching”, “he used to teach”, “he began to teach”.
+short: An action going on, repeated or begun in the past: “he was teaching”, “he used to teach”, “he began to teach”.
 
 The imperfect takes the [[present]]'s view of an action (from the inside, as ongoing) and sets it in the past. It is made from the present stem with an [[augment]] at the front: ἐδίδασκεν, “he was teaching”, from διδάσκω.
 
@@ -51,12 +51,12 @@ Hebrew grammar uses the same word, imperfect, for a quite different form: see [[
 unattested: ἄξω
 lang: grc
 aka: future tense, fut., shall, will
-match: future=an action still to come; 2nd future=a future formed without the usual σ
+match: future=an action still to come; 2nd future=a future built on a different stem, most often a passive future without θ
 see: present, aorist, tense
 find: grc ^V-2?F
-short: The form for what will happen: ὄψεσθε, “you will see”. It usually adds σ to the stem.
+short: The form for what will happen: σώσει, “he will save”. It usually adds σ to the stem.
 
-The Greek future is the one form that is mainly about time. It is usually made by adding σ before the ending: σώσει, “he will save”, from σῴζω. When the stem ends in a consonant, the σ combines with it: ἄξω, from ἄγω. Some verbs form their future without the σ, or from a different stem, and STEPBible labels some of these “2nd future”: see [[second-aorist]].
+The Greek future is the one form that is mainly about time. It is usually made by adding σ before the ending: σώσει, “he will save”, from σῴζω. Sometimes the σ hides inside another letter: ὄψεσθε, “you will see”, has it in ψ (π + σ). When the stem ends in a consonant, the σ combines with it: ἄξω, from ἄγω. Some verbs form their future from a different stem, and STEPBible labels some of these “2nd future”: see [[second-aorist|“2nd” forms]].
 
 The future can also give a solemn command, especially in quotations from the Old Testament: οὐ φονεύσεις, “you shall not murder”.
 
@@ -73,7 +73,7 @@ The aorist is the most common past form in Greek stories. It views an action fro
 
 In the [[indicative]] the aorist has an [[augment]] and usually means the past. In the other moods it has no augment and says nothing about time: an aorist [[imperative]] or [[subjunctive]] simply presents the action as a whole: πίστευσον, “believe!”.
 
-The word comes from Greek ἀόριστος, “undefined”: the form doesn't define how the action unfolded. It is not a special “once for all” [[tense]], though a writer may of course describe a once-for-all event with it.
+The word comes from Greek ἀόριστος, “without limits”: the form leaves open how the action unfolded. It is not a special “once for all” [[tense]], though a writer may of course describe a once-for-all event with it.
 
 Most aorists add σα to the stem: ἔλυσα, “I loosed”. Many common verbs form it differently, without the σ: see [[second-aorist]].
 
@@ -87,9 +87,9 @@ short: An [[aorist]] made in an older way, from a changed stem and without σ: �
 
 The “2nd” is about how the form is made, not what it means. Some of the commonest verbs have a 2nd aorist: ἔρχομαι, “I come”, has ἦλθον, “I came”; λαμβάνω has ἔλαβον; βάλλω has ἔβαλον; and λέγω has εἶπον, “I said”.
 
-These forms have the [[augment]], but instead of -σα- they put the endings of the [[imperfect-greek|imperfect]] on a different stem. So ἔβαλλον (imperfect, “I was throwing”) and ἔβαλον (2nd aorist, “I threw”) differ by one letter. This is why dictionaries list the main forms of each verb: see [[principal-parts]].
+In the [[indicative]] these forms have the [[augment]], but instead of -σα- they put the endings of the [[imperfect-greek|imperfect]] on a different stem. So ἔβαλλον (imperfect, “I was throwing”) and ἔβαλον (2nd aorist, “I threw”) differ by one letter. This is why dictionaries list the main forms of each verb: see [[principal-parts]].
 
-STEPBible's labels also mark “2nd perfect”, “2nd pluperfect” and “2nd future” for the same reason: forms made without the usual sign (κ for the [[perfect-greek|perfect]], σ for the future). Under each word the app shortens all of these to plain “aor.”, “perf.” and so on, because the meaning is the same.
+STEPBible's labels also mark “2nd perfect”, “2nd pluperfect” and “2nd future” for the same reason: forms made without the usual sign (κ for the [[perfect-greek|perfect]]; for the future, usually θ in the passive). Under each word the app shortens all of these to plain “aor.”, “perf.” and so on, because the meaning is the same.
 
 > JHN 1:11 ἦλθεν | ἦλθεν, “he came”: the 2nd aorist of ἔρχομαι, whose present looks nothing like it
 
@@ -114,7 +114,7 @@ see: perfect-greek, augment, reduplication
 find: grc ^V-2?L
 short: The past of the [[perfect-greek|perfect]]: a result that stood at some time in the past: “he had come”, “it had been founded”.
 
-The pluperfect is rare. It sets the state of a [[perfect-greek|perfect]] in the past: “the house did not fall, for it *had been founded* on the rock” ([MAT 7:25]). It usually has [[reduplication]], and sometimes an [[augment]] as well. Its endings have ει in them: τεθεμελίωτο.
+The pluperfect is rare. It sets the state of a [[perfect-greek|perfect]] in the past: “the house did not fall, for it *had been founded* on the rock” ([MAT 7:25]). It usually has [[reduplication]], and sometimes an [[augment]] as well. Its active endings have ει in them: ᾔδει, “he knew” ([MRK 9:6]); the passive τεθεμελίωτο doesn't.
 
 ## augment | Augment: the mark of the past
 unattested: ἔλυον, ἤγειρα
@@ -123,7 +123,7 @@ aka: augment, ε-, past marker, syllabic augment, temporal augment
 see: aorist, imperfect-greek, pluperfect, indicative
 short: An ε added to the front of a verb, or a lengthened first vowel, that marks past time in the [[indicative]]: λύω, ἔλυον, “I was loosing”.
 
-The augment is a sign of the past, and only in the indicative: the [[imperfect-greek|imperfect]], [[aorist]] and [[pluperfect]]. When a verb begins with a consonant, ε is added: βλέπω, ἔβλεψα, “I saw”. When it begins with a vowel, that vowel is lengthened instead: ἀκούω, ἤκουσα, “I heard”; ἐγείρω, ἤγειρα.
+The augment is a sign of the past, and only in the indicative: the [[imperfect-greek|imperfect]], [[aorist]] and [[pluperfect]]. When a verb begins with a consonant, ε is added: βλέπω, ἔβλεψα, “I saw”. When it begins with a vowel, that vowel is lengthened instead: ἀκούω, ἤκουσα, “I heard”; ἐγείρω, “I raise”, ἤγειρα, “I raised”.
 
 With verbs that have a [[preposition]] at the front, the augment goes after it, between it and the verb: ἐκβάλλω, ἐξέβαλεν, “he drove out”. Finding the augment helps you find the stem to look up.
 
@@ -144,9 +144,9 @@ aka: middle voice, mid., middle deponent
 match: middle=the subject acts for itself, or is involved in the action; middle deponent=middle in form, often active in meaning
 see: voice, active, passive, middle-or-passive, deponent, reflexive
 find: grc ^V-2?[PIFARL][MD]
-short: The voice in which the subject is involved in its own action, often doing it for itself or to itself: ἀπεκρίνατο, “he answered”.
+short: The voice in which the subject is involved in its own action, often doing it for itself or to itself: ἐνίψατο, “he washed (himself)”.
 
-English has active (“I wash”) and passive (“I am washed”). Greek also has the middle, which says the subject is involved in the action in a closer way than usual: doing it for itself, to itself, or with its own interests in view. ἐνίψατο, “he washed himself” or “he washed his own (hands)”.
+English has active (“I wash”) and passive (“I am washed”). Greek also has the middle, which says the subject is involved in the action in a closer way than usual: doing it for itself, to itself, or with its own interests in view. ἐνίψατο, “he washed himself” or “he washed his own (hands)”. Others have it simply as their way of saying something: ἀπεκρίνατο, “he answered”.
 
 Often the difference is hard to bring into English, and many verbs simply have their meaning in the middle form: ἔρχομαι, “I come”, γίνομαι, “I become”, πορεύομαι, “I go”. These are the verbs older grammars call [[deponent]].
 
@@ -161,7 +161,7 @@ short: A form that could be either middle or passive, because in four tenses the
 
 In the [[present]], [[imperfect-greek|imperfect]], [[perfect-greek|perfect]] and [[pluperfect]], the [[middle]] and [[passive]] endings are identical: λύομαι can be “I loose (for myself)” or “I am loosed”. Only the context shows which. STEPBible's labels say “middle or passive” where they have not chosen between them, and the app shortens it to “mid./pass.”.
 
-In the [[aorist]] and [[future]], the passive has its own endings with θη in them: ἐλύθη, “he was loosed”.
+In the [[aorist]] and [[future]], the passive has its own endings, usually with θη in them: ἐλύθη, “it was set free”.
 
 ## deponent | Deponent
 lang: grc
@@ -171,7 +171,7 @@ see: middle, middle-or-passive, voice
 find: grc ^V-2?[PIFARL][DON]
 short: A verb with [[middle-or-passive|middle or passive]] endings but an active meaning, such as ἔρχομαι, “I come”. Many scholars now prefer to call these middle verbs.
 
-ἔρχομαι, “I come”, has the endings of the [[middle]] or [[passive]], but it doesn't mean “I am come”. Older grammars said such verbs had “laid aside” (Latin *deponere*) their active forms, and called them deponent. STEPBible's labels use that word: “middle deponent”, “passive deponent”, “middle or passive deponent”.
+ἔρχομαι, “I come”, has the endings of the [[middle]] or [[passive]], but it has no passive meaning (“I am being come” makes no sense). Older grammars said such verbs had “laid aside” (Latin *deponere*) their active forms, and called them deponent. STEPBible's labels use that word: “middle deponent”, “passive deponent”, “middle or passive deponent”.
 
 Many scholars today think the label is misleading. These verbs mostly describe things in which the subject is closely involved: coming and going, becoming, feeling, thinking, receiving. That is just what the middle voice expresses, so they are simply middle verbs. For reading, the point is the same either way: translate them as active.
 
@@ -184,13 +184,13 @@ see: mood, indicative, prohibition, negative
 find: grc ^V-2?[PIFARL][A-Z]S-
 short: The form of a verb for what may or should happen, rather than what does: after “so that”, “if”, “whoever”, and for “let us…”.
 
-The subjunctive is recognised by its long vowels, ω and η, in the ending: λύωμεν, “let us loose”, against λύομεν, “we loose”. It has no [[augment]], and in the subjunctive the [[aorist]] and [[present]] differ only in [[aspect]], not in time.
+The subjunctive is recognised by ω or η in its ending where the ordinary form has ο or ε: λύωμεν, “let us set free”, compared with λύομεν, “we set free”. It has no [[augment]], and in the subjunctive the [[aorist]] and [[present]] differ only in [[aspect]], not in time.
 
 Its main uses:
 
 - purpose, after ἵνα, “so that”: ἵνα πᾶς ὁ πιστεύων… μὴ ἀπόληται, “so that everyone who believes… should not perish” ([JHN 3:16]);
 - conditions and “whoever” [[sentence-parts|clauses]] with ἐάν or ἄν: ἐὰν ὁμολογῶμεν, “if we confess”;
-- “let us”, in the 1st person plural: ἀγαπῶμεν ἀλλήλους, “let us love one another”;
+- “let us”, in the 1st person plural: ἄγωμεν, “let us go”;
 - “do not”, with μή and the aorist: see [[prohibition]];
 - the strongest “never”, οὐ μή: “he will never die”.
 
@@ -202,7 +202,7 @@ see: mood, subjunctive
 find: grc ^V-2?[PIFARL][A-Z]O-
 short: A rare form for wishes and remote possibilities: μὴ γένοιτο, “may it never be!”.
 
-The optative was dying out in New Testament times, and appears in only a handful of verses. Its endings contain οι or αι: γένοιτο, “may it be”. Paul's famous μὴ γένοιτο, “by no means!”, literally “may it not happen”, is an optative. Luke also uses it in polite or uncertain questions: “what this might be”.
+The optative was dying out in New Testament times, and appears only rarely. Its endings usually have ι after the vowel: οι, αι or ει (γένοιτο, “may it be”; εἴη, “might be”). Paul's famous μὴ γένοιτο, “by no means!”, literally “may it not happen”, is an optative. Luke also uses it in polite or uncertain questions: “what this might be”.
 
 ## greek-infinitive | Greek infinitives
 unattested: λύειν
@@ -210,7 +210,7 @@ lang: grc
 aka: infinitive in Greek, to-form in Greek, articular infinitive
 see: infinitive, case, accusative
 find: grc ^V-2?[PIFARL][A-Z]N
-short: The Greek “to” form of a verb: λύειν, “to loose”. It ends in -ειν, -σαι, -ναι or -σθαι, and is often used where English needs a whole clause.
+short: The Greek “to” form of a verb: λύειν, “to set free”. It ends in -ειν, -σαι, -ναι or -σθαι, and is often used where English needs a whole clause.
 
 The commonest endings of the [[infinitive]] are -ειν ([[present]] active, λύειν), -σαι ([[aorist]] active, λῦσαι), -ναι (εἶναι, “to be”) and -σθαι ([[middle]] or [[passive]], ἔρχεσθαι, “to come”). The infinitive has a [[tense]] and a [[voice]] but no [[person]].
 
@@ -241,7 +241,7 @@ aka: genitive absolute, absolute participle
 see: greek-participle, genitive
 short: A [[participle]] and its subject both in the [[genitive]], setting the scene: “while he was still speaking…”.
 
-When a participle's own subject is not part of the main sentence, Greek puts both in the [[genitive]]: ἔτι αὐτοῦ λαλοῦντος, “while he was still speaking” ([MAT 12:46]). The phrase stands loose from the rest of the sentence (“absolute” means “loosed”), like a stage direction. Translate it with “while”, “when” or “after”.
+When a participle's own subject is not part of the main sentence, Greek puts both in the [[genitive]]: ἔτι αὐτοῦ λαλοῦντος, “while he was still speaking” ([MAT 12:46]). The phrase stands apart from the rest of the sentence (“absolute” means “set free”), like a stage direction. Translate it with “while”, “when” or “after”.
 
 ## contract-verbs | Contract verbs
 lang: grc
@@ -252,7 +252,7 @@ short: Verbs whose [[stem]] ends in α, ε or ο, which merges with the vowel of
 
 Some verb stems end in a vowel: ποιε-, ἀγαπα-, δικαιο-. When an ending starting with a vowel is added, the two vowels merge (contract): ποιε- + -ει becomes ποιεῖ, “he does”; ἀγαπα- + -ει becomes ἀγαπᾷ, “he loves”; δικαιο- + -εται becomes δικαιοῦται, “he is justified”.
 
-Dictionaries list these verbs in their uncontracted form, which never appears in the text: ποιέω, ἀγαπάω, δικαιόω. That way you can see the stem's vowel. A circumflex accent (῀) on the ending is often a sign of contraction.
+Dictionaries list these verbs in their uncontracted form, which rarely appears in the text: ποιέω, ἀγαπάω, δικαιόω. That way you can see the stem's vowel. A [[accents|circumflex accent]] (῀) on the ending is often a sign of contraction.
 
 ## eimi | The verb “to be”: εἰμί
 lang: grc
@@ -278,11 +278,11 @@ STEPBible's labels give εἰμί the voice “active”, as a convention: it ha
 
 ## principal-parts | Principal parts
 lang: grc
-aka: principal parts, main forms, verb stems, tense stems
+aka: principal parts, main forms, tense stems
 see: second-aorist, greek-verb, dictionary-form
 short: The handful of forms of a verb from which all its other forms are built. Learning them makes irregular verbs recognisable.
 
-Every Greek verb has up to six main stems: the [[present]], [[future]], [[aorist]] active, [[perfect-greek|perfect]] active, perfect middle and aorist passive. All its other forms are built from one of these. For regular verbs they follow a pattern: πιστεύω, πιστεύσω, ἐπίστευσα, πεπίστευκα, πεπίστευμαι, ἐπιστεύθην. For irregular verbs they don't, which is why dictionaries list them: ὁράω, “I see”, has the aorist εἶδον and the future ὄψομαι.
+Every Greek verb has up to six main forms: the [[present]], [[future]], [[aorist]] active, [[perfect-greek|perfect]] active, perfect middle and aorist passive. All its other forms are built from one of these. For regular verbs they follow a pattern: πιστεύω, πιστεύσω, ἐπίστευσα, πεπίστευκα, πεπίστευμαι, ἐπιστεύθην. For irregular verbs they don't, which is why dictionaries list them: ὁράω, “I see”, has the aorist εἶδον and the future ὄψομαι.
 
 A beginner doesn't need to learn whole lists. It helps to know that a strange-looking form may still be a common verb, and the app always shows the [[dictionary-form]].
 

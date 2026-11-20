@@ -13,6 +13,29 @@ The word “alphabet” comes from the first two Greek letters, alpha and beta. 
 
 The [[#/alphabet/grc|Letters tab]] shows every letter with its name, its sound in both pronunciations ([[erasmian]] and [[restored-koine]]), and examples you can hear.
 
+## greek-vowels | Greek vowels: long, short and pairs
+lang: grc
+aka: vowels, Greek vowels, long vowels, short vowels, diphthong, diphthongs, vowel pairs, αι, ει, οι, ου, αυ, ευ
+see: greek-alphabet, diaeresis, iota-subscript, erasmian, restored-koine
+lessons: grc-2
+short: Greek has seven vowels: α ε η ι ο υ ω. η and ω are always long, ε and ο always short, and α, ι and υ can be either. Two vowels together often make one sound, such as ου, oo.
+
+The seven vowels come in two kinds. ε and η are a short and a long e; ο and ω a short and a long o. α, ι and υ can be long or short, and the spelling doesn't show which. Length matters for the [[accents]] and for the shape of endings, though the app's voices don't hold long vowels any longer than short ones.
+
+Some pairs of vowels are said as one sound, a diphthong (“two sounds”). In the app's [[erasmian|Erasmian]] pronunciation:
+
+Table: the vowel pairs
+| pair | said | example |
+| αι | ai, as in “aisle” | καί, kai, “and” |
+| ει | ay, as in “eight” | εἰμί, ay-MEE, “I am” |
+| οι | oi, as in “oil” | οἶκος, OI-kos, “house” |
+| ου | oo, as in “food” | οὐρανός, oo-ra-NOS, “heaven” |
+| αυ | ow, as in “how” | αὐτός, ow-TOS, “he” |
+| ευ | eu, as in “feud” | εὐαγγέλιον, eu-ang-GE-lee-on, “good news” |
+| υι | wee | υἱός, hwee-OS, “son” |
+
+In [[restored-koine|Restored Koine]] most of these had become single vowels by the first century: the [[letters-tab|Letters tab]] shows both side by side. Two dots over the second vowel ([[diaeresis]]) mean the pair is said as two sounds after all, and a small ι under a long vowel ([[iota-subscript]]) is not said at all.
+
 ## breathing | Breathing marks
 lang: grc
 aka: breathing, rough breathing, smooth breathing, spiritus, h sound, ῾, ᾿
@@ -20,9 +43,9 @@ see: accents, greek-alphabet, erasmian
 lessons: grc-3
 short: A small mark like an apostrophe over a word's first vowel. A rough breathing (῾) adds an h sound; a smooth breathing (᾿) adds nothing.
 
-Every Greek word that begins with a vowel has a breathing mark on it. The rough breathing, curved like an opening quotation mark, means the word starts with an h: ὁ is “ho”, ἁμαρτία is “hamartia”. The smooth breathing, curved the other way, means no h: ἐν is “en”.
+Almost every Greek word that begins with a vowel has a breathing mark on it. The rough breathing, curved like an opening quotation mark, means the word starts with an h: ὁ is “ho”, ἁμαρτία is “hamartia”. The smooth breathing, curved the other way, means no h: ἐν is “en”.
 
-A few rules: a word starting with ρ always has a rough breathing (ῥῆμα, “rh-”), and so does a word starting with υ (υἱός). When a word starts with a pair of vowels, the mark sits on the second: αὐτός, εἰς. On a capital letter it stands in front: Ἰησοῦς.
+A few rules: a word starting with ρ nearly always has a rough breathing (ῥῆμα), which isn't said, and a word starting with υ always does (υἱός). A few Aramaic words written in Greek letters, such as Αββα, have no breathing at all. When a word starts with a pair of vowels, the mark sits on the second: αὐτός, εἰς. On a capital letter it stands in front: Ἰησοῦς.
 
 In the [[erasmian|Erasmian]] pronunciation the h is said. In [[restored-koine]] it is not, because by the first century the h sound had dropped out of everyday Greek, and the voice can't say it either way.
 
@@ -57,13 +80,13 @@ aka: iota subscript, subscript, silent iota, ᾳ, ῃ, ῳ
 see: dative, accents
 short: A small ι written under α, η or ω (ᾳ ῃ ῳ). It is not said today, but it often marks the [[dative]] case.
 
-Once these were real pairs of vowels, αι, ηι and ωι, but the ι stopped being said, and scribes later wrote it as a tiny letter underneath. It doesn't change the pronunciation, but it matters for reading, because it often marks the [[dative]] case: τῷ λόγῳ, “to the word”; τῇ ἡμέρᾳ, “on the day”.
+Once these were long α, η and ω followed by a real ι, but the ι stopped being said, and scribes later wrote it as a tiny letter underneath. It doesn't change the pronunciation, but it matters for reading, because it often marks the [[dative]] case: τῷ λόγῳ, “to the word”; τῇ ἡμέρᾳ, “on the day”.
 
 ## diaeresis | Diaeresis: two dots
 lang: grc
 aka: diaeresis, trema, two dots, ¨, dieresis
 see: breathing, greek-alphabet
-short: Two dots over a vowel (ϊ ϋ) mean it is said on its own, not as part of a pair: Ἠσαΐας, “Isaiah”, is said e-sa-I-as.
+short: Two dots over a vowel (ϊ ϋ) mean it is said on its own, not as part of a pair: Ἠσαΐας, “Isaiah”, is said ay-sa-EE-as.
 
 Pairs of vowels such as αι and ευ are usually said as one sound. When they are not, the second vowel has two dots: Ἠσαΐας is four syllables, not three. You will see this mostly in names taken from Hebrew, such as Ἠσαΐας and Μωϋσῆς, “Moses”.
 
@@ -100,7 +123,7 @@ aka: final sigma, sigma, σ, ς, lunate sigma
 see: greek-alphabet
 short: The letter s has two shapes: σ inside a word and ς at the end. They are the same letter.
 
-λόγος has both: σ is never written at the end of a word, and ς never inside one. The capital is Σ. Ancient manuscripts mostly wrote a third shape, like a C, everywhere, and some printed editions copy it. The Words tab treats all of them as the same letter when you search.
+λόγος has both: σ is never written at the end of a word, and ς never inside one. The capital is Σ. Ancient manuscripts mostly wrote a third shape, like a C, everywhere, and some printed editions copy it. The [[words-tab|Words tab]] treats all of them as the same letter when you search.
 
 ## greek-punctuation | Greek punctuation
 lang: grc

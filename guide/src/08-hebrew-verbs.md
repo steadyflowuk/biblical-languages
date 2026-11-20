@@ -11,14 +11,24 @@ short: A Hebrew verb is its root, shaped by a stem pattern, in one of a few form
 A grammar label for a Hebrew verb reads like this: “Verb: Qal (simple, active) consecutive imperfect (past/present indicative) third singular masculine”. Taking it in order:
 
 - the stem, here [[qal]], with STEPBible's short description of it in brackets: see [[stems]];
-- the form, here the “consecutive imperfect”, better known as the [[wayyiqtol]], with a note on its usual time: see [[time-in-labels]];
+- the form, here the “consecutive imperfect”, better known as the [[wayyiqtol]], with a note on its usual time: see [[time-in-labels|how labels show time]];
 - the [[person]], [[number]] and [[gender]]: “he”. The app shortens this to 3ms: see [[pgn]].
 
-The forms are few. The [[perfect-hebrew|perfect]] (qatal) uses endings: שָׁמַרְתִּי, “I kept”. The [[imperfect-hebrew|imperfect]] (yiqtol) uses prefixes and sometimes endings: יִשְׁמֹר, “he will keep”. Joined to “and”, each of these has a narrative use: see [[wayyiqtol]] and [[weqatal]]. There are also commands ([[imperative]], [[jussive]], [[cohortative]]), two infinitives ([[infinitive-construct]], [[infinitive-absolute]]) and the [[hebrew-participle|participle]].
+The main forms are a handful. The [[perfect-hebrew|perfect]] (qatal) uses endings: שָׁמַרְתִּי, “I kept”. The [[imperfect-hebrew|imperfect]] (yiqtol) uses prefixes and sometimes endings: יִשְׁמֹר, “he will keep”. Joined to “and”, each of these has a narrative use: see [[wayyiqtol]] and [[weqatal]]. There are also commands ([[imperative]], [[jussive]], [[cohortative]]), two infinitives ([[infinitive-construct]], [[infinitive-absolute]]) and the [[hebrew-participle|participle]].
+
+## hebrew-word-order | Word order in Hebrew
+lang: he
+aka: word order, verb first, VSO, sentence order, Hebrew sentences
+see: wayyiqtol, verbless-clause, adjective, hebrew-verb, sentence-parts
+short: In a Hebrew story the verb usually comes first, then the subject, then the rest: וַיֹּאמֶר אֱלֹהִים, “and God said”, is literally “and said God”.
+
+English puts the subject first: “God said”. Hebrew prose usually starts with the verb, especially the [[wayyiqtol]]: וַיֹּאמֶר אֱלֹהִים יְהִי אוֹר, “And God said, ‘Let there be light’” ([GEN 1:3]), word for word “and said God, let there be light”. The [[object]] usually comes after the subject.
+
+When something else comes first, it is often for emphasis, a contrast, or a fresh start: [GEN 1:1] puts “in the beginning” before the verb: בְּרֵאשִׁית בָּרָא אֱלֹהִים, word for word “in the beginning created God”. A Hebrew adjective follows its noun ([[adjective]]), and a sentence can have no verb at all ([[verbless-clause]]). Poetry moves words around much more freely.
 
 ## stems | Verb stems: Qal, Piel, Hiphil and the rest
 lang: he
-aka: stem, stems, binyan, binyanim, conjugation, verb pattern, simple, intensive, causative, reflexive
+aka: stem, stems, binyan, binyanim, verb pattern, simple, intensive, causative, reflexive
 match: simple=the plain meaning of the root; intensive/resultive/transitive=a stronger, resulting or “making” sense; causative/declarative=causing someone to do it, or declaring it so; reflexive/iterative=doing it to oneself, or again and again
 see: qal, niphal, piel, pual, hiphil, hophal, hithpael, root, voice
 short: A Hebrew root can be used in several patterns, called stems, that change the kind of action: simple, passive, intensive, causative or reflexive.
@@ -35,7 +45,7 @@ Table: the seven common stems, with the root קדשׁ, “holy”
 | [[hophal]] | passive of the hiphil | the root קדשׁ has none |
 | [[hithpael]] | reflexive | הִתְקַדְּשׁוּ, “they sanctified themselves” |
 
-STEPBible's labels put a short description after each stem name, such as “Hiphil (causative/declarative, active)”. The descriptions say what the stem usually does: *simple*, *intensive/resultive/transitive* (a stronger action, or one that brings about a state), *causative/declarative* (making someone do something, or declaring something so), and *reflexive/iterative* (doing it to oneself, or repeatedly). The app shows them as STEPBible writes them.
+STEPBible's labels put a short description after each stem name, such as “Hiphil (causative/declarative, active)”. The descriptions say what the stem usually does: *simple*, *intensive/resultive/transitive* (a stronger action, or one that brings about a state; “transitive” means the verb takes an [[object]]), *causative/declarative* (making someone do something, or declaring something so), and *reflexive/iterative* (doing it to oneself, or repeatedly). The word “active” or “passive” after the description is the [[voice]]: whether the subject does the action or has it done to it. The app shows them as STEPBible writes them.
 
 A few [[rare-stems]] are explained in their own entry, and the Aramaic stems in [[aramaic-stems]].
 
@@ -69,7 +79,7 @@ aka: Piel, D stem, intensive stem, doubled stem
 match: piel=the stem with a doubled middle letter: often “to make” or a stronger action
 see: stems, pual, dagesh
 find: he (^|/)Vp
-short: A stem marked by a doubled middle letter of the root. It often means “to make something so” or a stronger, repeated action: דִּבֶּר, “he spoke”.
+short: A stem marked by a doubled middle letter of the root. It often means “to make something so” or a stronger, repeated action: קִדַּשׁ, “he made holy”.
 
 The Piel doubles the middle letter of the root, shown by a [[dagesh]] in it: דִּבֶּר, with בּ. Older grammars called it the intensive stem. Scholars now describe it more as bringing about a state: from “to be holy”, Qal, comes “to make holy”, Piel. For many verbs it is just the usual stem: דִּבֶּר, “he spoke”, is Piel, and there is hardly any Qal of that verb.
 
@@ -115,7 +125,7 @@ short: The reflexive stem: doing the action to oneself or with each other, or go
 
 The Hithpael adds הִתְ- at the front and doubles the middle letter like the [[piel]]. Its meaning is often reflexive (“to sanctify oneself”), sometimes doing something with one another, or repeatedly, or pretending: הִתְהַלֵּךְ, “he walked about”. הִתְפַּלֵּל, “he prayed”, is one of its commonest words.
 
-When the root starts with ס or שׁ, the ת swaps places with it: הִשְׁתַּמֵּר, “he kept himself”, not הִתְשַׁמֵּר.
+When the root starts with ס, שׂ or שׁ, the ת swaps places with it: הִשְׁתַּמֵּר, “he kept himself”, not הִתְשַׁמֵּר. After צ the ת also becomes ט, and before ד, ט or ת it merges into a doubled letter.
 
 unattested: הִתְשַׁמֵּר, הִשְׁתַּמֵּר
 
@@ -127,9 +137,11 @@ see: stems, hithpael
 find: he (^|/)V[vcDu]
 short: A handful of verbs use stems outside the main seven. The best known is “to bow down” or “to worship”, הִשְׁתַּחֲוָה, labelled hishtaphel.
 
-הִשְׁתַּחֲוָה, “he bowed down”, used for bowing to people and for worshipping God, is the commonest of these. Older grammars explained it as a Hithpalel of a root שׁחה. Most now see it as the rare hishtaphel stem of the root חוה, and STEPBible labels it so.
+הִשְׁתַּחֲוָה, “he bowed down”, used for bowing to people and for worshipping God, is the commonest of these. Older grammars explained it as a reflexive form of a root שׁחה. Most now see it as the rare hishtaphel stem of the root חוה, and STEPBible labels it so.
 
 The tiphil, nithpael and hothpaal appear only a few times each. When you meet one, the [[dictionary-form]] and the English in the verse are your guide.
+
+Grammars also name patterns such as the polel and pilpel, in which a root with a weak middle letter repeats a letter to do the work of the [[piel]] (see [[weak-verbs]]). STEPBible counts these as Piel or [[hithpael|Hithpael]], so the app's labels don't use those names.
 
 ## perfect-hebrew | Perfect (qatal)
 lang: he
@@ -139,7 +151,7 @@ see: imperfect-hebrew, weqatal, aspect, time-in-labels
 find: he (^|/)V[a-zA-Z]p
 short: The Hebrew verb form with endings, qatal, usually for a completed action, which English mostly translates with the past: שָׁמַר, “he kept”.
 
-The perfect is made by adding endings to the stem: שָׁמַר, “he kept”, שָׁמַרְתִּי, “I kept”, שָׁמְרוּ, “they kept”. Grammar books call it qatal, after the pattern קָטַל, and also the suffix conjugation, because the person is shown by a suffix.
+The perfect is made by adding endings to the stem: שָׁמַר, “he kept”, שָׁמַרְתִּי, “I kept”, שָׁמְרוּ, “they kept”. Grammar books call it qatal, after the pattern קָטַל, “he killed”, the verb older grammars used as their model. They also call it the suffix conjugation (a conjugation is a set of verb forms), because the person is shown by a suffix.
 
 It presents an action as complete. Usually that means the past, but not always: with verbs of state it can be present (יָדַעְתִּי, “I know”), and in promises and prophecy something so certain that it is spoken of as done. That is why STEPBible labels it “past/present”.
 
@@ -163,7 +175,7 @@ lang: he
 aka: yiqtol, imperfect, prefix conjugation, impf., Hebrew imperfect, future in Hebrew
 match: imperfect=the yiqtol form: an action seen as not complete
 see: perfect-hebrew, wayyiqtol, jussive, cohortative, aspect, time-in-labels
-find: he (^|/)V[a-zA-Z]i
+find: he (^|/)V[a-zA-Z]i avoid=PSA106:12
 short: The Hebrew verb form with prefixes, yiqtol, for actions not seen as complete: usually the future, but also habits, wishes and commands: יִשְׁמֹר, “he will keep”.
 
 The imperfect adds a prefix that shows the person (א for “I”, ת for “you” and “she”, י for “he” and “they”, נ for “we”), and sometimes an ending too: יִשְׁמֹר, “he will keep”, תִּשְׁמְרוּ, “you will keep”. Grammar books call it yiqtol, or the prefix conjugation.
@@ -185,7 +197,7 @@ Table: the prefixes and endings of the imperfect, on שָׁמַר
 lang: he
 aka: wayyiqtol, vayyiqtol, waw consecutive, vav consecutive imperfect, consecutive imperfect, narrative past, preterite, and he said
 match: consecutive imperfect=the wayyiqtol: “and he did”, the narrative past
-see: imperfect-hebrew, conjunction-vav, weqatal, perfect-hebrew
+see: imperfect-hebrew, conjunction-vav, weqatal, perfect-hebrew, hebrew-word-order
 lessons: he-9
 find: he (^|/)V[a-zA-Z]w n=3
 short: “And” joined to an [[imperfect-hebrew|imperfect]] form, used for the main events of a story in the past: וַיֹּאמֶר, “and he said”. It is the commonest verb form in Hebrew stories.
@@ -194,7 +206,7 @@ Biblical stories move forward with this form: וַיְהִי, “and it came to 
 
 You can recognise it by the “and”: וַ, with a patah and a doubled letter after it (though a י with a [[shewa]] usually drops the doubling dot: וַיְהִי). Before א the vowel lengthens instead: וָאֹמַר, “and I said”. Its stress often moves towards the front of the word, which can shorten its last vowel.
 
-STEPBible calls it the “consecutive imperfect”. The app's short label is “wayyiqtol”, the name most grammars now use.
+STEPBible calls it the “consecutive imperfect”. The app's short label is “wayyiqtol”, the name most grammars now use. The name starts with w, as ו was probably said in the earliest times; the [[masoretes|Masoretes]], and the app, say v: va-YO-mer.
 
 ## weqatal | Weqatal: “and he will”
 lang: he
@@ -223,10 +235,12 @@ lang: he
 aka: jussive, let him, may he, third person command, short imperfect
 match: jussive=a wish or command for someone else: “let him”, “may it”
 see: imperfect-hebrew, cohortative, imperative, prohibition
-find: he (^|/)V[a-zA-Z]j[23] n=3
+find: he (^|/)V[a-zA-Z]j[23] n=3 avoid=PSA107:29
 short: A form of the [[imperfect-hebrew|imperfect]] used to wish or command something of another person: יְהִי אוֹר, “let there be light”.
 
 The jussive expresses the speaker's will for someone other than the one spoken to: “let him go”, “may the LORD bless you”. It looks like the [[imperfect-hebrew|imperfect]], and for most verbs it is exactly the same; for some it is a little shorter: יִהְיֶה, “it will be”, but יְהִי, “let it be”. With אַל in front it means “don't”: see [[prohibition]].
+
+> GEN 1:3 יְהִי | יְהִי אוֹר, “let there be light”: the short form of יִהְיֶה
 
 STEPBible's labels mark it “future/present jussive”, or “indicative/jussive” where the form could be either.
 
@@ -265,7 +279,7 @@ lang: he
 aka: Hebrew participle, participle passive, active participle, passive participle, ptc., one who
 match: participle=a verb used like an adjective or noun: “going”, “one who goes”; participle passive=a participle with a passive meaning: “kept”, “blessed”
 see: participle, qal, verbless-clause
-find: he (^|/)V[a-zA-Z][rs] n=3
+find: he (^|/)V[a-zA-Z][rs] n=3 avoid=PSA113:6
 short: A verb used like an adjective or noun, for ongoing action or for someone who does something: שֹׁמֵר, “keeping”, “a keeper”; בָּרוּךְ, “blessed”.
 
 The Hebrew [[participle]] often describes something going on at the time: הִנֵּה אָנֹכִי עֹמֵד, “look, I am standing”. As a noun it names someone by what they do: שֹׁמֵר, “a keeper”, רֹעֶה, “a shepherd”. It has the [[gender]] and [[number]] of an [[adjective]], not a [[person]], so “I am standing” and “he is standing” use the same word.
@@ -289,7 +303,7 @@ aka: 3ms, 3fs, 3mp, 3fp, 2ms, 2fs, 2mp, 2fp, 1cs, 1cp, 3cp, pgn, PGN, ms, fs, mp
 see: person, gender, number, abbreviations, pronoun-suffix
 short: Under Hebrew words the app shortens person, gender and number to three characters: 3ms means “he” (3rd person, masculine, singular); 1cp means “we”.
 
-The number is the [[person]]: 1 “I/we”, 2 “you”, 3 “he/she/they”. The first letter is the [[gender]]: m masculine, f feminine, c common (either). The last is the [[number]]: s singular, p plural, d [[dual]]. So:
+The digit is the [[person]]: 1 “I/we”, 2 “you”, 3 “he/she/they”. The first letter is the [[gender]]: m masculine, f feminine, c common (either). The last is the [[number]]: s singular, p plural, d [[dual]]. So:
 
 Table: the commonest combinations
 | short | means |
@@ -312,5 +326,7 @@ see: root, gutturals, stems
 short: Roots that contain א, ה, ו, י or נ, or a throat letter, often lose or change a letter: נָתַן, “he gave”, becomes יִתֵּן, “he will give”, without its first נ.
 
 Regular verbs keep all three root letters in every form. Many common verbs don't. A נ at the start often vanishes and leaves a doubled letter ([[dagesh]]): יִתֵּן from נתן. A ה at the end often disappears or becomes another vowel: בָּנָה, “he built”, וַיִּבֶן, “and he built”. A ו or י in the middle can turn into a vowel: קוּם, “to rise”, קָם, “he rose”. [[gutturals|Throat letters]] change the vowels around them.
+
+Grammars name these verbs by the position of the weak letter: I-nun means a נ first (נתן), III-he a ה last (בנה), and a hollow verb has ו or י in the middle (קום).
 
 When a word seems to have only two root letters, it is probably one of these. The app always shows the [[dictionary-form]], so you can see the full root.

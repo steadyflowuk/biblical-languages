@@ -22,6 +22,9 @@ What it checks (each a kind of problem; the summary counts them):
   matches    no label phrase claimed by two entries for the same language
   claims     every Greek or Hebrew word an entry's summary gives as an example has, somewhere in the Bible, the grammar
              the entry is about (its find pattern)
+  respell    every respelling written in the prose (λόγος, LO-gos; בְּרִית, be-RIT) is the app's: Greek = greekSay in
+             js/sound.js, Hebrew = the word lists' and lessons' respelling of the same pointed word; Hebrew writes
+             i and u (never ee, oo) and puts one stressed syllable in capitals
 """
 import json
 import os
@@ -44,6 +47,7 @@ FACTS = {
 }
 # entries that explain the digits inside the app's grammar codes (3ms: 3rd person)
 CODE_ENTRIES = {"pgn", "abbreviations", "grammar-codes"}
+AVOID = re.compile(r"drunk|sorcer|put to death|pregnant|naked|harlot|prostitut|uncovered|whore|adulter|rape|slaughter", re.I)
 LATIN = re.compile(r"\b(e\.g\.|i\.e\.|etc\.|cf\.|viz\.|ibid\.|N\.B\.)", re.I)
 AMERICAN = re.compile(r"\b(\w+iz(e|es|ed|ing|ation)|color(s|ed)?|center(s|ed)?|honor(s|ed)?|favor(ite|s)?|behavior|neighbor|labor|"
                       r"savior|gray|catalog|traveled|traveling|judgment|toward|fulfill|fulfillment|analyze|defense|offense|program)\b", re.I)
@@ -63,7 +67,7 @@ COMMON = {"word", "words", "case", "cases", "number", "numbers", "person", "pers
           "verbs", "adjective", "adjectives", "pronoun", "pronouns", "preposition", "prepositions", "conjunction",
           "adverb", "interjection", "names", "like", "the like", "rest", "the rest", "verb stems", "stress",
           "accent", "accents", "using this guide", "gloss", "lemma", "transliteration", "manuscripts", "agreement",
-          "perfect"}
+          "perfect", "stepbible"}
 
 
 def load(path):
@@ -145,6 +149,7 @@ class Checker:
         self.check_examples(guide, ex, src_entry)
         self.check_claims(guide, src_entry)
         self.check_matches(guide)
+        self.check_respellings(guide, src_entry)
         return self.problems
 
     def texts(self, e):
@@ -390,13 +395,33 @@ class Checker:
                         elif p["lang"] == lang:
                             parts = code.split("+") if lang == "grc" else [code[1:]]
                             ok = ok or any(re.search(p["pattern"], c) for c in parts)
+                    raw = words[x["wi"]][3]
+                    ks = re.findall(r"\{([GH]\d{4,5}[A-Za-z]?)\}", raw) if x["lang"] != "grc" else raw.split("+")
+                    for p in pats:
+                        if p.get("key") and not any(re.search(p["key"], k) for k in ks) and len(pats) == 1:
+                            ok = False
+                        if p.get("nokey") and any(re.search(p["nokey"], k) for k in ks) and len(pats) == 1:
+                            ok = False
                     if not ok:
-                        self.bad("examples", w, f"{x['ref']} {words[x['wi']][0]}: its grammar {code} doesn't match the entry's find")
+                        self.bad("examples", w, f"{x['ref']} {words[x['wi']][0]}: its grammar {code} or entry doesn't match the entry's find")
+                    # a picked example's word must make sense on its own (checked here independently of the builder)
+                    gl = str(words[x["wi"]][2] if len(words[x["wi"]]) > 2 else "").strip()
+                    if not gl or re.fullmatch(r"(\[[^\]]*\]\s*)?<[^>]*>(\s*\[[^\]]*\])?", gl):
+                        self.bad("examples", w, f"{x['ref']} {words[x['wi']][0]}: its English “{gl}” isn't translated, so it explains nothing on its own")
+                    prev = words[x["wi"] - 1] if x["wi"] else None
+                    if prev and w not in ("negative", "prohibition"):
+                        pc = prev[4] if len(prev) > 4 else ""
+                        if (x["lang"] == "grc" and "PRT-N" in pc.split("+")) or (x["lang"] != "grc" and pc.endswith("Tn")):
+                            self.bad("examples", w, f"{x['ref']} {words[x['wi']][0]}: comes straight after “not”, so its English on its own says the opposite")
+                    if any(f"{x['book']}{x['ch']}:{x['v']}" in p.get("avoid", []) for p in pats):
+                        self.bad("examples", w, f"{x['ref']}: picked although the entry says to avoid it")
+                    if AVOID.search(x["english"]):
+                        self.bad("examples", w, f"{x['ref']}: a verse a beginner shouldn't meet as a grammar example ({AVOID.search(x['english']).group(0)})")
                 if len(words[x["wi"]]) > 6 and words[x["wi"]][6] in ("k", "x"):
                     self.bad("examples", w, f"{x['ref']}: the example word is not read aloud or not in Leningrad")
             # counts, recounted here
             for c, p in zip(e.get("count", []), pats):
-                n = self.recount(p["lang"], p["pattern"])
+                n = self.recount(p["lang"], p["pattern"], p.get("key"), p.get("nokey"))
                 if n != c["n"]:
                     self.bad("examples", w, f"count for {p['lang']} {p['pattern']} says {c['n']}, recounted {n}")
             for key, val in (e.get("counts") or {}).items():
@@ -410,7 +435,123 @@ class Checker:
             for key in used - set(e.get("counts") or {}):
                 self.bad("numbers", w, f"{{{{{key}}}}} has no count: line")
 
-    def recount(self, lang, pattern):
+    # ------------------------------------------------------------ respellings written in the prose
+    RESPELL = re.compile(r"(?:, “[^”]*”,? is said |, | is said | is | \()((?:[a-zA-Z']+-)*[a-zA-Z']+(?: (?:[a-zA-Z']+-)*[a-zA-Z']+)?)(?=, “|,? “|\)|[,;.:]|$)")
+
+    def known_says(self):
+        """What the app already says for a written Hebrew word: the word lists and every lesson and Letters card."""
+        if getattr(Checker, "_says", None) is not None:
+            return Checker._says
+        says = {}
+        for r in load(os.path.join(DATA, "decks", "hebrew.json"))["words"]:
+            if r[4]:
+                says.setdefault(BG.hebrew_key(r[1]), set()).add(r[4])
+
+        def walk(x):
+            if isinstance(x, dict):
+                t, say = x.get("t") or x.get("he"), x.get("say")
+                if isinstance(t, str) and isinstance(say, str) and HEBREW_WORD.fullmatch(t.strip()):
+                    says.setdefault(BG.hebrew_key(t.strip()), set()).add(say)
+                for y in x.values():
+                    walk(y)
+            elif isinstance(x, list):
+                for y in x:
+                    walk(y)
+        for d, _, files in os.walk(os.path.join(ROOT, "lessons", "he")):
+            for f in files:
+                if f.endswith(".json"):
+                    walk(load(os.path.join(d, f)))
+        walk(load(os.path.join(ROOT, "lessons", "alphabet", "he.json")))
+        Checker._says = says
+        return says
+
+    def respellings(self, text):
+        """(lang, word, respelling) wherever the prose gives a word's sound: “בְּרִית, be-RIT, …”, “שָׁמְרוּ is sha-me-RU”."""
+        s = re.sub(r"\[\[([^\]|]+)\|([^\]]+)\]\]", r"\2", text).replace("*", "")
+        out = []
+        for rx, lang in ((GREEK_WORD, "grc"), (HEBREW_WORD, "he")):
+            for m in rx.finditer(s):
+                word = m.group(0)
+                if s[m.start() - 1:m.start()] == "\u05be":  # the second word of a maqqef phrase: read with the first
+                    continue
+                if lang == "he":  # a maqqef phrase: כָּל־הָאָרֶץ, kol ha-A-rets
+                    j = m.end()
+                    while j < len(s) and s[j] == "\u05be":
+                        n = rx.match(s, j + 1)
+                        if not n:
+                            break
+                        j = n.end()
+                    word = s[m.start():j]
+                r = self.RESPELL.match(s, m.start() + len(word))
+                if not r:
+                    continue
+                say = r.group(1)
+                after = s[r.end():r.end() + 3]
+                # a respelling has syllables joined by hyphens (not letters spelt out, Y-H-W-H), or is one short
+                # lower-case syllable followed by the word's meaning in quotes (καί, kai, “and”)
+                parts = re.split("[- ]", say)
+                if "-" in say:
+                    if all(len(x) == 1 and x.isupper() for x in parts):
+                        continue
+                elif not (say.islower() and len(say) <= 5 and after.startswith((", “", " “")) and say not in {"and", "or", "is", "the", "a", "see", "not", "in", "for", "to", "of"}):
+                    continue
+                out.append((lang, word, say))
+        return out
+
+    def check_respellings(self, guide, src_entry):
+        """Every respelling in the prose is the one the app gives: Greek = greekSay (js/sound.js), Hebrew = the word
+        lists' and lessons' respelling of the same pointed word; Hebrew writes i and u (never ee, oo) and marks the
+        stressed syllable of a longer word in capitals."""
+        import subprocess
+        found = []
+        for e in guide["entries"] + self.intros:
+            w = f"{src_entry[e['id']]['file']}: {e['id']}"
+            for where, t in self.texts(e):
+                for lang, word, say in self.respellings(t):
+                    found.append((w, lang, word, say))
+        greek = [x for x in found if x[1] == "grc"]
+        if greek:
+            out = subprocess.run(["node", os.path.join(ROOT, "tools", "greek_say.mjs")], input="\n".join(x[2] for x in greek),
+                                 capture_output=True, text=True)
+            if out.returncode:
+                self.bad("respell", "tools/greek_say.mjs", out.stderr.strip()[:300])
+            else:
+                for (w, _, word, say), want in zip(greek, out.stdout.split("\n")):
+                    if say != want:
+                        self.bad("respell", w, f"{word} is respelt {say}, but the app says {want}")
+        says = self.known_says()
+        for w, lang, word, say in found:
+            if lang != "he":
+                continue
+            if re.search(r"ee|oo", say, re.I):
+                self.bad("respell", w, f"{word} is respelt {say}: Hebrew respellings write i and u, not ee and oo")
+            for part in say.split():
+                if part.count("-") and sum(1 for x in part.split("-") if x.isupper()) != 1 and not re.search(r"[A-Z]", say.replace(part, "")):
+                    self.bad("respell", w, f"{word} is respelt {say}: mark the stressed syllable in capitals, once")
+            want = says.get(BG.hebrew_key(word.replace("\u05be", "")))
+
+            def single(x):  # a doubled letter may be shown across the hyphen (hash-sha) or not (ha-sha)
+                return re.sub(r"(sh|ch|kh|ts|[a-z])-(?=\1)", "-", x, flags=re.I)
+            if want and single(say) not in {single(x) for x in want}:
+                self.bad("respell", w, f"{word} is respelt {say}, but the word lists or lessons say {' or '.join(sorted(want))}")
+        self.respell_count = len(found)
+
+    def recount(self, lang, pattern, key=None, nokey=None):
+        if key or nokey:  # word by word: the dictionary entry decides as well as the grammar
+            krx, nrx = re.compile(key) if key else None, re.compile(nokey) if nokey else None
+            n = 0
+            for code, _, raw in self.codes[lang]:
+                ks = re.findall(r"\{([GH]\d{4,5}[A-Za-z]?)\}", raw) if lang != "grc" else raw.split("+")
+                if krx and not any(krx.search(k) for k in ks):
+                    continue
+                if nrx and any(nrx.search(k) for k in ks):
+                    continue
+                if pattern.startswith("key="):
+                    n += any(re.search(pattern[4:], k) for k in ks)
+                else:
+                    parts = code.split("+") if lang == "grc" else [code[1:]]
+                    n += any(re.search(pattern, c) for c in parts)
+            return n
         n = 0
         if pattern.startswith("flag="):
             for code, (bk, c, v, wi), _ in self.codes[lang]:
@@ -511,6 +652,9 @@ PLANTS = [
     ("build", "> ACT 13:38 ἠδυνήθητε", "> ACT 13:39 ἠδυνήθητε"),
     ("plain", "In the [[indicative]] the aorist has an", "In the indicative the aorist has an"),
     ("claims", "nd: נֵלְכָה, “let us go”.", "nd: נַעֲשֶׂה, “let us make”."),
+    ("respell", "אֶרֶץ, E-rets", "אֶרֶץ, e-RETS"),
+    ("respell", "οὐρανός, oo-ra-NOS", "οὐρανός, oo-RA-nos"),
+    ("respell", "בְּרִית, be-RIT, “covenant”", "בְּרִית, be-REET, “covenant”"),
 ]
 
 

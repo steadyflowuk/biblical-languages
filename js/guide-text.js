@@ -48,7 +48,7 @@ export function originalWords(text) {
 }
 
 // Words that keep their capital when a title is used as link text: names of languages, texts, people and stems
-const PROPER = /^(Greek|Hebrew|Aramaic|Koine|Biblical|Septuagint|Masoretes|Erasmian|Restored|Strong's|Qal|Niphal|Piel|Pual|Hiphil|Hophal|Hithpael|Peal|Peil|Pael|Haphel|Hitpeel|Wayyiqtol|Weqatal|Weyiqtol|English|SBL|BSB|ESV|LXX)\b/;
+const PROPER = /^(Greek|Hebrew|Aramaic|Koine|Biblical|Septuagint|Masoretes|Erasmian|Restored|Strong's|Qal|Niphal|Piel|Pual|Hiphil|Hophal|Hithpael|Peal|Peil|Pael|Haphel|Hitpeel|English|SBL|BSB|ESV|LXX)\b/;
 /** The words a link to an entry shows when the text gives none: its title before any colon, as in running text. */
 export function linkText(e) {
   let t = String(e.title || "").split(":")[0].replace(/\s*\(.*?\)\s*/g, " ").trim().replace(/^The /, "");

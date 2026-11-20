@@ -38,10 +38,10 @@ aka: nom., nominative case, subject case
 match: nominative=the subject case
 see: case, subject, dictionary-form
 lessons: grc-6
-find: grc ^[NAPT]-N
+find: grc ^N-N..$
 short: The case of the subject, the person or thing doing the action: “*the Word* was”. Dictionaries list nouns in the nominative.
 
-In [JHN 1:1], ὁ λόγος, “the Word”, is nominative, because it is the [[subject]]: the Word was. The nominative is also used after “is” or “was” for what the subject is: θεὸς ἦν ὁ λόγος, “the Word was God”. Here both θεός and λόγος are nominative, and the [[greek-article|word “the”]] shows which is the subject.
+In [JHN 1:1], ὁ λόγος, “the Word”, is nominative, because it is the [[subject]]: the Word was. The nominative is also used after “is” or “was” for what the subject is: θεὸς ἦν ὁ λόγος, “the Word was God”. Here both θεός and λόγος are nominative (θεός is written θεὸς before another word: see [[accents]]), and the [[greek-article|word “the”]] shows which is the subject.
 
 Names and titles in lists, headings and greetings are often in the nominative too: Παῦλος, “Paul”, at the start of a letter.
 
@@ -51,10 +51,10 @@ aka: gen., genitive case, possessive case, of
 match: genitive=the “of” case
 see: case, dative, genitive-absolute
 lessons: grc-7
-find: grc ^[NAPT]-G
+find: grc ^N-G..$
 short: The “of” case: it shows whose something is or what it is connected with: “the word *of God*”, “*Jesus'* disciples”.
 
-The genitive usually describes or limits another noun, and English translates it with “of” or with “'s”: ὁ λόγος τοῦ θεοῦ, “the word of God”. It can show belonging (the house of Peter), source (the gospel of God), what something is made of, or what kind of thing it is (the body of sin: a sinful body).
+The genitive usually describes or narrows down another noun, and English translates it with “of” or with “'s”: ὁ λόγος τοῦ θεοῦ, “the word of God”. It can show belonging (the house of Peter), source (the gospel of God), what something is made of, or what kind of thing it is (the body of sin: a sinful body).
 
 The genitive is also used after some [[preposition|prepositions]], such as ἐκ, “out of”, ἀπό, “from”, and διά, “through”, and to compare (“greater than him”).
 
@@ -66,7 +66,7 @@ aka: dat., dative case, to, for, indirect object
 match: dative=the “to” or “for” case
 see: case, object, accusative
 lessons: grc-7
-find: grc ^[NAPT]-D
+find: grc ^N-D..$
 short: The “to” or “for” case: the person something is given or said to, and also “with” or “by”: “he said *to them*”.
 
 The dative marks the indirect [[object]]: εἶπεν αὐτοῖς, “he said to them”. It is also used for the means by which something is done (“by grace”, “with water”), for place (“in the house”) and time (“on the third day”).
@@ -79,7 +79,7 @@ aka: acc., accusative case, object case, direct object
 match: accusative=the object case
 see: case, object, nominative
 lessons: grc-6
-find: grc ^[NAPT]-A
+find: grc ^N-A..$
 short: The case of the direct object, the person or thing the action is done to: “God loved *the world*”.
 
 In “God loved the world”, the world is what was loved, so in Greek it is accusative: τὸν κόσμον. The accusative also follows some prepositions, especially εἰς, “into”, and πρός, “to” or “with”, and it can show how long something lasts (“for three days”).
@@ -154,7 +154,7 @@ short: The family of all other nouns, whose stem often only shows in the other c
 
 Third declension nouns have many different endings in the [[nominative]] singular, which makes them harder to recognise: σάρξ, πατήρ, ὄνομα, πόλις, πνεῦμα. Their real [[stem]] shows in the other cases: σαρκ-, πατρ-, ὀνοματ-.
 
-That is why dictionaries give the [[genitive]] with every noun. The genitive singular of these nouns usually ends in -ος: σαρκός, πατρός, ὀνόματος. The other endings are fairly regular: the [[dative]] singular ends in -ι, the [[accusative]] in -α or -ν, and the dative plural in -σι(ν).
+That is why dictionaries give the [[genitive]] with every noun. The genitive singular of these nouns usually ends in -ος: σαρκός, πατρός, ὀνόματος. The other endings are fairly regular: the [[dative]] singular ends in -ι, the [[accusative]] in -α or -ν, and the dative plural in -σι (or -σιν: see [[movable-nu]]).
 
 Table: σάρξ, “flesh”, and ὄνομα, “name”
 | case | σάρξ | ὄνομα |
@@ -242,11 +242,11 @@ aka: contracted form, contracted
 match: contracted form=a form marked as shortened in the tagging; contracted=a form marked as shortened in the tagging
 see: comparative, contract-verbs
 count: elder grc ^N-.*-C$
-short: A label STEPBible puts on a few words. In this text it is used only for πρεσβύτερος, “elder”, a word that began as a [[comparative|comparative]] meaning “older”.
+short: A label STEPBible puts on a few words. In the New Testament it is used only for πρεσβύτερος, “elder”, which began as a word meaning “older”.
 
 The tagging system marks some nouns as a “contracted form”. In the New Testament as the app has it, the {{elder}} words with this label are all forms of πρεσβύτερος, “elder”, as in the elders of the church or the elders of the people. The word is the [[comparative|comparative]] of an older word for “old man”, so it first meant “older”, and became a title. For reading, treat it as a normal noun of the [[second-declension]].
 
-Contraction in Greek usually means two vowels merging into one, as in the [[contract-verbs]].
+In the same tagging system, the ending -C on an adjective means comparative, and that may be what was meant here. Contraction in Greek usually means two vowels merging into one, as in the [[contract-verbs]].
 
 ## attic | Attic Greek form
 lang: grc
@@ -270,14 +270,14 @@ Greek verbs already show who is doing the action, so a word for “I” or “yo
 
 The forms change with [[case]]: ἐγώ is “I”, με is “me”, μου is “of me” or “my”, μοι is “to me”. The commonest way to say “my” or “his” is the [[genitive]] of the pronoun after the noun: ὁ λόγος μου, “my word”, literally “the word of me”.
 
-αὐτός does three jobs. On its own it means “he”, “she” or “it” (αὐτοῦ, “his”). Next to a noun with “the” it means “same”: τὸ αὐτὸ πνεῦμα, “the same Spirit”. And next to a noun without “the” in front of αὐτός, it means “himself”: αὐτὸς ὁ θεός, “God himself”.
+αὐτός does three jobs. On its own it means “he”, “she” or “it” (αὐτοῦ, “his”). Between “the” and its noun it means “same”: τὸ αὐτὸ πνεῦμα, “the same Spirit”. Outside them, with no “the” of its own, it means “himself”: αὐτὸς ὁ θεός, “God himself”.
 
 ## possessive | Possessive pronoun
 lang: grc
 aka: my, your, our, possessive adjective, ἐμός, σός, ἡμέτερος, ὑμέτερος
 match: possessive=a word for “my”, “your”, “our”
 see: personal-pronoun, genitive, pronoun
-find: grc ^S-
+find: grc ^S- avoid=JHN15:27
 short: Greek words for “my”, “your”, “our”, such as ἐμός and σός. They are rarer than the [[genitive]] of “I” or “you”.
 
 The full set is ἐμός, σός, ἡμέτερος and ὑμέτερος. Most often, though, Greek says “my” with μου, the [[genitive]] of ἐγώ: ὁ πατήρ μου, “my father”. Sometimes it uses a separate word that works like an [[adjective]], and STEPBible's labels call it a possessive pronoun. It agrees with the thing owned, not with the owner: ἡ χαρὰ ἡ ἐμή, “my joy”, is feminine because χαρά is. These words are often a little emphatic: “*my* joy”.
@@ -287,7 +287,7 @@ lang: grc
 aka: myself, yourself, himself, herself, themselves, ἑαυτοῦ, ἐμαυτοῦ, σεαυτοῦ
 match: reflexive=a word for “-self”, pointing back to the subject
 see: pronoun, middle, personal-pronoun
-find: grc ^F-
+find: grc ^F- avoid=MRK9:16
 short: A word for “myself”, “yourself”, “himself”: ἐμαυτοῦ, σεαυτοῦ, ἑαυτοῦ. It points back to the subject of its own clause.
 
 In “he humbled himself”, “himself” is the same person as the subject. Greek uses a reflexive pronoun here: ἐταπείνωσεν ἑαυτόν ([PHP 2:8]). Reflexive pronouns have no [[nominative]], because they are never the subject.
@@ -314,7 +314,7 @@ short: A pointing word: “this”, “that”, “these”, “those”. In Gre
 
 οὗτος points to something near, or just mentioned: οὗτός ἐστιν ὁ υἱός μου, “this is my Son”. ἐκεῖνος points to something further away, or to someone other than the main person: “that day”, “he”.
 
-A demonstrative next to a noun stands outside the article: οὗτος ὁ ἄνθρωπος, “this man”. That is the opposite of an ordinary [[greek-adjective|adjective]]. Hebrew has demonstratives too: see [[demonstrative-particle]].
+A demonstrative next to a noun comes before “the” or after the noun, never between them: οὗτος ὁ ἄνθρωπος, “this man”. That is the opposite of an ordinary [[greek-adjective|adjective]]. Hebrew has demonstratives too: see [[demonstrative-particle]].
 
 ## relative | Relative pronoun
 lang: grc
@@ -336,7 +336,7 @@ see: indefinite, interrogative-particle, pronoun
 find: grc ^I-
 short: Question words: “who?”, “what?”, “why?”, “how?”. In Greek τίς is “who?” and τί is “what?” or “why?”.
 
-τίς and τί always carry an accent on the ι, even before another word. That is how you tell them apart from [[indefinite]] τις and τι, “someone” and “something”, which usually have none. Greek also has question adverbs and particles: πῶς, “how?”, ποῦ, “where?”, πότε, “when?”.
+τίς and τί always carry an acute accent (´) on the ι, which never turns into a grave (see [[accents]]). That is how you tell them apart from [[indefinite]] τις and τι, “someone” and “something”, which usually have none. Greek also has question adverbs and particles: πῶς, “how?”, ποῦ, “where?”, πότε, “when?”.
 
 A question in Greek ends with ; which looks like an English semicolon: see [[greek-punctuation]]. In Hebrew a question can start with מִי, “who?”, מָה, “what?”, or the [[interrogative-particle|question prefix]] הֲ.
 
@@ -345,10 +345,10 @@ lang: grc
 aka: someone, something, anyone, a certain, τις, τι
 match: indefinite=“someone”, “something”, “a certain”
 see: interrogative, pronoun
-find: grc ^X-
+find: grc ^X- avoid=JHN2:5
 short: τις and τι: “someone”, “something”, “a certain”. They look like τίς, “who?”, but usually have no accent.
 
-With a noun, τις means “a certain”: ἄνθρωπός τις, “a certain man”. On its own it means “someone” or “anyone”: εἴ τις, “if anyone”. It never comes first in its clause, and it leans on the word before it, so it usually has no accent of its own, or passes one back to that word.
+With a noun, τις means “a certain”: ἄνθρωπός τις, “a certain man”. On its own it means “someone” or “anyone”: εἴ τις, “if anyone”. It rarely comes first in its clause, and it [[enclitic|leans on the word before it]], so it usually has no accent of its own, or passes one back to that word.
 
 ## correlative | Correlative pronoun
 lang: grc
@@ -358,4 +358,4 @@ see: relative, interrogative, pronoun
 find: grc ^[KQ]-
 short: Words for amount or kind that come in matching sets: ὅσος, “as much as”, τοσοῦτος, “so much”, οἷος, “such as”, πόσος, “how much?”.
 
-These words come in families that answer each other: πόσος; “how much?”, τοσοῦτος, “so much”, ὅσος, “as much as”. STEPBible's labels call them correlatives, and call the [[interrogative|question words]] among them (such as πόσος) “correlative or interrogative”. They change their endings like adjectives.
+These words come in families that answer each other: πόσος, “how much?”, τοσοῦτος, “so much”, ὅσος, “as much as”. STEPBible's labels call them correlatives, and call the [[interrogative|question words]] among them (such as πόσος) “correlative or interrogative”. They change their endings like adjectives.

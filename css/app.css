@@ -1082,6 +1082,11 @@ button.row:hover { background: var(--surface-soft); }
 .g-table { border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); min-width: 60%; }
 .g-table caption { text-align: left; color: var(--muted); font-size: .92rem; padding: 0 2px 6px; }
 .g-table th, .g-table td { text-align: left; vertical-align: top; padding: 8px 10px; border-top: 1px solid var(--line); }
+@media (max-width: 460px) {
+  .g-table { width: 100%; }
+  .g-table th, .g-table td { padding: 6px 6px; hyphens: auto; -webkit-hyphens: auto; overflow-wrap: anywhere; }
+  .g-table [lang=grc], .g-table [lang=he], .g-table [lang=arc] { overflow-wrap: normal; }
+}
 .g-table thead th { border-top: 0; font-size: .92rem; color: var(--muted); }
 .g-table tbody th { font-weight: 700; }
 .g-count { color: var(--muted); font-size: .95rem; }
@@ -1111,7 +1116,8 @@ button.row:hover { background: var(--surface-soft); }
 .g-ex-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; margin-top: 6px !important; }
 .g-ex-actions .verse-link { margin-top: 0; color: var(--accent-ink); }
 .g-see { margin: 0; padding-left: 1.3em; }
-.g-see li a, .g-lessons a { display: inline-block; min-height: 44px; line-height: 44px; }
+.g-see li a { display: block; min-height: 44px; padding: 11px 0; line-height: 1.4; box-sizing: border-box; }
+.g-lessons a { display: inline-block; min-height: 44px; line-height: 44px; }
 .g-pager { display: flex; justify-content: space-between; gap: 10px; margin-top: 28px; flex-wrap: wrap; }
 .g-pager .btn { max-width: 100%; }
 .g-code-parts { margin: 0; padding-left: 1.2em; }

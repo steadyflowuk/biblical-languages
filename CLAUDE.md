@@ -36,7 +36,7 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
 - Palette: navy #1E2B45, sage #8FA08A (deep #56705A), gold #C4A052 (deep #8C6D24), beige #EDE6D8, white.
 - Fonts (self-hosted WOFF, subset, OFL): Atkinson Hyperlegible (UI/English), Gentium Plus (Greek, scripture English),
   Noto Serif Hebrew (Hebrew with full points and cantillation). Ezra SIL was not downloadable here.
-- Phones: bottom tab bar (Today, Learn, Letters, Read, Words, Review — Letters added in 10d at the user's request); ≥900px: navy side rail plus Videos and Settings.
+- Phones: bottom tab bar (Today, Learn, Letters, Read, Words, Review, Guide — Letters added in 10d, Guide on 20 Nov, both at the user's request; labels capped at 3.4vw so seven fit at 320px largest text); ≥900px: navy side rail plus Videos and Settings.
 - The one bold element: the verse panel on Today (navy, large original text, tap a word for its gloss).
 
 ## Structure
@@ -49,6 +49,9 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
 - `js/dictionary.js` Words tab: search + entries (routes `#/words`, `#/words/KEY`) · `js/nav.js` back/return memory
 - `js/esv.js` ESV key + API + small offline store · Septuagint screen (`#/lxx/ID/CH[/V]`) lives in `js/reader.js`
 - `js/votd.js` Today's verse: day-seeded pick from data/votd-pool.json, built like the Reader · `js/offline.js` saving Bible data for offline use · `js/check.js` Check this device (#/check) · `js/activity.js` study days + streak · `js/progress.js` Progress screen + saveBackup · `js/media.js` Videos screen
+- `js/guide.js` Guide tab (`#/guide`, `#/guide/s/SECTION`, `#/guide/ENTRY`, `#/guide/code/grc|he|auto/CODE`) ·
+  `js/guide-text.js` (no DOM) markup → HTML, grammar label → terms (phraseTable/labelTerms), search, explainLink ·
+  content `guide/src/*.md` (format: guide/README.md) built by `tools/build_guide.py` into guide/guide.json + examples.json
 - `js/alphabet.js` Alphabet and sounds (`#/alphabet/grc|he`, content in `lessons/alphabet/<lang>.json`)
 - `js/lessons.js` lesson engine (route `#/lesson/LANG/ID`) · `lessons/` index + one JSON file per lesson (format: lessons/README.md)
 - `js/review.js` Review trainer (#/review) · `js/sound.js` respelling + voice text (no DOM; Node can import it) ·
@@ -487,6 +490,59 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
   definitions. Left: σύμφορον's dictionary form συμφέρω (as STEPBible), ROM 16:4 "for it", G3672 "ὁμ ολογέω" spacing
   in a source line.
 
+- [x] Guide (19–20 Nov 2026, user's request: "a tab for explanations for everything which could be new to someone …
+  searchable, accurate, interlinks to the actual text, examples from the text, voices from what we've built … and
+  checkers like we've done"). Guide tab (7th tab; rail too): 10 sections, 206 entries (start here, grammar words
+  everyone needs, Greek nouns/article/pronouns, Greek verbs, Greek marks and punctuation, Hebrew words, Hebrew verbs,
+  Aramaic, Hebrew letters/vowels/signs, using the app incl. every abbreviation). Written in guide/src/*.md; build_guide.py
+  picks Bible examples by grammar-code pattern ("find", daily-pool and famous verses first, different books/words; 263),
+  stores each verse's words, lex and BSB so js/votd.js buildVerse shows and says it as the Reader does (offline), counts
+  words ("How often") and named counts {{KEY}} (by code, key= or flag=), and finds a real occurrence of every Hebrew word
+  in the prose so its Listen button uses heVoice. "What do these words mean?" under every grammar line (Reader sheets,
+  Today, lesson Read step, examples) opens #/guide/code/…: each label term with its meaning (entries' match: phrases,
+  longest first, language-ranked: Aramaic → Hebrew entries → general), STEPBible's description, the code. Links in:
+  Reader notes (⟦ ⟧, Aramaic, qere/not read/supplied, numbering, BSB-only), Display options (abbreviations), Letters
+  guide sections (alphabet.js GUIDE_LINKS), the last Notice card of each lesson (entries' lessons:), Learn ("New to
+  grammar?"), Settings › Help, Words search ("In the guide" for grammar words, not everyday ones). Search: titles, other
+  names (aka, abbreviations such as impf., 3ms), label phrases, text; grammar codes typed are explained.
+  Found while building (fixed): STEPBible's Hebrew/Aramaic pronoun-ending samples had singular and plural swapped
+  (HSp3ms "they, them, their": fix_morph SUFFIX_SAMPLE); friendlyGrammar dropped a word after "or" ("Adverb or and
+  particle combined"); shortGrammar "Correlative pronoun" → "Correl. pronoun" (no \b) and "middle or passive deponent" →
+  "mid. or pass." (order). Checkers: tools/check_guide.py (build up to date, format, links, refs incl. written-out
+  ones, spelling of every Greek/Hebrew word, no typed numbers except FACTS dates, examples = Bible + BSB and match the
+  pattern, counts recounted independently, plain English: ≤40-word sentences, no Latin abbreviations, British spelling,
+  every technical term linked the first time an entry uses it; label phrases not claimed twice; claims: a word an
+  entry's summary gives as an example really has that grammar somewhere — it caught הִנֵּה called a "demonstrative
+  particle" (STEPBible: interjection; Tm = זֶה/אֵלֶּה) and λύσω, which in the NT is only a subjunctive; --self-test 11
+  plants), tools/check_guide.mjs (every word of all 1,869 labels as shown has an entry; every short label is
+  abbreviations on the Abbreviations page + explained words + 3ms codes, and each abbreviation listed is one the app
+  writes; STEPBible samples agree in person/number; no doubled glue words; every Greek/Hebrew word in the text sayable;
+  every example's word/verse Listen = the Reader's; every #/guide link and note link in js/ and GUIDE_LINKS resolves;
+  every written lesson has guide entries; --self-test 5), tools/test_guide.py (33 browser checks: 7 tabs at 320px
+  largest, every section/entry at 390 and 320 largest dark and iPad, every title/aka found by search, 125 code pages
+  fully linked, Listen buttons via a voice recorder, links from Reader/Today/lessons/Letters/Learn/Settings/Words,
+  offline). Existing checkers now read guide.json too (spelling, text hygiene, fonts, audit wording); crawl_app,
+  check_offline start from guide pages.
+  Two independent reviewers (accuracy: a Greek/Hebrew teacher; beginner: knows no grammar) + full check; fixed:
+  examples — find takes key=RX / nokey=RX (number words by Strong's, אֵת by H0853, nouns without אֶחָד, "active"
+  without δεῖ), avoid=REF,… per entry, and hand examples (GEN 1:3 יְהִי for the jussive); cases and "verb" pick nouns
+  and finite verbs only; the builder never picks a word straight after "not" (outside the negative/prohibition
+  entries), a word whose English is untranslated (<the>), or GUIDE_AVOID verses; check_guide checks all of these.
+  Content: ρ "nearly always" rough, Αββα has none; ay-sa-EE-as; αὐτός between "the" and noun = same; ᾔδει; optative
+  ι endings, εἴη; 2nd future = passive without θ; ἐνίψατο; subjunctive ω/η vs ο/ε (ἄγωμεν); "loose" = set free;
+  Hebrew respellings use i (be-RIT, e-lo-HIM); said shewa after a long vowel (יָלְדָה); meteg exception שָֽׁמְרֵנִי
+  sho-me-RE-ni; psalm titles share verse 1 when short; Samaritan Pentateuch; "over a thousand" qere; Adonai "my Lord"
+  and early Septuagint copies; article הָ before א ע ר, הַ before ה ח, הֶ before חָ; question הַ before shewa/throat
+  letters; הִנֵּנִי (GEN 22:1, 1SA 3:4) / הִנְנִי (ISA 6:8); שֵׁשׁ כְּנָפַיִם ISA 6:2; Piel קִדַּשׁ; hithpael ס שׂ שׁ swap, צ → ט;
+  polel/pilpel; I-nun/III-he; wayyiqtol w vs v; Haphel הַשְׁפֵּלְתְּ DAN 5:22; pronoun-ending table in Latin letters
+  (endings written with a bare mark after a hyphen, -ִים, may draw a dotted circle: check on the devices). Files
+  renumbered to reading order (01 start … 10 app). New entries (216 in all): Greek vowels and pairs, Hebrew word
+  order, STEPBible, הִנֵּה, Today, Words tab, Progress, Letters tab, No sound?, Settings at a glance, Getting the latest
+  version. check_guide "respell" (self-test 14 plants): every respelling in the prose = greekSay (Greek) or the
+  lists'/lessons' say (Hebrew; a doubled letter may show across the hyphen), Hebrew i/u never ee/oo, one stressed
+  syllable. Guide tables fit 320px largest (cells hyphenate); "undefined" (crawl's odd-text check) → "without
+  limits"; audit's American-spelling rule no longer flags "size"; check_text_hygiene names guide entries by id.
+
 ## Data (Session 2)
 - Rebuild: `tools/fetch_sources.sh <dir>` then `python3 tools/build_data.py <dir>`; verify with `python3 tools/check_data.py <dir>/sblgnt <dir>/morphhb` (46 checks).
 - Greek = SBLGNT text (since Session 13; see the log) tagged from TAGNT. 137,741 words, 7,939 verses, SBL verse
@@ -795,6 +851,9 @@ Phase 2 Plan" (https://claude.ai/artifact/4gQPkSK5u68eb1cbGt75wE). The user agre
   `check_drills.py`, `check_offline.py` (server). Baselines with every approved difference: tools/fixtures/*_baseline.json
   (`--write-baseline` after a deliberate change; a new instance fails, a vanished one too). `tools/make_fonts.py`
   remakes the font subsets (src/gfonts).
+- Guide (20 Nov 2026): `python3 tools/build_guide.py` after any change to guide/src, then `python3 tools/check_guide.py`,
+  `node tools/check_guide.mjs`, `python3 tools/test_guide.py` (all in check_all). A new grammar code in the data that
+  the guide can't explain fails check_guide.mjs: add a match: phrase to the right entry.
 - **The full check (use this): `python3 tools/check_all.py`** (~60–75 min; `quick` skips the whole-Bible sweeps,
   ~20 min; `only <job> …` runs chosen jobs). Starts the server, fetches sources if missing, runs every job below plus
   `tools/audit_content.py`, retries a failed suite once alone, writes `tools/reports/<time>/SUMMARY.md`. Then hand

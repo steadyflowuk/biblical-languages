@@ -11,7 +11,9 @@ BASE = "http://localhost:8765/"
 CHROME = "/opt/pw-browsers/chromium-1243/chrome-linux64/chrome"
 START = ["today", "learn", "alphabet", "alphabet/grc", "alphabet/he", "read", "read/JHN/1", "read/GEN/1", "read/PSA/23",
          "read/DAN/2", "lxx/PSA/22", "words", "words/G3056", "words/H0430G", "review", "progress", "media", "settings", "check",
-         "lesson/grc/grc-0", "lesson/grc/grc-9", "lesson/he/he-0", "lesson/he/he-10"]
+         "lesson/grc/grc-0", "lesson/grc/grc-9", "lesson/he/he-0", "lesson/he/he-10",
+         "guide", "guide/s/basics", "guide/aorist", "guide/wayyiqtol", "guide/abbreviations", "guide/code/grc/V-2AAI-3S",
+         "guide/code/he/HC%2FVqw3ms"]
 TAB = {"lesson": "learn", "lxx": "read", "check": "settings"}
 SEED = """(() => { localStorage.clear();
   const now = Date.now(), day = 86400000, iso = (t) => new Date(t).toISOString();

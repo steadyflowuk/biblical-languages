@@ -8,6 +8,8 @@ import { strongs, shortGrammar, englishHTML } from "./reader.js";
 import { heText, heAfter, heJoined, heEnglish, heTranslit, heShortGrammar, heLemma } from "./hebrew.js";
 import { head } from "./screens.js";
 import { sayButton } from "./audio.js";
+import { loadGuide } from "./guide.js";
+import { searchGuide } from "./guide-text.js";
 
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const LANGS = { G: { name: "greek", lang: "grc", dir: "ltr", where: "New Testament", label: "Greek" },
@@ -448,13 +450,27 @@ async function renderSearch(main) {
       return;
     }
     if (id !== run) return;
+    // a grammar word or sign the Guide explains (aorist, dagesh, impf.): its entry first
+    let guideRows = "";
+    try {
+      const g = await loadGuide();
+      // a grammar word, not an everyday English one (“in”, “who”, “the” are meanings to look up, not guide entries)
+      const plainWord = /^(the|a|an|and|or|but|if|in|on|to|of|for|from|with|by|at|as|is|was|be|i|me|my|we|us|our|you|your|he|him|his|she|her|it|its|they|them|their|who|whom|what|why|how|when|where|this|that|these|those|not|no|let|may|look|like|one|two|first|second|third|name|word|words|time|past|future|present)$/i;
+      const gh = q.trim().length < 3 || plainWord.test(q.trim()) ? [] : searchGuide(q, g).filter((h) => h.score >= 85).slice(0, 3);
+      if (gh.length) {
+        guideRows = `<div class="dict-guide"><h2>In the guide</h2><ul class="rows">${gh.map((h) => `<li><a class="row" href="#/guide/${esc(h.entry.id)}">
+          <span class="row-glyph" aria-hidden="true">?</span><span class="row-main"><span class="row-title">${esc(h.entry.title)}</span>
+          <span class="row-sub">What it means, with examples</span></span></a></li>`).join("")}</ul></div>`;
+      }
+    } catch { /* the guide couldn't load: the dictionary still works */ }
+    if (id !== run) return;
     announce(!hits.length ? "No matches" : hits.length === 1 ? "1 match" : `${hits.length} matches`);
     if (!hits.length) {
-      out.innerHTML = `<p class="dict-count">No matches for “${esc(q.trim())}”.</p>
+      out.innerHTML = `${guideRows}<p class="dict-count">No matches for “${esc(q.trim())}”${guideRows ? " in the dictionary" : ""}.</p>
         <p class="muted">Search for an English meaning (shepherd), a Greek or Hebrew word with or without accents and vowels, its pronunciation (poimen, roeh) or a Strong's number (G4166, H7462).</p>`;
       return;
     }
-    out.innerHTML = `<p class="dict-count">${hits.length === 1 ? "1 match" : `${hits.length.toLocaleString("en-GB")} matches`}</p>
+    out.innerHTML = `${guideRows}<p class="dict-count">${hits.length === 1 ? "1 match" : `${hits.length.toLocaleString("en-GB")} matches`}</p>
       <ul class="rows">${hits.slice(0, shown).map((h) => rowHTML(h.e, h.form)).join("")}</ul>
       ${hits.length > shown ? `<p><button type="button" class="btn secondary" data-more>Show more</button></p>` : ""}`;
     out.querySelector("[data-more]")?.addEventListener("click", () => { shown += 60; draw(); });

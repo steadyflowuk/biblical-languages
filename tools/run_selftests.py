@@ -19,6 +19,8 @@ CHECKERS = [
     ["node", "tools/check_dates.mjs", "--self-test"],
     [sys.executable, "tools/check_drills.py", "--self-test"],
     [sys.executable, "tools/check_offline.py", "--self-test"],
+    [sys.executable, "tools/check_guide.py", "--self-test"],
+    ["node", "tools/check_guide.mjs", "--self-test"],
 ]
 
 

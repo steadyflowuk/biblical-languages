@@ -36,8 +36,8 @@ def strings(x, path=""):
         for k, v in x.items():
             yield from strings(v, f"{path}.{k}")
     elif isinstance(x, list):
-        for i, v in enumerate(x):
-            yield from strings(v, f"{path}[{i}]")
+        for i, v in enumerate(x):  # guide entries by id, so adding one doesn't renumber the approved list
+            yield from strings(v, f"{path}[{v['id']}]" if path.endswith(".entries") and isinstance(v, dict) and "id" in v else f"{path}[{i}]")
 
 
 def untag(html):
@@ -63,7 +63,7 @@ def sources():
         for w in json.load(open(f))["words"]:
             yield f"{f} {w[0]}", w[1], lang
             yield f"{f} {w[0]} gloss", w[2], "en"
-    for f in sorted(glob.glob("lessons/**/*.json", recursive=True)) + ["data/votd.json"]:
+    for f in sorted(glob.glob("lessons/**/*.json", recursive=True)) + ["data/votd.json", "guide/guide.json"]:
         for path, s in strings(json.load(open(f))):
             yield f"{f}{path}", s, "mixed"
     for f in sorted(glob.glob("data/gnt/*.json")):

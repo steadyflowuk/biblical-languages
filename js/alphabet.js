@@ -56,12 +56,28 @@ function letterSheetHTML(L, i, A, lang) {
     </div>`;
 }
 
+/** The Guide's entries for each section of the guides (tools/check_guide.mjs checks every title and entry exists). */
+export const GUIDE_LINKS = {
+  "Marks that change the sound": [["breathing", "Breathing marks"], ["accents", "Accents"], ["iota-subscript", "Iota subscript"], ["diaeresis", "Diaeresis"]],
+  "Pairs of vowels": [["erasmian", "Erasmian pronunciation"], ["restored-koine", "Restored Koine"]],
+  "Erasmian and Restored Koine": [["erasmian", "Erasmian pronunciation"], ["restored-koine", "Restored Koine"]],
+  "Punctuation and signs in the text": [["greek-punctuation", "Greek punctuation"], ["elision", "Elision"], ["capitals-greek", "Capital letters"], ["double-brackets", "Double brackets"]],
+  "The vowels": [["vowel-points", "Vowel points"], ["hateph", "Hateph vowels"], ["matres", "Vowel letters"]],
+  "Hear the vowels in real words": [["qamets-hatuf", "Qamets hatuf"], ["syllables", "Syllables and stress"]],
+  "Dots and marks that change the sound": [["dagesh", "Dagesh"], ["begadkefat", "The six letters with two sounds"], ["shewa", "Shewa"], ["furtive-patah", "Furtive patah"]],
+  "The throat letters": [["gutturals", "Throat letters"], ["hebrew-article", "The article"]],
+  "Signs in the Bible text": [["maqqef", "Maqqef"], ["cantillation", "Accent marks"], ["sof-pasuq", "Sof pasuq"], ["ketiv-qere", "Ketiv and qere"], ["divine-name", "The name of God"], ["petuha-setuma", "Paragraph marks"]],
+  "How it sounded long ago": [["masoretes", "The Masoretes"], ["hebrew-pronunciation", "Hebrew pronunciation in the app"], ["qamets-hatuf", "Qamets hatuf"]],
+};
+
 function sectionHTML(sec, lang) {
+  const more = GUIDE_LINKS[sec.title] || [];
   return `<section class="ab-section">
     <h2>${mixed(sec.title)}</h2>
     ${(sec.body || []).map((p) => `<p>${mixed(p)}</p>`).join("")}
     ${sec.table ? tableHTML(sec.table) : ""}
     ${sec.examples && sec.examples.length ? `<ul class="ls-examples">${sec.examples.map((ex) => exampleHTML(ex, lang)).join("")}</ul>` : ""}
+    ${more.length ? `<p class="ab-guide">More in the guide: ${more.map(([id, t]) => `<a href="#/guide/${id}">${esc(t)}</a>`).join(", ")}.</p>` : ""}
   </section>`;
 }
 

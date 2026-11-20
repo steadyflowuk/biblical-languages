@@ -375,6 +375,19 @@ def fix_morph(table):
             row[1] = re.sub(r"certainly is done\b", "certainly should or must be done", row[1])
             row[1] = re.sub(r"certainly has been done\b", "certainly should or must have been done", row[1])
             table[code] = row
+    # Hebrew and Aramaic pronoun endings: STEPBible's sample words have singular and plural swapped (3ms "they, them,
+    # their", 1cs "we, us, our"); the description is right, so the sample follows it (19 Nov 2026, found by the Guide)
+    SUFFIX_SAMPLE = {("1", "s"): "I, me, my", ("1", "p"): "we, us, our", ("2", "s"): "you, your", ("2", "p"): "you, your",
+                     ("3", "s", "m"): "he, him, his", ("3", "s", "f"): "she, her", ("3", "p", "m"): "they, them, their (males)",
+                     ("3", "p", "f"): "they, them, their (females)"}
+    for code, row in table.items():
+        m = re.match(r"^[HA]Sp([123])([bmfc])([sp])$", code)
+        if m and len(row) > 2:
+            p, g, n = m.groups()
+            sample = SUFFIX_SAMPLE.get((p, n, g)) or SUFFIX_SAMPLE.get((p, n))
+            if p == "2":
+                sample = "you, your" + (" (one person)" if n == "s" else " (more than one)")
+            table[code] = list(row[:2]) + [sample] + list(row[3:])
     for code, (desc, expl, ex) in MORPH_FIX.items():
         if code in table:
             row = list(table[code]) + ["", ""]

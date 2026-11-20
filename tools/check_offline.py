@@ -60,7 +60,7 @@ def static_checks(shell):
 
 ROUTES = ["#/", "#/learn", "#/alphabet/grc", "#/alphabet/he", "#/read/JHN/1", "#/read/GEN/1", "#/read/PSA/23",
           "#/lxx/PSA/22", "#/words", "#/words/G3056", "#/words/H0430G", "#/review", "#/progress", "#/videos",
-          "#/settings", "#/check"]
+          "#/settings", "#/check", "#/guide", "#/guide/aorist", "#/guide/code/he/HC%2FVqw3ms"]
 
 
 async def visit(shell, listed):

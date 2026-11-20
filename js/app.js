@@ -8,6 +8,7 @@ import { alphabet } from "./alphabet.js";
 import { media } from "./media.js";
 import { progress } from "./progress.js";
 import { check } from "./check.js";
+import { guideScreen } from "./guide.js";
 import { warmEssentials } from "./offline.js";
 import { bindAudio } from "./audio.js";
 import * as nav from "./nav.js";
@@ -24,6 +25,7 @@ const ROUTES = {
   media,
   progress,
   check,
+  guide: guideScreen,
   settings: screens.settings,
 };
 

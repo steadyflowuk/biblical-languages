@@ -5,6 +5,7 @@ import * as data from "./data.js";
 import * as nav from "./nav.js";
 import { readingStarted } from "./activity.js";
 import * as esv from "./esv.js";
+import { explainLink } from "./guide-text.js";
 import { wordSayButton, verseSayButton, verseSpeech, sayTapped, listenLevel, heVoice, lxxTapWord, lxxSpeech, lxxTokens } from "./audio.js";
 import { heLemma, hePartGloss,
   heText, heTranslit, heEnglish, heAfter, heJoined, heParagraphAfter, isAramaic, heParts, heMainKey,
@@ -50,14 +51,16 @@ export function englishHTML(raw) {
 }
 
 const ABBR = [
-  [/Definite article/i, "article"], [/Personal pronoun/i, "pronoun"], [/Relative pronoun/i, "rel. pronoun"],
-  [/Demonstrative pronoun/i, "dem. pronoun"], [/Interrogative pronoun/i, "interr. pronoun"],
+  // \b on both sides: "Correlative pronoun" once became "correl. pronoun" (19 Nov 2026, found by the Guide's checker)
+  [/\bDefinite article\b/i, "article"], [/\bPersonal pronoun\b/i, "pronoun"], [/\bRelative pronoun\b/i, "rel. pronoun"],
+  [/\bDemonstrative pronoun\b/i, "dem. pronoun"], [/\bInterrogative pronoun\b/i, "interr. pronoun"],
   [/\bnominative\b/gi, "nom."], [/\bgenitive\b/gi, "gen."], [/\bdative\b/gi, "dat."], [/\baccusative\b/gi, "acc."],
   [/\bvocative\b/gi, "voc."], [/\bsingular\b/gi, "sg."], [/\bplural\b/gi, "pl."], [/\bmasculine\b/gi, "masc."],
   [/\bfeminine\b/gi, "fem."], [/\bneuter\b/gi, "neut."], [/\bpresent\b/gi, "pres."], [/\bimperfect\b/gi, "impf."],
   [/\b2nd aorist\b/gi, "aor."], [/\b2nd perfect\b/gi, "perf."], [/\b2nd pluperfect\b/gi, "plupf."], [/\b2nd future\b/gi, "fut."], [/\baorist\b/gi, "aor."], [/\bfuture\b/gi, "fut."], [/\bpluperfect\b/gi, "plupf."],
-  [/\bperfect\b/gi, "perf."], [/\bactive\b/gi, "act."], [/\bmiddle deponent\b/gi, "mid."], [/\bpassive deponent\b/gi, "pass."],
-  [/\bmiddle or passive deponent\b/gi, "mid./pass."], [/\bmiddle or passive\b/gi, "mid./pass."], [/\bmiddle\b/gi, "mid."],
+  // "middle or passive deponent" before "passive deponent", or it came out "mid. or pass."
+  [/\bperfect\b/gi, "perf."], [/\bactive\b/gi, "act."], [/\bmiddle or passive deponent\b/gi, "mid./pass."], [/\bmiddle deponent\b/gi, "mid."],
+  [/\bpassive deponent\b/gi, "pass."], [/\bmiddle or passive\b/gi, "mid./pass."], [/\bmiddle\b/gi, "mid."],
   [/\bpassive\b/gi, "pass."], [/\bindicative\b/gi, "ind."], [/\bsubjunctive\b/gi, "subj."], [/\bimperative\b/gi, "impv."],
   [/\binfinitive\b/gi, "inf."], [/\bparticiple\b/gi, "ptc."], [/\boptative\b/gi, "opt."], [/\badjective\b/gi, "adj."],
   [/\bpreposition\b/gi, "prep."], [/\bconjunction\b/gi, "conj."], [/\badverb\b/gi, "adv."], [/\bparticle\b/gi, "part."],
@@ -73,10 +76,13 @@ const tagLabel = (m) => (/gentilic/i.test(m) ? " (people group)" : /individual/i
 /** Tidy a grammar description for learners: drop repeated words, explain the source's name tags. */
 export function friendlyGrammar(desc) {
   const seen = new Set();
+  let prev = "";
   let s = String(desc || "").split(" ").filter((w) => {
     const k = w.toLowerCase();
     // 1st/2nd/3rd stay: "2nd aorist … 2nd singular" names the tense and then the person
-    if (seen.has(k) && !/^(or|of|a|singular|plural|1st|2nd|3rd)$/.test(k)) return false;
+    // …and a word after "or" stays: "Adverb or adverb and particle combined" once lost its second "adverb"
+    if (seen.has(k) && !/^(or|of|a|singular|plural|1st|2nd|3rd)$/.test(k) && prev !== "or") { prev = k; return false; }
+    prev = k;
     seen.add(k);
     return true;
   }).join(" ");
@@ -228,7 +234,7 @@ function heWordSheetHTML(w, ctx) {
     <h2 class="ws-word he" lang="he" dir="rtl" id="sheet-title">${esc(heText(w))}</h2>
     <p class="ws-translit">${esc(heTranslit(translit))} ${wordSayButton(heVoice(w, null, heJoined(w[5]), ctx.lex) + (heJoined(w[5]) ? "־" : ""), "he", { className: "small" })}</p>
     ${ctx.listen || ""}
-    ${flag ? `<p class="ws-flag">${esc(FLAG_NOTES[flag] || "")}</p>` : ""}
+    ${flag ? `<p class="ws-flag">${esc(FLAG_NOTES[flag] || "")}${more({ q: "ketiv-qere", k: "not-read", x: "supplied-words" }[flag] || "hebrew-text")}</p>` : ""}
     <dl class="ws-facts">
       ${flag === "q" && note ? row("Written", `<span lang="he" dir="rtl" class="ws-lemma">${esc(note)}</span>`) : ""}
       ${isAramaic(w) ? row("Language", "Aramaic") : ""}
@@ -247,7 +253,7 @@ function heWordSheetHTML(w, ctx) {
         return `<span lang="he" dir="rtl" class="ws-lemma">${esc(heLemma(l[0]))}</span> <span class="muted">${esc(heTranslit(l[1]))}${strong ? ` · Strong's ${esc(strong)}` : ""}</span>`;
       }).join("<br>"))}
       ${row("Dictionary meaning", esc(mains.map((p) => data.meaningOf("he", p.key, plainGloss(lexOf(p)[2]))).filter(Boolean).join(" + ") || "—"))}
-      ${row("Grammar", mains.map(grammarOf).join("<br>"))}
+      ${row("Grammar", mains.map(grammarOf).join("<br>") + explainLink("he", w[4]))}
       <div class="ws-count" hidden><dt>How common</dt><dd></dd></div>
     </dl>
     ${ctx.bsb ? `<p class="ws-bsb"><span class="muted">${esc(ctx.bsbRef)} (BSB)</span><br>${ctx.bsb}</p>` : ""}
@@ -274,7 +280,7 @@ function wordSheetHTML(w, ctx) {
       <div><dt>In this verse</dt><dd>${englishHTML(english) || "—"}</dd></div>
       <div><dt>Dictionary form</dt><dd>${lex.map((l, i) => `<span lang="grc" class="ws-lemma">${esc(l[0])}</span> <span class="muted">${esc(l[1])} · Strong's ${esc(strongs(keys[i]))}</span>`).join("<br>")}</dd></div>
       <div><dt>Dictionary meaning</dt><dd>${lex.map((l, i) => esc(data.meaningOf("grc", keys[i], l[2]) || "—")).join(" + ")}</dd></div>
-      <div><dt>Grammar</dt><dd>${grammar.map((g) => `<strong>${esc(friendlyGrammar(g[0]))}</strong>${g[1] ? `<span class="ws-explain">${esc(g[1])}${/\p{L}/u.test(g[2] || "") ? `, as in “${esc(g[2])}”` : ""}.</span>` : ""}`).join("<br>")}</dd></div>
+      <div><dt>Grammar</dt><dd>${grammar.map((g) => `<strong>${esc(friendlyGrammar(g[0]))}</strong>${g[1] ? `<span class="ws-explain">${esc(g[1])}${/\p{L}/u.test(g[2] || "") ? `, as in “${esc(g[2])}”` : ""}.</span>` : ""}`).join("<br>")}${explainLink("grc", morph)}</dd></div>
       <div class="ws-count" hidden><dt>How common</dt><dd></dd></div>
     </dl>
     ${ctx.bsb ? `<p class="ws-bsb"><span class="muted">${esc(ctx.bsbRef)} (BSB)</span><br>${ctx.bsb}</p>` : ""}
@@ -398,14 +404,14 @@ function headingsHTML(state, v) {
   return (state.bsb.headings.get(v) || []).map((h) => `<h2 class="sec">${esc(h)}</h2>`).join("");
 }
 
-const BRACKET_NOTE = `<p class="v-gap v-note">Words in double brackets ⟦ ⟧ are not in the oldest manuscripts. The SBL editors keep them in the text, marked off, because they were added very early and have long been read in the church.</p>`;
+const BRACKET_NOTE = `<p class="v-gap v-note">Words in double brackets ⟦ ⟧ are not in the oldest manuscripts. The SBL editors keep them in the text, marked off, because they were added very early and have long been read in the church. <a class="g-more" href="#/guide/double-brackets">More about this</a></p>`;
 /** True when a verse's words open or close a passage the SBL text prints in double brackets ⟦ ⟧ (Mark 16:9-20,
  * John 7:53-8:11): John 8 has only the closing ⟧, so the note goes before the first verse showing either. */
 const opensBracket = (words) => words.some((w) => /⟦|⟧|\[\[|\]\]/.test(String(w[6] || "") + String(w[5] || "")));
 
 function missingNote(from, to) {
   const list = from === to ? `Verse ${from} is` : `Verses ${from} to ${to} are`;
-  return `<p class="v-gap">${list} not in the oldest manuscripts, so the SBL Greek text and the BSB leave ${from === to ? "it" : "them"} out. The BSB footnote nearby gives the wording found in later manuscripts.</p>`;
+  return `<p class="v-gap">${list} not in the oldest manuscripts, so the SBL Greek text and the BSB leave ${from === to ? "it" : "them"} out. The BSB footnote nearby gives the wording found in later manuscripts.${more("verse-numbers")}</p>`;
 }
 
 // Verses the BSB has after the last Greek verse of a chapter: Romans 16:25-27, which the SBL text doesn't print
@@ -415,7 +421,7 @@ const BSB_ONLY_WHY = {
 function bsbOnlyNote(state, nums) {
   if (!nums.length) return "";
   const list = nums.length === 1 ? `verse ${nums[0]}` : `verses ${nums[0]} to ${nums[nums.length - 1]}`;
-  return `<p class="v-gap">The SBL Greek text doesn't have ${list}. ${BSB_ONLY_WHY[`${state.book.id} ${state.ch}`] || ""} ${state.prefs.showBSB && state.prefs.readLayout !== "text" ? "The BSB's English is shown on its own." : ""}</p>`;
+  return `<p class="v-gap">The SBL Greek text doesn't have ${list}. ${BSB_ONLY_WHY[`${state.book.id} ${state.ch}`] || ""} ${state.prefs.showBSB && state.prefs.readLayout !== "text" ? "The BSB's English is shown on its own." : ""}${more("manuscripts")}</p>`;
 }
 /** BSB verse numbers after the chapter's last Greek verse that no Greek verse carries (Acts 19:41 and 2 Cor 13:14 are
  * carried by Greek 19:40 and 13:13, so only Romans 16:25-27 qualify). */
@@ -447,17 +453,20 @@ function hebrewNotes(state) {
     const first = state.verses.indexOf(aramaic[0]);
     const which = aramaic.length === state.verses.length ? "This chapter is"
       : `${aramaic.length === 1 ? "Verse" : "Verses"} ${ranges(aramaic.map((v) => v[0])).join(" and ")} ${aramaic.length === 1 ? "is" : "are"}`;
-    add(first, `<p class="v-gap v-note">${which} in Aramaic, a sister language of Hebrew that was spoken across the Persian empire. Tap a word to see its Aramaic grammar.</p>`);
+    add(first, `<p class="v-gap v-note">${which} in Aramaic, a sister language of Hebrew that was spoken across the Persian empire. Tap a word to see its Aramaic grammar.${more("aramaic-language")}</p>`);
   }
   const firstWith = (flag) => state.verses.findIndex((v) => v[1].some((w) => w[6] === flag));
   const q = firstWith("q");
-  if (q >= 0) add(q, `<p class="v-gap v-note">A small ° after a word means the scribes wrote it one way but marked it to be read aloud another way. You see the way it is read; tap the word to see how it is written.</p>`);
+  if (q >= 0) add(q, `<p class="v-gap v-note">A small ° after a word means the scribes wrote it one way but marked it to be read aloud another way. You see the way it is read; tap the word to see how it is written.${more("ketiv-qere")}</p>`);
   const k = firstWith("k");
-  if (k >= 0) add(k, `<p class="v-gap v-note">Words in grey are written in the Hebrew text but, by long tradition, not read aloud.</p>`);
+  if (k >= 0) add(k, `<p class="v-gap v-note">Words in grey are written in the Hebrew text but, by long tradition, not read aloud.${more("not-read")}</p>`);
   const x = firstWith("x");
-  if (x >= 0) add(x, `<p class="v-gap v-note">Words in square brackets are missing from the Leningrad Codex and are supplied from other manuscripts.</p>`);
+  if (x >= 0) add(x, `<p class="v-gap v-note">Words in square brackets are missing from the Leningrad Codex and are supplied from other manuscripts.${more("supplied-words")}</p>`);
   return notes;
 }
+
+/** A link from a note to the Guide entry that explains it. */
+const more = (id) => ` <a class="g-more" href="#/guide/${id}">More about this</a>`;
 
 const ESV_CREDIT = `<p class="esv-credit">ESV® text © 2001 Crossway, from <a href="https://www.esv.org" target="_blank" rel="noopener">www.esv.org</a>. The full notice is in Settings › About.</p>`;
 
@@ -891,6 +900,7 @@ function displayHTML(prefs) {
       ${box("showEnglish", "English meaning")}
       ${box("showTranslit", "Pronunciation", "Letters spelt out in English. In Hebrew, the syllable with a capital letter is stressed.")}
       ${box("showGrammar", "Grammar", "Greek: e.g. noun nom. sg. masc. Hebrew: e.g. Qal pf. 3ms (3ms = he; 3fs = she; 1cs = I; cstr. = “of”).")}
+      <p class="opt-guide"><a href="#/guide/abbreviations">Every short form explained, in the Guide</a></p>
     </fieldset>
     <fieldset class="tr-opts" ${prefs.readLayout === "text" ? "disabled" : ""}>
       <legend>Translations</legend>
